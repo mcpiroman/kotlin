@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.containingClass
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.resolve.substitution.substitutorByMap
+import org.jetbrains.kotlin.fir.resolve.transformers.ensureResolved
 import org.jetbrains.kotlin.fir.scopes.FirTypeScope
 import org.jetbrains.kotlin.fir.scopes.getDirectOverriddenFunctions
 import org.jetbrains.kotlin.fir.scopes.getDirectOverriddenProperties
@@ -139,7 +140,11 @@ object FirOverrideChecker : FirClassChecker() {
             return null
         }
 
-        val bounds = overriddenSymbols.map { context.returnTypeCalculator.tryCalculateReturnType(it.fir).coneType.upperBoundIfFlexible() }
+        val bounds = overriddenSymbols.map {
+            it.ensureResolved(FirResolvePhase.IMPLICIT_TYPES_BODY_RESOLVE, context.session)
+            it.fir.returnTypeRef.coneType.upperBoundIfFlexible()
+//            context.returnTypeCalculator.tryCalculateReturnType(it.fir).coneType.upperBoundIfFlexible()
+        }
 
         for (it in bounds.indices) {
             val overriddenDeclaration = overriddenSymbols[it].fir
