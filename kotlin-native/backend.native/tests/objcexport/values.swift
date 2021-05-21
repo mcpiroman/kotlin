@@ -1053,6 +1053,7 @@ class TestSharedRefs {
             deinit {
                 TestSharedRefs.runInNewThread(initializeKotlinRuntime: false) {
                     Deinit.object2 = nil
+                    ValuesKt.gc()
                 }
             }
         }
@@ -1070,6 +1071,7 @@ class TestSharedRefs {
 
             TestSharedRefs.runInNewThread(initializeKotlinRuntime: false) {
                 Deinit.object1 = nil
+                ValuesKt.gc()
             }
         }
 
@@ -1403,10 +1405,7 @@ class ValuesTests : SimpleTestProvider {
         test("TestInvalidIdentifiers", testInvalidIdentifiers)
         test("TestDeprecation", testDeprecation)
         test("TestWeakRefs", testWeakRefs)
-        if !ValuesKt.isExperimentalMM {
-            // Experimental MM doesn't support multiple mutators yet.
-            test("TestSharedRefs", TestSharedRefs().test)
-        }
+        test("TestSharedRefs", TestSharedRefs().test)
         test("TestClassTypeCheck", testClassTypeCheck)
         test("TestInterfaceTypeCheck", testInterfaceTypeCheck)
         test("TestGH3503_1", testGH3503_1)
@@ -1419,9 +1418,6 @@ class ValuesTests : SimpleTestProvider {
         test("TestFakeOverrideInInterface", testFakeOverrideInInterface)
 
         // Stress test, must remain the last one:
-        if !ValuesKt.isExperimentalMM {
-            // Experimental MM doesn't support multiple mutators yet.
-            test("TestGH2931", testGH2931)
-        }
+        test("TestGH2931", testGH2931)
     }
 }
