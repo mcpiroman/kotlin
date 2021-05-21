@@ -31,6 +31,10 @@ interface IrSymbolOwner : IrElement {
     val symbol: IrSymbol
 }
 
+interface IrSymbolOwnerOf<out S : IrSymbol> : IrSymbolOwner {
+    override val symbol: S
+}
+
 interface IrMetadataSourceOwner : IrElement {
     var metadata: MetadataSource?
 }
@@ -48,8 +52,7 @@ interface IrDeclaration : IrStatement, IrSymbolOwner, IrMutableAnnotationContain
 
 abstract class IrDeclarationBase : IrElementBase(), IrDeclaration
 
-interface IrOverridableDeclaration<S : IrSymbol> : IrOverridableMember {
-    override val symbol: S
+interface IrOverridableDeclaration<S : IrSymbol> : IrOverridableMember, IrSymbolOwnerOf<S> {
     val isFakeOverride: Boolean
     var overriddenSymbols: List<S>
 }

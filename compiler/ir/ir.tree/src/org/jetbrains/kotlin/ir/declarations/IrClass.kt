@@ -28,11 +28,11 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 
 abstract class IrClass :
     IrDeclarationBase(), IrPossiblyExternalDeclaration, IrDeclarationWithVisibility,
+    IrSymbolOwnerOf<IrClassSymbol>,
     IrDeclarationContainer, IrTypeParametersContainer, IrAttributeContainer, IrMetadataSourceOwner {
 
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
-    abstract override val symbol: IrClassSymbol
 
     abstract val kind: ClassKind
     abstract var modality: Modality

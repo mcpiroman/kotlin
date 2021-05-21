@@ -7,7 +7,7 @@ package org.jetbrains.kotlin.ir.util
 
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSymbolOf
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 val IrDeclaration.isReal: Boolean get() = !isFakeOverride
@@ -31,19 +31,18 @@ val IrFunction.target: IrFunction get() = when (this) {
     else -> error(this)
 }
 
-fun <S : IrSymbol, T : IrOverridableDeclaration<S>> T.collectRealOverrides(
+fun <S : IrSymbolOf<T>, T : IrOverridableDeclaration<S>> T.collectRealOverrides(
     toSkip: (T) -> Boolean = { false },
     filter: (T) -> Boolean = { false }
 ): Set<T> {
     if (isReal && !toSkip(this)) return setOf(this)
 
-    @Suppress("UNCHECKED_CAST")
     return this.overriddenSymbols
-        .map { it.owner as T }
+        .map { it.owner }
         .collectAndFilterRealOverrides(toSkip, filter)
 }
 
-fun <S : IrSymbol, T : IrOverridableDeclaration<S>> Collection<T>.collectAndFilterRealOverrides(
+fun <S : IrSymbolOf<T>, T : IrOverridableDeclaration<S>> Collection<T>.collectAndFilterRealOverrides(
     toSkip: (T) -> Boolean = { false },
     filter: (T) -> Boolean = { false }
 ): Set<T> {
@@ -62,8 +61,7 @@ fun <S : IrSymbol, T : IrOverridableDeclaration<S>> Collection<T>.collectAndFilt
         if (member.isReal && !toSkip(member)) {
             realOverrides[member.toKey()] = member
         } else {
-            @Suppress("UNCHECKED_CAST")
-            member.overriddenSymbols.forEach { collectRealOverrides(it.owner as T) }
+            member.overriddenSymbols.forEach { collectRealOverrides(it.owner) }
         }
     }
 
@@ -73,8 +71,7 @@ fun <S : IrSymbol, T : IrOverridableDeclaration<S>> Collection<T>.collectAndFilt
         if (!visited.add(member)) return
 
         member.overriddenSymbols.forEach {
-            @Suppress("UNCHECKED_CAST")
-            val owner = it.owner as T
+            val owner = it.owner
             realOverrides.remove(owner.toKey())
             excludeRepeated(owner)
         }
@@ -91,7 +88,7 @@ fun Collection<IrOverridableMember>.collectAndFilterRealOverrides(): Set<IrOverr
     (this as Collection<IrOverridableDeclaration<*>>).collectAndFilterRealOverrides()
 
 // TODO: use this implementation instead of any other
-fun <S : IrSymbol, T : IrOverridableDeclaration<S>> T.resolveFakeOverride(
+fun <S : IrSymbolOf<T>, T : IrOverridableDeclaration<S>> T.resolveFakeOverride(
     allowAbstract: Boolean = false,
     toSkip: (T) -> Boolean = { false }
 ): T? {

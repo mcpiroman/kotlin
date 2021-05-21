@@ -23,10 +23,9 @@ import org.jetbrains.kotlin.ir.symbols.IrAnonymousInitializerSymbol
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 
-abstract class IrAnonymousInitializer : IrDeclarationBase() {
+abstract class IrAnonymousInitializer : IrDeclarationBase(), IrSymbolOwnerOf<IrAnonymousInitializerSymbol> {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor // TODO special descriptor for anonymous initializer blocks
-    abstract override val symbol: IrAnonymousInitializerSymbol
 
     abstract val isStatic: Boolean
 

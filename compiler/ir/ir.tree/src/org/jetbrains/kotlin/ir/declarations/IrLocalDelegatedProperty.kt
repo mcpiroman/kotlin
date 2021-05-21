@@ -15,12 +15,11 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 abstract class IrLocalDelegatedProperty :
     IrDeclarationBase(),
     IrDeclarationWithName,
-    IrSymbolOwner,
+    IrSymbolOwnerOf<IrLocalDelegatedPropertySymbol>,
     IrMetadataSourceOwner {
 
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: VariableDescriptorWithAccessors
-    abstract override val symbol: IrLocalDelegatedPropertySymbol
 
     abstract var type: IrType
     abstract val isVar: Boolean

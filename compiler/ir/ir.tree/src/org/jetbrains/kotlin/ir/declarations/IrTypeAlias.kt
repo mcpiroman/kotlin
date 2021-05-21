@@ -15,13 +15,13 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 
 abstract class IrTypeAlias :
     IrDeclarationBase(),
+    IrSymbolOwnerOf<IrTypeAliasSymbol>,
     IrDeclarationWithName,
     IrDeclarationWithVisibility,
     IrTypeParametersContainer {
 
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: TypeAliasDescriptor
-    abstract override val symbol: IrTypeAliasSymbol
 
     abstract val isActual: Boolean
     abstract var expandedType: IrType

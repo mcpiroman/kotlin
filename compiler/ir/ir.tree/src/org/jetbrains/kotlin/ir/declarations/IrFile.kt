@@ -34,14 +34,11 @@ abstract class IrPackageFragment : IrElementBase(), IrDeclarationContainer, IrSy
     abstract val fqName: FqName
 }
 
-abstract class IrExternalPackageFragment : IrPackageFragment() {
-    abstract override val symbol: IrExternalPackageFragmentSymbol
+abstract class IrExternalPackageFragment : IrPackageFragment(), IrSymbolOwnerOf<IrExternalPackageFragmentSymbol> {
     abstract val containerSource: DeserializedContainerSource?
 }
 
-abstract class IrFile : IrPackageFragment(), IrMutableAnnotationContainer, IrMetadataSourceOwner {
-    abstract override val symbol: IrFileSymbol
-
+abstract class IrFile : IrPackageFragment(), IrMutableAnnotationContainer, IrMetadataSourceOwner, IrSymbolOwnerOf<IrFileSymbol> {
     abstract val module: IrModuleFragment
 
     abstract val fileEntry: IrFileEntry

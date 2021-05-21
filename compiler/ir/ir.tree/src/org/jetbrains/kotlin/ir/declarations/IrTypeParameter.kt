@@ -24,10 +24,9 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.types.Variance
 
-abstract class IrTypeParameter : IrDeclarationBase(), IrDeclarationWithName {
+abstract class IrTypeParameter : IrDeclarationBase(), IrDeclarationWithName, IrSymbolOwnerOf<IrTypeParameterSymbol> {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: TypeParameterDescriptor
-    abstract override val symbol: IrTypeParameterSymbol
 
     abstract val variance: Variance
     abstract val index: Int
