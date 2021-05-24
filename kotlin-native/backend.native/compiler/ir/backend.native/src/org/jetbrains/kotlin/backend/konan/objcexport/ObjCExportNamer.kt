@@ -68,7 +68,9 @@ interface ObjCExportNamer {
     val kotlinNumberName: ClassOrProtocolName
 
     companion object {
-        internal val kotlinThrowableAsErrorMethodName: String = "asError"
+        internal const val kotlinThrowableAsErrorMethodName: String = "asError"
+        internal const val getObjectPropertyName : String = "shared"
+        internal const val getCompanionObjectPropertyName : String = "companion"
     }
 }
 

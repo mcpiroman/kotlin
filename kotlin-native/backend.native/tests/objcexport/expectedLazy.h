@@ -694,6 +694,36 @@ __attribute__((swift_name("Kt43599Kt")))
 @end;
 
 __attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KT43780TestObject")))
+@interface KtKT43780TestObject : KtBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)kT43780TestObject __attribute__((swift_name("init()")));
+@property (class, readonly) KtKT43780TestObject *shared __attribute__((swift_name("shared")));
+@property (readonly) int32_t x __attribute__((swift_name("x")));
+@property (readonly) int32_t y __attribute__((swift_name("y")));
+@property (readonly) NSString *shared __attribute__((swift_name("shared")));
+@end;
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KT43780TestClassWithCompanion")))
+@interface KtKT43780TestClassWithCompanion : KtBase
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+@property (class, readonly) KtKT43780TestClassWithCompanionCompanion *companion __attribute__((swift_name("companion")));
+@end;
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KT43780TestClassWithCompanion.Companion")))
+@interface KtKT43780TestClassWithCompanionCompanion : KtBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)companion __attribute__((swift_name("init()")));
+@property (class, readonly) KtKT43780TestClassWithCompanionCompanion *shared __attribute__((swift_name("shared")));
+@property (readonly) int32_t z __attribute__((swift_name("z")));
+@end;
+
+__attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("LibraryKt")))
 @interface KtLibraryKt : KtBase
 + (NSString *)readDataFromLibraryClassInput:(KtA *)input __attribute__((swift_name("readDataFromLibraryClass(input:)")));
@@ -982,6 +1012,7 @@ __attribute__((swift_name("WithCompanionAndObject")))
 @interface KtWithCompanionAndObject : KtBase
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+@property (class, readonly) KtWithCompanionAndObjectCompanion *companion __attribute__((swift_name("companion")));
 @end;
 
 __attribute__((objc_subclassing_restricted))
@@ -990,6 +1021,7 @@ __attribute__((swift_name("WithCompanionAndObject.Companion")))
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 + (instancetype)companion __attribute__((swift_name("init()")));
+@property (class, readonly) KtWithCompanionAndObjectCompanion *shared __attribute__((swift_name("shared")));
 @property (readonly) NSString *str __attribute__((swift_name("str")));
 @property id<KtI> _Nullable named __attribute__((swift_name("named")));
 @end;
@@ -1002,6 +1034,7 @@ __attribute__((swift_name("WithCompanionAndObject.Named")))
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 + (instancetype)new __attribute__((unavailable));
 + (instancetype)named __attribute__((swift_name("init()")));
+@property (class, readonly) KtWithCompanionAndObjectNamed *shared __attribute__((swift_name("shared")));
 - (NSString *)iFun __attribute__((swift_name("iFun()")));
 @end;
 
@@ -1527,6 +1560,7 @@ __attribute__((swift_name("IntBlocksImpl")))
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 + (instancetype)intBlocksImpl __attribute__((swift_name("init()")));
+@property (class, readonly) KtIntBlocksImpl *shared __attribute__((swift_name("shared")));
 - (KtInt *(^)(KtInt *))getPlusOneBlock __attribute__((swift_name("getPlusOneBlock()")));
 - (int32_t)callBlockArgument:(int32_t)argument block:(KtInt *(^)(KtInt *))block __attribute__((swift_name("callBlock(argument:block:)")));
 @end;
@@ -1544,6 +1578,7 @@ __attribute__((swift_name("UnitBlockCoercionImpl")))
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 + (instancetype)unitBlockCoercionImpl __attribute__((swift_name("init()")));
+@property (class, readonly) KtUnitBlockCoercionImpl *shared __attribute__((swift_name("shared")));
 - (KtKotlinUnit *(^)(void))coerceBlock:(void (^)(void))block __attribute__((swift_name("coerce(block:)")));
 - (void (^)(void))uncoerceBlock:(KtKotlinUnit *(^)(void))block __attribute__((swift_name("uncoerce(block:)")));
 @end;
@@ -1624,6 +1659,7 @@ __attribute__((swift_name("TestInvalidIdentifiers")))
 @interface KtTestInvalidIdentifiers : KtBase
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+@property (class, readonly) KtTestInvalidIdentifiersCompanion_ *companion __attribute__((swift_name("companion")));
 - (int32_t)a_d_d_1:(int32_t)_1 _2:(int32_t)_2 _3:(int32_t)_3 __attribute__((swift_name("a_d_d(_1:_2:_3:)")));
 @property NSString *_status __attribute__((swift_name("_status")));
 @property (readonly) unichar __ __attribute__((swift_name("__")));
@@ -1664,6 +1700,7 @@ __attribute__((swift_name("TestInvalidIdentifiers.Companion_")))
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 + (instancetype)companion_ __attribute__((swift_name("init()")));
+@property (class, readonly) KtTestInvalidIdentifiersCompanion_ *shared __attribute__((swift_name("shared")));
 @property (readonly) int32_t _42 __attribute__((swift_name("_42")));
 @end;
 
@@ -2059,6 +2096,7 @@ __attribute__((swift_name("GH3525")))
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 + (instancetype)new __attribute__((unavailable));
 + (instancetype)gH3525 __attribute__((swift_name("init()")));
+@property (class, readonly) KtGH3525 *shared __attribute__((swift_name("shared")));
 @end;
 
 __attribute__((objc_subclassing_restricted))

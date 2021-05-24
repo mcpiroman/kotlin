@@ -1283,6 +1283,9 @@ private fun ObjCExportCodeGenerator.createTypeAdapter(
                     createObjectInstanceAdapter(irClass, it.selector)
                 }
             }
+            is ObjCGetterForCompanionObject -> {
+                classAdapters += createObjectInstanceAdapter(irClass.companionObject()!!, it.selector)
+            }
             ObjCKotlinThrowableAsErrorMethod -> {
                 adapters += createThrowableAsErrorAdapter()
             }

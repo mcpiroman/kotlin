@@ -352,14 +352,33 @@ internal class ObjCExportTranslatorImpl(
                         }
                     }
 
+            if (descriptor.hasCompanionObject) {
+                add {
+                    ObjCProperty(
+                            ObjCExportNamer.getCompanionObjectPropertyName, null,
+                            mapReferenceType(descriptor.companionObjectDescriptor!!.defaultType, genericExportScope),
+                            listOf("class", "readonly"),
+                            declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.getCompanionObjectPropertyName))
+                    )
+                }
+            }
             // TODO: consider adding exception-throwing impls for these.
             when (descriptor.kind) {
-                ClassKind.OBJECT -> add {
-                    ObjCMethod(
-                            null, false, ObjCInstanceType,
-                            listOf(namer.getObjectInstanceSelector(descriptor)), emptyList(),
-                            listOf(swiftNameAttribute("init()"))
-                    )
+                ClassKind.OBJECT -> {
+                    add {
+                        ObjCMethod(
+                                null, false, ObjCInstanceType,
+                                listOf(namer.getObjectInstanceSelector(descriptor)), emptyList(),
+                                listOf(swiftNameAttribute("init()"))
+                        )
+                    }
+                    add {
+                        ObjCProperty(
+                                ObjCExportNamer.getObjectPropertyName, null,
+                                mapReferenceType(descriptor.defaultType, genericExportScope), listOf("class", "readonly"),
+                                declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.getObjectPropertyName))
+                        )
+                    }
                 }
                 ClassKind.ENUM_CLASS -> {
                     val type = mapType(descriptor.defaultType, ReferenceBridge, ObjCNoneExportScope)
