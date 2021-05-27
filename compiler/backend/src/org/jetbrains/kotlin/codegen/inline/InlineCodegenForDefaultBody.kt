@@ -37,11 +37,7 @@ class InlineCodegenForDefaultBody(
     }
 
     override fun genCallInner(callableMethod: Callable, resolvedCall: ResolvedCall<*>?, callDefault: Boolean, codegen: ExpressionCodegen) {
-        val asmMethod = if (callDefault)
-            state.typeMapper.mapDefaultMethod(function, sourceCompilerForInline.contextKind)
-        else
-            jvmSignature.asmMethod
-        val (node, smap) = sourceCompilerForInline.compileInlineFunction(jvmSignature, callDefault, asmMethod)
+        val (node, smap) = sourceCompilerForInline.compileInlineFunction(jvmSignature, callDefault)
         val childSourceMapper = SourceMapCopier(sourceMapper, smap)
 
         val argsSize =
