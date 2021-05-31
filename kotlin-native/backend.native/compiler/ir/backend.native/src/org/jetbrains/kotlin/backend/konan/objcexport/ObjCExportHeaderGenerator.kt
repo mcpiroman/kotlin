@@ -355,10 +355,11 @@ internal class ObjCExportTranslatorImpl(
             if (descriptor.hasCompanionObject) {
                 add {
                     ObjCProperty(
-                            ObjCExportNamer.getCompanionObjectPropertyName, null,
+                            ObjCExportNamer.companionObjectPropertyName, null,
                             mapReferenceType(descriptor.companionObjectDescriptor!!.defaultType, genericExportScope),
                             listOf("class", "readonly"),
-                            declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.getCompanionObjectPropertyName))
+                            getterName = namer.getCompanionObjectPropertySelector(descriptor),
+                            declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.companionObjectPropertyName))
                     )
                 }
             }
@@ -374,9 +375,10 @@ internal class ObjCExportTranslatorImpl(
                     }
                     add {
                         ObjCProperty(
-                                ObjCExportNamer.getObjectPropertyName, null,
+                                ObjCExportNamer.objectPropertyName, null,
                                 mapReferenceType(descriptor.defaultType, genericExportScope), listOf("class", "readonly"),
-                                declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.getObjectPropertyName))
+                                getterName = namer.getObjectPropertySelector(descriptor),
+                                declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.objectPropertyName))
                         )
                     }
                 }

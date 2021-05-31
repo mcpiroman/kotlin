@@ -7,10 +7,22 @@ object KT43780TestObject {
     const val x = 5
     val y = 6
     const val shared = "shared"
+    const val Shared = "Shared"
 }
 
 class KT43780TestClassWithCompanion {
     companion object {
         val z = 7
+    }
+}
+
+object Shared {
+    const val x = 8
+}
+
+class Companion {
+    val t = 10
+    companion object {
+        const val x = 9
     }
 }
