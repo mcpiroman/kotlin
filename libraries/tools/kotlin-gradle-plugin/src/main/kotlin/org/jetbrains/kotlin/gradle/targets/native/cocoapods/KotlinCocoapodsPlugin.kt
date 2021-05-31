@@ -151,7 +151,7 @@ open class KotlinCocoapodsPlugin : Plugin<Project> {
 
     private fun createDefaultFrameworks(kotlinExtension: KotlinMultiplatformExtension, cocoapodsExtension: CocoapodsExtension) {
         kotlinExtension.supportedTargets().all { target ->
-            target.binaries.framework {
+            target.binaries.framework(POD_FRAMEWORK_PREFIX) {
                 baseName = cocoapodsExtension.frameworkNameInternal
                 isStatic = true
             }
@@ -193,7 +193,7 @@ open class KotlinCocoapodsPlugin : Plugin<Project> {
 
             fatTargets.forEach { _, targets ->
                 targets.singleOrNull()?.let {
-                    task.from(it.binaries.getFramework(requestedBuildType))
+                    task.from(it.binaries.getFramework(POD_FRAMEWORK_PREFIX, requestedBuildType))
                 }
             }
         }
@@ -212,7 +212,7 @@ open class KotlinCocoapodsPlugin : Plugin<Project> {
         check(targets.isNotEmpty()) { "The project doesn't contain a target for the requested platform: `${requestedPlatform.visibleName}`" }
         check(targets.size == 1) { "The project has more than one target for the requested platform: `${requestedPlatform.visibleName}`" }
 
-        val frameworkLinkTask = targets.single().binaries.getFramework(requestedBuildType).linkTaskProvider
+        val frameworkLinkTask = targets.single().binaries.getFramework(POD_FRAMEWORK_PREFIX, requestedBuildType).linkTaskProvider
         project.createSyncFrameworkTask(frameworkLinkTask.map { it.destinationDir }, frameworkLinkTask)
     }
 
@@ -577,6 +577,7 @@ open class KotlinCocoapodsPlugin : Plugin<Project> {
     companion object {
         const val COCOAPODS_EXTENSION_NAME = "cocoapods"
         const val TASK_GROUP = "CocoaPods"
+        const val POD_FRAMEWORK_PREFIX = "pod"
         const val SYNC_TASK_NAME = "syncFramework"
         const val POD_SPEC_TASK_NAME = "podspec"
         const val DUMMY_FRAMEWORK_TASK_NAME = "generateDummyFramework"

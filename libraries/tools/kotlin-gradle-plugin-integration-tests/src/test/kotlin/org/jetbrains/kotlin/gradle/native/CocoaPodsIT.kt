@@ -808,9 +808,17 @@ class CocoaPodsIT : BaseGradleIT() {
             }
 
             test(
-                "linkDebugFrameworkIOS",
+                "linkPodDebugFrameworkIOS",
                 "-Pkotlin.native.cocoapods.generate.wrapper=true"
             )
+        }
+    }
+
+    @Test
+    fun testCocoapodsWithRegularFrameworkDefinition() {
+        with(project) {
+            gradleBuildScript().appendToKotlinBlock("iosX64(\"iOS\") {binaries.framework{}}")
+            testImport()
         }
     }
 
