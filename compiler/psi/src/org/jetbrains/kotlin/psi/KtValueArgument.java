@@ -59,6 +59,10 @@ public class KtValueArgument extends KtElementImplStub<KotlinValueArgumentStub<?
             KtStubElementTypes.STRING_TEMPLATE
     );
 
+    private static final TokenSet STRING_TEMPLATE_EXPRESSIONS_TYPES = TokenSet.create(
+            KtStubElementTypes.STRING_TEMPLATE
+    );
+
     @Override
     @Nullable @IfNotParsed
     public KtExpression getArgumentExpression() {
@@ -71,6 +75,18 @@ public class KtValueArgument extends KtElementImplStub<KotlinValueArgumentStub<?
         }
 
         return findChildByClass(KtExpression.class);
+    }
+
+    @Nullable
+    public KtStringTemplateExpression getStringTemplateExpression() {
+        KotlinPlaceHolderStub<? extends KtValueArgument> stub = getStub();
+        if (stub != null) {
+            KtExpression[] stringTemplateExpressions = stub.getChildrenByType(STRING_TEMPLATE_EXPRESSIONS_TYPES, KtExpression.EMPTY_ARRAY);
+            return stringTemplateExpressions.length != 0 ? (KtStringTemplateExpression) stringTemplateExpressions[0] : null;
+        }
+
+        KtExpression expression = findChildByClass(KtExpression.class);
+        return expression instanceof KtStringTemplateExpression ? (KtStringTemplateExpression)expression : null;
     }
 
     @Override

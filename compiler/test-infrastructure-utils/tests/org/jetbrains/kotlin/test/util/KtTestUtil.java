@@ -82,6 +82,17 @@ public class KtTestUtil {
         return doLoadFile(new File(fullName));
     }
 
+    @NotNull
+    public static KtFile loadPsiFile(@NotNull Project project, @NotNull String name) {
+        try {
+            String text = doLoadFile(getTestDataPathBase(), name);
+            return createFile(name + ".kt", text, project);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String doLoadFile(@NotNull File file) throws IOException {
         try {
             return FileUtil.loadFile(file, CharsetToolkit.UTF8, true);
@@ -399,7 +410,7 @@ public class KtTestUtil {
     private static void assertTestClassPresentByMetadata(@NotNull Class<?> outerClass, @NotNull File testDataDir) {
         for (Class<?> nestedClass : outerClass.getDeclaredClasses()) {
             TestMetadata testMetadata = nestedClass.getAnnotation(TestMetadata.class);
-            if (testMetadata != null && testMetadata.value().equals(KtTestUtil.getFilePath(testDataDir))) {
+            if (testMetadata != null && testMetadata.value().equals(getFilePath(testDataDir))) {
                 return;
             }
         }

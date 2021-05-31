@@ -40,13 +40,7 @@ import java.util.regex.Pattern;
 public class KtPsiUtilTest extends KotlinTestWithEnvironment {
     @NotNull
     private KtFile loadPsiFile(@NotNull String name) {
-        try {
-            String text = KtTestUtil.doLoadFile(KtTestUtil.getTestDataPathBase(), name);
-            return KtTestUtil.createFile(name + ".kt", text, getProject());
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return KtTestUtil.loadPsiFile(getProject(), name);
     }
 
     public void testUnquotedIdentifier() {
