@@ -353,14 +353,20 @@ internal class ObjCExportTranslatorImpl(
                     }
 
             if (descriptor.hasCompanionObject) {
-                add {
-                    ObjCProperty(
-                            ObjCExportNamer.companionObjectPropertyName, null,
-                            mapReferenceType(descriptor.companionObjectDescriptor!!.defaultType, genericExportScope),
-                            listOf("class", "readonly"),
-                            getterName = namer.getCompanionObjectPropertySelector(descriptor),
-                            declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.companionObjectPropertyName))
-                    )
+                val hasCollision = descriptor.kind == ClassKind.ENUM_CLASS &&
+                        descriptor.enumEntries.asSequence()
+                                .map { namer.getEnumEntrySelector(it) }
+                                .any { it == ObjCExportNamer.companionObjectPropertyName }
+                if (!hasCollision) {
+                    add {
+                        ObjCProperty(
+                                ObjCExportNamer.companionObjectPropertyName, null,
+                                mapReferenceType(descriptor.companionObjectDescriptor!!.defaultType, genericExportScope),
+                                listOf("class", "readonly"),
+                                getterName = namer.getCompanionObjectPropertySelector(descriptor),
+                                declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.companionObjectPropertyName))
+                        )
+                    }
                 }
             }
             // TODO: consider adding exception-throwing impls for these.

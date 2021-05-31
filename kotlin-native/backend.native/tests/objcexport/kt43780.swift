@@ -28,6 +28,11 @@ private func testNameClash() throws {
     let object4 = Companion()
     try assertEquals(actual: object4.t, expected: 10)
     try assertTrue(object3 !== object4)
+
+    let object5 = KT43780Enum.Companion()
+    try assertEquals(actual: object5.x, expected: 11)
+    try assertTrue(object5 === KT43780Enum.Companion())
+    try assertTrue(KT43780Enum.companion == KT43780Enum.companion)
 }
 
 

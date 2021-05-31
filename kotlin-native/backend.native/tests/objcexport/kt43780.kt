@@ -26,3 +26,11 @@ class Companion {
         const val x = 9
     }
 }
+
+enum class KT43780Enum {
+    COMPANION;
+
+    companion object {
+        const val x = 11
+    }
+}
