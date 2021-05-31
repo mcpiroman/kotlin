@@ -12,8 +12,10 @@ import org.gradle.api.NamedDomainObjectSet
 import org.gradle.api.Project
 import org.gradle.api.tasks.*
 import org.gradle.util.ConfigureUtil
+import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension.CocoapodsDependency.PodLocation.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import java.io.File
 import java.net.URI
 
@@ -85,6 +87,13 @@ open class CocoapodsExtension(private val project: Project) {
     @Input
     var homepage: String? = null
 
+    /**
+     * Configure framework of the pod built from this project.
+     */
+    fun framework(configure: Framework.() -> Unit) {
+        configureRegisteredFrameworks(configure)
+    }
+
     @Nested
     val ios: PodspecPlatformSettings = PodspecPlatformSettings("ios")
 
@@ -100,8 +109,18 @@ open class CocoapodsExtension(private val project: Project) {
     /**
      * Configure framework name of the pod built from this project.
      */
-    @Input
-    var frameworkName: String = project.name.asValidFrameworkName()
+    @Deprecated("Use framework() function to configure framework")
+    var frameworkName: String
+        get() = frameworkNameInternal
+        set(value) {
+            configureRegisteredFrameworks {
+                baseName = value
+            }
+        }
+
+    internal var frameworkNameInternal: String = project.name.asValidFrameworkName()
+
+    internal var useDynamicFramework: Boolean = false
 
     /**
      * Configure custom Xcode Configurations to Native Build Types mapping
@@ -208,6 +227,44 @@ open class CocoapodsExtension(private val project: Project) {
      */
     fun specRepos(configure: Closure<*>) = specRepos {
         ConfigureUtil.configure(configure, this)
+    }
+
+    private fun configureRegisteredFrameworks(configure: Framework.() -> Unit) {
+        project.multiplatformExtension.supportedTargets().all { target ->
+            target.binaries.withType(Framework::class.java) { framework ->
+                framework.configure()
+                frameworkNameInternal = framework.baseName
+                useDynamicFramework = framework.isStatic.not()
+                if (useDynamicFramework) {
+                    configureDynamicFrameworkLinking(framework)
+                }
+            }
+        }
+    }
+
+    private fun configureDynamicFrameworkLinking(framework: Framework) {
+        pods.all { pod ->
+            framework.linkTaskProvider.configure { task ->
+                if (project.shouldUseSyntheticProjectSettings &&
+                    KotlinCocoapodsPlugin.isAvailableToProduceSynthetic
+                ) {
+                    val podBuildTaskProvider = project.getPodBuildTaskProvider(framework.target, pod)
+                    task.inputs.file(podBuildTaskProvider.get().buildSettingsFile)
+                    task.dependsOn(podBuildTaskProvider)
+
+                    task.doFirst { _ ->
+                        val podBuildSettings = project.getPodBuildSettingsProperties(framework.target, pod)
+                        framework.linkerOpts.addAll(podBuildSettings.frameworkSearchPaths.map { "-F$it" })
+                    }
+                }
+
+                framework.linkerOpts("-framework", pod.moduleName)
+
+                project.findProperty(KotlinCocoapodsPlugin.FRAMEWORK_PATHS_PROPERTY)?.toString()?.let { args ->
+                    framework.linkerOpts.addAll(args.splitQuotedArgs().map { "-F$it" })
+                }
+            }
+        }
     }
 
     data class CocoapodsDependency(
