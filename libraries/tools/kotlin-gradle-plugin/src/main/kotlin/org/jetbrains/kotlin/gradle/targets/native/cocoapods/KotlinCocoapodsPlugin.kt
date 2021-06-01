@@ -93,11 +93,11 @@ internal val Project.shouldUseSyntheticProjectSettings: Boolean
 
 private val KotlinNativeTarget.toValidSDK: String
     get() = when (konanTarget) {
-        IOS_X64, IOS_SIMULATOR_ARM64 -> "iphonesimulator"
+        IOS_X64 -> "iphonesimulator"
         IOS_ARM32, IOS_ARM64 -> "iphoneos"
-        WATCHOS_X86, WATCHOS_X64, WATCHOS_SIMULATOR_ARM64 -> "watchsimulator"
+        WATCHOS_X86, WATCHOS_X64 -> "watchsimulator"
         WATCHOS_ARM32, WATCHOS_ARM64 -> "watchos"
-        TVOS_X64, TVOS_SIMULATOR_ARM64 -> "appletvsimulator"
+        TVOS_X64 -> "appletvsimulator"
         TVOS_ARM64 -> "appletvos"
         MACOS_X64 -> "macosx"
         else -> throw IllegalArgumentException("Bad target ${konanTarget.name}.")
