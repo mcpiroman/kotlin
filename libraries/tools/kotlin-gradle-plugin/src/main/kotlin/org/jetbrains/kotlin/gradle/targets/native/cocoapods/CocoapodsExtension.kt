@@ -249,7 +249,7 @@ open class CocoapodsExtension(private val project: Project) {
                     KotlinCocoapodsPlugin.isAvailableToProduceSynthetic
                 ) {
                     val podBuildTaskProvider = project.getPodBuildTaskProvider(framework.target, pod)
-                    task.inputs.file(podBuildTaskProvider.get().buildSettingsFile)
+                    task.inputs.file(podBuildTaskProvider.map { it.buildSettingsFile })
                     task.dependsOn(podBuildTaskProvider)
 
                     task.doFirst { _ ->
