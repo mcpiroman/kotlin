@@ -90,9 +90,7 @@ open class CocoapodsExtension(private val project: Project) {
     /**
      * Configure framework of the pod built from this project.
      */
-    fun framework(configure: Framework.() -> Unit) {
-        configureRegisteredFrameworks(configure)
-    }
+    fun framework(configure: Framework.() -> Unit) = configureRegisteredFrameworks(configure)
 
     @Nested
     val ios: PodspecPlatformSettings = PodspecPlatformSettings("ios")
