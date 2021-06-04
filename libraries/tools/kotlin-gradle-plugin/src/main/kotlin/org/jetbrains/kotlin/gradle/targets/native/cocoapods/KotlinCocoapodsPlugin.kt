@@ -291,7 +291,7 @@ open class KotlinCocoapodsPlugin : Plugin<Project> {
                         isAvailableToProduceSynthetic
                     ) {
                         val podBuildTaskProvider = project.getPodBuildTaskProvider(target, pod)
-                        interopTask.inputs.file(podBuildTaskProvider.get().buildSettingsFile)
+                        interopTask.inputs.file(podBuildTaskProvider.map {it.buildSettingsFile })
                         interopTask.dependsOn(podBuildTaskProvider)
                     }
 
