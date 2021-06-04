@@ -109,7 +109,7 @@ open class CocoapodsExtension(private val project: Project) {
     /**
      * Configure framework name of the pod built from this project.
      */
-    @Deprecated("Use framework() function to configure framework")
+    @Deprecated("Use 'baseName' property within framework() function to configure framework name")
     var frameworkName: String
         get() = frameworkNameInternal
         set(value) {
