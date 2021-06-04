@@ -352,21 +352,15 @@ internal class ObjCExportTranslatorImpl(
                         }
                     }
 
-            if (descriptor.hasCompanionObject) {
-                val hasCollision = descriptor.kind == ClassKind.ENUM_CLASS &&
-                        descriptor.enumEntries.asSequence()
-                                .map { namer.getEnumEntrySelector(it) }
-                                .any { it == ObjCExportNamer.companionObjectPropertyName }
-                if (!hasCollision) {
-                    add {
-                        ObjCProperty(
-                                ObjCExportNamer.companionObjectPropertyName, null,
-                                mapReferenceType(descriptor.companionObjectDescriptor!!.defaultType, genericExportScope),
-                                listOf("class", "readonly"),
-                                getterName = namer.getCompanionObjectPropertySelector(descriptor),
-                                declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.companionObjectPropertyName))
-                        )
-                    }
+            if (descriptor.needCompanionObjectProperty(namer)) {
+                add {
+                    ObjCProperty(
+                            ObjCExportNamer.companionObjectPropertyName, null,
+                            mapReferenceType(descriptor.companionObjectDescriptor!!.defaultType, genericExportScope),
+                            listOf("class", "readonly"),
+                            getterName = namer.getCompanionObjectPropertySelector(descriptor),
+                            declarationAttributes = listOf(swiftNameAttribute(ObjCExportNamer.companionObjectPropertyName))
+                    )
                 }
             }
             // TODO: consider adding exception-throwing impls for these.
@@ -1318,6 +1312,10 @@ internal object ObjCNoneExportScope: ObjCExportScope{
 private fun computeSuperClassType(descriptor: ClassDescriptor): KotlinType? = descriptor.typeConstructor.supertypes.filter { !it.isInterface() }.firstOrNull()
 
 internal const val OBJC_SUBCLASSING_RESTRICTED = "objc_subclassing_restricted"
+
+internal fun ClassDescriptor.needCompanionObjectProperty(namer: ObjCExportNamer) = hasCompanionObject &&
+        (kind != ClassKind.ENUM_CLASS || enumEntries.all { namer.getEnumEntrySelector(it) != ObjCExportNamer.companionObjectPropertyName })
+
 
 private fun Deprecation.toDeprecationAttribute(): String {
     val attribute = when (deprecationLevel) {
