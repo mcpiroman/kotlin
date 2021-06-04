@@ -248,11 +248,16 @@ open class CocoapodsExtension(private val project: Project) {
     }
 
     private fun configureDynamicFrameworkLinking(framework: Framework) {
+        project.findProperty(KotlinCocoapodsPlugin.FRAMEWORK_PATHS_PROPERTY)?.toString()?.let { args ->
+            framework.linkerOpts.addAll(args.splitQuotedArgs().map { "-F$it" })
+        }
         pods.all { pod ->
-            framework.linkTaskProvider.configure { task ->
-                if (project.shouldUseSyntheticProjectSettings &&
-                    KotlinCocoapodsPlugin.isAvailableToProduceSynthetic
-                ) {
+            framework.linkerOpts("-framework", pod.moduleName)
+            if (project.shouldUseSyntheticProjectSettings &&
+                KotlinCocoapodsPlugin.isAvailableToProduceSynthetic
+            ) {
+                framework.linkTaskProvider.configure { task ->
+
                     val podBuildTaskProvider = project.getPodBuildTaskProvider(framework.target, pod)
                     task.inputs.file(podBuildTaskProvider.map { it.buildSettingsFile })
                     task.dependsOn(podBuildTaskProvider)
@@ -261,12 +266,6 @@ open class CocoapodsExtension(private val project: Project) {
                         val podBuildSettings = project.getPodBuildSettingsProperties(framework.target, pod)
                         framework.linkerOpts.addAll(podBuildSettings.frameworkSearchPaths.map { "-F$it" })
                     }
-                }
-
-                framework.linkerOpts("-framework", pod.moduleName)
-
-                project.findProperty(KotlinCocoapodsPlugin.FRAMEWORK_PATHS_PROPERTY)?.toString()?.let { args ->
-                    framework.linkerOpts.addAll(args.splitQuotedArgs().map { "-F$it" })
                 }
             }
         }
