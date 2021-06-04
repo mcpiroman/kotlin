@@ -18,8 +18,8 @@ import org.jetbrains.kotlin.idea.fir.low.level.api.api.FirDeclarationDesignation
 import org.jetbrains.kotlin.idea.fir.low.level.api.api.FirDeclarationDesignationWithFile
 import org.jetbrains.kotlin.idea.fir.low.level.api.api.collectDesignation
 import org.jetbrains.kotlin.idea.fir.low.level.api.file.builder.ModuleFileCache
+import org.jetbrains.kotlin.idea.fir.low.level.api.file.builder.runCustomResolveUnderLock
 import org.jetbrains.kotlin.idea.fir.low.level.api.lazy.resolve.FirLazyDeclarationResolver
-import org.jetbrains.kotlin.idea.fir.low.level.api.lazy.resolve.FirLazyDeclarationResolver.Companion.runCustomResolveUnderLock
 import org.jetbrains.kotlin.idea.fir.low.level.api.transformers.FirLazyTransformerForIDE.Companion.isResolvedForAllDeclarations
 import org.jetbrains.kotlin.idea.fir.low.level.api.transformers.FirLazyTransformerForIDE.Companion.updateResolvedPhaseForDeclarationAndChildren
 import org.jetbrains.kotlin.idea.fir.low.level.api.util.checkCanceled
@@ -102,7 +102,7 @@ internal class FirDesignatedSupertypeResolverTransformerForIDE(
             for (nowVisit in toVisit) {
                 if (checkPCE) checkCanceled()
                 val resolver = DesignatedFirSupertypeResolverVisitor(nowVisit)
-                runCustomResolveUnderLock(nowVisit.firFile, moduleFileCache, checkPCE) {
+                moduleFileCache.firFileLockProvider.runCustomResolveUnderLock(nowVisit.firFile, checkPCE) {
                     firLazyDeclarationResolver.lazyResolveFileDeclaration(
                         firFile = nowVisit.firFile,
                         moduleFileCache = moduleFileCache,
@@ -144,7 +144,7 @@ internal class FirDesignatedSupertypeResolverTransformerForIDE(
         val filesToDesignations = visited.groupBy { it.firFile }
         for (designationsPerFile in filesToDesignations) {
             if (checkPCE) checkCanceled()
-            runCustomResolveUnderLock(designationsPerFile.key, moduleFileCache, checkPCE) {
+            moduleFileCache.firFileLockProvider.runCustomResolveUnderLock(designationsPerFile.key, checkPCE) {
                 applyToFileSymbols(designationsPerFile.value)
             }
         }
