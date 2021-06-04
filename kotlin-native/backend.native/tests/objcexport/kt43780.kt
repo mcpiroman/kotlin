@@ -4,10 +4,10 @@
  */
 
 object KT43780TestObject {
-    const val x = 5
+    val x = 5
     val y = 6
-    const val shared = "shared"
-    const val Shared = "Shared"
+    val shared = "shared"
+    val Shared = "Shared"
 }
 
 class KT43780TestClassWithCompanion {
@@ -17,13 +17,13 @@ class KT43780TestClassWithCompanion {
 }
 
 object Shared {
-    const val x = 8
+    val x = 8
 }
 
 class Companion {
     val t = 10
     companion object {
-        const val x = 9
+        val x = 9
     }
 }
 
@@ -31,6 +31,6 @@ enum class KT43780Enum {
     COMPANION;
 
     companion object {
-        const val x = 11
+        val x = 11
     }
 }
