@@ -80,12 +80,13 @@ public class KtValueArgument extends KtElementImplStub<KotlinValueArgumentStub<?
     @Nullable
     public KtStringTemplateExpression getStringTemplateExpression() {
         KotlinPlaceHolderStub<? extends KtValueArgument> stub = getStub();
+        KtExpression expression;
         if (stub != null) {
             KtExpression[] stringTemplateExpressions = stub.getChildrenByType(STRING_TEMPLATE_EXPRESSIONS_TYPES, KtExpression.EMPTY_ARRAY);
-            return stringTemplateExpressions.length != 0 ? (KtStringTemplateExpression) stringTemplateExpressions[0] : null;
+            expression = stringTemplateExpressions.length != 0 ? stringTemplateExpressions[0] : null;
+        } else {
+            expression = findChildByClass(KtExpression.class);
         }
-
-        KtExpression expression = findChildByClass(KtExpression.class);
         return expression instanceof KtStringTemplateExpression ? (KtStringTemplateExpression)expression : null;
     }
 

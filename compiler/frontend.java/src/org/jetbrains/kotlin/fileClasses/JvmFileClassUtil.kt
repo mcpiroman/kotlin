@@ -100,13 +100,12 @@ object JvmFileClassUtil {
         }
 
     fun getLiteralStringFromAnnotation(annotation: KtAnnotationEntry): String? {
-        fun ValueArgument.stringTemplateExpression() =
-                when (this) {
-                    is KtValueArgument -> stringTemplateExpression
-                    else -> getArgumentExpression().safeAs<KtStringTemplateExpression>()
-                }
-
-        val stringTemplateExpression = annotation.valueArguments.firstOrNull()?.stringTemplateExpression() ?: return null
+        val stringTemplateExpression = annotation.valueArguments.firstOrNull()?.run {
+            when (this) {
+                is KtValueArgument -> stringTemplateExpression
+                else -> getArgumentExpression().safeAs<KtStringTemplateExpression>()
+            }
+        } ?: return null
         val singleEntry = stringTemplateExpression.entries.singleOrNull() as? KtLiteralStringTemplateEntry ?: return null
         return singleEntry.text
     }

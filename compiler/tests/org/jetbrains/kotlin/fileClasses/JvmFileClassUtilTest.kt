@@ -18,7 +18,12 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 
 class JvmFileClassUtilTest : KotlinTestWithEnvironment() {
     fun testCorruptedJvmName() {
-        val ktFile = KtTestUtil.loadPsiFile(project, "diagnostics/testsWithStdLib/regression/ea70880_illegalJvmName.kt")
+        val ktFile = KtTestUtil.createFile(
+            "jvmName.kt", """
+            <!ILLEGAL_JVM_NAME!>@JvmName(<!NO_VALUE_FOR_PARAMETER!>)<!><!>
+            fun foo() {}
+        """.trimIndent(), project
+        )
         assertNull("file is parsed from AST", ktFile.stub)
 
         val annotationEntryStubs = mutableListOf<KotlinAnnotationEntryStub>()
@@ -28,9 +33,9 @@ class JvmFileClassUtilTest : KotlinTestWithEnvironment() {
             }
         }
 
-        assertEquals(3, annotationEntryStubs.size)
+        assertEquals(1, annotationEntryStubs.size)
         assertTrue(annotationEntryStubs.all { it.psi.stub != null })
-        assertEquals(1, annotationEntryStubs.mapNotNull { JvmFileClassUtil.getLiteralStringFromAnnotation(it.psi) }.size)
+        assertTrue(annotationEntryStubs.mapNotNull { JvmFileClassUtil.getLiteralStringFromAnnotation(it.psi) }.isEmpty())
     }
 
     private fun StubElement<*>.forEachDescendantOfType(action: (StubElement<*>) -> Unit) {
