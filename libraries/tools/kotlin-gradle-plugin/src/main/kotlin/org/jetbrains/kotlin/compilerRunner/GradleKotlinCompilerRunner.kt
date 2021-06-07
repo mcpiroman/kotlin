@@ -231,7 +231,7 @@ internal open class GradleCompilerRunner(
                         task.moduleName.get(),
                         project.buildDir,
                         task.buildHistoryFile.get().asFile,
-                        task.abiSnapshotFile
+                        task.abiSnapshotFile.get().asFile
                     )
                     dirToModule[task.destinationDir] = module
                     task.javaOutputDir.orNull?.asFile?.let { dirToModule[it] = module }
@@ -242,12 +242,15 @@ internal open class GradleCompilerRunner(
                             jarToModule[it] = module
                         }
                     }
-                    if (target is KotlinWithJavaTarget<*>) {
-                        val jar = project.tasks.getByName(target.artifactsTaskName) as Jar
-                        jarToClassListFile[jar.archivePathCompatible.canonicalFile] = target.defaultArtifactClassesListFile.get()
-                        //configure abiSnapshot mapping for jars
-                        jarToAbiSnapshot[jar.archivePathCompatible.canonicalFile] = target.buildDir.get().file(taskData.abiSnapshotRelativePath).asFile
-                    }
+//                    for (target in task.targets) {
+//                        if (target is KotlinWithJavaTarget<*>) {
+//                            val jar = project.tasks.getByName(target.artifactsTaskName) as Jar
+//                            jarToClassListFile[jar.archivePathCompatible.canonicalFile] = target.defaultArtifactClassesListFile.get()
+//                            //configure abiSnapshot mapping for jars
+//                            jarToAbiSnapshot[jar.archivePathCompatible.canonicalFile] =
+//                                target.buildDir.get().file(task.abiSnapshotRelativePath).asFile
+//                        }
+//                    }
                 } else if (task is InspectClassesForMultiModuleIC) {
                     jarToClassListFile[File(task.archivePath.get())] = task.classesListFile
                 }
@@ -268,10 +271,18 @@ internal open class GradleCompilerRunner(
                             project.path,
                             kotlinTask.moduleName.get(),
                             project.buildDir,
-                            kotlinTask.buildHistoryFile.get().asFile
+                            kotlinTask.buildHistoryFile.get().asFile,
+                            kotlinTask.abiSnapshotFile.get().asFile
                         )
                         val jarTask = project.tasks.findByName(target.artifactsTaskName) as? AbstractArchiveTask ?: continue
                         jarToModule[jarTask.archivePathCompatible.canonicalFile] = module
+                        if (target is KotlinWithJavaTarget<*>) {
+                            val jar = project.tasks.getByName(target.artifactsTaskName) as Jar
+                            jarToClassListFile[jar.archivePathCompatible.canonicalFile] = target.defaultArtifactClassesListFile.get()
+                            //configure abiSnapshot mapping for jars
+                            jarToAbiSnapshot[jar.archivePathCompatible.canonicalFile] =
+                                target.buildDir.get().file(kotlinTask.abiSnapshotRelativePath).get().asFile
+                        }
 
                     }
                 }

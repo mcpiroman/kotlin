@@ -37,9 +37,7 @@ object ReportStatisticsToElasticSearch : ReportStatistics {
             connection.requestMethod = "POST"
             connection.doOutput = true
             connection.outputStream.use {
-                val json = Gson().toJson(data)
-                println(json)
-                it.write(json.toByteArray())
+                it.write(Gson().toJson(data).toByteArray())
             }
             connection.connect();
             checkResponseAndLog(connection)
