@@ -88,28 +88,31 @@ void gc::SingleThreadMarkAndSweep::ThreadData::OnOOM(size_t size) noexcept {
 
 void gc::SingleThreadMarkAndSweep::PerformFullGC() noexcept {
     RuntimeAssert(running_ == false, "Cannot have been called during another collection");
-    running_ = true;
+    mm::ObjectFactory<GC>::FinalizerQueue finalizerQueue;
+    {
+        auto& threadRegistry = mm::GlobalData::Instance().threadRegistry();
+        AutoReset scopedAssign(&running_, true);
+        std::unique_lock threadRegistryLock = threadRegistry.Lock();
 
-    KStdVector<ObjHeader*> graySet;
-    for (auto& thread : mm::GlobalData::Instance().threadRegistry().Iter()) {
-        thread.Publish();
-        for (auto* object : mm::ThreadRootSet(thread)) {
+        KStdVector<ObjHeader*> graySet;
+        for (auto& thread : threadRegistry.Iter()) {
+            thread.Publish();
+            for (auto* object : mm::ThreadRootSet(thread)) {
+                if (!isNullOrMarker(object)) {
+                    graySet.push_back(object);
+                }
+            }
+        }
+        mm::StableRefRegistry::Instance().ProcessDeletions();
+        for (auto* object : mm::GlobalRootSet()) {
             if (!isNullOrMarker(object)) {
                 graySet.push_back(object);
             }
         }
-    }
-    mm::StableRefRegistry::Instance().ProcessDeletions();
-    for (auto* object : mm::GlobalRootSet()) {
-        if (!isNullOrMarker(object)) {
-            graySet.push_back(object);
-        }
-    }
 
-    gc::Mark<MarkTraits>(std::move(graySet));
-    auto finalizerQueue = gc::Sweep<SweepTraits>(mm::GlobalData::Instance().objectFactory());
-
-    running_ = false;
+        gc::Mark<MarkTraits>(std::move(graySet));
+        finalizerQueue = gc::Sweep<SweepTraits>(mm::GlobalData::Instance().objectFactory());
+    }
 
     // TODO: These will actually need to be run on a separate thread.
     // TODO: This probably should check for the existence of runtime itself, but unit tests initialize only memory.
