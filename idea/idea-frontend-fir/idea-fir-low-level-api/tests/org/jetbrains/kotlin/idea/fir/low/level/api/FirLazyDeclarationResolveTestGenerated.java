@@ -29,6 +29,11 @@ public class FirLazyDeclarationResolveTestGenerated extends AbstractFirLazyDecla
         KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve"), Pattern.compile("^(.+)\\.kt$"), null, true);
     }
 
+    @TestMetadata("annotations.kt")
+    public void testAnnotations() throws Exception {
+        runTest("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve/annotations.kt");
+    }
+
     @TestMetadata("classMembers.kt")
     public void testClassMembers() throws Exception {
         runTest("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve/classMembers.kt");
@@ -37,6 +42,11 @@ public class FirLazyDeclarationResolveTestGenerated extends AbstractFirLazyDecla
     @TestMetadata("delegates.kt")
     public void testDelegates() throws Exception {
         runTest("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve/delegates.kt");
+    }
+
+    @TestMetadata("localDeclaration.kt")
+    public void testLocalDeclaration() throws Exception {
+        runTest("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve/localDeclaration.kt");
     }
 
     @TestMetadata("propertyWithGetter.kt")
@@ -57,6 +67,16 @@ public class FirLazyDeclarationResolveTestGenerated extends AbstractFirLazyDecla
     @TestMetadata("secondaryConstructor.kt")
     public void testSecondaryConstructor() throws Exception {
         runTest("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve/secondaryConstructor.kt");
+    }
+
+    @TestMetadata("superTypes.kt")
+    public void testSuperTypes() throws Exception {
+        runTest("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve/superTypes.kt");
+    }
+
+    @TestMetadata("superTypesLoop.kt")
+    public void testSuperTypesLoop() throws Exception {
+        runTest("idea/idea-frontend-fir/idea-fir-low-level-api/testdata/lazyResolve/superTypesLoop.kt");
     }
 
     @TestMetadata("topLevelFunctions.kt")

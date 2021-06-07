@@ -1,7 +1,151 @@
+RAW_FIR:
 FILE: propertyWithGetter.kt
-    public final [BODY_RESOLVE] fun resolveMe(): R|kotlin/Unit| {
+    public? final? fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+IMPORTS:
+FILE: propertyWithGetter.kt
+    public? final? fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+SUPER_TYPES:
+FILE: propertyWithGetter.kt
+    public? final? fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+TYPES:
+FILE: propertyWithGetter.kt
+    public? final? [ResolvePhaseWithForAllDeclarationsKey=TYPES] fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+STATUS:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+CONTRACTS:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=CONTRACTS] fun resolveMe(): R|kotlin/Unit| {
+        receive#(withGetter#)
+    }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+IMPLICIT_TYPES_BODY_RESOLVE:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=IMPLICIT_TYPES_BODY_RESOLVE] fun resolveMe(): R|kotlin/Unit| {
+        receive#(withGetter#)
+    }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+BODY_RESOLVE:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=BODY_RESOLVE] fun resolveMe(): R|kotlin/Unit| {
         R|/receive|(R|/withGetter|)
     }
-    public final [STATUS] fun receive([STATUS] value: R|kotlin/Int|): R|kotlin/Unit| { LAZY_BLOCK }
-    public final [STATUS] val withGetter: R|kotlin/Int|
-        [STATUS] public get(): R|kotlin/Int| { LAZY_BLOCK }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] fun receive(value: R|kotlin/Int|): R|kotlin/Unit| { LAZY_BLOCK }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] val withGetter: R|kotlin/Int|
+        public get(): R|kotlin/Int| { LAZY_BLOCK }
+
+NoResolve:
+FILE: propertyWithGetter.kt
+    public? final? fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+BodyResolveWithChildren:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=BODY_RESOLVE] fun resolveMe(): R|kotlin/Unit| {
+        R|/receive|(R|/withGetter|)
+    }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] fun receive(value: R|kotlin/Int|): R|kotlin/Unit| { LAZY_BLOCK }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] val withGetter: R|kotlin/Int|
+        public get(): R|kotlin/Int| { LAZY_BLOCK }
+
+CallableBodyResolve:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=BODY_RESOLVE] fun resolveMe(): R|kotlin/Unit| {
+        R|/receive|(R|/withGetter|)
+    }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] fun receive(value: R|kotlin/Int|): R|kotlin/Unit| { LAZY_BLOCK }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] val withGetter: R|kotlin/Int|
+        public get(): R|kotlin/Int| { LAZY_BLOCK }
+
+CallableReturnType:
+FILE: propertyWithGetter.kt
+    public? final? fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+AnnotationType:
+FILE: propertyWithGetter.kt
+    public? final? [ResolvePhaseWithForAllDeclarationsKey=TYPES] fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+AnnotationsArguments:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=BODY_RESOLVE] fun resolveMe(): R|kotlin/Unit| {
+        R|/receive|(R|/withGetter|)
+    }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] fun receive(value: R|kotlin/Int|): R|kotlin/Unit| { LAZY_BLOCK }
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] val withGetter: R|kotlin/Int|
+        public get(): R|kotlin/Int| { LAZY_BLOCK }
+
+CallableContracts:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=CONTRACTS] fun resolveMe(): R|kotlin/Unit| {
+        receive#(withGetter#)
+    }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+DeclarationStatus:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=STATUS] fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+ValueParametersTypes:
+FILE: propertyWithGetter.kt
+    public? final? [ResolvePhaseWithForAllDeclarationsKey=TYPES] fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+TypeParametersTypes:
+FILE: propertyWithGetter.kt
+    public? final? [ResolvePhaseWithForAllDeclarationsKey=TYPES] fun resolveMe(): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? fun receive(value: Int): R|kotlin/Unit| { LAZY_BLOCK }
+    public? final? val withGetter: Int
+        public? get(): Int { LAZY_BLOCK }
+
+FILE RAW TO BODY:
+FILE: propertyWithGetter.kt
+    public final [ResolvePhaseWithForAllDeclarationsKey=BODY_RESOLVE] fun resolveMe(): R|kotlin/Unit| {
+        R|/receive|(R|/withGetter|)
+    }
+    public final [ResolvePhaseWithForAllDeclarationsKey=BODY_RESOLVE] fun receive(value: R|kotlin/Int|): R|kotlin/Unit| {
+    }
+    public final [ResolvePhaseWithForAllDeclarationsKey=BODY_RESOLVE] val withGetter: R|kotlin/Int|
+        public get(): R|kotlin/Int| {
+            ^ Int(42)
+        }

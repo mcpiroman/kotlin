@@ -14,9 +14,12 @@ import org.jetbrains.kotlin.idea.caches.project.ModuleSourceInfo
 import org.jetbrains.kotlin.idea.caches.project.getModuleInfo
 import org.jetbrains.kotlin.idea.fir.low.level.api.api.withFirDeclaration
 import org.jetbrains.kotlin.idea.fir.low.level.api.lazy.resolve.FirLazyDeclarationResolver
+import org.jetbrains.kotlin.idea.fir.low.level.api.lazy.resolve.ResolveType
 import org.jetbrains.kotlin.idea.fir.low.level.api.lazy.resolve.declarationCanBeLazilyResolved
 import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.idea.test.KotlinWithJdkAndRuntimeLightProjectDescriptor
+import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
@@ -36,20 +39,53 @@ abstract class AbstractFirLazyDeclarationResolveTest : KotlinLightCodeInsightFix
             declarationCanBeLazilyResolved(ktDeclaration)
         }
 
+        val resultBuilder = StringBuilder()
         val declarationToResolve = lazyDeclarations.firstOrNull { it.name?.lowercase() == "resolveme" }
             ?: error("declaration with name `resolveMe` was not found")
+
         resolveWithClearCaches(ktFile) { firModuleResolveState ->
             check(firModuleResolveState is FirModuleResolveStateImpl)
-            val rendered = declarationToResolve.withFirDeclaration(
-                firModuleResolveState,
-                FirResolvePhase.BODY_RESOLVE
-            ) @Suppress("UNUSED_ANONYMOUS_PARAMETER") { firDeclaration ->
-                val firFile = firModuleResolveState.getOrBuildFirFile(ktFile)
-                firFile.render(FirRenderer.RenderMode.WithResolvePhases)
+            for (currentPhase in FirResolvePhase.values()) {
+                if (currentPhase.pluginPhase || currentPhase == FirResolvePhase.SEALED_CLASS_INHERITORS) continue
+                declarationToResolve.withFirDeclaration(firModuleResolveState, currentPhase) {
+                    val firFile = firModuleResolveState.getOrBuildFirFile(ktFile)
+                    resultBuilder.append("\n${currentPhase.name}:\n")
+                    resultBuilder.append(firFile.render(FirRenderer.RenderMode.WithDeclarationAttributes))
+                }
             }
-            val expectedFileName = testDataFile.name.replace(".kt", ".txt")
-            KotlinTestUtils.assertEqualsToFile(testDataFile.parentFile.resolve(expectedFileName), rendered)
         }
+
+        for (resolveType in ResolveType.values()) {
+            when (resolveType) {
+                ResolveType.CallableReturnType,
+                ResolveType.CallableBodyResolve,
+                ResolveType.CallableContracts -> if (declarationToResolve !is KtCallableDeclaration) continue
+                ResolveType.ClassSuperTypes -> if (declarationToResolve !is KtClassOrObject) continue
+                else -> {
+                }
+            }
+
+            resolveWithClearCaches(ktFile) { firModuleResolveState ->
+                check(firModuleResolveState is FirModuleResolveStateImpl)
+                declarationToResolve.withFirDeclaration(firModuleResolveState, resolveType) {
+                    val firFile = firModuleResolveState.getOrBuildFirFile(ktFile)
+                    resultBuilder.append("\n${resolveType.name}:\n")
+                    resultBuilder.append(firFile.render(FirRenderer.RenderMode.WithDeclarationAttributes))
+                }
+            }
+        }
+
+        resolveWithClearCaches(ktFile) { firModuleResolveState ->
+            check(firModuleResolveState is FirModuleResolveStateImpl)
+            val firFile = firModuleResolveState.getOrBuildFirFile(ktFile)
+            firFile.withFirDeclaration(firModuleResolveState, FirResolvePhase.BODY_RESOLVE) {
+                resultBuilder.append("\nFILE RAW TO BODY:\n")
+                resultBuilder.append(firFile.render(FirRenderer.RenderMode.WithDeclarationAttributes))
+            }
+        }
+
+        val expectedFileName = testDataFile.name.replace(".kt", ".txt")
+        KotlinTestUtils.assertEqualsToFile(testDataFile.parentFile.resolve(expectedFileName), resultBuilder.toString())
     }
 
     override fun getProjectDescriptor(): LightProjectDescriptor = KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE
