@@ -265,7 +265,7 @@ open class A {
         }
 
         //don't need to recompile app classes because lib's proto stays the same
-        project.build("build", "") {
+        project.build("build") {
             assertSuccessful()
             val affectedSources = project.projectDir.allKotlinFiles()
             val relativePaths = project.relativize(affectedSources)
