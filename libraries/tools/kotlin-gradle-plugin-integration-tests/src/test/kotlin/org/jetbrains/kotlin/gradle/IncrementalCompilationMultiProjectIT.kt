@@ -217,8 +217,9 @@ open class A {
                 )
             },
             //TODO for abi-snapshot "BB.kt" should not be recompiled
-            expectedAffectedFileNames = listOf("A.kt", "B.kt", "AA.kt", "BB.kt", "AAA.kt)
-        )
+            expectedAffectedFileNames = listOf(
+                "A.kt", "B.kt", "AA.kt", "BB.kt", "AAA.kt"
+            )
         )
     }
 
