@@ -5,8 +5,10 @@
 
 package org.jetbrains.kotlin.fileClasses
 
-import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.kotlin.idea.test.AstAccessControl
+import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.idea.test.AstAccessControl.dropPsiAndTestWithControlledAccessToAst
 import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCaseBase
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtFile
@@ -35,24 +37,33 @@ class JvmFileClassUtilTest : KotlinLightCodeInsightFixtureTestCaseBase() {
         val ktFile = myFixture.configureByText("jvmName.kt", content) as KtFile
         assertNull("file is parsed from AST", ktFile.stub)
 
-        AstAccessControl.testWithControlledAccessToAst(false, project, testRootDisposable) {
-            // clean up AST
-            ApplicationManager.getApplication().runWriteAction { ktFile.onContentReload() }
-            assertNotNull("file is parsed from AST", ktFile.stub)
+        dropPsiAndTestWithControlledAccessToAst(true, ktFile, testRootDisposable) {
             val annotationEntries =
-                run {
-                    ktFile.stub!!.findChildStubByType(KtStubElementTypes.FUNCTION)
-                        .takeIf { it?.findChildStubByType(KtStubElementTypes.MODIFIER_LIST) != null } ?: ktFile.stub!!
-                }
-                    .findChildStubByType(KtStubElementTypes.MODIFIER_LIST)
-                    ?.getChildrenByType(KtStubElementTypes.ANNOTATION_ENTRY, emptyArray<KtAnnotationEntry>())
-                    ?: emptyArray()
+                ktFile.findDescendantStubChildrenByType<KtAnnotationEntry>(KtStubElementTypes.ANNOTATION_ENTRY)
             assertTrue(annotationEntries.all { it.stub != null })
             assertEquals(1, annotationEntries.size)
 
             with(JvmFileClassUtil.getLiteralStringFromAnnotation(annotationEntries.first())) {
                 expected?.run { assertEquals(expected, this) } ?: run { assertNull(this) }
             }
+        }
+    }
+
+    inline fun <reified T : PsiElement> KtFile.findDescendantStubChildrenByType(elementType: IElementType): List<T> {
+        val array = emptyArray<T>()
+        val result = mutableListOf<T>()
+        stub?.forEachDescendantStubChildren { stubElement ->
+            stubElement.getChildrenByType(elementType, array).let { array ->
+                array.forEach { result += it }
+            }
+        }
+        return result
+    }
+
+    fun StubElement<*>.forEachDescendantStubChildren(action: (StubElement<*>) -> Unit) {
+        action(this)
+        childrenStubs.forEach {
+            it.forEachDescendantStubChildren(action)
         }
     }
 
