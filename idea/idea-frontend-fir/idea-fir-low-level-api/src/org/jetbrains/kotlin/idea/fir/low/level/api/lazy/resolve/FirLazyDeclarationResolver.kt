@@ -113,7 +113,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
         toPhase: FirResolvePhase,
         scopeSession: ScopeSession = ScopeSession(),
         checkPCE: Boolean = false,
-        stopAheadOfPhase: (FirDeclaration) -> Boolean = { false },
     ) {
         moduleFileCache.firFileLockProvider.runCustomResolveUnderLock(firFile, checkPCE) {
             lazyResolveFileDeclarationWithoutLock(
@@ -122,7 +121,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
                 toPhase = toPhase,
                 scopeSession = scopeSession,
                 checkPCE = checkPCE,
-                stopAheadOfPhase = stopAheadOfPhase,
             )
         }
     }
@@ -134,7 +132,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
         scopeSession: ScopeSession,
         checkPCE: Boolean = false,
         collector: FirTowerDataContextCollector? = null,
-        stopAheadOfPhase: (FirDeclaration) -> Boolean = { false },
     ) {
         if (toPhase == FirResolvePhase.RAW_FIR) return
         if (firFile.resolvePhase == FirResolvePhase.RAW_FIR) {
@@ -143,7 +140,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
         }
         if (checkPCE) checkCanceled()
         if (toPhase == FirResolvePhase.IMPORTS) return
-        if (stopAheadOfPhase(firFile)) return
 
         resolveFileAnnotationsWithoutLock(firFile, moduleFileCache, firFile.annotations, scopeSession, collector)
 
@@ -157,7 +153,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
             currentPhase = currentPhase.next
             if (currentPhase.pluginPhase) continue
             if (checkPCE) checkCanceled()
-            if (stopAheadOfPhase(firFile)) break
 
             val transformersToApply = designations.mapNotNull {
                 val needToResolve = it.resolvePhaseForAllDeclarations(includeDeclarationPhase = false) < currentPhase
@@ -198,7 +193,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
         toPhase: FirResolvePhase,
         checkPCE: Boolean,
         declarationPhaseDowngraded: Boolean = false,
-        stopAheadOfPhase: (FirDeclaration) -> Boolean = { false },
     ) {
         if (toPhase == FirResolvePhase.RAW_FIR) return
         //TODO Should be synchronised
@@ -211,13 +205,14 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
                 toPhase = toPhase,
                 scopeSession = scopeSession,
                 checkPCE = checkPCE,
-                stopAheadOfPhase = stopAheadOfPhase,
             )
             return
         }
 
         val provider = firDeclarationToResolve.moduleData.session.firIdeProvider
-        val resolvableDeclaration = firDeclarationToResolve.getNonLocalDeclarationToResolve(provider, moduleFileCache, firFileBuilder)
+        val (resolvableDeclaration, wasInLocalDeclaration) =
+            firDeclarationToResolve.getNonLocalDeclarationToResolveAndInLocal(provider, moduleFileCache, firFileBuilder)
+
         //TODO Should be synchronised
         if (!resolvableDeclaration.isValidForResolve()) return
         val containerFirFile = resolvableDeclaration.getContainingFile()
@@ -226,17 +221,17 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
         val designation = resolvableDeclaration.collectDesignation(containerFirFile)
         //TODO Should be synchronised
         val resolvePhase = designation.resolvePhaseForAllDeclarations(includeDeclarationPhase = declarationPhaseDowngraded)
-        if (resolvePhase >= toPhase) return
+        val neededPhase = if (wasInLocalDeclaration) maxOf(FirResolvePhase.CONTRACTS, toPhase) else toPhase
+        if (resolvePhase >= neededPhase) return
 
         moduleFileCache.firFileLockProvider.runCustomResolveUnderLock(containerFirFile, checkPCE) {
             runLazyDesignatedResolveWithoutLock(
                 designation = designation,
                 moduleFileCache = moduleFileCache,
                 scopeSession = scopeSession,
-                toPhase = toPhase,
+                toPhase = neededPhase,
                 checkPCE = checkPCE,
                 declarationPhaseDowngraded = declarationPhaseDowngraded,
-                stopAheadOfPhase = stopAheadOfPhase,
             )
         }
     }
@@ -248,7 +243,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
         toPhase: FirResolvePhase,
         checkPCE: Boolean,
         declarationPhaseDowngraded: Boolean,
-        stopAheadOfPhase: (FirDeclaration) -> Boolean = { false },
     ) {
         val filePhase = designation.firFile.resolvePhase
         if (filePhase == FirResolvePhase.RAW_FIR) {
@@ -269,7 +263,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
             currentPhase = currentPhase.next
             if (currentPhase.pluginPhase) continue
             if (checkPCE) checkCanceled()
-            if (stopAheadOfPhase(designation.declaration)) break
 
             LazyTransformerFactory.createLazyTransformer(
                 phase = currentPhase,
@@ -321,8 +314,6 @@ internal class FirLazyDeclarationResolver(private val firFileBuilder: FirFileBui
             ).transformDeclaration(firFileBuilder.firPhaseRunner)
         }
     }
-
-
 }
 
 
