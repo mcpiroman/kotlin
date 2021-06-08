@@ -711,16 +711,19 @@ private:
         AssertThreadState(memory_->memoryState(), ThreadState::kRunnable);
 
         while (true) {
-            std::unique_lock guard(queueMutex_);
-            queueCV_.wait(guard, [this]() { return !queue_.empty() || shutdownRequested_; });
-            if (shutdownRequested_) {
-                globalRoots_.clear();
-                stackRoots_.clear();
-                memory_.reset();
-                return;
+          std::packaged_task<void()> task;
+            {
+                std::unique_lock guard(queueMutex_);
+                queueCV_.wait(guard, [this]() { return !queue_.empty() || shutdownRequested_; });
+                if (shutdownRequested_) {
+                    globalRoots_.clear();
+                    stackRoots_.clear();
+                    memory_.reset();
+                    return;
+                }
+                task = std::move(queue_.front());
+                queue_.pop_front();
             }
-            auto task = std::move(queue_.front());
-            queue_.pop_front();
             task();
         }
     }
