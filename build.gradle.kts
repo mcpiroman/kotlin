@@ -582,6 +582,8 @@ allprojects {
         register("checkBuild")
     }
 
+    apply(from = "$rootDir/gradle/cacheRedirector.gradle.kts")
+
     afterEvaluate {
         if (javaHome != defaultJavaHome || jvmTarget != defaultJvmTarget) {
             logger.info("configuring project $name to compile to the target jvm version $jvmTarget using jdk: $javaHome")
@@ -616,7 +618,6 @@ allprojects {
                 ?.exclude("org.jetbrains.kotlin", "kotlin-scripting-compiler-embeddable")
         }
 
-        apply(from = "$rootDir/gradle/cacheRedirector.gradle.kts")
         apply(from = "$rootDir/gradle/testRetry.gradle.kts")
     }
 }
