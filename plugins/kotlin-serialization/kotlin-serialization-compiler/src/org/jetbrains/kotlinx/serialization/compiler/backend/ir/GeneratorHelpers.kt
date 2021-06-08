@@ -717,6 +717,18 @@ interface IrBuilderExtension {
         )
     }
 
+    fun createClassReference(irClass: IrClass, startOffset: Int, endOffset: Int): IrClassReference {
+        val classType = irClass.descriptor.toSimpleType(false)
+        val classSymbol = irClass.symbol
+        return IrClassReferenceImpl(
+            startOffset,
+            endOffset,
+            compilerContext.irBuiltIns.kClassClass.starProjectedType,
+            classSymbol,
+            classType.approximateJvmErasure.toIrType()
+        )
+    }
+
     // It is impossible to use star projections right away, because Array<Int>::class differ from Array<String>::class :
     // detailed information about type arguments required for class references on jvm
     private val KotlinType.approximateJvmErasure: KotlinType
@@ -809,6 +821,27 @@ interface IrBuilderExtension {
             .filter { it.kind == ClassKind.ENUM_ENTRY }
             .map { it.name.toString() }
     }
+
+    fun IrBuilderWithScope.copyAnnotationsFrom(annotations: List<IrConstructorCall>): List<IrExpression> =
+        annotations.mapNotNull { annotationCall ->
+            val annotationClass = annotationCall.symbol.owner.parentAsClass
+            if (!annotationClass.descriptor.isSerialInfoAnnotation) return@mapNotNull null
+
+            if (compilerContext.platform.isJvm()) {
+                val implClass = compilerContext.serialInfoImplJvmIrGenerator.getImplClass(annotationClass)
+                val ctor = implClass.constructors.singleOrNull { it.valueParameters.size == annotationCall.valueArgumentsCount }
+                    ?: error("No constructor args found for SerialInfo annotation Impl class: ${implClass.render()}")
+                irCall(ctor).apply {
+                    for (i in 0 until annotationCall.valueArgumentsCount) {
+                        val argument = annotationCall.getValueArgument(i)
+                            ?: annotationClass.primaryConstructor!!.valueParameters[i].defaultValue?.expression
+                        putValueArgument(i, argument!!.deepCopyWithVariables())
+                    }
+                }
+            } else {
+                annotationCall.deepCopyWithVariables()
+            }
+        }
 
     // Does not use sti and therefore does not perform encoder calls optimization
     fun IrBuilderWithScope.serializerTower(
@@ -917,13 +950,21 @@ interface IrBuilderExtension {
         var args: List<IrExpression>
         var typeArgs: List<IrType?>
         val thisIrType = kType.toIrType()
-        val hasNewCtxSerCtor =
-            serializerClassOriginal.classId == contextSerializerId && compilerContext.referenceConstructors(serializerClass.fqNameSafe)
-                .any { it.owner.valueParameters.size == 3 }
+        var needToCopyAnnotations = false
+
         when (serializerClassOriginal.classId) {
-            contextSerializerId, polymorphicSerializerId -> {
+            polymorphicSerializerId -> {
+                needToCopyAnnotations = true
                 args = listOf(classReference(kType))
                 typeArgs = listOf(thisIrType)
+            }
+            contextSerializerId -> {
+                args = listOf(classReference(kType))
+                typeArgs = listOf(thisIrType)
+
+                val hasNewCtxSerCtor =
+                    serializerClassOriginal.classId == contextSerializerId && compilerContext.referenceConstructors(serializerClass.fqNameSafe)
+                        .any { it.owner.valueParameters.size == 3 }
 
                 if (hasNewCtxSerCtor) {
                     // new signature of context serializer
@@ -950,10 +991,12 @@ interface IrBuilderExtension {
                 }
             }
             objectSerializerId -> {
+                needToCopyAnnotations = true
                 args = listOf(irString(kType.serialName()), irGetObject(kType.toClassDescriptor!!))
                 typeArgs = listOf(thisIrType)
             }
             sealedSerializerId -> {
+                needToCopyAnnotations = true
                 args = mutableListOf<IrExpression>().apply {
                     add(irString(kType.serialName()))
                     add(classReference(kType))
@@ -1024,6 +1067,13 @@ interface IrBuilderExtension {
             typeArgs = listOf(typeArgs[0].makeNotNull()) + typeArgs
         }
 
+        // If KType is interface, .classSerializer always yields PolymorphicSerializer, which may be unavailable for interfaces from other modules
+        if (!kType.isInterface() && serializerClassOriginal == kType.toClassDescriptor?.classSerializer && enclosingGenerator !is SerializableCompanionIrGenerator) {
+            // This is default type serializer, we can shortcut through Companion.serializer()
+            // BUT not during generation of this method itself
+            callSerializerFromCompanion(thisIrType, typeArgs, args)?.let { return it }
+        }
+
 
         val serializable = getSerializableClassDescriptorBySerializer(serializerClass)
         val ctor = if (serializable?.declaredTypeParameters?.isNotEmpty() == true) {
@@ -1031,14 +1081,56 @@ interface IrBuilderExtension {
                 findSerializerConstructorForTypeArgumentsSerializers(serializerClass)
             ) { "Generated serializer does not have constructor with required number of arguments" }
         } else {
-            compilerContext.referenceConstructors(serializerClass.fqNameSafe).single { it.owner.isPrimary }
+            val constructors = compilerContext.referenceConstructors(serializerClass.fqNameSafe)
+            // search for new signature of polymorphic/sealed/contextual serializer
+            if (!needToCopyAnnotations) {
+                constructors.single { it.owner.isPrimary }
+            } else {
+                constructors.find { it.owner.lastArgumentIsAnnotationArray() } ?: run {
+                    // not found - we are using old serialization runtime without this feature
+                    needToCopyAnnotations = false
+                    constructors.single { it.owner.isPrimary }
+                }
+            }
         }
         // Return type should be correctly substituted
         assert(ctor.isBound)
         val ctorDecl = ctor.owner
+        if (needToCopyAnnotations) {
+            val classAnnotations = copyAnnotationsFrom(thisIrType.getClass()?.annotations.orEmpty())
+            args = args + createArrayOfExpression(compilerContext.builtIns.annotationType.toIrType(), classAnnotations)
+        }
+
         val typeParameters = ctorDecl.parentAsClass.typeParameters
         val substitutedReturnType = ctorDecl.returnType.substitute(typeParameters, typeArgs)
         return irInvoke(null, ctor, typeArguments = typeArgs, valueArguments = args, returnTypeHint = substitutedReturnType)
+    }
+
+    fun IrBuilderWithScope.callSerializerFromCompanion(
+        thisIrType: IrType,
+        typeArgs: List<IrType>,
+        args: List<IrExpression>
+    ): IrExpression? {
+        val baseClass = thisIrType.getClass() ?: return null
+        val companionClass = baseClass.companionObject() ?: return null
+        val serializerProviderFunction = companionClass.declarations.singleOrNull {
+            it is IrFunction && it.name == SerialEntityNames.SERIALIZER_PROVIDER_NAME && it.valueParameters.size == baseClass.typeParameters.size
+        } ?: return null
+        with(serializerProviderFunction as IrFunction) {
+            // Note that [args] and [typeArgs] may be unused if we short-cut to e.g. SealedClassSerializer
+            return irInvoke(
+                irGetObject(companionClass),
+                symbol,
+                typeArgs.takeIf { it.size == typeParameters.size }.orEmpty(),
+                args.takeIf { it.size == valueParameters.size }.orEmpty()
+            )
+        }
+    }
+
+    private fun IrConstructor.lastArgumentIsAnnotationArray(): Boolean {
+        val lastArgType = valueParameters.lastOrNull()?.type
+        if (lastArgType == null || !lastArgType.isArray()) return false
+        return ((lastArgType as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull?.classFqName?.toString() == "kotlin.Annotation")
     }
 
     private fun IrBuilderWithScope.wrapperClassReference(classType: KotlinType): IrClassReference {
@@ -1147,23 +1239,47 @@ interface IrBuilderExtension {
             )
 
             // check for call to .shouldEncodeElementDefault
-            if (!property.optional) {
+            val encodeDefaults = property.getIrPropertyFrom(serializableIrClass).getEncodeDefaultAnnotationValue()
+            if (!property.optional || encodeDefaults == true) {
                 // emit call right away
                 +elementCall
             } else {
-                // emit check:
-                // if (if (output.shouldEncodeElementDefault(this.descriptor, i)) true else {obj.prop != DEFAULT_VALUE} ) {
-                //    output.encodeIntElement(this.descriptor, i, obj.prop)// block {obj.prop != DEFAULT_VALUE} may contain several statements
-                val shouldEncodeFunc = kOutputClass.referenceFunctionSymbol(CallingConventions.shouldEncodeDefault)
-                val partA = irInvoke(irGet(localOutput), shouldEncodeFunc, irGet(localSerialDesc), irInt(index))
                 val partB = irNotEquals(property.irGet(), initializerAdapter(property.irField.initializer!!))
-                // Ir infrastructure does not have dedicated symbol for ||, so
-                //  `a || b == if (a) true else b`, see org.jetbrains.kotlin.ir.builders.PrimitivesKt.oror
-                val condition = irIfThenElse(compilerContext.irBuiltIns.booleanType, partA, irTrue(), partB)
+
+                val condition = if (encodeDefaults == false) {
+                    // drop default without call to .shouldEncodeElementDefault
+                    partB
+                } else {
+                    // emit check:
+                    // if (if (output.shouldEncodeElementDefault(this.descriptor, i)) true else {obj.prop != DEFAULT_VALUE} ) {
+                    //    output.encodeIntElement(this.descriptor, i, obj.prop)// block {obj.prop != DEFAULT_VALUE} may contain several statements
+                    val shouldEncodeFunc = kOutputClass.referenceFunctionSymbol(CallingConventions.shouldEncodeDefault)
+                    val partA = irInvoke(irGet(localOutput), shouldEncodeFunc, irGet(localSerialDesc), irInt(index))
+                    // Ir infrastructure does not have dedicated symbol for ||, so
+                    //  `a || b == if (a) true else b`, see org.jetbrains.kotlin.ir.builders.PrimitivesKt.oror
+                    irIfThenElse(compilerContext.irBuiltIns.booleanType, partA, irTrue(), partB)
+                }
                 +irIfThen(condition, elementCall)
             }
         }
     }
+
+    /**
+     * True — ALWAYS
+     * False — NEVER
+     * null — not specified
+     */
+    fun IrProperty.getEncodeDefaultAnnotationValue(): Boolean? {
+        val call = annotations.findAnnotation(SerializationAnnotations.encodeDefaultFqName) ?: return null
+        val arg = call.getValueArgument(0) ?: return true // ALWAYS by default
+        val argValue = (arg as? IrGetEnumValue ?: error("Argument of enum constructor expected to implement IrGetEnumValue, got $arg")).symbol.owner.name.toString()
+        return when (argValue) {
+            "ALWAYS" -> true
+            "NEVER" -> false
+            else -> error("Unknown EncodeDefaultMode enum value: $argValue")
+        }
+    }
+
 
     fun IrBlockBodyBuilder.formEncodeDecodePropertyCall(
         enclosingGenerator: AbstractSerialGenerator,

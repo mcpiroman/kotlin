@@ -189,8 +189,9 @@ class TypeCommonizerTest : AbstractCommonizerTest<CirType, CirType>() {
         mockTAType("kotlin/sequences/SequenceBuilder") { mockClassType("kotlin/sequences/SequenceScope") }
     )
 
-    @Test(expected = IllegalCommonizerStateException::class)
-    fun taTypesInKotlinPackageWithDifferentNames() = doTestFailure(
+    @Test
+    fun taTypesInKotlinPackageWithDifferentNames() = doTestSuccess(
+        expected = mockClassType("kotlin/sequences/SequenceScope"),
         mockTAType("kotlin/sequences/SequenceBuilder") { mockClassType("kotlin/sequences/SequenceScope") },
         mockTAType("kotlin/sequences/SequenceBuilder") { mockClassType("kotlin/sequences/SequenceScope") },
         mockTAType("kotlin/sequences/FictitiousTypeAlias") { mockClassType("kotlin/sequences/SequenceScope") }
@@ -214,8 +215,9 @@ class TypeCommonizerTest : AbstractCommonizerTest<CirType, CirType>() {
         mockTAType("kotlinx/cinterop/CArrayPointer") { mockClassType("kotlinx/cinterop/CPointer") }
     )
 
-    @Test(expected = IllegalCommonizerStateException::class)
-    fun taTypesInKotlinxPackageWithDifferentNames() = doTestFailure(
+    @Test()
+    fun taTypesInKotlinxPackageWithDifferentNames() = doTestSuccess(
+        expected = mockClassType("kotlinx/cinterop/CPointer"),
         mockTAType("kotlinx/cinterop/CArrayPointer") { mockClassType("kotlinx/cinterop/CPointer") },
         mockTAType("kotlinx/cinterop/CArrayPointer") { mockClassType("kotlinx/cinterop/CPointer") },
         mockTAType("kotlinx/cinterop/FictitiousTypeAlias") { mockClassType("kotlinx/cinterop/CPointer") }
@@ -265,19 +267,11 @@ class TypeCommonizerTest : AbstractCommonizerTest<CirType, CirType>() {
         mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Foo") }
     )
 
-    @Test(expected = IllegalCommonizerStateException::class)
-    fun taTypesInUserPackageWithDifferentNames() = doTestFailure(
+    @Test
+    fun taTypesInUserPackageWithDifferentNames() = doTestSuccess(
+        expected = mockClassType("org/sample/Foo"),
         mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Foo") },
         mockTAType("org/sample/BarAlias") { mockClassType("org/sample/Foo") },
-        shouldFailOnFirstVariant = true
-    )
-
-    @Test
-    // why success: expect class/actual TAs
-    fun taTypesInUserPackageWithDifferentClasses() = doTestSuccess(
-        expected = mockClassType("org/sample/FooAlias"),
-        mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Foo") },
-        mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Bar") }
     )
 
     @Test
@@ -334,28 +328,6 @@ class TypeCommonizerTest : AbstractCommonizerTest<CirType, CirType>() {
         mockTAType("org/sample/FooAlias") {
             mockTAType("org/sample/FooAliasL2") {
                 mockClassType("org/sample/Foo")
-            }
-        }
-    )
-
-    @Test
-    // why success: lifting up outer TA and expect class for inner TA
-    fun multilevelTATypesInUserPackageWithSameNameAndRightHandSideClass4() = doTestSuccess(
-        expected = mockTAType("org/sample/FooAlias") {
-            mockTAType("org/sample/FooAliasL2") {
-                mockClassType("org/sample/Foo")
-            }
-        },
-
-        mockTAType("org/sample/FooAlias") {
-            mockTAType("org/sample/FooAliasL2") {
-                mockClassType("org/sample/Bar")
-            }
-        },
-
-        mockTAType("org/sample/FooAlias") {
-            mockTAType("org/sample/FooAliasL2") {
-                mockClassType("org/sample/Baz")
             }
         }
     )
@@ -439,23 +411,7 @@ class TypeCommonizerTest : AbstractCommonizerTest<CirType, CirType>() {
     fun taTypesInUserPackageWithDifferentNullability2() = doTestFailure(
         mockTAType("org/sample/FooAlias", nullable = true) { mockClassType("org/sample/Foo") },
         mockTAType("org/sample/FooAlias", nullable = true) { mockClassType("org/sample/Foo") },
-        mockTAType("org/sample/FooAlias", nullable = false) { mockClassType("org/sample/Foo") }
-    )
-
-    @Test
-    // why success: nullability of underlying type does not matter if expect class/actual TAs created
-    fun taTypesInUserPackageWithDifferentNullability3() = doTestSuccess(
-        expected = mockClassType("org/sample/FooAlias"),
-        mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Foo", nullable = false) },
-        mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Foo", nullable = true) }
-    )
-
-    @Test
-    // why success: nullability of underlying type does not matter if expect class/actual TAs created
-    fun taTypesInUserPackageWithDifferentNullability4() = doTestSuccess(
-        expected = mockClassType("org/sample/FooAlias"),
-        mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Foo", nullable = true) },
-        mockTAType("org/sample/FooAlias") { mockClassType("org/sample/Foo", nullable = false) }
+        mockTAType("org/sample/FooAlias", nullable = false) { mockClassType("org/sample/Foo") },
     )
 
     private fun prepareCache(variants: Array<out CirClassOrTypeAliasType>) {
@@ -469,7 +425,7 @@ class TypeCommonizerTest : AbstractCommonizerTest<CirType, CirType>() {
                             storageManager = LockBasedStorageManager.NO_LOCKS,
                             size = variants.size,
                             classifiers = classifiers,
-                            parentCommonDeclaration = null,
+                            nodeRelationship = null,
                             classId = type.classifierId
                         )
                     }

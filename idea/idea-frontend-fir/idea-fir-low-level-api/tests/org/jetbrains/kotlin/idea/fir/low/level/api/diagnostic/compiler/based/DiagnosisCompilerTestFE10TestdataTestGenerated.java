@@ -838,9 +838,19 @@ public class DiagnosisCompilerTestFE10TestdataTestGenerated extends AbstractDiag
                 runTest("compiler/testData/diagnostics/tests/annotations/AnnotationAsDefaultParameter.kt");
             }
 
-            @TestMetadata("AnnotationForClassTypeParameter.kt")
-            public void testAnnotationForClassTypeParameter() throws Exception {
-                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter.kt");
+            @TestMetadata("AnnotationForClassTypeParameter_15.kt")
+            public void testAnnotationForClassTypeParameter_15() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter_15.kt");
+            }
+
+            @TestMetadata("AnnotationForClassTypeParameter_16.kt")
+            public void testAnnotationForClassTypeParameter_16() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter_16.kt");
+            }
+
+            @TestMetadata("AnnotationForClassTypeParameter_typeUseFlag.kt")
+            public void testAnnotationForClassTypeParameter_typeUseFlag() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter_typeUseFlag.kt");
             }
 
             @TestMetadata("AnnotationForFunctionTypeParameter.kt")
@@ -10616,6 +10626,11 @@ public class DiagnosisCompilerTestFE10TestdataTestGenerated extends AbstractDiag
                 runTest("compiler/testData/diagnostics/tests/inference/expectedTypeWithGenerics.kt");
             }
 
+            @TestMetadata("expectedTypeWithGenericsSafeCalls.kt")
+            public void testExpectedTypeWithGenericsSafeCalls() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/inference/expectedTypeWithGenericsSafeCalls.kt");
+            }
+
             @TestMetadata("extensionLambdasAndArrow.kt")
             public void testExtensionLambdasAndArrow() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/inference/extensionLambdasAndArrow.kt");
@@ -16731,6 +16746,11 @@ public class DiagnosisCompilerTestFE10TestdataTestGenerated extends AbstractDiag
                 runTest("compiler/testData/diagnostics/tests/nullabilityAndSmartCasts/AssertNotNull.kt");
             }
 
+            @TestMetadata("augmentedAssignment.kt")
+            public void testAugmentedAssignment() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/nullabilityAndSmartCasts/augmentedAssignment.kt");
+            }
+
             @TestMetadata("dataFlowInfoAfterExclExcl.kt")
             public void testDataFlowInfoAfterExclExcl() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/nullabilityAndSmartCasts/dataFlowInfoAfterExclExcl.kt");
@@ -18298,6 +18318,11 @@ public class DiagnosisCompilerTestFE10TestdataTestGenerated extends AbstractDiag
 
                 public void testAllFilesPresentInGenericVarianceViolation() throws Exception {
                     KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/platformTypes/genericVarianceViolation"), Pattern.compile("^(.+)\\.kt$"), Pattern.compile("^(.+)\\.fir\\.kts?$"), true);
+                }
+
+                @TestMetadata("inferenceFrom.kt")
+                public void testInferenceFrom() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/platformTypes/genericVarianceViolation/inferenceFrom.kt");
                 }
 
                 @TestMetadata("listSuperType.kt")

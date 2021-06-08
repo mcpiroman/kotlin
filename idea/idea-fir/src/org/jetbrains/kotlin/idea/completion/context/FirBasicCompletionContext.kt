@@ -9,29 +9,55 @@ import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.codeInsight.completion.PrefixMatcher
 import com.intellij.openapi.project.Project
-import org.jetbrains.kotlin.idea.completion.KotlinFirLookupElementFactory
+import org.jetbrains.kotlin.idea.caches.project.IdeaModuleInfo
+import org.jetbrains.kotlin.idea.caches.project.getModuleInfo
+import org.jetbrains.kotlin.idea.completion.KotlinFirCompletionParameters
+import org.jetbrains.kotlin.idea.completion.LookupElementSink
+import org.jetbrains.kotlin.idea.completion.lookups.factories.KotlinFirLookupElementFactory
+import org.jetbrains.kotlin.idea.fir.low.level.api.IndexHelper
 import org.jetbrains.kotlin.idea.project.TargetPlatformDetector
+import org.jetbrains.kotlin.idea.stubindex.KotlinSourceFilterScope
 import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.psi.KtFile
 
 internal class FirBasicCompletionContext(
     val parameters: CompletionParameters,
-    val result: CompletionResultSet,
+    val sink: LookupElementSink,
     val prefixMatcher: PrefixMatcher,
     val originalKtFile: KtFile,
     val fakeKtFile: KtFile,
     val project: Project,
     val targetPlatform: TargetPlatform,
+    val indexHelper: IndexHelper,
     val lookupElementFactory: KotlinFirLookupElementFactory = KotlinFirLookupElementFactory(),
 ) {
+    val visibleScope = KotlinSourceFilterScope.projectSourceAndClassFiles(originalKtFile.resolveScope, project)
+    val moduleInfo: IdeaModuleInfo = originalKtFile.getModuleInfo()
+
     companion object {
-        fun createFromParameters(parameters: CompletionParameters, result: CompletionResultSet): FirBasicCompletionContext? {
+        fun createFromParameters(firParameters: KotlinFirCompletionParameters, result: CompletionResultSet): FirBasicCompletionContext? {
             val prefixMatcher = result.prefixMatcher
+            val parameters = firParameters.ijParameters
             val originalKtFile = parameters.originalFile as? KtFile ?: return null
             val fakeKtFile = parameters.position.containingFile as? KtFile ?: return null
             val targetPlatform = TargetPlatformDetector.getPlatform(originalKtFile)
             val project = originalKtFile.project
-            return FirBasicCompletionContext(parameters, result, prefixMatcher, originalKtFile, fakeKtFile, project, targetPlatform)
+            val indexHelper = createIndexHelper(parameters)
+            return FirBasicCompletionContext(
+                parameters,
+                LookupElementSink(result, firParameters),
+                prefixMatcher,
+                originalKtFile,
+                fakeKtFile,
+                project,
+                targetPlatform,
+                indexHelper
+            )
         }
+
+        private fun createIndexHelper(parameters: CompletionParameters) = IndexHelper(
+            parameters.position.project,
+            parameters.position.getModuleInfo().contentScope()
+        )
     }
 }

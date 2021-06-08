@@ -8,24 +8,29 @@ package org.jetbrains.kotlin.ir.interpreter
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.builtins.UnsignedType
-import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.interpreter.builtins.evaluateIntrinsicAnnotation
-import org.jetbrains.kotlin.ir.interpreter.stack.Variable
+import org.jetbrains.kotlin.ir.expressions.impl.IrErrorExpressionImpl
+import org.jetbrains.kotlin.ir.interpreter.proxy.Proxy
+import org.jetbrains.kotlin.ir.interpreter.proxy.wrap
 import org.jetbrains.kotlin.ir.interpreter.state.*
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
-import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
-import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
+import org.jetbrains.kotlin.ir.interpreter.state.reflection.KTypeState
+import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.types.impl.buildSimpleType
+import org.jetbrains.kotlin.ir.types.impl.makeTypeProjection
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
-import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import java.lang.invoke.MethodType
+
+val compileTimeAnnotation = FqName("kotlin.CompileTimeCalculation")
+val evaluateIntrinsicAnnotation = FqName("kotlin.EvaluateIntrinsic")
+val contractsDslAnnotation = FqName("kotlin.internal.ContractsDsl")
 
 internal fun IrFunction.getDispatchReceiver(): IrValueParameterSymbol? = this.dispatchReceiverParameter?.symbol
 
@@ -33,7 +38,7 @@ internal fun IrFunction.getExtensionReceiver(): IrValueParameterSymbol? = this.e
 
 internal fun IrFunction.getReceiver(): IrSymbol? = this.getDispatchReceiver() ?: this.getExtensionReceiver()
 
-internal fun IrFunctionAccessExpression.getBody(): IrBody? = this.symbol.owner.body
+internal fun IrFunctionAccessExpression.getThisReceiver(): IrValueSymbol = this.symbol.owner.parentAsClass.thisReceiver!!.symbol
 
 internal fun State.toIrExpression(expression: IrExpression): IrExpression {
     val start = expression.startOffset
@@ -46,6 +51,9 @@ internal fun State.toIrExpression(expression: IrExpression): IrExpression {
                 type.isPrimitiveType() || type.isString() -> this.value.toIrConst(type, start, end)
                 else -> expression // TODO support for arrays
             }
+        is ExceptionState -> {
+            IrErrorExpressionImpl(expression.startOffset, expression.endOffset, expression.type, "\n" + this.getFullDescription())
+        }
         is Complex -> {
             val stateType = this.irClass.defaultType
             when {
@@ -57,13 +65,17 @@ internal fun State.toIrExpression(expression: IrExpression): IrExpression {
     }
 }
 
+/**
+ * Convert object from outer world to state
+ */
 internal fun Any?.toState(irType: IrType): State {
     return when (this) {
+        is Proxy -> this.state
         is State -> this
         is Boolean, is Char, is Byte, is Short, is Int, is Long, is String, is Float, is Double, is Array<*>, is ByteArray,
         is CharArray, is ShortArray, is IntArray, is LongArray, is FloatArray, is DoubleArray, is BooleanArray -> Primitive(this, irType)
         null -> Primitive(this, irType)
-        else -> Wrapper(this, irType.classOrNull!!.owner)
+        else -> irType.classOrNull?.owner?.let { Wrapper(this, it) } ?: Wrapper(this)
     }
 }
 
@@ -93,8 +105,11 @@ fun Any?.toIrConst(irType: IrType, startOffset: Int = UNDEFINED_OFFSET, endOffse
     }
 }
 
-internal fun <T> IrConst<T>.toPrimitive(): Primitive<T> {
-    return Primitive(this.value, this.type)
+@Suppress("UNCHECKED_CAST")
+internal fun <T> IrConst<T>.toPrimitive(): Primitive<T> = when {
+    type.isByte() -> Primitive((value as Number).toByte() as T, type)
+    type.isShort() -> Primitive((value as Number).toShort() as T, type)
+    else -> Primitive(value, type)
 }
 
 fun IrAnnotationContainer?.hasAnnotation(annotation: FqName): Boolean {
@@ -132,27 +147,6 @@ internal fun getPrimitiveClass(irType: IrType, asObject: Boolean = false): Class
         }
     }
 
-internal fun IrFunction.getArgsForMethodInvocation(args: List<Variable>): List<Any?> {
-    val argsValues = args.map {
-        when (val state = it.state) {
-            is ExceptionState -> state.getThisAsCauseForException()
-            is Wrapper -> state.value
-            is Primitive<*> -> state.value
-            else -> throw AssertionError("${state::class} is unsupported as argument for wrapper method invocation")
-        }
-    }.toMutableList()
-
-    // TODO if vararg isn't last parameter
-    // must convert vararg array into separated elements for correct invoke
-    if (this.valueParameters.lastOrNull()?.varargElementType != null) {
-        val varargValue = argsValues.last()
-        argsValues.removeAt(argsValues.size - 1)
-        argsValues.addAll(varargValue as Array<out Any?>)
-    }
-
-    return argsValues
-}
-
 fun IrFunction.getLastOverridden(): IrFunction {
     if (this !is IrSimpleFunction) return this
 
@@ -168,7 +162,7 @@ internal fun List<Any?>.toPrimitiveStateArray(type: IrType): Primitive<*> {
         type.isLongArray() -> Primitive(LongArray(size) { i -> (this[i] as Number).toLong() }, type)
         type.isFloatArray() -> Primitive(FloatArray(size) { i -> (this[i] as Number).toFloat() }, type)
         type.isDoubleArray() -> Primitive(DoubleArray(size) { i -> (this[i] as Number).toDouble() }, type)
-        type.isBooleanArray() -> Primitive(BooleanArray(size) { i -> this[i].toString().toBoolean() }, type)
+        type.isBooleanArray() -> Primitive(BooleanArray(size) { i -> (this[i] as Boolean) }, type)
         else -> Primitive<Array<*>>(this.toTypedArray(), type)
     }
 }
@@ -176,59 +170,32 @@ internal fun List<Any?>.toPrimitiveStateArray(type: IrType): Primitive<*> {
 fun IrFunctionAccessExpression.getVarargType(index: Int): IrType? {
     val varargType = this.symbol.owner.valueParameters[index].varargElementType ?: return null
     varargType.classOrNull?.let { return this.symbol.owner.valueParameters[index].type }
-    val typeParameter = varargType.classifierOrFail.owner as IrTypeParameter
-    return this.getTypeArgument(typeParameter.index)
-}
-
-internal fun getTypeArguments(
-    container: IrTypeParametersContainer, expression: IrFunctionAccessExpression, mapper: (IrTypeParameterSymbol) -> State
-): List<Variable> {
-    fun IrType.getState(): State {
-        return this.classOrNull?.owner?.let { Common(it) } ?: mapper(this.classifierOrFail as IrTypeParameterSymbol)
+    val type = this.symbol.owner.valueParameters[index].type as? IrSimpleType ?: return null
+    return type.buildSimpleType {
+        val typeParameter = varargType.classifierOrFail.owner as IrTypeParameter
+        arguments = listOf(makeTypeProjection(this@getVarargType.getTypeArgument(typeParameter.index)!!, Variance.OUT_VARIANCE))
     }
-
-    val typeArguments = container.typeParameters.mapIndexed { index, typeParameter ->
-        val typeArgument = expression.getTypeArgument(index)!!
-        Variable(typeParameter.symbol, typeArgument.getState())
-    }.toMutableList()
-
-    if (container is IrSimpleFunction) {
-        container.returnType.classifierOrFail.owner.safeAs<IrTypeParameter>()
-            ?.let { typeArguments.add(Variable(it.symbol, expression.type.getState())) }
-    }
-
-    return typeArguments
-}
-
-internal fun State?.extractNonLocalDeclarations(): List<Variable> {
-    this ?: return listOf()
-    val state = this.takeIf { it !is Complex } ?: (this as Complex).getOriginal()
-    return state.fields.filter { it.symbol !is IrFieldSymbol }
-}
-
-internal fun State?.getCorrectReceiverByFunction(irFunction: IrFunction): State? {
-    if (this !is Complex) return this
-
-    val original: Complex? = this.getOriginal()
-    val other = irFunction.parentClassOrNull?.thisReceiver ?: return this
-    return generateSequence(original) { it.superClass }.firstOrNull { it.irClass.thisReceiver == other } ?: this
 }
 
 internal fun IrFunction.getCapitalizedFileName() = this.file.name.replace(".kt", "Kt").capitalizeAsciiOnly()
+
+internal fun IrType.isUnsigned() = this.getUnsignedType() != null
+internal fun IrType.isFunction() = this.getClass()?.fqNameWhenAvailable?.asString()?.startsWith("kotlin.Function") ?: false
+internal fun IrType.isKFunction() = this.getClass()?.fqNameWhenAvailable?.asString()?.startsWith("kotlin.reflect.KFunction") ?: false
+internal fun IrType.isTypeParameter() = classifierOrNull is IrTypeParameterSymbol
+internal fun IrType.isThrowable() = this.getClass()?.fqNameWhenAvailable?.asString() == "kotlin.Throwable"
+
+internal fun IrType.isUnsignedArray(): Boolean {
+    if (this !is IrSimpleType || classifier !is IrClassSymbol) return false
+    val fqName = (classifier.owner as IrDeclarationWithName).fqNameWhenAvailable?.asString()
+    return fqName in setOf("kotlin.UByteArray", "kotlin.UShortArray", "kotlin.UIntArray", "kotlin.ULongArray")
+}
 
 internal fun IrType.isPrimitiveArray(): Boolean {
     return this.getClass()?.fqNameWhenAvailable?.toUnsafe()?.let { StandardNames.isPrimitiveArray(it) } ?: false
 }
 
-internal fun IrType.isFunction() = this.getClass()?.fqNameWhenAvailable?.asString()?.startsWith("kotlin.Function") ?: false
-
-internal fun IrType.isTypeParameter() = classifierOrNull is IrTypeParameterSymbol
-
-internal fun IrType.isInterface() = classOrNull?.owner?.kind == ClassKind.INTERFACE
-
-internal fun IrType.isThrowable() = this.getClass()?.fqNameWhenAvailable?.asString() == "kotlin.Throwable"
-
-fun IrClass.internalName(): String {
+internal fun IrClass.internalName(): String {
     val internalName = StringBuilder(this.name.asString())
     generateSequence(this as? IrDeclarationParent) { (it as? IrDeclaration)?.parent }
         .drop(1)
@@ -239,4 +206,68 @@ fun IrClass.internalName(): String {
             }
         }
     return internalName.toString()
+}
+
+internal inline fun withExceptionHandler(environment: IrInterpreterEnvironment, block: () -> Unit) {
+    try {
+        block()
+    } catch (e: Throwable) {
+        e.handleUserException(environment)
+    }
+}
+
+internal fun Throwable.handleUserException(environment: IrInterpreterEnvironment) {
+    val exceptionName = this::class.java.simpleName
+    val irExceptionClass = environment.irExceptions.firstOrNull { it.name.asString() == exceptionName }
+        ?: environment.irBuiltIns.throwableClass.owner
+    environment.callStack.pushState(ExceptionState(this, irExceptionClass, environment.callStack.getStackTrace()))
+    environment.callStack.dropFramesUntilTryCatch()
+}
+
+/**
+ * This method is analog of `checkcast` jvm bytecode operation. Throw exception whenever actual type is not a subtype of expected.
+ */
+internal fun IrFunction?.checkCast(environment: IrInterpreterEnvironment): Boolean {
+    this ?: return true
+    val actualType = this.returnType
+    if (actualType.classifierOrNull !is IrTypeParameterSymbol) return true
+
+    // TODO expectedType can be missing for functions called as proxy
+    val expectedType = (environment.callStack.getState(this.symbol) as? KTypeState)?.irType ?: return true
+    if (expectedType.classifierOrFail is IrTypeParameterSymbol) return true
+
+    val actualState = environment.callStack.peekState() ?: return true
+    if (actualState is Primitive<*> && actualState.value == null) return true // this is handled in checkNullability
+
+    if (!actualState.isSubtypeOf(expectedType)) {
+        val convertibleClassName = environment.callStack.popState().irClass.fqNameWhenAvailable
+        ClassCastException("$convertibleClassName cannot be cast to ${expectedType.render()}").handleUserException(environment)
+        return false
+    }
+    return true
+}
+
+internal fun IrFunction.getArgsForMethodInvocation(
+    callInterceptor: CallInterceptor, methodType: MethodType, args: List<State>
+): List<Any?> {
+    val argsValues = args.wrap(callInterceptor, this, methodType).toMutableList()
+
+    // TODO if vararg isn't last parameter
+    // must convert vararg array into separated elements for correct invoke
+    if (this.valueParameters.lastOrNull()?.varargElementType != null) {
+        val varargValue = argsValues.last()
+        argsValues.removeAt(argsValues.size - 1)
+        argsValues.addAll(varargValue as Array<out Any?>)
+    }
+
+    return argsValues
+}
+
+internal fun IrType.getOnlyName(): String {
+    if (this !is IrSimpleType) return this.render()
+    return (this.classifierOrFail.owner as IrDeclarationWithName).name.asString() + (if (this.hasQuestionMark) "?" else "")
+}
+
+internal fun IrFieldAccessExpression.accessesTopLevelOrObjectField(): Boolean {
+    return this.receiver == null || (this.receiver?.type?.classifierOrNull?.owner as? IrClass)?.isObject == true
 }

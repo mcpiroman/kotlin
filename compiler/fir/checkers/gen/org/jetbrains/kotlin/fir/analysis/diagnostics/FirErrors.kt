@@ -143,6 +143,7 @@ object FirErrors {
     val SEALED_SUPERTYPE by error0<KtTypeReference>()
     val SEALED_SUPERTYPE_IN_LOCAL_CLASS by error0<KtTypeReference>()
     val SUPERTYPE_NOT_A_CLASS_OR_INTERFACE by error1<KtElement, String>()
+    val CYCLIC_INHERITANCE_HIERARCHY by error0<PsiElement>()
 
     // Constructor problems
     val CONSTRUCTOR_IN_OBJECT by error0<KtDeclaration>(SourceElementPositioningStrategies.DECLARATION_SIGNATURE)
@@ -255,6 +256,7 @@ object FirErrors {
     val ASSIGNMENT_TYPE_MISMATCH by error2<KtExpression, ConeKotlinType, ConeKotlinType>()
     val RESULT_TYPE_MISMATCH by error2<KtExpression, ConeKotlinType, ConeKotlinType>()
     val MANY_LAMBDA_EXPRESSION_ARGUMENTS by error0<KtValueArgument>()
+    val NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER by error1<KtElement, String>()
 
     // Ambiguity
     val OVERLOAD_RESOLUTION_AMBIGUITY by error1<PsiElement, Collection<AbstractFirBasedSymbol<*>>>(SourceElementPositioningStrategies.REFERENCE_BY_QUALIFIED)
@@ -274,7 +276,9 @@ object FirErrors {
     val TYPE_PARAMETERS_IN_OBJECT by error0<PsiElement>()
     val ILLEGAL_PROJECTION_USAGE by error0<PsiElement>()
     val TYPE_PARAMETERS_IN_ENUM by error0<PsiElement>()
-    val CONFLICTING_PROJECTION by error1<PsiElement, ConeKotlinType>()
+    val CONFLICTING_PROJECTION by error1<KtTypeParameter, ConeKotlinType>(SourceElementPositioningStrategies.VARIANCE_MODIFIER)
+    val CONFLICTING_PROJECTION_IN_TYPEALIAS_EXPANSION by error1<KtTypeParameter, ConeKotlinType>(SourceElementPositioningStrategies.VARIANCE_MODIFIER)
+    val REDUNDANT_PROJECTION by warning1<KtTypeParameter, ConeKotlinType>(SourceElementPositioningStrategies.VARIANCE_MODIFIER)
     val VARIANCE_ON_TYPE_PARAMETER_NOT_ALLOWED by error0<KtTypeParameter>(SourceElementPositioningStrategies.VARIANCE_MODIFIER)
     val CATCH_PARAMETER_WITH_DEFAULT_VALUE by error0<PsiElement>()
     val REIFIED_TYPE_IN_CATCH_CLAUSE by error0<PsiElement>()
@@ -479,6 +483,7 @@ object FirErrors {
 
     // Type alias
     val TOPLEVEL_TYPEALIASES_ONLY by error0<KtTypeAlias>()
+    val RECURSIVE_TYPEALIAS_EXPANSION by error0<KtTypeAlias>()
 
     // Extended checkers
     val REDUNDANT_VISIBILITY_MODIFIER by warning0<KtModifierListOwner>(SourceElementPositioningStrategies.VISIBILITY_MODIFIER)

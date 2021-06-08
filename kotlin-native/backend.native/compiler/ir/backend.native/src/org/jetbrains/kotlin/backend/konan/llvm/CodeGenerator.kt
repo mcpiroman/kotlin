@@ -95,6 +95,19 @@ internal sealed class ExceptionHandler {
     abstract class Local : ExceptionHandler() {
         abstract val unwind: LLVMBasicBlockRef
     }
+
+    open fun genThrow(
+            functionGenerationContext: FunctionGenerationContext,
+            kotlinException: LLVMValueRef
+    ): Unit = with(functionGenerationContext) {
+        call(
+                context.llvm.throwExceptionFunction,
+                listOf(kotlinException),
+                Lifetime.IRRELEVANT,
+                this@ExceptionHandler
+        )
+        unreachable()
+    }
 }
 
 internal enum class ThreadState {
@@ -120,6 +133,7 @@ internal inline fun<R> generateFunction(codegen: CodeGenerator,
             codegen,
             startLocation,
             endLocation,
+            switchToRunnable = function.origin == CBridgeOrigin.C_TO_KOTLIN_BRIDGE,
             function)
     try {
         generateFunctionBody(functionGenerationContext, code)
@@ -135,8 +149,15 @@ internal inline fun<R> generateFunction(codegen: CodeGenerator,
 
 internal inline fun<R> generateFunction(codegen: CodeGenerator, function: LLVMValueRef,
                                         startLocation: LocationInfo? = null, endLocation: LocationInfo? = null,
+                                        switchToRunnable: Boolean = false,
                                         code:FunctionGenerationContext.(FunctionGenerationContext) -> R) {
-    val functionGenerationContext = FunctionGenerationContext(function, codegen, startLocation, endLocation)
+    val functionGenerationContext = FunctionGenerationContext(
+            function,
+            codegen,
+            startLocation,
+            endLocation,
+            switchToRunnable = switchToRunnable
+    )
     try {
         generateFunctionBody(functionGenerationContext, code)
     } finally {
@@ -148,6 +169,7 @@ internal inline fun generateFunction(
         codegen: CodeGenerator,
         functionType: LLVMTypeRef,
         name: String,
+        switchToRunnable: Boolean = false,
         block: FunctionGenerationContext.(FunctionGenerationContext) -> Unit
 ): LLVMValueRef {
     val function = addLlvmFunctionWithDefaultAttributes(
@@ -156,7 +178,7 @@ internal inline fun generateFunction(
             name,
             functionType
     )
-    generateFunction(codegen, function, startLocation = null, endLocation = null, code = block)
+    generateFunction(codegen, function, startLocation = null, endLocation = null, switchToRunnable = switchToRunnable, code = block)
     return function
 }
 
@@ -166,7 +188,7 @@ internal inline fun <R> generateFunctionNoRuntime(
         function: LLVMValueRef,
         code: FunctionGenerationContext.(FunctionGenerationContext) -> R,
 ) {
-    val functionGenerationContext = FunctionGenerationContext(function, codegen, null, null)
+    val functionGenerationContext = FunctionGenerationContext(function, codegen, null, null, switchToRunnable = false)
     try {
         functionGenerationContext.forbidRuntime = true
         require(!functionGenerationContext.isObjectType(functionGenerationContext.returnType!!)) {
@@ -354,6 +376,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
                                          val codegen: CodeGenerator,
                                          startLocation: LocationInfo?,
                                          private val endLocation: LocationInfo?,
+                                         private val switchToRunnable: Boolean,
                                          internal val irFunction: IrFunction? = null): ContextUtils {
 
     override val context = codegen.context
@@ -790,7 +813,11 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
         return LLVMBuildExtractElement(builder, vector, index, name)!!
     }
 
-    fun filteringExceptionHandler(codeContext: CodeContext, foreignExceptionMode: ForeignExceptionMode.Mode, switchThreadState: Boolean): ExceptionHandler {
+    fun filteringExceptionHandler(
+            outerHandler: ExceptionHandler,
+            foreignExceptionMode: ForeignExceptionMode.Mode,
+            switchThreadState: Boolean
+    ): ExceptionHandler {
         val lpBlock = basicBlockInFunction("filteringExceptionHandler", position()?.start)
 
         val wrapExceptionMode = context.config.target.family.isAppleFamily &&
@@ -830,8 +857,8 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
                     condBr(isObjCException, forwardNativeExceptionBlock, fatalForeignExceptionBlock)
 
                     appendingTo(forwardNativeExceptionBlock) {
-                        val exception = createForeignException(landingpad, codeContext.exceptionHandler)
-                        codeContext.genThrow(exception)
+                        val exception = createForeignException(landingpad, outerHandler)
+                        outerHandler.genThrow(this, exception)
                     }
                 }
             } else {
@@ -840,7 +867,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
 
             appendingTo(forwardKotlinExceptionBlock) {
                 // Rethrow Kotlin exception to real handler.
-                codeContext.genThrow(extractKotlinException(landingpad))
+                outerHandler.genThrow(this, extractKotlinException(landingpad))
             }
 
             appendingTo(fatalForeignExceptionBlock) {
@@ -1284,8 +1311,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
             returnSlot = LLVMGetParam(function, numParameters(function.type) - 1)
         }
 
-        if (context.memoryModel == MemoryModel.EXPERIMENTAL &&
-                irFunction?.origin == CBridgeOrigin.C_TO_KOTLIN_BRIDGE) {
+        if (context.memoryModel == MemoryModel.EXPERIMENTAL && switchToRunnable) {
             check(!forbidRuntime) { "Attempt to switch the thread state when runtime is forbidden" }
             positionAtEnd(prologueBb)
             // TODO: Do we need to do it for every c->kotlin bridge?
@@ -1303,10 +1329,9 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
 
     internal fun epilogue() {
         appendingTo(prologueBb) {
-            if (needsRuntimeInit) {
+            if (needsRuntimeInit && context.config.memoryModel != MemoryModel.EXPERIMENTAL) {
                 check(!forbidRuntime) { "Attempt to init runtime where runtime usage is forbidden" }
                 call(context.llvm.initRuntimeIfNeeded, emptyList())
-                // TODO: Do we also need to switch to runnable mode?
             }
             val slots = if (needSlotsPhi)
                 LLVMBuildArrayAlloca(builder, kObjHeaderPtr, Int32(slotCount).llvm, "")!!
@@ -1374,7 +1399,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
         val shouldHaveCleanupLandingpad = forwardingForeignExceptionsTerminatedWith != null ||
                 needSlots ||
                 !stackLocalsManager.isEmpty() ||
-                (context.memoryModel == MemoryModel.EXPERIMENTAL && irFunction?.origin == CBridgeOrigin.C_TO_KOTLIN_BRIDGE)
+                (context.memoryModel == MemoryModel.EXPERIMENTAL && switchToRunnable)
 
         if (shouldHaveCleanupLandingpad) {
             appendingTo(cleanupLandingpad) {
@@ -1438,7 +1463,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
             if (!forbidRuntime) {
                 call(safePointFunction, emptyList())
             }
-            if (irFunction?.origin == CBridgeOrigin.C_TO_KOTLIN_BRIDGE) {
+            if (switchToRunnable) {
                 check(!forbidRuntime) { "Generating a bridge when runtime is forbidden" }
                 switchThreadState(Native)
             }

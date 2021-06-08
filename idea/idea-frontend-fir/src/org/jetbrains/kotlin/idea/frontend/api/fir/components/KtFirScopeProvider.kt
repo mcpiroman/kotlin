@@ -86,6 +86,15 @@ internal class KtFirScopeProvider(
         }
     }
 
+    override fun getStaticMemberScope(symbol: KtSymbolWithMembers): KtScope {
+        val firScope = symbol.withFirForScope { fir ->
+            fir.scopeProvider.getStaticScope(fir, analysisSession.rootModuleSession, ScopeSession())
+        } ?: return KtFirEmptyMemberScope(symbol)
+        firScopeStorage.register(firScope)
+        check(firScope is FirContainingNamesAwareScope)
+        return KtFirDelegatingScopeImpl(firScope, builder, token)
+    }
+
     override fun getDeclaredMemberScope(classSymbol: KtSymbolWithMembers): KtDeclaredMemberScope = withValidityAssertion {
         declaredMemberScopeCache.getOrPut(classSymbol) {
             val firScope = classSymbol.withFirForScope {
@@ -107,13 +116,20 @@ internal class KtFirScopeProvider(
 
     override fun getPackageScope(packageSymbol: KtPackageSymbol): KtPackageScope = withValidityAssertion {
         packageMemberScopeCache.getOrPut(packageSymbol) {
-            val firPackageScope =
-                FirPackageMemberScope(
-                    packageSymbol.fqName,
-                    firResolveState.rootModuleSession/*TODO use correct session here*/
-                ).also(firScopeStorage::register)
-            KtFirPackageScope(firPackageScope, project, builder, token)
+            KtFirPackageScope(
+                packageSymbol.fqName,
+                project,
+                builder,
+                this,
+                token,
+                analysisSession.searchScope,
+                analysisSession.targetPlatform
+            )
         }
+    }
+
+    fun registerScope(scope: FirScope) {
+        firScopeStorage.register(scope)
     }
 
     override fun getCompositeScope(subScopes: List<KtScope>): KtCompositeScope = withValidityAssertion {
@@ -179,7 +195,15 @@ internal class KtFirScopeProvider(
         return when (firScope) {
             is FirAbstractSimpleImportingScope -> KtFirNonStarImportingScope(firScope, builder, token)
             is FirAbstractStarImportingScope -> KtFirStarImportingScope(firScope, builder, project, token)
-            is FirPackageMemberScope -> KtFirPackageScope(firScope, project, builder, token)
+            is FirPackageMemberScope -> KtFirPackageScope(
+                firScope.fqName,
+                project,
+                builder,
+                this,
+                token,
+                analysisSession.searchScope,
+                analysisSession.targetPlatform
+            )
             is FirContainingNamesAwareScope -> KtFirDelegatingScopeImpl(firScope, builder, token)
             is FirMemberTypeParameterScope -> KtFirDelegatingScopeImpl(firScope, builder, token)
             else -> TODO(firScope::class.toString())

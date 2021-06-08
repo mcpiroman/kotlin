@@ -26,8 +26,6 @@ import org.jetbrains.kotlin.fir.resolve.diagnostics.*
 import org.jetbrains.kotlin.fir.resolve.inference.FirStubInferenceSession
 import org.jetbrains.kotlin.fir.resolve.inference.inferenceComponents
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
-import org.jetbrains.kotlin.fir.resolve.substitution.substituteOrNull
-import org.jetbrains.kotlin.fir.resolve.substitution.substitutorByMap
 import org.jetbrains.kotlin.fir.resolve.transformers.*
 import org.jetbrains.kotlin.fir.symbols.impl.FirVariableSymbol
 import org.jetbrains.kotlin.fir.types.*
@@ -41,6 +39,7 @@ import org.jetbrains.kotlin.resolve.calls.tower.CandidateApplicability
 import org.jetbrains.kotlin.types.AbstractTypeChecker
 import org.jetbrains.kotlin.types.ConstantValueKind
 import org.jetbrains.kotlin.types.TypeApproximatorConfiguration
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransformer) : FirPartialBodyResolveTransformer(transformer) {
     private inline val builtinTypes: BuiltinTypes get() = session.builtinTypes
@@ -372,6 +371,7 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
             explicitReceiver = leftArgument
             argumentList = buildUnaryArgumentList(rightArgument)
             calleeReference = buildSimpleNamedReference {
+                // TODO: Use source of operator for callee reference source
                 source = assignmentOperatorStatement.source?.fakeElement(FirFakeSourceElementKind.DesugaredCompoundAssignment)
                 this.name = name
                 candidateSymbol = null
@@ -386,7 +386,7 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
             assignOperatorCall.transformSingle(this, ResolutionMode.ContextDependent)
         }
         val assignCallReference = resolvedAssignCall.calleeReference as? FirNamedReferenceWithCandidate
-        val assignIsResolvable = assignCallReference?.isError == false
+        val assignIsSuccessful = assignCallReference?.isError == false
 
         // x = x + y
         val simpleOperatorName = FirOperationNameConventions.ASSIGNMENTS_TO_SIMPLE_OPERATOR.getValue(assignmentOperatorStatement.operation)
@@ -395,7 +395,7 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
             simpleOperatorCall.transformSingle(this, ResolutionMode.ContextDependent)
         }
         val operatorCallReference = resolvedOperatorCall.calleeReference as? FirNamedReferenceWithCandidate
-        val operatorIsResolvable = operatorCallReference?.isError == false
+        val operatorIsSuccessful = operatorCallReference?.isError == false
 
         fun operatorReturnTypeMatches(candidate: Candidate): Boolean {
             // After KT-45503, non-assign flavor of operator is checked more strictly: the return type must be assignable to the variable.
@@ -408,8 +408,8 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
                 leftArgument.typeRef.coneType
             )
         }
-        // following `!!` is safe since `operatorIsResolvable = true` implies `operatorCallReference != null`
-        val operatorReturnTypeMatches = operatorIsResolvable && operatorReturnTypeMatches(operatorCallReference!!.candidate)
+        // following `!!` is safe since `operatorIsSuccessful = true` implies `operatorCallReference != null`
+        val operatorReturnTypeMatches = operatorIsSuccessful && operatorReturnTypeMatches(operatorCallReference!!.candidate)
 
         val lhsReference = leftArgument.toResolvedCallableReference()
         val lhsSymbol = lhsReference?.resolvedSymbol as? FirVariableSymbol<*>
@@ -467,11 +467,21 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
         }
 
         return when {
-            assignIsResolvable && !lhsIsVar -> chooseAssign()
-            !assignIsResolvable && !operatorIsResolvable -> chooseAssign()
-            !assignIsResolvable && operatorIsResolvable -> chooseOperator()
-            assignIsResolvable && !operatorIsResolvable -> chooseAssign()
-            assignIsResolvable && operatorIsResolvable && !operatorReturnTypeMatches -> chooseAssign()
+            assignIsSuccessful && !lhsIsVar -> chooseAssign()
+            !assignIsSuccessful && !operatorIsSuccessful -> {
+                // If neither candidate is successful, choose whichever is resolved, prioritizing assign
+                val isAssignResolved = assignCallReference.safeAs<FirErrorReferenceWithCandidate>()?.diagnostic !is ConeUnresolvedNameError
+                val isOperatorResolved =
+                    operatorCallReference.safeAs<FirErrorReferenceWithCandidate>()?.diagnostic !is ConeUnresolvedNameError
+                when {
+                    isAssignResolved -> chooseAssign()
+                    isOperatorResolved -> chooseOperator()
+                    else -> chooseAssign()
+                }
+            }
+            !assignIsSuccessful && operatorIsSuccessful -> chooseOperator()
+            assignIsSuccessful && !operatorIsSuccessful -> chooseAssign()
+            assignIsSuccessful && operatorIsSuccessful && !operatorReturnTypeMatches -> chooseAssign()
             else -> reportAmbiguity()
         }
     }
@@ -584,7 +594,7 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
     ): FirStatement {
         val resolved = components.typeResolverTransformer.withAllowedBareTypes {
             typeOperatorCall.transformConversionTypeRef(transformer, ResolutionMode.ContextIndependent)
-        }.transformOtherChildren(transformer, ResolutionMode.ContextIndependent)
+        }.transformTypeOperatorCallChildren()
 
         val conversionTypeRef = resolved.conversionTypeRef.withTypeArgumentsForBareType(resolved.argument)
         resolved.transformChildren(object : FirDefaultTransformer<Any?>() {
@@ -624,6 +634,37 @@ open class FirExpressionsResolveTransformer(transformer: FirBodyResolveTransform
         }
         dataFlowAnalyzer.exitTypeOperatorCall(resolved)
         return resolved
+    }
+
+    private fun FirTypeOperatorCall.transformTypeOperatorCallChildren(): FirTypeOperatorCall {
+        if (operation == FirOperation.AS || operation == FirOperation.SAFE_AS) {
+            val argument = argumentList.arguments.singleOrNull() ?: error("Not a single argument: ${this.render()}")
+
+            // For calls in the form of (materialize() as MyClass) we've got a special rule that adds expect type to the `materialize()` call
+            // AS operator doesn't add expected type to any other expressions
+            // See https://kotlinlang.org/docs/whatsnew12.html#support-for-foo-as-a-shorthand-for-this-foo
+            // And limitations at org.jetbrains.kotlin.fir.resolve.inference.FirCallCompleterKt.isFunctionForExpectTypeFromCastFeature(org.jetbrains.kotlin.fir.declarations.FirFunction<?>)
+            if (argument is FirFunctionCall || (argument is FirSafeCallExpression && argument.regularQualifiedAccess is FirFunctionCall)) {
+                val expectedType = conversionTypeRef.coneTypeSafe<ConeKotlinType>()?.takeIf {
+                    // is not bare type
+                    it !is ConeClassLikeType ||
+                            it.typeArguments.isNotEmpty() ||
+                            (it.lookupTag.toSymbol(session)?.fir as? FirTypeParameterRefsOwner)?.typeParameters?.isEmpty() == true
+                }?.let {
+                    if (operation == FirOperation.SAFE_AS)
+                        it.withNullability(ConeNullability.NULLABLE, session.typeContext)
+                    else
+                        it
+                }
+
+                if (expectedType != null) {
+                    val newMode = ResolutionMode.WithExpectedTypeFromCast(conversionTypeRef.withReplacedConeType(expectedType))
+                    return transformOtherChildren(transformer, newMode)
+                }
+            }
+        }
+
+        return transformOtherChildren(transformer, ResolutionMode.ContextIndependent)
     }
 
     override fun transformCheckNotNullCall(

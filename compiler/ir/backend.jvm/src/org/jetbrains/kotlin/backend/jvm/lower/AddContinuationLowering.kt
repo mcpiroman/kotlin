@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.backend.jvm.lower
 
 import org.jetbrains.kotlin.backend.common.*
 import org.jetbrains.kotlin.backend.common.ir.*
-import org.jetbrains.kotlin.backend.common.lower.InnerClassesSupport
 import org.jetbrains.kotlin.backend.common.lower.LocalDeclarationsLowering
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.common.phaser.makeIrFilePhase
@@ -106,14 +105,14 @@ private class AddContinuationLowering(context: JvmBackendContext) : SuspendLower
             val resultField = addField {
                 origin = JvmLoweredDeclarationOrigin.CONTINUATION_CLASS_RESULT_FIELD
                 name = Name.identifier(context.state.languageVersionSettings.dataFieldName())
-                type = context.irBuiltIns.anyNType
+                type = context.ir.symbols.resultOfAnyType
                 visibility = JavaDescriptorVisibilities.PACKAGE_VISIBILITY
             }
             val capturedThisField = dispatchReceiverParameter?.let {
                 addField {
                     name = Name.identifier("this$0")
                     type = it.type
-                    origin = InnerClassesSupport.FIELD_FOR_OUTER_THIS
+                    origin = IrDeclarationOrigin.FIELD_FOR_OUTER_THIS
                     visibility = JavaDescriptorVisibilities.PACKAGE_VISIBILITY
                     isFinal = true
                 }

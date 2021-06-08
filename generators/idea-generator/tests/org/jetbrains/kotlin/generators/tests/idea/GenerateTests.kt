@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.generators.TestGroup
 import org.jetbrains.kotlin.generators.impl.generateTestGroupSuite
 import org.jetbrains.kotlin.generators.util.TestGeneratorUtil
 import org.jetbrains.kotlin.generators.util.TestGeneratorUtil.KT_OR_KTS
+import org.jetbrains.kotlin.generators.util.TestGeneratorUtil.KT_WITHOUT_FIR_PREFIX
 import org.jetbrains.kotlin.generators.util.TestGeneratorUtil.KT_OR_KTS_WITHOUT_DOTS_IN_NAME
 import org.jetbrains.kotlin.generators.util.TestGeneratorUtil.KT_WITHOUT_DOTS_IN_NAME
 import org.jetbrains.kotlin.idea.AbstractExpressionSelectionTest
@@ -88,6 +89,7 @@ import org.jetbrains.kotlin.idea.fir.intentions.AbstractHLIntentionTest
 import org.jetbrains.kotlin.idea.fir.low.level.api.*
 import org.jetbrains.kotlin.idea.fir.low.level.api.diagnostic.AbstractDiagnosticTraversalCounterTest
 import org.jetbrains.kotlin.idea.fir.low.level.api.diagnostic.AbstractFirContextCollectionTest
+import org.jetbrains.kotlin.idea.fir.low.level.api.diagnostic.compiler.based.AbstractDiagnosisCompilerTestDataSpecTest
 import org.jetbrains.kotlin.idea.fir.low.level.api.diagnostic.compiler.based.AbstractDiagnosisCompilerTestDataTest
 import org.jetbrains.kotlin.idea.fir.low.level.api.file.structure.AbstractFileStructureAndOutOfBlockModificationTrackerConsistencyTest
 import org.jetbrains.kotlin.idea.fir.low.level.api.file.structure.AbstractFileStructureTest
@@ -170,17 +172,17 @@ import org.jetbrains.kotlin.search.AbstractAnnotatedMembersSearchTest
 import org.jetbrains.kotlin.search.AbstractInheritorsSearchTest
 import org.jetbrains.kotlin.idea.fir.shortenRefs.AbstractFirShortenRefsTest
 import org.jetbrains.kotlin.shortenRefs.AbstractShortenRefsTest
+import org.jetbrains.kotlin.spec.utils.GeneralConfiguration
 import org.jetbrains.kotlin.test.TargetBackend
+import org.jetbrains.kotlin.test.runners.AbstractFirDiagnosticTestSpec
 import org.jetbrains.kotlin.tools.projectWizard.cli.AbstractProjectTemplateBuildFileGenerationTest
 import org.jetbrains.kotlin.tools.projectWizard.cli.AbstractYamlBuildFileGenerationTest
 import org.jetbrains.kotlin.tools.projectWizard.wizard.AbstractProjectTemplateNewWizardProjectImportTest
 import org.jetbrains.kotlin.tools.projectWizard.wizard.AbstractYamlNewWizardProjectImportTest
 import org.jetbrains.kotlinx.serialization.idea.AbstractSerializationPluginIdeDiagnosticTest
 import org.jetbrains.kotlinx.serialization.idea.AbstractSerializationQuickFixTest
-import org.jetbrains.uast.test.kotlin.AbstractFE1LegacyUastDeclarationTest
-import org.jetbrains.uast.test.kotlin.AbstractFE1UastDeclarationTest
-import org.jetbrains.uast.test.kotlin.AbstractFirLegacyUastDeclarationTest
-import org.jetbrains.uast.test.kotlin.AbstractFirUastDeclarationTest
+import org.jetbrains.uast.test.kotlin.*
+import org.jetbrains.kotlin.spec.utils.tasks.detectDirsWithTestsMapFileOnly
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -1114,6 +1116,18 @@ fun main(args: Array<String>) {
         }
 
 
+        testGroup("idea/idea-frontend-fir/idea-fir-low-level-api/tests", testDataRoot = GeneralConfiguration.SPEC_TESTDATA_PATH
+        ) {
+            testClass<AbstractDiagnosisCompilerTestDataSpecTest>(suiteTestClassName = "FirIdeSpecTest") {
+                model(
+                    "diagnostics",
+                    excludeDirs = listOf("helpers") + detectDirsWithTestsMapFileOnly("diagnostics"),
+                    excludedPattern = excludedFirTestdataPattern,
+                )
+            }
+        }
+
+
         testGroup("idea/idea-fir/tests", "idea") {
             testClass<AbstractFirHighlightingTest> {
                 model("testData/highlighter")
@@ -1157,7 +1171,9 @@ fun main(args: Array<String>) {
                 model("quickfix/expressions", pattern = pattern, filenameStartsLowerCase = true)
                 model("quickfix/lateinit", pattern = pattern, filenameStartsLowerCase = true)
                 model("quickfix/modifiers", pattern = pattern, filenameStartsLowerCase = true, recursive = false)
+                model("quickfix/nullables/unsafeInfixCall", pattern = pattern, filenameStartsLowerCase = true)
                 model("quickfix/override/typeMismatchOnOverride", pattern = pattern, filenameStartsLowerCase = true, recursive = false)
+                model("quickfix/replaceInfixOrOperatorCall", pattern = pattern, filenameStartsLowerCase = true)
                 model("quickfix/replaceWithDotCall", pattern = pattern, filenameStartsLowerCase = true)
                 model("quickfix/replaceWithSafeCall", pattern = pattern, filenameStartsLowerCase = true)
                 model("quickfix/variables/changeMutability", pattern = pattern, filenameStartsLowerCase = true)
@@ -1200,6 +1216,7 @@ fun main(args: Array<String>) {
             testClass<AbstractHighLevelJvmBasicCompletionTest> {
                 model("basic/common")
                 model("basic/java")
+                model("../../idea-fir/testData/completion/basic/common", testClassName = "CommonFir")
             }
 
             testClass<AbstractHighLevelBasicCompletionHandlerTest> {
@@ -1219,7 +1236,13 @@ fun main(args: Array<String>) {
             }
 
             testClass<AbstractFirKeywordCompletionTest> {
-                model("keywords", recursive = false)
+                model("keywords", recursive = false, pattern = KT_WITHOUT_FIR_PREFIX)
+                model(
+                    "../../idea-fir/testData/completion/keywords",
+                    testClassName = "KeywordsFir",
+                    recursive = false,
+                    pattern = KT_WITHOUT_FIR_PREFIX
+                )
             }
         }
 
@@ -1416,7 +1439,7 @@ fun main(args: Array<String>) {
             }
 
             testClass<AbstractKeywordCompletionTest> {
-                model("keywords", recursive = false)
+                model("keywords", recursive = false, pattern = KT_WITHOUT_FIR_PREFIX)
             }
 
             testClass<AbstractJvmWithLibBasicCompletionTest> {
@@ -1641,6 +1664,10 @@ fun main(args: Array<String>) {
             testClass<AbstractFirLegacyUastDeclarationTest> {
                 model("")
             }
+
+            testClass<AbstractFirLegacyUastIdentifiersTest> {
+                model("")
+            }
         }
 
         testGroup("plugins/uast-kotlin-fir/tests", "plugins/uast-kotlin-fir/testData") {
@@ -1651,6 +1678,10 @@ fun main(args: Array<String>) {
 
         testGroup("plugins/uast-kotlin-fir/tests", "plugins/uast-kotlin/testData") {
             testClass<AbstractFE1LegacyUastDeclarationTest> {
+                model("")
+            }
+
+            testClass<AbstractFE1LegacyUastIdentifiersTest> {
                 model("")
             }
         }

@@ -409,7 +409,7 @@ private fun JavaClassifierType.toConeKotlinTypeForFlexibleBound(
                 JavaToKotlinClassMap.mapJavaToKotlin(classifier.fqName!!)
             } ?: classifier.classId!!
 
-            if (isLowerBound) {
+            if (isLowerBound || argumentsMakeSenseOnlyForMutableContainer(classId, session)) {
                 classId = classId.readOnlyToMutable() ?: classId
             }
 
@@ -419,8 +419,6 @@ private fun JavaClassifierType.toConeKotlinTypeForFlexibleBound(
                     lowerBound.typeArguments, isNullable = true
                 )
             }
-
-            val classSymbol = session.symbolProvider.getClassLikeSymbolByFqName(classId) as? FirRegularClassSymbol
 
             val mappedTypeArguments = if (isRaw) {
                 val defaultArgs = (1..classifier.typeParameters.size).map { ConeStarProjection }
@@ -432,10 +430,14 @@ private fun JavaClassifierType.toConeKotlinTypeForFlexibleBound(
                 } else {
                     val position = if (isLowerBound) TypeComponentPosition.FLEXIBLE_LOWER else TypeComponentPosition.FLEXIBLE_UPPER
 
+                    val classSymbol = session.symbolProvider.getClassLikeSymbolByFqName(classId) as? FirRegularClassSymbol
                     classSymbol?.fir?.createRawArguments(session, defaultArgs, position) ?: defaultArgs
                 }
             } else {
-                val typeParameters = runIf(!forTypeParameterBounds && !isForSupertypes) { classSymbol?.fir?.typeParameters } ?: emptyList()
+                val typeParameters = runIf(!forTypeParameterBounds && !isForSupertypes) {
+                    val classSymbol = session.symbolProvider.getClassLikeSymbolByFqName(classId) as? FirRegularClassSymbol
+                    classSymbol?.fir?.typeParameters
+                } ?: emptyList()
 
                 typeArguments.indices.map { index ->
                     val argument = typeArguments[index]
@@ -457,6 +459,26 @@ private fun JavaClassifierType.toConeKotlinTypeForFlexibleBound(
         else -> ConeKotlinErrorType(ConeSimpleDiagnostic("Unexpected classifier: $classifier", DiagnosticKind.Java))
     }
 }
+
+// Returns true for covariant read-only container that has mutable pair with invariant parameter
+// List<in A> does not make sense, but MutableList<in A> does
+// Same for Map<K, in V>
+// But both Iterable<in A>, MutableIterable<in A> don't make sense as they are covariant, so return false
+private fun JavaClassifierType.argumentsMakeSenseOnlyForMutableContainer(
+    classId: ClassId,
+    session: FirSession,
+): Boolean {
+    if (!JavaToKotlinClassMap.isReadOnly(classId.asSingleFqName().toUnsafe())) return false
+    val mutableClassId = classId.readOnlyToMutable() ?: return false
+
+    if (!typeArguments.lastOrNull().isSuperWildcard()) return false
+    val mutableLastParameterVariance =
+        (mutableClassId.toLookupTag().toSymbol(session)?.fir as? FirRegularClass)?.typeParameters?.lastOrNull()?.symbol?.fir?.variance
+            ?: return false
+
+    return mutableLastParameterVariance != OUT_VARIANCE
+}
+
 
 private fun FirRegularClass.createRawArguments(
     session: FirSession,

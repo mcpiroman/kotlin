@@ -17,7 +17,6 @@
 #ifndef RUNTIME_MEMORY_H
 #define RUNTIME_MEMORY_H
 
-#include <ostream>
 #include <utility>
 
 #include "KAssert.h"
@@ -441,6 +440,20 @@ private:
     MemoryState* thread_;
     ThreadState oldState_;
     bool reentrant_;
+};
+
+// Scopely sets the kRunnable thread state for the current thread,
+// and initializes runtime if needed for new MM.
+// No-op for old GC.
+class CalledFromNativeGuard final : private Pinned {
+public:
+    ALWAYS_INLINE CalledFromNativeGuard() noexcept;
+
+    ~CalledFromNativeGuard() noexcept {
+        SwitchThreadState(thread_, ThreadState::kNative);
+    }
+private:
+    MemoryState* thread_;
 };
 
 template <ThreadState state, typename R, typename... Args>

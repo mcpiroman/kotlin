@@ -15,6 +15,8 @@ import org.jetbrains.kotlin.fir.declarations.isOperator
 import org.jetbrains.kotlin.fir.diagnostics.*
 import org.jetbrains.kotlin.fir.resolve.calls.*
 import org.jetbrains.kotlin.fir.resolve.diagnostics.*
+import org.jetbrains.kotlin.fir.resolve.inference.ConeTypeParameterBasedTypeVariable
+import org.jetbrains.kotlin.fir.resolve.inference.ConeTypeVariableForLambdaReturnType
 import org.jetbrains.kotlin.fir.resolve.inference.model.ConeArgumentConstraintPosition
 import org.jetbrains.kotlin.fir.resolve.inference.model.ConeExpectedTypeConstraintPosition
 import org.jetbrains.kotlin.fir.resolve.inference.model.ConeExplicitTypeParameterConstraintPosition
@@ -26,7 +28,6 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.resolve.calls.inference.model.*
 import org.jetbrains.kotlin.resolve.calls.tower.CandidateApplicability
 import org.jetbrains.kotlin.resolve.calls.tower.isSuccess
-import org.jetbrains.kotlin.types.AbstractTypeChecker
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -63,7 +64,7 @@ private fun ConeDiagnostic.toFirDiagnostic(
         FirErrors.NO_TYPE_ARGUMENTS_ON_RHS.on(qualifiedAccessSource ?: source, this.desiredCount, this.type)
     is ConeSimpleDiagnostic -> when (source.kind) {
         is FirFakeSourceElementKind -> null
-        else -> this.getFactory(source).on(qualifiedAccessSource ?: source)
+        else -> this.getFactory(source)?.on(qualifiedAccessSource ?: source)
     }
     is ConeInstanceAccessBeforeSuperCall -> FirErrors.INSTANCE_ACCESS_BEFORE_SUPER_CALL.on(source, this.target)
     is ConeStubDiagnostic -> null
@@ -101,20 +102,26 @@ private fun mapUnsafeCallError(
     val receiverExpression = candidate.callInfo.explicitReceiver
     val singleArgument = candidate.callInfo.argumentList.arguments.singleOrNull()
     if (receiverExpression != null && singleArgument != null &&
-        source.elementType == KtNodeTypes.OPERATION_REFERENCE &&
+        (source.elementType == KtNodeTypes.OPERATION_REFERENCE || source.elementType == KtNodeTypes.BINARY_EXPRESSION) &&
         (candidateFunction?.isOperator == true || candidateFunction?.isInfix == true)
     ) {
-        val operationToken = source.getChild(KtTokens.IDENTIFIER)
-        if (candidateFunction.isInfix && operationToken?.elementType == KtTokens.IDENTIFIER) {
-            return FirErrors.UNSAFE_INFIX_CALL.on(
+        // For augmented assignment operations (e.g., `a += b`), the source is the entire binary expression (BINARY_EXPRESSION).
+        // TODO: No need to check for source.elementType == BINARY_EXPRESSION if we use operator as callee reference source
+        //  (see FirExpressionsResolveTransformer.transformAssignmentOperatorStatement)
+        val operationSource = if (source.elementType == KtNodeTypes.BINARY_EXPRESSION) {
+            source.getChild(KtNodeTypes.OPERATION_REFERENCE)
+        } else {
+            source
+        }
+        return if (operationSource?.getChild(KtTokens.IDENTIFIER) != null) {
+            FirErrors.UNSAFE_INFIX_CALL.on(
                 source,
                 receiverExpression,
                 candidateFunctionName!!.asString(),
                 singleArgument,
             )
-        }
-        if (candidateFunction.isOperator && operationToken == null) {
-            return FirErrors.UNSAFE_OPERATOR_CALL.on(
+        } else {
+            FirErrors.UNSAFE_OPERATOR_CALL.on(
                 source,
                 receiverExpression,
                 candidateFunctionName!!.asString(),
@@ -186,6 +193,7 @@ private fun mapSystemHasContradictionError(
                     qualifiedAccessSource,
                     diagnostic.candidate.callInfo.session.typeContext,
                     errorsToIgnore,
+                    diagnostic.candidate,
                 )
             )
         }
@@ -197,6 +205,7 @@ private fun mapSystemHasContradictionError(
                     is NewConstraintError -> "NewConstraintError at ${it.position}: ${it.lowerType} <!: ${it.upperType}"
                     // Error should be reported on the error type itself
                     is ConstrainingTypeIsError -> return@firstNotNullOfOrNull null
+                    is NotEnoughInformationForTypeParameter<*> -> return@firstNotNullOfOrNull null
                     else -> "Inference error: ${it::class.simpleName}"
                 }
 
@@ -218,6 +227,7 @@ private fun ConstraintSystemError.toDiagnostic(
     qualifiedAccessSource: FirSourceElement?,
     typeContext: ConeTypeContext,
     errorsToIgnore: MutableSet<ConstraintSystemError>,
+    candidate: Candidate,
 ): FirDiagnostic<FirSourceElement>? {
     return when (this) {
         is NewConstraintError -> {
@@ -262,8 +272,31 @@ private fun ConstraintSystemError.toDiagnostic(
                         upperConeType,
                     )
                 }
+                is DelegatedPropertyConstraintPosition<*> -> {
+                    errorsToIgnore.add(this)
+                    return null
+                }
                 else -> null
             }
+        }
+        is NotEnoughInformationForTypeParameter<*> -> {
+            val isDiagnosticRedundant = candidate.system.errors.any { otherError ->
+                (otherError is ConstrainingTypeIsError && otherError.typeVariable == this.typeVariable)
+                        || otherError is NewConstraintError
+            }
+
+            if (isDiagnosticRedundant) return null
+
+            val typeVariableName = when (val typeVariable = this.typeVariable) {
+                is ConeTypeParameterBasedTypeVariable -> typeVariable.typeParameterSymbol.name.asString()
+                is ConeTypeVariableForLambdaReturnType -> "return type of lambda"
+                else -> error("Unsupported type variable: $typeVariable")
+            }
+
+            FirErrors.NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER.on(
+                source,
+                typeVariableName,
+            )
         }
         else -> null
     }
@@ -272,7 +305,7 @@ private fun ConstraintSystemError.toDiagnostic(
 private val NewConstraintError.lowerConeType: ConeKotlinType get() = lowerType as ConeKotlinType
 private val NewConstraintError.upperConeType: ConeKotlinType get() = upperType as ConeKotlinType
 
-private fun ConeSimpleDiagnostic.getFactory(source: FirSourceElement): FirDiagnosticFactory0<*> {
+private fun ConeSimpleDiagnostic.getFactory(source: FirSourceElement): FirDiagnosticFactory0<*>? {
     @Suppress("UNCHECKED_CAST")
     return when (kind) {
         DiagnosticKind.Syntax -> FirErrors.SYNTAX
@@ -304,11 +337,15 @@ private fun ConeSimpleDiagnostic.getFactory(source: FirSourceElement): FirDiagno
         DiagnosticKind.IntLiteralOutOfRange -> FirErrors.INT_LITERAL_OUT_OF_RANGE
         DiagnosticKind.FloatLiteralOutOfRange -> FirErrors.FLOAT_LITERAL_OUT_OF_RANGE
         DiagnosticKind.WrongLongSuffix -> FirErrors.WRONG_LONG_SUFFIX
-        DiagnosticKind.Other -> FirErrors.OTHER_ERROR
         DiagnosticKind.IncorrectCharacterLiteral -> FirErrors.INCORRECT_CHARACTER_LITERAL
         DiagnosticKind.EmptyCharacterLiteral -> FirErrors.EMPTY_CHARACTER_LITERAL
         DiagnosticKind.TooManyCharactersInCharacterLiteral -> FirErrors.TOO_MANY_CHARACTERS_IN_CHARACTER_LITERAL
         DiagnosticKind.IllegalEscape -> FirErrors.ILLEGAL_ESCAPE
+        DiagnosticKind.RecursiveTypealiasExpansion -> FirErrors.RECURSIVE_TYPEALIAS_EXPANSION
+        DiagnosticKind.LoopInSupertype -> FirErrors.CYCLIC_INHERITANCE_HIERARCHY
+        DiagnosticKind.UnresolvedSupertype,
+        DiagnosticKind.UnresolvedExpandedType,
+        DiagnosticKind.Other -> FirErrors.OTHER_ERROR
         else -> throw IllegalArgumentException("Unsupported diagnostic kind: $kind at $javaClass")
     }
 }

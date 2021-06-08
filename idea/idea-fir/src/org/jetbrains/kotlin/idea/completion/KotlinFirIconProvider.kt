@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.idea.frontend.api.symbols.markers.*
 import javax.swing.Icon
 
 internal object KotlinFirIconProvider {
-    fun getIconFor(symbol: KtNamedSymbol): Icon? {
+    fun getIconFor(symbol: KtSymbol): Icon? {
         if (symbol is KtFunctionSymbol) {
             val isAbstract = symbol.modality == Modality.ABSTRACT
 
@@ -50,6 +50,8 @@ internal object KotlinFirIconProvider {
         if (symbol is KtTypeParameterSymbol) return PlatformIcons.CLASS_ICON
 
         if (symbol is KtTypeAliasSymbol) return KotlinIcons.TYPE_ALIAS
+
+        if (symbol is KtEnumEntrySymbol) return KotlinIcons.ENUM
 
         return null
     }

@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import org.jetbrains.uast.*
 import org.jetbrains.uast.expressions.UInjectionHost
-import org.jetbrains.uast.kotlin.declarations.KotlinUIdentifier
 import org.jetbrains.uast.kotlin.declarations.KotlinUMethod
 import org.jetbrains.uast.kotlin.declarations.KotlinUMethodWithFakeLightDelegate
 import org.jetbrains.uast.kotlin.expressions.*
@@ -43,12 +42,6 @@ internal object KotlinConverter {
         is KtWhenConditionWithExpression -> unwrapElements(element.parent)
         else -> element
     }
-
-    private val identifiersTokens = setOf(
-        KtTokens.IDENTIFIER, KtTokens.CONSTRUCTOR_KEYWORD, KtTokens.OBJECT_KEYWORD,
-        KtTokens.THIS_KEYWORD, KtTokens.SUPER_KEYWORD,
-        KtTokens.GET_KEYWORD, KtTokens.SET_KEYWORD
-    )
 
     internal fun convertPsiElement(
         element: PsiElement?,

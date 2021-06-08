@@ -990,9 +990,21 @@ public class FirOldFrontendDiagnosticsTestGenerated extends AbstractFirDiagnosti
             }
 
             @Test
-            @TestMetadata("AnnotationForClassTypeParameter.kt")
-            public void testAnnotationForClassTypeParameter() throws Exception {
-                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter.kt");
+            @TestMetadata("AnnotationForClassTypeParameter_15.kt")
+            public void testAnnotationForClassTypeParameter_15() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter_15.kt");
+            }
+
+            @Test
+            @TestMetadata("AnnotationForClassTypeParameter_16.kt")
+            public void testAnnotationForClassTypeParameter_16() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter_16.kt");
+            }
+
+            @Test
+            @TestMetadata("AnnotationForClassTypeParameter_typeUseFlag.kt")
+            public void testAnnotationForClassTypeParameter_typeUseFlag() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/AnnotationForClassTypeParameter_typeUseFlag.kt");
             }
 
             @Test
@@ -12186,6 +12198,12 @@ public class FirOldFrontendDiagnosticsTestGenerated extends AbstractFirDiagnosti
             }
 
             @Test
+            @TestMetadata("expectedTypeWithGenericsSafeCalls.kt")
+            public void testExpectedTypeWithGenericsSafeCalls() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/inference/expectedTypeWithGenericsSafeCalls.kt");
+            }
+
+            @Test
             @TestMetadata("extensionLambdasAndArrow.kt")
             public void testExtensionLambdasAndArrow() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/inference/extensionLambdasAndArrow.kt");
@@ -19076,6 +19094,12 @@ public class FirOldFrontendDiagnosticsTestGenerated extends AbstractFirDiagnosti
             }
 
             @Test
+            @TestMetadata("augmentedAssignment.kt")
+            public void testAugmentedAssignment() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/nullabilityAndSmartCasts/augmentedAssignment.kt");
+            }
+
+            @Test
             @TestMetadata("dataFlowInfoAfterExclExcl.kt")
             public void testDataFlowInfoAfterExclExcl() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/nullabilityAndSmartCasts/dataFlowInfoAfterExclExcl.kt");
@@ -20872,6 +20896,12 @@ public class FirOldFrontendDiagnosticsTestGenerated extends AbstractFirDiagnosti
                 @Test
                 public void testAllFilesPresentInGenericVarianceViolation() throws Exception {
                     KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/platformTypes/genericVarianceViolation"), Pattern.compile("^(.+)\\.kt$"), Pattern.compile("^(.+)\\.fir\\.kts?$"), true);
+                }
+
+                @Test
+                @TestMetadata("inferenceFrom.kt")
+                public void testInferenceFrom() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/platformTypes/genericVarianceViolation/inferenceFrom.kt");
                 }
 
                 @Test

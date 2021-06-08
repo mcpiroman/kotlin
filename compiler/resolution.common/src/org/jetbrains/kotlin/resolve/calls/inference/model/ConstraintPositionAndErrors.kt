@@ -23,6 +23,12 @@ abstract class InjectedAnotherStubTypeConstraintPosition<T>(private val builderI
     override fun toString(): String = "Injected from $builderInferenceLambdaOfInjectedStubType builder inference call"
 }
 
+abstract class BuilderInferenceSubstitutionConstraintPosition<L, I>(private val builderInferenceLambda: L, val initialConstraint: I) :
+    ConstraintPosition(), OnlyInputTypeConstraintPosition {
+    override fun toString(): String = "Incorporated builder inference constraint $initialConstraint " +
+            "into $builderInferenceLambda call"
+}
+
 abstract class ExpectedTypeConstraintPosition<T>(val topLevelCall: T) : ConstraintPosition(), OnlyInputTypeConstraintPosition {
     override fun toString(): String = "ExpectedType for call $topLevelCall"
 }
@@ -62,7 +68,7 @@ abstract class LambdaArgumentConstraintPosition<T>(val lambda: T) : ConstraintPo
     }
 }
 
-abstract class DelegatedPropertyConstraintPosition<T>(val topLevelCall: T) : ConstraintPosition() {
+open class DelegatedPropertyConstraintPosition<T>(val topLevelCall: T) : ConstraintPosition() {
     override fun toString(): String = "Constraint from call $topLevelCall for delegated property"
 }
 
@@ -98,7 +104,7 @@ class CapturedTypeFromSubtyping(
     val position: ConstraintPosition
 ) : ConstraintSystemError(INAPPLICABLE)
 
-abstract class NotEnoughInformationForTypeParameter<T>(
+open class NotEnoughInformationForTypeParameter<T>(
     val typeVariable: TypeVariableMarker,
     val resolvedAtom: T
 ) : ConstraintSystemError(INAPPLICABLE)

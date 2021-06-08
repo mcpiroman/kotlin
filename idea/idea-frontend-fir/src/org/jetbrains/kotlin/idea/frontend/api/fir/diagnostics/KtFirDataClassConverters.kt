@@ -407,6 +407,12 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
             token,
         )
     }
+    add(FirErrors.CYCLIC_INHERITANCE_HIERARCHY) { firDiagnostic ->
+        CyclicInheritanceHierarchyImpl(
+            firDiagnostic as FirPsiDiagnostic<*>,
+            token,
+        )
+    }
     add(FirErrors.CONSTRUCTOR_IN_OBJECT) { firDiagnostic ->
         ConstructorInObjectImpl(
             firDiagnostic as FirPsiDiagnostic<*>,
@@ -1076,6 +1082,13 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
             token,
         )
     }
+    add(FirErrors.NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER) { firDiagnostic ->
+        NewInferenceNoInformationForParameterImpl(
+            firDiagnostic.a,
+            firDiagnostic as FirPsiDiagnostic<*>,
+            token,
+        )
+    }
     add(FirErrors.OVERLOAD_RESOLUTION_AMBIGUITY) { firDiagnostic ->
         OverloadResolutionAmbiguityImpl(
             firDiagnostic.a.map { abstractFirBasedSymbol ->
@@ -1188,6 +1201,20 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
     }
     add(FirErrors.CONFLICTING_PROJECTION) { firDiagnostic ->
         ConflictingProjectionImpl(
+            firSymbolBuilder.typeBuilder.buildKtType(firDiagnostic.a),
+            firDiagnostic as FirPsiDiagnostic<*>,
+            token,
+        )
+    }
+    add(FirErrors.CONFLICTING_PROJECTION_IN_TYPEALIAS_EXPANSION) { firDiagnostic ->
+        ConflictingProjectionInTypealiasExpansionImpl(
+            firSymbolBuilder.typeBuilder.buildKtType(firDiagnostic.a),
+            firDiagnostic as FirPsiDiagnostic<*>,
+            token,
+        )
+    }
+    add(FirErrors.REDUNDANT_PROJECTION) { firDiagnostic ->
+        RedundantProjectionImpl(
             firSymbolBuilder.typeBuilder.buildKtType(firDiagnostic.a),
             firDiagnostic as FirPsiDiagnostic<*>,
             token,
@@ -2360,6 +2387,12 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
     }
     add(FirErrors.TOPLEVEL_TYPEALIASES_ONLY) { firDiagnostic ->
         ToplevelTypealiasesOnlyImpl(
+            firDiagnostic as FirPsiDiagnostic<*>,
+            token,
+        )
+    }
+    add(FirErrors.RECURSIVE_TYPEALIAS_EXPANSION) { firDiagnostic ->
+        RecursiveTypealiasExpansionImpl(
             firDiagnostic as FirPsiDiagnostic<*>,
             token,
         )

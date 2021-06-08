@@ -9,12 +9,11 @@ import org.jetbrains.kotlin.idea.fir.low.level.api.compiler.based.AbstractCompil
 import org.jetbrains.kotlin.test.builders.TestConfigurationBuilder
 import org.jetbrains.kotlin.test.runners.baseFirDiagnosticTestConfiguration
 import org.jetbrains.kotlin.idea.fir.low.level.api.compiler.based.IdeTestIgnoreHandler
+import org.jetbrains.kotlin.idea.fir.low.level.api.compiler.based.addIdeTestIgnoreHandler
 
 abstract class AbstractDiagnosisCompilerTestDataTest : AbstractCompilerBasedTest() {
     override fun TestConfigurationBuilder.configureTest() {
         baseFirDiagnosticTestConfiguration()
-        useAfterAnalysisCheckers(
-            ::IdeTestIgnoreHandler
-        )
+        addIdeTestIgnoreHandler()
     }
 }

@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.backend.jvm.lower.indy
 
 import org.jetbrains.kotlin.backend.common.ir.allOverridden
-import org.jetbrains.kotlin.backend.common.ir.isFromJava
 import org.jetbrains.kotlin.backend.common.lower.VariableRemapper
 import org.jetbrains.kotlin.backend.common.lower.parents
 import org.jetbrains.kotlin.backend.jvm.JvmBackendContext
@@ -76,16 +75,25 @@ internal class LambdaMetafactoryArgumentsBuilder(
         if (samClass.requiresDelegationToDefaultImpls())
             return null
 
+        // TODO in cases where LambdaMetafactory is unusable directly due to problems with the implementation function,
+        //      we can still avoid generating an entire class by converting the function reference into a lambda first;
+        //      see `InlineCallableReferenceToLambdaPhase`
         val implFun = reference.symbol.owner
 
         // Don't generate references to intrinsic functions as invokedynamic (no such method exists at run-time).
         if (context.irIntrinsics.getIntrinsic(implFun.symbol) != null)
             return null
 
+        // Can't use invokedynamic if the referenced function has to be inlined for correct semantics
+        // Also in some cases like `private inline fun` we'd need accessors, which `SyntheticAccessorLowering`
+        // won't generate under the assumption that the inline function will be inlined. Plus if the function
+        // is in a different module we should probably copy it anyway (and regenerate all objects in it).
+        if (implFun.isInline)
+            return null
+
         if (implFun is IrConstructor && implFun.visibility.isPrivate) {
             // Kotlin generates constructor accessors differently from Java.
             // TODO more precise accessibility check (see SyntheticAccessorLowering::isAccessible)
-            // TODO wrap inaccessible constructor with a local function
             return null
         }
 

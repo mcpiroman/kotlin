@@ -12,17 +12,19 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.LightProjectDescriptor
 import com.intellij.testFramework.registerServiceInstance
 import com.intellij.util.io.URLUtil
+import org.jetbrains.kotlin.idea.fir.invalidateCaches
 import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.idea.test.KotlinWithJdkAndRuntimeLightProjectDescriptor
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import org.jetbrains.uast.UFile
 import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.UastLanguagePlugin
-import org.jetbrains.uast.common.kotlin.FirUastPluginSelection
 import org.jetbrains.uast.kotlin.BaseKotlinUastResolveProviderService
 import org.jetbrains.uast.kotlin.FirKotlinUastResolveProviderService
 import org.jetbrains.uast.kotlin.firKotlinUastPlugin
 import org.jetbrains.uast.kotlin.internal.FirCliKotlinUastResolveProviderService
+import org.jetbrains.uast.test.common.kotlin.FirUastPluginSelection
 import java.io.File
 
 abstract class AbstractFirUastTest : KotlinLightCodeInsightFixtureTestCase(), FirUastPluginSelection {
@@ -60,6 +62,11 @@ abstract class AbstractFirUastTest : KotlinLightCodeInsightFixtureTestCase(), Fi
     override fun setUp() {
         super.setUp()
         registerExtensionPointAndServiceIfNeeded()
+    }
+
+    override fun tearDown() {
+        project.invalidateCaches(file as? KtFile)
+        super.tearDown()
     }
 
     override fun isFirPlugin(): Boolean = true

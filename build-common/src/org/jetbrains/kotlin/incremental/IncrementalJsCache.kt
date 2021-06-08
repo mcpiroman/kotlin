@@ -234,17 +234,20 @@ private class TranslationResultMap(
     override fun dumpValue(value: TranslationResultValue): String =
         "Metadata: ${value.metadata.md5()}, Binary AST: ${value.binaryAst.md5()}, InlineData: ${value.inlineData.md5()}"
 
+    @Synchronized
     fun put(sourceFile: File, newMetadata: ByteArray, newBinaryAst: ByteArray, newInlineData: ByteArray) {
         storage[pathConverter.toPath(sourceFile)] =
             TranslationResultValue(metadata = newMetadata, binaryAst = newBinaryAst, inlineData = newInlineData)
     }
 
+    @Synchronized
     operator fun get(sourceFile: File): TranslationResultValue? =
         storage[pathConverter.toPath(sourceFile)]
 
     fun keys(): Collection<File> =
         storage.keys.map { pathConverter.toFile(it) }
 
+    @Synchronized
     fun remove(sourceFile: File, changesCollector: ChangesCollector) {
         val path = pathConverter.toPath(sourceFile)
         val protoBytes = storage[path]!!.metadata
@@ -378,6 +381,7 @@ private class InlineFunctionsMap(
     storageFile: File,
     private val pathConverter: FileToPathConverter
 ) : BasicStringMap<Map<String, Long>>(storageFile, StringToLongMapExternalizer) {
+    @Synchronized
     fun process(srcFile: File, newMap: Map<String, Long>, changesCollector: ChangesCollector) {
         val key = pathConverter.toPath(srcFile)
         val oldMap = storage[key] ?: emptyMap()
@@ -395,6 +399,7 @@ private class InlineFunctionsMap(
         }
     }
 
+    @Synchronized
     fun remove(sourceFile: File) {
         storage.remove(pathConverter.toPath(sourceFile))
     }

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.idea.frontend.api.fir.symbols
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.file.PsiPackageImpl
@@ -26,7 +27,8 @@ class KtFirPackageSymbol(
     override val token: ValidityToken
 ) : KtPackageSymbol(), ValidityTokenOwner {
     override val psi: PsiElement? by cached {
-        KtPackage(PsiManager.getInstance(project), fqName, GlobalSearchScope.allScope(project)/*TODO*/)
+        JavaPsiFacade.getInstance(project).findPackage(fqName.asString())
+            ?: KtPackage(PsiManager.getInstance(project), fqName, GlobalSearchScope.allScope(project)/*TODO*/)
     }
 
     override val origin: KtSymbolOrigin
