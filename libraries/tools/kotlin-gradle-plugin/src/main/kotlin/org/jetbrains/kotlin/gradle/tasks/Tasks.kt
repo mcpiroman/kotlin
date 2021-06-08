@@ -281,9 +281,10 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments> : AbstractKotl
         GradleCompileTaskProvider(this)
     }
 
-    @get:OutputDirectory
-    val kotlinBuildCacheDir by lazy {taskBuildDirectory}
-
+//    @get:OutputDirectory
+//    val kotlinBuildCacheDir by project.provider {
+//        taskBuildDirectory
+//    }
 
     internal open fun compilerRunner(
         javaExecutable: File,
