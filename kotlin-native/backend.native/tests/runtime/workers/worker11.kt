@@ -15,7 +15,13 @@ data class Job(val index: Int, var input: Int, var counter: Int)
 fun initJobs(count: Int) = Array<Job?>(count) { i -> Job(i, i * 2, i)}
 
 @Test fun runTest0() {
-    val workers = Array(100, { _ -> Worker.start() })
+    val workerCount = if (Platform.osFamily == OsFamily.WINDOWS && Platform.memoryModel == MemoryModel.EXPERIMENTAL) {
+        // TODO: Fix Experimental MM performance on Windows.
+        10
+    } else {
+        100
+    }
+    val workers = Array(workerCount, { _ -> Worker.start() })
     val jobs = initJobs(workers.size)
     val futures = Array(workers.size, { workerIndex ->
         workers[workerIndex].execute(TransferMode.SAFE, {

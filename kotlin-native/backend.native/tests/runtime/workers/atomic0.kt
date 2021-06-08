@@ -19,7 +19,7 @@ fun test1(workers: Array<Worker>) {
     futures.forEach {
         it.result
     }
-    println(atomic.value)
+    assertEquals(workers.size + 15, atomic.value)
 }
 
 fun test2(workers: Array<Worker>) {
@@ -41,7 +41,7 @@ fun test2(workers: Array<Worker>) {
     futures.forEach {
         assertEquals(it.result, true)
     }
-    println(counter.value)
+    assertEquals(workers.size, counter.value)
 }
 
 data class Data(val value: Int)
@@ -122,7 +122,12 @@ fun test7() {
 }
 
 @Test fun runTest() {
-    val COUNT = 20
+    val COUNT = if (Platform.osFamily == OsFamily.WINDOWS && Platform.memoryModel == MemoryModel.EXPERIMENTAL) {
+        // TODO: Fix Experimental MM performance on Windows.
+        5
+    } else {
+        20
+    }
     val workers = Array(COUNT, { _ -> Worker.start()})
 
     test1(workers)

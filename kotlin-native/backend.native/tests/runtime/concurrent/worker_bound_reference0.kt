@@ -760,7 +760,12 @@ fun collectCrossThreadCyclicGarbageWithAtomicsFrozen() {
 
 @Test
 fun concurrentAccessFrozen() {
-    val workerCount = 10
+    val workerCount = if (Platform.osFamily == OsFamily.WINDOWS && Platform.memoryModel == MemoryModel.EXPERIMENTAL) {
+        // TODO: Fix Experimental MM performance on Windows.
+        5
+    } else {
+        10
+    }
     val workerUnlocker = AtomicInt(0)
 
     val ref = WorkerBoundReference(A(3)).freeze()
