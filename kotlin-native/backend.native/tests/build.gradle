@@ -2800,7 +2800,8 @@ task initializers5(type: KonanLocalTest) {
 }
 
 task initializers6(type: KonanLocalTest) {
-    disabled = (project.testTarget == 'wasm32') // Needs workers.
+    disabled = (project.testTarget == 'wasm32') || // Needs workers.
+        (isExperimentalMM && project.testTarget == 'mingw_x64')  // TODO: Fix Experimental MM performance on Windows.
     source = "runtime/basic/initializers6.kt"
 }
 
