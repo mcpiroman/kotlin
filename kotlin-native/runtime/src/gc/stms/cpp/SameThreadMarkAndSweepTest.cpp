@@ -711,7 +711,7 @@ private:
         AssertThreadState(memory_->memoryState(), ThreadState::kRunnable);
 
         while (true) {
-          std::packaged_task<void()> task;
+            std::packaged_task<void()> task;
             {
                 std::unique_lock guard(queueMutex_);
                 queueCV_.wait(guard, [this]() { return !queue_.empty() || shutdownRequested_; });
