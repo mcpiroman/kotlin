@@ -1053,7 +1053,6 @@ class TestSharedRefs {
             deinit {
                 TestSharedRefs.runInNewThread(initializeKotlinRuntime: false) {
                     Deinit.object2 = nil
-                    ValuesKt.gc()
                 }
             }
         }
@@ -1071,9 +1070,13 @@ class TestSharedRefs {
 
             TestSharedRefs.runInNewThread(initializeKotlinRuntime: false) {
                 Deinit.object1 = nil
-                ValuesKt.gc()
             }
         }
+
+        // This will free `object1` and release+dealloc its associated `Deinit` which nils `Deinit.object2`
+        ValuesKt.gc()
+        // This will free `object2`.
+        ValuesKt.gc()
 
         try assertTrue(Deinit.weakVar2 === nil)
     }
