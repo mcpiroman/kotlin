@@ -675,7 +675,6 @@ public:
         RuntimeAssert(std::this_thread::get_id() == thread_.get_id(), "AddStackRoot can only be called in the mutator thread");
         auto holder = make_unique<StackObjectHolder>(*memory_->memoryState()->GetThreadData());
         auto& holderRef = *holder;
-        std::lock_guard guard(rootsMutex_);
         stackRoots_.push_back(std::move(holder));
         return holderRef;
     }
@@ -684,7 +683,6 @@ public:
         RuntimeAssert(std::this_thread::get_id() == thread_.get_id(), "AddStackRoot can only be called in the mutator thread");
         auto holder = make_unique<StackObjectHolder>(object);
         auto& holderRef = *holder;
-        std::lock_guard guard(rootsMutex_);
         stackRoots_.push_back(std::move(holder));
         return holderRef;
     }
@@ -693,7 +691,6 @@ public:
         RuntimeAssert(std::this_thread::get_id() == thread_.get_id(), "AddGlobalRoot can only be called in the mutator thread");
         auto holder = make_unique<GlobalObjectHolder>(*memory_->memoryState()->GetThreadData());
         auto& holderRef = *holder;
-        std::lock_guard guard(rootsMutex_);
         globalRoots_.push_back(std::move(holder));
         return holderRef;
     }
@@ -702,7 +699,6 @@ public:
         RuntimeAssert(std::this_thread::get_id() == thread_.get_id(), "AddGlobalRoot can only be called in the mutator thread");
         auto holder = make_unique<GlobalObjectHolder>(*memory_->memoryState()->GetThreadData(), object);
         auto& holderRef = *holder;
-        std::lock_guard guard(rootsMutex_);
         globalRoots_.push_back(std::move(holder));
         return holderRef;
     }
@@ -738,7 +734,6 @@ private:
     bool shutdownRequested_ = false;
     std::thread thread_;
 
-    std::mutex rootsMutex_;
     KStdVector<KStdUniquePtr<GlobalObjectHolder>> globalRoots_;
     KStdVector<KStdUniquePtr<StackObjectHolder>> stackRoots_;
 };
