@@ -91,7 +91,7 @@ void gc::SingleThreadMarkAndSweep::PerformFullGC() noexcept {
     running_ = true;
 
     KStdVector<ObjHeader*> graySet;
-    for (auto& thread : mm::GlobalData::Instance().threadRegistry().Iter()) {
+    for (auto& thread : mm::GlobalData::Instance().threadRegistry().LockForIter()) {
         thread.Publish();
         for (auto* object : mm::ThreadRootSet(thread)) {
             if (!isNullOrMarker(object)) {

@@ -324,7 +324,7 @@ public:
     }
 
     // Lock `ObjectFactoryStorage` for safe iteration.
-    Iterable Iter() noexcept { return Iterable(*this); }
+    Iterable LockForIter() noexcept { return Iterable(*this); }
 
     void ClearForTests() {
         root_.reset();
@@ -617,7 +617,7 @@ public:
 
     class Iterable {
     public:
-        Iterable(ObjectFactory& owner) noexcept : iter_(owner.storage_.Iter()) {}
+        Iterable(ObjectFactory& owner) noexcept : iter_(owner.storage_.LockForIter()) {}
 
         Iterator begin() noexcept { return Iterator(iter_.begin()); }
         Iterator end() noexcept { return Iterator(iter_.end()); }
@@ -635,7 +635,8 @@ public:
     ObjectFactory() noexcept = default;
     ~ObjectFactory() = default;
 
-    Iterable Iter() noexcept { return Iterable(*this); }
+    // Lock ObjectFactory for safe iteration.
+    Iterable LockForIter() noexcept { return Iterable(*this); }
 
     void ClearForTests() { storage_.ClearForTests(); }
 
