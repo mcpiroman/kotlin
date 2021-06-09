@@ -890,6 +890,10 @@ TEST_F(SameThreadMarkAndSweepTest, MultipleMutatorsAddToRootSetAfterCollectionRe
     KStdVector<std::future<void>> gcFutures(kDefaultThreadCount);
     gcFutures[0] = mutators[0].Execute([](mm::ThreadData& threadData, Mutator& mutator) { threadData.gc().PerformFullGC(); });
 
+    // Spin until thread suspension is requested.
+    while (!mm::IsThreadSuspensionRequested()) {
+    }
+
     for (int i = 1; i < kDefaultThreadCount; ++i) {
         gcFutures[i] = mutators[i].Execute([i, expandRootSet](mm::ThreadData& threadData, Mutator& mutator) {
             expandRootSet(threadData, mutator, i);
