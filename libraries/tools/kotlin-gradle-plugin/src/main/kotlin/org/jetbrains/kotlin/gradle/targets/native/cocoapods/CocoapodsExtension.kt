@@ -7,6 +7,7 @@
 package org.jetbrains.kotlin.gradle.plugin.cocoapods
 
 import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectSet
 import org.gradle.api.Project
@@ -95,8 +96,8 @@ open class CocoapodsExtension(private val project: Project) {
     /**
      * Configure framework of the pod built from this project.
      */
-    fun framework(configure: Closure<*>) = framework {
-        ConfigureUtil.configure(configure, this)
+    fun framework(configure: Action<Framework>) = framework {
+        configure.execute(this)
     }
 
     @Nested
@@ -114,7 +115,7 @@ open class CocoapodsExtension(private val project: Project) {
     /**
      * Configure framework name of the pod built from this project.
      */
-    @Deprecated("Use 'baseName' property within framework() function to configure framework name")
+    @Deprecated("Use 'baseName' property within framework{} block to configure framework name")
     var frameworkName: String
         get() = frameworkNameInternal
         set(value) {
