@@ -876,7 +876,8 @@ standaloneTest("cleaner_in_tls_worker") {
 }
 
 standaloneTest("worker_bound_reference0") {
-    enabled = (project.testTarget != 'wasm32') // Workers need pthreads.
+    enabled = (project.testTarget != 'wasm32') && // Workers need pthreads.
+        !(isExperimentalMM && project.testTarget == 'mingw_x64')  // TODO: Fix Experimental MM performance on Windows.
     source = "runtime/concurrent/worker_bound_reference0.kt"
     flags = ['-tr']
 }
@@ -949,7 +950,8 @@ task worker10(type: KonanLocalTest) {
 }
 
 task worker11(type: KonanLocalTest) {
-    enabled = (project.testTarget != 'wasm32') // Workers need pthreads.
+    enabled = (project.testTarget != 'wasm32') && // Workers need pthreads.
+        !(isExperimentalMM && project.testTarget == 'mingw_x64')  // TODO: Fix Experimental MM performance on Windows.
     goldValue = "OK\n"
     source = "runtime/workers/worker11.kt"
 }
@@ -1012,7 +1014,8 @@ task freeze6(type: KonanLocalTest) {
 }
 
 task atomic0(type: KonanLocalTest) {
-    enabled = (project.testTarget != 'wasm32') // Workers need pthreads.
+    enabled = (project.testTarget != 'wasm32') && // Workers need pthreads.
+        !(isExperimentalMM && project.testTarget == 'mingw_x64')  // TODO: Fix Experimental MM performance on Windows.
     goldValue = "35\n" + "20\n" + "OK\n"
     source = "runtime/workers/atomic0.kt"
 }
