@@ -890,7 +890,8 @@ task worker0(type: KonanLocalTest) {
 }
 
 task worker1(type: KonanLocalTest) {
-    enabled = (project.testTarget != 'wasm32') // Workers need pthreads.
+    enabled = (project.testTarget != 'wasm32') && // Workers need pthreads.
+        !(isExperimentalMM && project.testTarget == 'mingw_x64')  // TODO: Fix Experimental MM performance on Windows.
     goldValue = "OK\n"
     source = "runtime/workers/worker1.kt"
 }
