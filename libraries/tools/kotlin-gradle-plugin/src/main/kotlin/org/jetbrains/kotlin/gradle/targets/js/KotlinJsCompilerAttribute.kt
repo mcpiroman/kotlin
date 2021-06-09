@@ -6,8 +6,9 @@
 package org.jetbrains.kotlin.gradle.targets.js
 
 import org.gradle.api.Named
-import org.gradle.api.attributes.Attribute
-import org.gradle.api.attributes.AttributesSchema
+import org.gradle.api.attributes.*
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 import java.io.Serializable
 
 // For Gradle attributes
@@ -30,7 +31,17 @@ enum class KotlinJsCompilerAttribute : Named, Serializable {
         )
 
         fun setupAttributesMatchingStrategy(attributesSchema: AttributesSchema) {
-            attributesSchema.attribute(jsCompilerAttribute)
+            attributesSchema.attribute(jsCompilerAttribute).run {
+                disambiguationRules.add(KotlinJsCompilerDisambiguation::class.java)
+            }
+        }
+    }
+}
+
+class KotlinJsCompilerDisambiguation : AttributeDisambiguationRule<KotlinJsCompilerAttribute> {
+    override fun execute(details: MultipleCandidatesDetails<KotlinJsCompilerAttribute?>) = with(details) {
+        if (candidateValues == setOf(KotlinJsCompilerAttribute.legacy, KotlinJsCompilerAttribute.ir)) {
+            closestMatch(KotlinJsCompilerAttribute.ir)
         }
     }
 }
