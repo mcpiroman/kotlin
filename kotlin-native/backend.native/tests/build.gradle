@@ -707,7 +707,8 @@ task runtime_basic_simd(type: KonanLocalTest) {
 }
 
 task runtime_worker_random(type: KonanLocalTest) {
-    enabled = (project.testTarget != 'wasm32') // Uses workers.
+    enabled = (project.testTarget != 'wasm32') && // Uses workers.
+        !(isExperimentalMM && project.testTarget == 'mingw_x64')  // TODO: Fix Experimental MM performance on Windows.
     source = "runtime/basic/worker_random.kt"
 }
 
