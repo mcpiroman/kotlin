@@ -1,0 +1,53 @@
+/*
+ * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ */
+
+// This file was generated automatically. See compiler/ir/bir/tree/tree-generator/ReadMe.md.
+// DO NOT MODIFY IT MANUALLY.
+
+package org.jetbrains.kotlin.bir.expressions.impl
+
+import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirElementOrList
+import org.jetbrains.kotlin.bir.declarations.BirVariable
+import org.jetbrains.kotlin.bir.expressions.BirCatch
+import org.jetbrains.kotlin.bir.expressions.BirExpression
+import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
+import org.jetbrains.kotlin.bir.traversal.accept
+
+class BirCatchImpl(
+    catchParameter: BirVariable,
+    result: BirExpression,
+    override val startOffset: Int,
+    override val endOffset: Int,
+) : BirCatch() {
+    override var catchParameter: BirVariable = catchParameter
+        set(value) {
+            setChildField(field, value, null)
+            field = value
+        }
+
+    override var result: BirExpression = result
+        set(value) {
+            setChildField(field, value, this.catchParameter)
+            field = value
+        }
+    init {
+        initChildField(catchParameter, null)
+        initChildField(result, catchParameter)
+    }
+
+    override fun getFirstChild(): BirElement? = catchParameter
+
+    override fun getChildren(children: Array<BirElementOrList?>): Int {
+        children[0] = this.catchParameter
+        children[1] = this.result
+        return 2
+    }
+
+    override fun acceptChildren(visitor: BirElementVisitor) {
+        this.catchParameter.accept(visitor)
+        this.result.accept(visitor)
+    }
+}

@@ -1,0 +1,13 @@
+Rename 'symbol' fields to something more meaning full like 'target' or maybe e.g. 'function'.
+Reorder fields in Impl classes
+Properly handle external (not BirElement) symbols
+Properly handle IrAttributeContainer's this reference
+Properly handle IrExternalPackageFragment, which is not directly attached to the IR tree - maybe also add externalPackages child to BirModuleFragment
+Back references
+    Decide on arrays vs. linked lists - measure perf, esp. removing element
+    Protocol for (sub)tree attach/detach
+    Decide on egaer/lazy removal of back references
+Reshape BIR tree
+Additional per-element storage
+By class element cache (getAllElementsOfType)
+Tree mutation-while-traversing protocol
