@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -19,8 +20,8 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.enumEntry]
  */
-abstract class BirEnumEntry : BirDeclarationBase(), BirDeclarationWithName, BirSymbolElement,
-        BirEnumEntrySymbol {
+abstract class BirEnumEntry : BirElementBase(), BirDeclaration, BirDeclarationWithName,
+        BirSymbolElement, BirEnumEntrySymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
 

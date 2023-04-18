@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -24,7 +25,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.class]
  */
-abstract class BirClass : BirDeclarationBase(), BirDeclarationWithVisibility,
+abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirDeclarationContainer,
         BirAttributeContainer, BirSymbolElement, BirClassSymbol {
     @ObsoleteDescriptorBasedAPI

@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirChildElementList
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.expressions.BirStatementContainer
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
@@ -23,7 +24,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.script]
  */
-abstract class BirScript : BirDeclarationBase(), BirDeclarationWithName,
+abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithName,
         BirStatementContainer, BirSymbolElement, BirScriptSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ScriptDescriptor

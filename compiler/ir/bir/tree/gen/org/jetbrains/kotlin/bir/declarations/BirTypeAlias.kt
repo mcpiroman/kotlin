@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirTypeAliasSymbol
 import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
@@ -19,7 +20,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.typeAlias]
  */
-abstract class BirTypeAlias : BirDeclarationBase(), BirDeclarationWithName,
+abstract class BirTypeAlias : BirElementBase(), BirDeclaration, BirDeclarationWithName,
         BirDeclarationWithVisibility, BirTypeParametersContainer, BirSymbolElement,
         BirTypeAliasSymbol {
     @ObsoleteDescriptorBasedAPI
