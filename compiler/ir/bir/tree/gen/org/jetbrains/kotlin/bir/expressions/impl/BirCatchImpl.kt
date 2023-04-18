@@ -17,10 +17,10 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirCatchImpl(
-    catchParameter: BirVariable,
-    result: BirExpression,
     override val startOffset: Int,
     override val endOffset: Int,
+    catchParameter: BirVariable,
+    result: BirExpression,
 ) : BirCatch() {
     override var catchParameter: BirVariable = catchParameter
         set(value) {

@@ -14,12 +14,12 @@ import org.jetbrains.kotlin.bir.expressions.BirLoop
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirContinueImpl(
-    override var loop: BirLoop,
-    override var label: String?,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var loop: BirLoop,
+    override var label: String?,
 ) : BirContinue() {
     override var attributeOwnerId: BirAttributeContainer = this
 }

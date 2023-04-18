@@ -20,13 +20,15 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirTryImpl(
-    tryResult: BirExpression,
-    finallyExpression: BirExpression?,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    tryResult: BirExpression,
+    finallyExpression: BirExpression?,
 ) : BirTry() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var tryResult: BirExpression = tryResult
         set(value) {
             setChildField(field, value, null)
@@ -40,8 +42,6 @@ class BirTryImpl(
             setChildField(field, value, this.catches)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(tryResult, null)
         initChildField(finallyExpression, catches)

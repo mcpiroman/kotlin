@@ -19,14 +19,16 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirSuspensionPointImpl(
-    suspensionPointIdParameter: BirVariable,
-    result: BirExpression,
-    resumeResult: BirExpression,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    suspensionPointIdParameter: BirVariable,
+    result: BirExpression,
+    resumeResult: BirExpression,
 ) : BirSuspensionPoint() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var suspensionPointIdParameter: BirVariable = suspensionPointIdParameter
         set(value) {
             setChildField(field, value, null)
@@ -44,8 +46,6 @@ class BirSuspensionPointImpl(
             setChildField(field, value, this.result)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(suspensionPointIdParameter, null)
         initChildField(result, suspensionPointIdParameter)

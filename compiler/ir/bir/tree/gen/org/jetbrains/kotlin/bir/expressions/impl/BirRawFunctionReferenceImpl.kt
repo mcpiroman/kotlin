@@ -14,11 +14,11 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirRawFunctionReferenceImpl(
-    override var target: BirFunctionSymbol,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var target: BirFunctionSymbol,
 ) : BirRawFunctionReference() {
     override var attributeOwnerId: BirAttributeContainer = this
 }

@@ -1,4 +1,3 @@
-Reorder fields in Impl classes
 Properly handle external (not BirElement) symbols
 Properly handle IrExternalPackageFragment, which is not directly attached to the IR tree - maybe also add externalPackages child to BirModuleFragment
 Back references
@@ -10,3 +9,4 @@ Additional per-element storage
 By class element cache (getAllElementsOfType)
 Tree mutation-while-traversing protocol
 Maybe eventually remove descriptors, but they seem necessary for now
+Reorder fields in Impl classes even more

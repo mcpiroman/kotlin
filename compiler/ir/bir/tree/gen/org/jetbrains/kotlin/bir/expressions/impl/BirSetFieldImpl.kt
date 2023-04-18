@@ -22,45 +22,45 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirSetFieldImpl(
-    value: BirExpression,
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
     override var target: BirFieldSymbol,
     override var superQualifier: BirClassSymbol?,
     receiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override var type: IrType,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
+    value: BirExpression,
 ) : BirSetField() {
-    override var value: BirExpression = value
+    override var attributeOwnerId: BirAttributeContainer = this
+
+    override var receiver: BirExpression? = receiver
         set(value) {
             setChildField(field, value, null)
             field = value
         }
 
-    override var receiver: BirExpression? = receiver
+    override var value: BirExpression = value
         set(value) {
-            setChildField(field, value, this.value)
+            setChildField(field, value, this.receiver)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
-        initChildField(value, null)
-        initChildField(receiver, value)
+        initChildField(receiver, null)
+        initChildField(value, receiver)
     }
 
-    override fun getFirstChild(): BirElement? = value
+    override fun getFirstChild(): BirElement? = receiver ?: value
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.value
-        children[1] = this.receiver
+        children[0] = this.receiver
+        children[1] = this.value
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.value.accept(visitor)
         this.receiver?.accept(visitor)
+        this.value.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

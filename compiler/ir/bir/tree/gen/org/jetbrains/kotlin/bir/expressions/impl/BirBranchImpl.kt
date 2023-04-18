@@ -16,10 +16,10 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirBranchImpl(
-    condition: BirExpression,
-    result: BirExpression,
     override val startOffset: Int,
     override val endOffset: Int,
+    condition: BirExpression,
+    result: BirExpression,
 ) : BirBranch() {
     override var condition: BirExpression = condition
         set(value) {

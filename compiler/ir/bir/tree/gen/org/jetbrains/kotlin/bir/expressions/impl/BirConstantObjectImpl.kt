@@ -20,17 +20,17 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirConstantObjectImpl(
-    override var constructor: BirConstructorSymbol,
-    override val typeArguments: List<IrType>,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var constructor: BirConstructorSymbol,
+    override val typeArguments: List<IrType>,
 ) : BirConstantObject() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override val valueArguments: BirChildElementList<BirConstantValue> =
             BirChildElementList(this)
-
-    override var attributeOwnerId: BirAttributeContainer = this
 
     override fun getFirstChild(): BirElement? = valueArguments.firstOrNull()
 

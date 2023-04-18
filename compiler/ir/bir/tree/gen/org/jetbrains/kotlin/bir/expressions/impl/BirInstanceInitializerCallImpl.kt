@@ -14,11 +14,11 @@ import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirInstanceInitializerCallImpl(
-    override var `class`: BirClassSymbol,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var `class`: BirClassSymbol,
 ) : BirInstanceInitializerCall() {
     override var attributeOwnerId: BirAttributeContainer = this
 }

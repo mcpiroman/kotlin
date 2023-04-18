@@ -21,8 +21,8 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.field]
  */
-abstract class BirField : BirDeclarationBase(), BirPossiblyExternalDeclaration,
-        BirDeclarationWithVisibility, BirSymbolElement, BirFieldSymbol {
+abstract class BirField : BirDeclarationBase(), BirDeclarationWithVisibility,
+        BirPossiblyExternalDeclaration, BirSymbolElement, BirFieldSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: PropertyDescriptor
 

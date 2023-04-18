@@ -18,19 +18,19 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirThrowImpl(
-    value: BirExpression,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    value: BirExpression,
 ) : BirThrow() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var value: BirExpression = value
         set(value) {
             setChildField(field, value, null)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(value, null)
     }

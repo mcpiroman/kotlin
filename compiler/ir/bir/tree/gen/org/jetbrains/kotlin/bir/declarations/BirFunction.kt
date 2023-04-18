@@ -21,8 +21,8 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.function]
  */
-abstract class BirFunction : BirDeclarationBase(), BirPossiblyExternalDeclaration,
-        BirDeclarationWithVisibility, BirTypeParametersContainer, BirReturnTarget,
+abstract class BirFunction : BirDeclarationBase(), BirDeclarationWithVisibility,
+        BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirReturnTarget,
         BirMemberWithContainerSource, BirSymbolElement, BirFunctionSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: FunctionDescriptor

@@ -28,29 +28,31 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: PropertyDescriptor,
+    override var origin: IrDeclarationOrigin,
+    override var name: Name,
+    override var isExternal: Boolean,
+    override var visibility: DescriptorVisibility,
+    override var modality: Modality,
+    override var isFakeOverride: Boolean,
+    override var overriddenSymbols: List<BirPropertySymbol>,
+    override val containerSource: DeserializedContainerSource?,
+    override var originalBeforeInline: BirAttributeContainer?,
     override var isVar: Boolean,
     override var isConst: Boolean,
     override var isLateinit: Boolean,
     override var isDelegated: Boolean,
     override var isExpect: Boolean,
-    override var isFakeOverride: Boolean,
     backingField: BirField?,
     getter: BirSimpleFunction?,
     setter: BirSimpleFunction?,
-    override var overriddenSymbols: List<BirPropertySymbol>,
-    override var origin: IrDeclarationOrigin,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var annotations: List<BirConstructorCall>,
-    override var isExternal: Boolean,
-    override var name: Name,
-    override var modality: Modality,
-    override var visibility: DescriptorVisibility,
-    override var originalBeforeInline: BirAttributeContainer?,
-    override val containerSource: DeserializedContainerSource?,
 ) : BirProperty() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var backingField: BirField? = backingField
         set(value) {
             setChildField(field, value, null)
@@ -68,8 +70,6 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
             setChildField(field, value, this.getter ?: this.backingField)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(backingField, null)
         initChildField(getter, backingField)

@@ -24,19 +24,21 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirPropertyReferenceImpl(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
     override var target: BirPropertySymbol,
-    override var field: BirFieldSymbol?,
-    override var getter: BirSimpleFunctionSymbol?,
-    override var setter: BirSimpleFunctionSymbol?,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
     override val typeArguments: Array<IrType?>,
-    override var type: IrType,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
+    override var field: BirFieldSymbol?,
+    override var getter: BirSimpleFunctionSymbol?,
+    override var setter: BirSimpleFunctionSymbol?,
 ) : BirPropertyReference() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var dispatchReceiver: BirExpression? = dispatchReceiver
         set(value) {
             setChildField(field, value, null)
@@ -51,8 +53,6 @@ class BirPropertyReferenceImpl(
 
     override val valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this)
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(dispatchReceiver, null)
         initChildField(extensionReceiver, dispatchReceiver)

@@ -19,21 +19,21 @@ import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirTypeOperatorCallImpl(
-    override var operator: IrTypeOperator,
-    argument: BirExpression,
-    override var typeOperand: IrType,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var operator: IrTypeOperator,
+    argument: BirExpression,
+    override var typeOperand: IrType,
 ) : BirTypeOperatorCall() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var argument: BirExpression = argument
         set(value) {
             setChildField(field, value, null)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(argument, null)
     }

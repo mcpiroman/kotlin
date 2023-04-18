@@ -25,20 +25,20 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: PropertyDescriptor,
+    override var origin: IrDeclarationOrigin,
+    override var visibility: DescriptorVisibility,
+    override var name: Name,
+    override var isExternal: Boolean,
     override var type: IrType,
     override var isFinal: Boolean,
     override var isStatic: Boolean,
     initializer: BirExpressionBody?,
     override var correspondingProperty: BirPropertySymbol?,
-    override var origin: IrDeclarationOrigin,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var annotations: List<BirConstructorCall>,
-    override var isExternal: Boolean,
-    override var name: Name,
-    override var visibility: DescriptorVisibility,
 ) : BirField() {
     override var initializer: BirExpressionBody? = initializer
         set(value) {

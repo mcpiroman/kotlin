@@ -22,14 +22,14 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.name.FqName
 
 class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var module: BirModuleFragment,
-    override var fileEntry: IrFileEntry,
+    override val startOffset: Int,
+    override val endOffset: Int,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: PackageFragmentDescriptor,
     override var fqName: FqName,
-    override val startOffset: Int,
-    override val endOffset: Int,
     override var annotations: List<BirConstructorCall>,
+    override var module: BirModuleFragment,
+    override var fileEntry: IrFileEntry,
 ) : BirFile() {
     override val declarations: BirChildElementList<BirDeclaration> =
             BirChildElementList(this)
