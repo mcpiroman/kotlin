@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.descriptors.SourceElement
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.constructorCall]
  */
 abstract class BirConstructorCall : BirFunctionAccessExpression() {
-    abstract override var symbol: BirConstructorSymbol
+    abstract override var target: BirConstructorSymbol
 
     abstract var source: SourceElement
 

@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.bir.symbols.BirVariableSymbol
  */
 abstract class BirLocalDelegatedPropertyReference :
         BirCallableReference<BirLocalDelegatedPropertySymbol>() {
-    abstract override var symbol: BirLocalDelegatedPropertySymbol
+    abstract override var target: BirLocalDelegatedPropertySymbol
 
     abstract var delegate: BirVariableSymbol
 

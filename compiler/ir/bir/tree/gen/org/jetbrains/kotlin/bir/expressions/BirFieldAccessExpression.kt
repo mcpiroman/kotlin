@@ -18,9 +18,9 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.fieldAccessExpression]
  */
 abstract class BirFieldAccessExpression : BirDeclarationReference() {
-    abstract override var symbol: BirFieldSymbol
+    abstract override var target: BirFieldSymbol
 
-    abstract var superQualifierSymbol: BirClassSymbol?
+    abstract var superQualifier: BirClassSymbol?
 
     abstract var receiver: BirExpression?
 

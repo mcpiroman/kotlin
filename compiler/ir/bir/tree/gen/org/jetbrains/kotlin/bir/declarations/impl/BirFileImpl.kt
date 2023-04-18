@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.ir.IrFileEntry
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.declarations.MetadataSource
 import org.jetbrains.kotlin.name.FqName
 
 class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
@@ -31,7 +30,6 @@ class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
     override var annotations: List<BirConstructorCall>,
-    override var metadata: MetadataSource?,
 ) : BirFile() {
     override val declarations: BirChildElementList<BirDeclaration> =
             BirChildElementList(this)

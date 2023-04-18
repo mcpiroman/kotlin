@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.getEnumValue]
  */
 abstract class BirGetEnumValue : BirGetSingletonValue() {
-    abstract override var symbol: BirEnumEntrySymbol
+    abstract override var target: BirEnumEntrySymbol
 }

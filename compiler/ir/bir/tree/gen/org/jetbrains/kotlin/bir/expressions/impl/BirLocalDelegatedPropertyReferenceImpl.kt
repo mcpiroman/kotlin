@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirLocalDelegatedPropertyReferenceImpl(
-    override var symbol: BirLocalDelegatedPropertySymbol,
+    override var target: BirLocalDelegatedPropertySymbol,
     override var delegate: BirVariableSymbol,
     override var getter: BirSimpleFunctionSymbol,
     override var setter: BirSimpleFunctionSymbol?,
@@ -75,7 +75,7 @@ class BirLocalDelegatedPropertyReferenceImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.symbol === old) this.symbol = new as BirLocalDelegatedPropertySymbol
+        if(this.target === old) this.target = new as BirLocalDelegatedPropertySymbol
         if(this.delegate === old) this.delegate = new as BirVariableSymbol
         if(this.getter === old) this.getter = new as BirSimpleFunctionSymbol
         if(this.setter === old) this.setter = new as BirSimpleFunctionSymbol

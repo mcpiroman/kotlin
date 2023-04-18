@@ -15,6 +15,6 @@ import org.jetbrains.kotlin.bir.BirChildElementList
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.typeParametersContainer]
  */
-interface BirTypeParametersContainer : BirDeclaration, BirDeclarationParent {
+interface BirTypeParametersContainer : BirDeclaration {
     var typeParameters: BirChildElementList<BirTypeParameter>
 }

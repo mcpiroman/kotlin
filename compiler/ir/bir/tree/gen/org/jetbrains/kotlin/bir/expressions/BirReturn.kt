@@ -18,5 +18,5 @@ import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
 abstract class BirReturn : BirExpression() {
     abstract var value: BirExpression
 
-    abstract var returnTargetSymbol: BirReturnTargetSymbol
+    abstract var returnTarget: BirReturnTargetSymbol
 }

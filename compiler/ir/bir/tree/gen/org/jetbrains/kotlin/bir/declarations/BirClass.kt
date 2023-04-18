@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  */
 abstract class BirClass : BirDeclarationBase(), BirPossiblyExternalDeclaration,
         BirDeclarationWithVisibility, BirTypeParametersContainer, BirDeclarationContainer,
-        BirAttributeContainer, BirMetadataSourceOwner, BirSymbolElement, BirClassSymbol {
+        BirAttributeContainer, BirSymbolElement, BirClassSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
 

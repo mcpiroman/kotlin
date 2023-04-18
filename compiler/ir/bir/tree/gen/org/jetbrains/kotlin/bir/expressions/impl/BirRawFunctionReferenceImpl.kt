@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirRawFunctionReferenceImpl(
-    override var symbol: BirFunctionSymbol,
+    override var target: BirFunctionSymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,

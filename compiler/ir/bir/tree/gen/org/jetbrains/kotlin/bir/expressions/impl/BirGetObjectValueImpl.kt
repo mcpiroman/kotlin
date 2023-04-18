@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetObjectValueImpl(
-    override var symbol: BirClassSymbol,
+    override var target: BirClassSymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,

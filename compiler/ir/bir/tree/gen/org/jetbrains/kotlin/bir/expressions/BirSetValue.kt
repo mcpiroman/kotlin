@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.setValue]
  */
 abstract class BirSetValue : BirValueAccessExpression() {
-    abstract override var symbol: BirValueSymbol
+    abstract override var target: BirValueSymbol
 
     abstract var value: BirExpression
 }

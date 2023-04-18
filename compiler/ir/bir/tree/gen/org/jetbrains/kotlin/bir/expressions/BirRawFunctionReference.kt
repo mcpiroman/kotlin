@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.rawFunctionReference]
  */
 abstract class BirRawFunctionReference : BirDeclarationReference() {
-    abstract override var symbol: BirFunctionSymbol
+    abstract override var target: BirFunctionSymbol
 }

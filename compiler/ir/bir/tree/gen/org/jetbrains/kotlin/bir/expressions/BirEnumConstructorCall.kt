@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.enumConstructorCall]
  */
 abstract class BirEnumConstructorCall : BirFunctionAccessExpression() {
-    abstract override var symbol: BirConstructorSymbol
+    abstract override var target: BirConstructorSymbol
 }

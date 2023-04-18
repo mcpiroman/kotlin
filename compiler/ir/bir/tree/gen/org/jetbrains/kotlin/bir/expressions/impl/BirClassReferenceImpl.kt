@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirClassReferenceImpl(
-    override var symbol: BirClassifierSymbol,
+    override var target: BirClassifierSymbol,
     override var classType: IrType,
     override var type: IrType,
     override val startOffset: Int,

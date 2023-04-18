@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.VariableDescriptorWithAccessors
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.MetadataSource
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
@@ -36,7 +35,6 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override val endOffset: Int,
     override var annotations: List<BirConstructorCall>,
     override var name: Name,
-    override var metadata: MetadataSource?,
 ) : BirLocalDelegatedProperty() {
     override var delegate: BirVariable = delegate
         set(value) {

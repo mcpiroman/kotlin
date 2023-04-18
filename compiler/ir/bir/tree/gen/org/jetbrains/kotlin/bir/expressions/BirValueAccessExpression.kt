@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.valueAccessExpression]
  */
 abstract class BirValueAccessExpression : BirDeclarationReference() {
-    abstract override var symbol: BirValueSymbol
+    abstract override var target: BirValueSymbol
 
     abstract var origin: IrStatementOrigin?
 }

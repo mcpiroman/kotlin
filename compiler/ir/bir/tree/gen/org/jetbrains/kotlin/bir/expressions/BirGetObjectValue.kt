@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.getObjectValue]
  */
 abstract class BirGetObjectValue : BirGetSingletonValue() {
-    abstract override var symbol: BirClassSymbol
+    abstract override var target: BirClassSymbol
 }
