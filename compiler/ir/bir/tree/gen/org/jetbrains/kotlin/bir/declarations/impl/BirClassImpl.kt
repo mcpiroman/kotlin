@@ -34,8 +34,16 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: ClassDescriptor,
+    override var origin: IrDeclarationOrigin,
+    override var visibility: DescriptorVisibility,
+    override var name: Name,
+    override var isExternal: Boolean,
+    override var originalBeforeInline: BirAttributeContainer?,
     override var kind: ClassKind,
     override var modality: Modality,
     override var isCompanion: Boolean,
@@ -49,21 +57,7 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     thisReceiver: BirValueParameter?,
     override var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?,
     override var sealedSubclasses: List<BirClassSymbol>,
-    override var origin: IrDeclarationOrigin,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var annotations: List<BirConstructorCall>,
-    override var isExternal: Boolean,
-    override var name: Name,
-    override var visibility: DescriptorVisibility,
-    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirClass() {
-    override var thisReceiver: BirValueParameter? = thisReceiver
-        set(value) {
-            setChildField(field, value, null)
-            field = value
-        }
-
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)
 
@@ -71,24 +65,30 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
             BirChildElementList(this)
 
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override var thisReceiver: BirValueParameter? = thisReceiver
+        set(value) {
+            setChildField(field, value, this.declarations)
+            field = value
+        }
     init {
-        initChildField(thisReceiver, null)
+        initChildField(thisReceiver, declarations)
     }
 
-    override fun getFirstChild(): BirElement? = thisReceiver ?: typeParameters.firstOrNull()
-            ?: declarations.firstOrNull()
+    override fun getFirstChild(): BirElement? = typeParameters.firstOrNull() ?:
+            declarations.firstOrNull() ?: thisReceiver
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.thisReceiver
-        children[1] = this.typeParameters
-        children[2] = this.declarations
+        children[0] = this.typeParameters
+        children[1] = this.declarations
+        children[2] = this.thisReceiver
         return 3
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.thisReceiver?.accept(visitor)
         this.typeParameters.acceptChildren(visitor)
         this.declarations.acceptChildren(visitor)
+        this.thisReceiver?.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

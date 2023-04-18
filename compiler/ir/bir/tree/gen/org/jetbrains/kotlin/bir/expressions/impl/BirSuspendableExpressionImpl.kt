@@ -18,13 +18,15 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirSuspendableExpressionImpl(
-    suspensionPointId: BirExpression,
-    result: BirExpression,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    suspensionPointId: BirExpression,
+    result: BirExpression,
 ) : BirSuspendableExpression() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var suspensionPointId: BirExpression = suspensionPointId
         set(value) {
             setChildField(field, value, null)
@@ -36,8 +38,6 @@ class BirSuspendableExpressionImpl(
             setChildField(field, value, this.suspensionPointId)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(suspensionPointId, null)
         initChildField(result, suspensionPointId)

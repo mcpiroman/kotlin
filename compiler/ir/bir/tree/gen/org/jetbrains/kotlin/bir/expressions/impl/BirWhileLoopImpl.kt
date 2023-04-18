@@ -19,15 +19,17 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirWhileLoopImpl(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
     override var origin: IrStatementOrigin?,
     body: BirExpression?,
     condition: BirExpression,
     override var label: String?,
-    override var type: IrType,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirWhileLoop() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var body: BirExpression? = body
         set(value) {
             setChildField(field, value, null)
@@ -39,8 +41,6 @@ class BirWhileLoopImpl(
             setChildField(field, value, this.body)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(body, null)
         initChildField(condition, body)

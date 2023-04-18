@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.descriptors.Modality
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.overridableMember]
  */
-interface BirOverridableMember : BirDeclaration, BirDeclarationWithVisibility,
-        BirDeclarationWithName, BirSymbolElement {
+interface BirOverridableMember : BirDeclaration, BirDeclarationWithName,
+        BirDeclarationWithVisibility, BirSymbolElement {
     var modality: Modality
 }

@@ -90,8 +90,8 @@ object BirTree : AbstractTreeBuilder() {
     }
     val overridableMember: ElementConfig by element(Declaration) {
         parent(declaration)
-        parent(declarationWithVisibility)
         parent(declarationWithName)
+        parent(declarationWithVisibility)
         parent(symbolElement)
 
         +field("modality", type<Modality>())
@@ -100,8 +100,8 @@ object BirTree : AbstractTreeBuilder() {
         val s = +param("S", symbolType)
 
         parent(overridableMember)
-        parent(symbolType)
         parent(symbolElement)
+        parent(symbolType)
 
         +field("isFakeOverride", boolean)
         +listField("overriddenSymbols", s, mutability = Var)
@@ -142,8 +142,8 @@ object BirTree : AbstractTreeBuilder() {
         symbol = SymbolTypes.`class`
 
         parent(declarationBase)
-        parent(possiblyExternalDeclaration)
         parent(declarationWithVisibility)
+        parent(possiblyExternalDeclaration)
         parent(typeParametersContainer)
         parent(declarationContainer)
         parent(attributeContainer)
@@ -238,8 +238,8 @@ object BirTree : AbstractTreeBuilder() {
         symbol = SymbolTypes.function
 
         parent(declarationBase)
-        parent(possiblyExternalDeclaration)
         parent(declarationWithVisibility)
+        parent(possiblyExternalDeclaration)
         parent(typeParametersContainer)
         parent(returnTarget)
         parent(memberWithContainerSource)
@@ -291,8 +291,8 @@ object BirTree : AbstractTreeBuilder() {
         symbol = SymbolTypes.field
 
         parent(declarationBase)
-        parent(possiblyExternalDeclaration)
         parent(declarationWithVisibility)
+        parent(possiblyExternalDeclaration)
 
         +descriptor("PropertyDescriptor")
         +field("type", irTypeType)
@@ -329,8 +329,8 @@ object BirTree : AbstractTreeBuilder() {
         parent(declarationBase)
         parent(possiblyExternalDeclaration)
         parent(overridableDeclaration.withArgs("S" to SymbolTypes.property))
-        parent(attributeContainer)
         parent(memberWithContainerSource)
+        parent(attributeContainer)
 
         +descriptor("PropertyDescriptor")
         +field("isVar", boolean)

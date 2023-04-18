@@ -23,16 +23,16 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
-    @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: TypeAliasDescriptor,
-    override var isActual: Boolean,
-    override var expandedType: IrType,
-    override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
     override var annotations: List<BirConstructorCall>,
+    @property:ObsoleteDescriptorBasedAPI
+    override val descriptor: TypeAliasDescriptor,
+    override var origin: IrDeclarationOrigin,
     override var name: Name,
     override var visibility: DescriptorVisibility,
+    override var isActual: Boolean,
+    override var expandedType: IrType,
 ) : BirTypeAlias() {
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)

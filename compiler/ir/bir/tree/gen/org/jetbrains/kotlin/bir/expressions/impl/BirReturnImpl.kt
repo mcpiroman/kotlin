@@ -20,20 +20,20 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirReturnImpl(
-    value: BirExpression,
-    override var returnTarget: BirReturnTargetSymbol,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    value: BirExpression,
+    override var returnTarget: BirReturnTargetSymbol,
 ) : BirReturn() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var value: BirExpression = value
         set(value) {
             setChildField(field, value, null)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(value, null)
     }

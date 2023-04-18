@@ -16,9 +16,9 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirExpressionBodyImpl(
-    expression: BirExpression,
     override val startOffset: Int,
     override val endOffset: Int,
+    expression: BirExpression,
 ) : BirExpressionBody() {
     override var expression: BirExpression = expression
         set(value) {

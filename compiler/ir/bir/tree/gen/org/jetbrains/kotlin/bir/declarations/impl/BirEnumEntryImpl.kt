@@ -22,15 +22,15 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
-    @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: ClassDescriptor,
-    initializerExpression: BirExpressionBody?,
-    correspondingClass: BirClass?,
-    override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
     override var annotations: List<BirConstructorCall>,
+    @property:ObsoleteDescriptorBasedAPI
+    override val descriptor: ClassDescriptor,
+    override var origin: IrDeclarationOrigin,
     override var name: Name,
+    initializerExpression: BirExpressionBody?,
+    correspondingClass: BirClass?,
 ) : BirEnumEntry() {
     override var initializerExpression: BirExpressionBody? = initializerExpression
         set(value) {

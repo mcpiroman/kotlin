@@ -15,10 +15,10 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 
 class BirErrorDeclarationImpl @ObsoleteDescriptorBasedAPI constructor(
-    @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: DeclarationDescriptor,
-    override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
     override var annotations: List<BirConstructorCall>,
+    @property:ObsoleteDescriptorBasedAPI
+    override val descriptor: DeclarationDescriptor,
+    override var origin: IrDeclarationOrigin,
 ) : BirErrorDeclaration()

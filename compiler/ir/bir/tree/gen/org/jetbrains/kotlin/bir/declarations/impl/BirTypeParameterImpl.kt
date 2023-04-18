@@ -18,15 +18,15 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
 class BirTypeParameterImpl @ObsoleteDescriptorBasedAPI constructor(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: TypeParameterDescriptor,
+    override var origin: IrDeclarationOrigin,
+    override var name: Name,
     override var variance: Variance,
     override var index: Int,
     override var isReified: Boolean,
     override var superTypes: List<IrType>,
-    override var origin: IrDeclarationOrigin,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var annotations: List<BirConstructorCall>,
-    override var name: Name,
 ) : BirTypeParameter()

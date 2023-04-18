@@ -15,12 +15,12 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetValueImpl(
-    override var target: BirValueSymbol,
-    override var origin: IrStatementOrigin?,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var target: BirValueSymbol,
+    override var origin: IrStatementOrigin?,
 ) : BirGetValue() {
     override var attributeOwnerId: BirAttributeContainer = this
 }

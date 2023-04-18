@@ -32,16 +32,16 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val isElementBound: Boolean,
-    override var isTailrec: Boolean,
-    override var isSuspend: Boolean,
-    override var isFakeOverride: Boolean,
-    override var isOperator: Boolean,
-    override var isInfix: Boolean,
-    override var correspondingProperty: BirPropertySymbol?,
-    override var overriddenSymbols: List<BirSimpleFunctionSymbol>,
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: FunctionDescriptor,
+    override var origin: IrDeclarationOrigin,
+    override var visibility: DescriptorVisibility,
+    override var name: Name,
+    override var isExternal: Boolean,
+    override val containerSource: DeserializedContainerSource?,
     override var isInline: Boolean,
     override var isExpect: Boolean,
     override var returnType: IrType,
@@ -49,26 +49,29 @@ class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
     extensionReceiverParameter: BirValueParameter?,
     override var contextReceiverParametersCount: Int,
     body: BirBody?,
-    override var origin: IrDeclarationOrigin,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var annotations: List<BirConstructorCall>,
-    override var isExternal: Boolean,
-    override var name: Name,
-    override var visibility: DescriptorVisibility,
-    override val containerSource: DeserializedContainerSource?,
     override var modality: Modality,
+    override var isFakeOverride: Boolean,
+    override var overriddenSymbols: List<BirSimpleFunctionSymbol>,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var isTailrec: Boolean,
+    override var isSuspend: Boolean,
+    override var isOperator: Boolean,
+    override var isInfix: Boolean,
+    override var correspondingProperty: BirPropertySymbol?,
+    override val isElementBound: Boolean,
 ) : BirFunctionWithLateBinding() {
+    override var typeParameters: BirChildElementList<BirTypeParameter> =
+            BirChildElementList(this)
+
     override var dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
         set(value) {
-            setChildField(field, value, null)
+            setChildField(field, value, this.typeParameters)
             field = value
         }
 
     override var extensionReceiverParameter: BirValueParameter? = extensionReceiverParameter
         set(value) {
-            setChildField(field, value, this.dispatchReceiverParameter)
+            setChildField(field, value, this.dispatchReceiverParameter ?: this.typeParameters)
             field = value
         }
 
@@ -81,40 +84,37 @@ class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
             field = value
         }
 
-    override var typeParameters: BirChildElementList<BirTypeParameter> =
-            BirChildElementList(this)
-
     override var attributeOwnerId: BirAttributeContainer = this
     init {
-        initChildField(dispatchReceiverParameter, null)
-        initChildField(extensionReceiverParameter, dispatchReceiverParameter)
+        initChildField(dispatchReceiverParameter, typeParameters)
+        initChildField(extensionReceiverParameter, dispatchReceiverParameter ?: typeParameters)
         initChildField(body, valueParameters)
     }
 
-    override fun getFirstChild(): BirElement? = dispatchReceiverParameter ?:
-            extensionReceiverParameter ?: valueParameters.firstOrNull() ?: body ?:
-            typeParameters.firstOrNull()
+    override fun getFirstChild(): BirElement? = typeParameters.firstOrNull() ?:
+            dispatchReceiverParameter ?: extensionReceiverParameter ?: valueParameters.firstOrNull()
+            ?: body
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.dispatchReceiverParameter
-        children[1] = this.extensionReceiverParameter
-        children[2] = this.valueParameters
-        children[3] = this.body
-        children[4] = this.typeParameters
+        children[0] = this.typeParameters
+        children[1] = this.dispatchReceiverParameter
+        children[2] = this.extensionReceiverParameter
+        children[3] = this.valueParameters
+        children[4] = this.body
         return 5
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
+        this.typeParameters.acceptChildren(visitor)
         this.dispatchReceiverParameter?.accept(visitor)
         this.extensionReceiverParameter?.accept(visitor)
         this.valueParameters.acceptChildren(visitor)
         this.body?.accept(visitor)
-        this.typeParameters.acceptChildren(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.correspondingProperty === old) this.correspondingProperty = new as BirPropertySymbol
         this.overriddenSymbols = this.overriddenSymbols.map { if(it === old) new as
                 BirSimpleFunctionSymbol else it }
+        if(this.correspondingProperty === old) this.correspondingProperty = new as BirPropertySymbol
     }
 }

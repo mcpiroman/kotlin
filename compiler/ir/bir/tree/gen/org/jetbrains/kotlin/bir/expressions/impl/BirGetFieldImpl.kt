@@ -22,22 +22,22 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetFieldImpl(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
     override var target: BirFieldSymbol,
     override var superQualifier: BirClassSymbol?,
     receiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override var type: IrType,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirGetField() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var receiver: BirExpression? = receiver
         set(value) {
             setChildField(field, value, null)
             field = value
         }
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(receiver, null)
     }

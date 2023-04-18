@@ -22,21 +22,21 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: ParameterDescriptor,
+    override var origin: IrDeclarationOrigin,
+    override var name: Name,
+    override var type: IrType,
+    override val isAssignable: Boolean,
     override var index: Int,
     override var varargElementType: IrType?,
     override var isCrossinline: Boolean,
     override var isNoinline: Boolean,
     override var isHidden: Boolean,
     defaultValue: BirExpressionBody?,
-    override var origin: IrDeclarationOrigin,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var annotations: List<BirConstructorCall>,
-    override var type: IrType,
-    override val isAssignable: Boolean,
-    override var name: Name,
 ) : BirValueParameter() {
     override var defaultValue: BirExpressionBody? = defaultValue
         set(value) {

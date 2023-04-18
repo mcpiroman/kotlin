@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.bir.expressions.BirSyntheticBody
 import org.jetbrains.kotlin.ir.expressions.IrSyntheticBodyKind
 
 class BirSyntheticBodyImpl(
-    override var kind: IrSyntheticBodyKind,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var kind: IrSyntheticBodyKind,
 ) : BirSyntheticBody()

@@ -23,18 +23,18 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
+    override val startOffset: Int,
+    override val endOffset: Int,
+    override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: VariableDescriptorWithAccessors,
+    override var origin: IrDeclarationOrigin,
+    override var name: Name,
     override var type: IrType,
     override var isVar: Boolean,
     delegate: BirVariable,
     getter: BirSimpleFunction,
     setter: BirSimpleFunction?,
-    override var origin: IrDeclarationOrigin,
-    override val startOffset: Int,
-    override val endOffset: Int,
-    override var annotations: List<BirConstructorCall>,
-    override var name: Name,
 ) : BirLocalDelegatedProperty() {
     override var delegate: BirVariable = delegate
         set(value) {

@@ -24,8 +24,8 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.class]
  */
-abstract class BirClass : BirDeclarationBase(), BirPossiblyExternalDeclaration,
-        BirDeclarationWithVisibility, BirTypeParametersContainer, BirDeclarationContainer,
+abstract class BirClass : BirDeclarationBase(), BirDeclarationWithVisibility,
+        BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirDeclarationContainer,
         BirAttributeContainer, BirSymbolElement, BirClassSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor

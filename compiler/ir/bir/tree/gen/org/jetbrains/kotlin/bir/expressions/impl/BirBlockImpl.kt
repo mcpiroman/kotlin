@@ -19,15 +19,15 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirBlockImpl(
-    override var origin: IrStatementOrigin?,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var origin: IrStatementOrigin?,
 ) : BirBlock() {
-    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
-
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
 
     override fun getFirstChild(): BirElement? = statements.firstOrNull()
 

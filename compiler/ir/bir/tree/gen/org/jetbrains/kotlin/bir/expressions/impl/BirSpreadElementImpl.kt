@@ -16,9 +16,9 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirSpreadElementImpl(
-    expression: BirExpression,
     override val startOffset: Int,
     override val endOffset: Int,
+    expression: BirExpression,
 ) : BirSpreadElement() {
     override var expression: BirExpression = expression
         set(value) {

@@ -18,14 +18,14 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirStringConcatenationImpl(
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
 ) : BirStringConcatenation() {
-    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
-
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
 
     override fun getFirstChild(): BirElement? = arguments.firstOrNull()
 

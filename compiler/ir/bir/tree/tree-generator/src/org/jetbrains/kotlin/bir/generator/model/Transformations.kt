@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.bir.generator.model
 
 import org.jetbrains.kotlin.bir.generator.config.*
 import org.jetbrains.kotlin.bir.generator.elementBaseType
-import org.jetbrains.kotlin.bir.generator.elementList
 import org.jetbrains.kotlin.bir.generator.util.*
 import org.jetbrains.kotlin.utils.addToStdlib.castAll
 import org.jetbrains.kotlin.utils.addToStdlib.partitionIsInstance
@@ -224,24 +223,26 @@ private fun iterateElementsParentFirst(elements: List<Element>) = sequence {
 
 private fun computeAllFields(elements: List<Element>) {
     for (element in elements) {
-        if (element.hasImpl) {
-            val allFieldsMap = mutableMapOf<String, Field>()
-            fun visitParents(visited: Element) {
-                for (field in visited.fields) {
-                    allFieldsMap.putIfAbsent(field.name, field)
-                }
-                for (parent in visited.elementParents) {
+        val allFieldsMap = mutableMapOf<String, Field>()
+        val visitedParents = hashSetOf<Element>()
+        fun visitParents(visited: Element) {
+            visited.elementParents.forEach { parent ->
+                if (visitedParents.add(parent.element)) {
                     visitParents(parent.element)
                 }
             }
 
-            visitParents(element)
-            val allFields = allFieldsMap.values.toList()
-
-            element.allFields = allFields
-            for (field in allFields) {
-                field.passViaConstructorParameter = !(field is ListField && field.isChild) && !field.defaultToThis
+            visited.fields.forEach { field ->
+                allFieldsMap[field.name] = field
             }
+        }
+
+        visitParents(element)
+        val allFields = allFieldsMap.values.toList()
+
+        element.allFields = allFields
+        for (field in allFields) {
+            field.passViaConstructorParameter = !(field is ListField && field.isChild) && !field.defaultToThis
         }
     }
 }

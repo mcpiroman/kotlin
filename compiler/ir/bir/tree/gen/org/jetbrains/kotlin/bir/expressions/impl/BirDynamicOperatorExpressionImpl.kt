@@ -20,13 +20,15 @@ import org.jetbrains.kotlin.ir.expressions.IrDynamicOperator
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirDynamicOperatorExpressionImpl(
-    override var operator: IrDynamicOperator,
-    receiver: BirExpression,
-    override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
+    override var type: IrType,
+    override var operator: IrDynamicOperator,
+    receiver: BirExpression,
 ) : BirDynamicOperatorExpression() {
+    override var attributeOwnerId: BirAttributeContainer = this
+
     override var receiver: BirExpression = receiver
         set(value) {
             setChildField(field, value, null)
@@ -34,8 +36,6 @@ class BirDynamicOperatorExpressionImpl(
         }
 
     override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
-
-    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(receiver, null)
     }

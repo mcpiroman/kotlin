@@ -19,11 +19,11 @@ import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.name.Name
 
 class BirModuleFragmentImpl(
+    override val startOffset: Int,
+    override val endOffset: Int,
     override val descriptor: ModuleDescriptor,
     override val name: Name,
     override val irBuiltins: IrBuiltIns,
-    override val startOffset: Int,
-    override val endOffset: Int,
 ) : BirModuleFragment() {
     override val files: BirChildElementList<BirFile> = BirChildElementList(this)
 
