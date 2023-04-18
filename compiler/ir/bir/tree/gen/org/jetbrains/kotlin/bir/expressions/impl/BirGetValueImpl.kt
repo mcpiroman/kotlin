@@ -10,12 +10,12 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirGetValue
+import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetValueImpl(
-    override val symbol: IrValueSymbol,
+    override var symbol: BirValueSymbol,
     override var origin: IrStatementOrigin?,
     override var type: IrType,
     override val startOffset: Int,

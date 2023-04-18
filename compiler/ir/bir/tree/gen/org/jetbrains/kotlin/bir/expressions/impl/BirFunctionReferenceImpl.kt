@@ -14,15 +14,16 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirFunctionReference
+import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirFunctionReferenceImpl(
-    override val symbol: IrFunctionSymbol,
-    override var reflectionTarget: IrFunctionSymbol?,
+    override var symbol: BirFunctionSymbol,
+    override var reflectionTarget: BirFunctionSymbol?,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
@@ -67,5 +68,10 @@ class BirFunctionReferenceImpl(
         this.dispatchReceiver?.accept(visitor)
         this.extensionReceiver?.accept(visitor)
         this.valueArguments.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.symbol === old) this.symbol = new as BirFunctionSymbol
+        if(this.reflectionTarget === old) this.reflectionTarget = new as BirFunctionSymbol
     }
 }

@@ -18,12 +18,10 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.symbols.IrAnonymousInitializerSymbol
 
 class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: ClassDescriptor,
-    override val symbol: IrAnonymousInitializerSymbol,
     override var isStatic: Boolean,
     body: BirBlockBody,
     override var origin: IrDeclarationOrigin,

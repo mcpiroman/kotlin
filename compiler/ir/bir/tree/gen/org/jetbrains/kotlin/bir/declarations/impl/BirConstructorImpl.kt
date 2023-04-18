@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
@@ -31,7 +30,6 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: ClassConstructorDescriptor,
-    override val symbol: IrConstructorSymbol,
     override var isPrimary: Boolean,
     override var isInline: Boolean,
     override var isExpect: Boolean,

@@ -13,6 +13,8 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirField
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
@@ -20,20 +22,17 @@ import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: PropertyDescriptor,
-    override val symbol: IrFieldSymbol,
     override var type: IrType,
     override var isFinal: Boolean,
     override var isStatic: Boolean,
     initializer: BirExpressionBody?,
-    override var correspondingPropertySymbol: IrPropertySymbol?,
+    override var correspondingPropertySymbol: BirPropertySymbol?,
     override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
@@ -61,5 +60,10 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.initializer?.accept(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.correspondingPropertySymbol === old) this.correspondingPropertySymbol = new as
+                BirPropertySymbol
     }
 }

@@ -115,7 +115,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             type = ir.type,
             isAssignable = ir.isAssignable,
             name = ir.name,
-            symbol = ir.symbol,
         )
         registerNewElement(ir, bir)
         bir.defaultValue = mapIrElement(ir.defaultValue) as BirExpressionBody?
@@ -146,7 +145,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             isExternal = ir.isExternal,
             name = ir.name,
             visibility = ir.visibility,
-            symbol = ir.symbol,
             originalBeforeInline = null,
             metadata = ir.metadata,
         )
@@ -167,7 +165,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             isStatic = ir.isStatic,
             body = mapIrElement(ir.body) as BirBlockBody,
             origin = ir.origin,
-            symbol = ir.symbol,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
             annotations = emptyList(),
@@ -185,7 +182,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             isReified = ir.isReified,
             superTypes = ir.superTypes,
             origin = ir.origin,
-            symbol = ir.symbol,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
             annotations = emptyList(),
@@ -211,7 +207,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
             annotations = emptyList(),
-            symbol = ir.symbol,
             isExternal = ir.isExternal,
             name = ir.name,
             visibility = ir.visibility,
@@ -234,7 +229,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirEnumEntryImpl(
             descriptor = ir.descriptor,
             initializerExpression = null,
-            symbol = ir.symbol,
             correspondingClass = null,
             origin = ir.origin,
             startOffset = ir.startOffset,
@@ -255,7 +249,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             origin = ir.origin,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
-            symbol = ir.symbol,
             annotations = emptyList(),
         )
         registerNewElement(ir, bir)
@@ -269,7 +262,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirFunctionWithLateBindingImpl(
             descriptor = ir.descriptor,
             modality = ir.modality,
-            isBound = ir.isBound,
+            isElementBound = ir.isBound,
             origin = ir.origin,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
@@ -287,7 +280,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiverParameter = null,
             extensionReceiverParameter = null,
             contextReceiverParametersCount = ir.contextReceiverParametersCount,
-            symbol = ir.symbol,
             body = null,
             isExternal = ir.isExternal,
             name = ir.name,
@@ -319,7 +311,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             modality = ir.modality,
             getter = null,
             setter = null,
-            isBound = ir.isBound,
+            isElementBound = ir.isBound,
             origin = ir.origin,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
@@ -330,7 +322,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             isDelegated = ir.isDelegated,
             isExpect = ir.isExpect,
             isFakeOverride = ir.isFakeOverride,
-            symbol = ir.symbol,
             backingField = null,
             overriddenSymbols = emptyList(),
             isExternal = ir.isExternal,
@@ -356,7 +347,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             descriptor = ir.descriptor,
             type = ir.type,
             isFinal = ir.isFinal,
-            symbol = ir.symbol,
             isStatic = ir.isStatic,
             initializer = null,
             correspondingPropertySymbol = null,
@@ -379,7 +369,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertLocalDelegatedProperty(ir: IrLocalDelegatedProperty):
             BirLocalDelegatedProperty {
         val bir = BirLocalDelegatedPropertyImpl(
-            symbol = ir.symbol,
             descriptor = ir.descriptor,
             type = ir.type,
             isVar = ir.isVar,
@@ -424,7 +413,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             backingField = null,
             getter = null,
             setter = null,
-            symbol = ir.symbol,
             overriddenSymbols = emptyList(),
             origin = ir.origin,
             startOffset = ir.startOffset,
@@ -452,7 +440,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertScript(ir: IrScript): BirScript {
         val bir = BirScriptImpl(
             thisReceiver = null,
-            symbol = ir.symbol,
             baseClass = ir.baseClass,
             providedProperties = ir.providedProperties.map { mapSymbol(ir, it) },
             resultProperty = ir.resultProperty?.let { mapSymbol(ir, it) },
@@ -494,7 +481,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             isExpect = ir.isExpect,
             returnType = ir.returnType,
             dispatchReceiverParameter = null,
-            symbol = ir.symbol,
             extensionReceiverParameter = null,
             contextReceiverParametersCount = ir.contextReceiverParametersCount,
             body = null,
@@ -534,7 +520,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             endOffset = ir.endOffset,
             annotations = emptyList(),
             name = ir.name,
-            symbol = ir.symbol,
             visibility = ir.visibility,
         )
         registerNewElement(ir, bir)
@@ -554,7 +539,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
             annotations = emptyList(),
-            symbol = ir.symbol,
             type = ir.type,
             isAssignable = ir.isAssignable,
             name = ir.name,
@@ -570,7 +554,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirExternalPackageFragmentImpl(
             containerSource = ir.containerSource,
             descriptor = ir.packageFragmentDescriptor,
-            symbol = ir.symbol,
             fqName = ir.fqName,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
@@ -589,7 +572,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
             annotations = emptyList(),
-            symbol = ir.symbol,
             metadata = ir.metadata,
         )
         registerNewElement(ir, bir)
@@ -721,7 +703,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
-            symbol = ir.symbol,
             descriptor = ir.descriptor,
         )
         registerNewElement(ir, bir)

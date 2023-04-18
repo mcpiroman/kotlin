@@ -8,16 +8,16 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.overridableDeclaration]
  */
-interface BirOverridableDeclaration<S : IrSymbol> : BirOverridableMember {
-    override val symbol: S
-
+interface BirOverridableDeclaration<S : BirSymbol> : BirOverridableMember, BirSymbol,
+        BirSymbolElement {
     var isFakeOverride: Boolean
 
     var overriddenSymbols: List<S>

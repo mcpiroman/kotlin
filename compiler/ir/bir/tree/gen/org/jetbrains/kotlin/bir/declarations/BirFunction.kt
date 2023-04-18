@@ -10,9 +10,10 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.expressions.BirBody
+import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -21,13 +22,11 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.function]
  */
 abstract class BirFunction : BirDeclarationBase(), BirPossiblyExternalDeclaration,
-        BirDeclarationWithVisibility, BirTypeParametersContainer, BirSymbolOwner,
-        BirDeclarationParent, BirReturnTarget, BirMemberWithContainerSource, BirMetadataSourceOwner
-        {
+        BirDeclarationWithVisibility, BirTypeParametersContainer, BirDeclarationParent,
+        BirReturnTarget, BirMemberWithContainerSource, BirMetadataSourceOwner, BirSymbolElement,
+        BirFunctionSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: FunctionDescriptor
-
-    abstract override val symbol: IrFunctionSymbol
 
     abstract var isInline: Boolean
 

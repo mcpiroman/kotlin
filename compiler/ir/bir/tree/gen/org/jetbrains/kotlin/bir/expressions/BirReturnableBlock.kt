@@ -9,14 +9,13 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.declarations.BirReturnTarget
-import org.jetbrains.kotlin.bir.declarations.BirSymbolOwner
-import org.jetbrains.kotlin.ir.symbols.IrReturnableBlockSymbol
+import org.jetbrains.kotlin.bir.symbols.BirReturnableBlockSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.returnableBlock]
  */
-abstract class BirReturnableBlock : BirBlock(), BirSymbolOwner, BirReturnTarget {
-    abstract override val symbol: IrReturnableBlockSymbol
-}
+abstract class BirReturnableBlock : BirBlock(), BirReturnTarget, BirSymbolElement,
+        BirReturnableBlockSymbol

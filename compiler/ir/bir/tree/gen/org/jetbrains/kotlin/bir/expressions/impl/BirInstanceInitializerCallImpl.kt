@@ -10,11 +10,11 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirInstanceInitializerCall
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirInstanceInitializerCallImpl(
-    override var classSymbol: IrClassSymbol,
+    override var classSymbol: BirClassSymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,

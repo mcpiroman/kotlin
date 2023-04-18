@@ -15,5 +15,5 @@ package org.jetbrains.kotlin.bir.declarations
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.functionWithLateBinding]
  */
 abstract class BirFunctionWithLateBinding : BirSimpleFunction() {
-    abstract val isBound: Boolean
+    abstract val isElementBound: Boolean
 }

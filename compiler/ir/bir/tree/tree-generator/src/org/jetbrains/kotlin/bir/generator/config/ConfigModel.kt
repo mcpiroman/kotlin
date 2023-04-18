@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.bir.generator.config
 
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.kotlin.bir.generator.BASE_PACKAGE
 import org.jetbrains.kotlin.bir.generator.util.*
@@ -23,10 +24,10 @@ class ElementConfig(
     val params = mutableListOf<TypeVariable>()
     val parents = mutableListOf<TypeRef>()
     val fields = mutableListOf<FieldConfig>()
-
     var childrenOrderOverride: List<String>? = null
 
     var typeKind: TypeKind? = null
+    var symbol: ClassRef<PositionTypeParameterRef>? = null
     var hasImpl = false // By default, all and only leaf elements have impls
 
     var generationCallback: (TypeSpec.Builder.() -> Unit)? = null
@@ -77,9 +78,8 @@ sealed class FieldConfig(
     val name: String,
     val isChild: Boolean,
 ) {
-    var baseDefaultValue: CodeBlock? = null
     var printProperty = true
-
+    var generationCallback: (PropertySpec.Builder.() -> Unit)? = null
     var kdoc: String? = null
 
     override fun toString() = name

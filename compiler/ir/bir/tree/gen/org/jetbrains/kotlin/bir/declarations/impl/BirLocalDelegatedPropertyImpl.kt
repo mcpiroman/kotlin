@@ -20,14 +20,12 @@ import org.jetbrains.kotlin.descriptors.VariableDescriptorWithAccessors
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
-import org.jetbrains.kotlin.ir.symbols.IrLocalDelegatedPropertySymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: VariableDescriptorWithAccessors,
-    override val symbol: IrLocalDelegatedPropertySymbol,
     override var type: IrType,
     override var isVar: Boolean,
     delegate: BirVariable,

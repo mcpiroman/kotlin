@@ -8,9 +8,9 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
 
 /**
  * A non-leafB IR tree element.
@@ -18,9 +18,9 @@ import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.fieldAccessExpression]
  */
 abstract class BirFieldAccessExpression : BirDeclarationReference() {
-    abstract override val symbol: IrFieldSymbol
+    abstract override var symbol: BirFieldSymbol
 
-    abstract var superQualifierSymbol: IrClassSymbol?
+    abstract var superQualifierSymbol: BirClassSymbol?
 
     abstract var receiver: BirExpression?
 

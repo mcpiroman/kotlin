@@ -9,20 +9,20 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.expressions.BirBlockBody
+import org.jetbrains.kotlin.bir.symbols.BirAnonymousInitializerSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrAnonymousInitializerSymbol
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.anonymousInitializer]
  */
-abstract class BirAnonymousInitializer : BirDeclarationBase() {
+abstract class BirAnonymousInitializer : BirDeclarationBase(), BirSymbolElement,
+        BirAnonymousInitializerSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
-
-    abstract override val symbol: IrAnonymousInitializerSymbol
 
     abstract var isStatic: Boolean
 

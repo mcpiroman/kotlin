@@ -13,16 +13,17 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirGetField
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetFieldImpl(
-    override val symbol: IrFieldSymbol,
-    override var superQualifierSymbol: IrClassSymbol?,
+    override var symbol: BirFieldSymbol,
+    override var superQualifierSymbol: BirClassSymbol?,
     receiver: BirExpression?,
     override var origin: IrStatementOrigin?,
     override var type: IrType,
@@ -50,5 +51,10 @@ class BirGetFieldImpl(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.receiver?.accept(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.symbol === old) this.symbol = new as BirFieldSymbol
+        if(this.superQualifierSymbol === old) this.superQualifierSymbol = new as BirClassSymbol
     }
 }

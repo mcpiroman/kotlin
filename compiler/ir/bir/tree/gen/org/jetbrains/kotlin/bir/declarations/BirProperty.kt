@@ -8,9 +8,10 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 
 /**
  * A non-leafB IR tree element.
@@ -18,12 +19,10 @@ import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.property]
  */
 abstract class BirProperty : BirDeclarationBase(), BirPossiblyExternalDeclaration,
-        BirOverridableDeclaration<IrPropertySymbol>, BirMetadataSourceOwner, BirAttributeContainer,
-        BirMemberWithContainerSource {
+        BirOverridableDeclaration<BirPropertySymbol>, BirMetadataSourceOwner, BirAttributeContainer,
+        BirMemberWithContainerSource, BirSymbolElement, BirPropertySymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: PropertyDescriptor
-
-    abstract override val symbol: IrPropertySymbol
 
     abstract var isVar: Boolean
 
@@ -43,5 +42,5 @@ abstract class BirProperty : BirDeclarationBase(), BirPossiblyExternalDeclaratio
 
     abstract var setter: BirSimpleFunction?
 
-    abstract override var overriddenSymbols: List<IrPropertySymbol>
+    abstract override var overriddenSymbols: List<BirPropertySymbol>
 }

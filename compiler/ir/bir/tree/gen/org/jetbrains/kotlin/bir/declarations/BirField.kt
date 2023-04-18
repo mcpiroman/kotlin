@@ -9,10 +9,11 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
+import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -21,11 +22,10 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.field]
  */
 abstract class BirField : BirDeclarationBase(), BirPossiblyExternalDeclaration,
-        BirDeclarationWithVisibility, BirDeclarationParent, BirMetadataSourceOwner {
+        BirDeclarationWithVisibility, BirDeclarationParent, BirMetadataSourceOwner,
+        BirSymbolElement, BirFieldSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: PropertyDescriptor
-
-    abstract override val symbol: IrFieldSymbol
 
     abstract var type: IrType
 
@@ -35,5 +35,5 @@ abstract class BirField : BirDeclarationBase(), BirPossiblyExternalDeclaration,
 
     abstract var initializer: BirExpressionBody?
 
-    abstract var correspondingPropertySymbol: IrPropertySymbol?
+    abstract var correspondingPropertySymbol: BirPropertySymbol?
 }

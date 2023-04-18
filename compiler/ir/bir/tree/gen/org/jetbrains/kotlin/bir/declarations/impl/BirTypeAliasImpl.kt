@@ -19,14 +19,12 @@ import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.symbols.IrTypeAliasSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: TypeAliasDescriptor,
-    override val symbol: IrTypeAliasSymbol,
     override var isActual: Boolean,
     override var expandedType: IrType,
     override var origin: IrDeclarationOrigin,

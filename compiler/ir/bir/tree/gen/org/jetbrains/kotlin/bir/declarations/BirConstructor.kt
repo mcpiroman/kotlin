@@ -8,20 +8,19 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.constructor]
  */
-abstract class BirConstructor : BirFunction() {
+abstract class BirConstructor : BirFunction(), BirSymbolElement, BirConstructorSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassConstructorDescriptor
-
-    abstract override val symbol: IrConstructorSymbol
 
     abstract var isPrimary: Boolean
 }

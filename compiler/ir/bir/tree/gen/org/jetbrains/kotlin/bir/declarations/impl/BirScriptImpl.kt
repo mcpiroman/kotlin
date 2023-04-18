@@ -17,30 +17,30 @@ import org.jetbrains.kotlin.bir.declarations.BirScript
 import org.jetbrains.kotlin.bir.declarations.BirValueParameter
 import org.jetbrains.kotlin.bir.declarations.BirVariable
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirScriptSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrScriptSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val symbol: IrScriptSymbol,
+    @property:ObsoleteDescriptorBasedAPI
+    override val descriptor: ScriptDescriptor,
     thisReceiver: BirValueParameter?,
     override var baseClass: IrType?,
-    override var providedProperties: List<IrPropertySymbol>,
-    override var resultProperty: IrPropertySymbol?,
+    override var providedProperties: List<BirPropertySymbol>,
+    override var resultProperty: BirPropertySymbol?,
     earlierScriptsParameter: BirValueParameter?,
-    override var earlierScripts: List<IrScriptSymbol>?,
-    override var targetClass: IrClassSymbol?,
+    override var earlierScripts: List<BirScriptSymbol>?,
+    override var targetClass: BirClassSymbol?,
     override var constructor: BirConstructor?,
-    @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: DeclarationDescriptor,
     override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
@@ -97,5 +97,14 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
         this.providedPropertiesParameters.acceptChildren(visitor)
         this.earlierScriptsParameter?.accept(visitor)
         this.statements.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        this.providedProperties = this.providedProperties.map { if(it === old) new as
+                BirPropertySymbol else it }
+        if(this.resultProperty === old) this.resultProperty = new as BirPropertySymbol
+        this.earlierScripts = this.earlierScripts?.map { if(it === old) new as BirScriptSymbol else
+                it }
+        if(this.targetClass === old) this.targetClass = new as BirClassSymbol
     }
 }

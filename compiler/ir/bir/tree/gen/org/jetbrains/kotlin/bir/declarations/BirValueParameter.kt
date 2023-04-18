@@ -9,9 +9,10 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.symbols.BirValueParameterSymbol
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -19,11 +20,10 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.valueParameter]
  */
-abstract class BirValueParameter : BirDeclarationBase(), BirValueDeclaration {
+abstract class BirValueParameter : BirDeclarationBase(), BirValueDeclaration,
+        BirSymbolElement, BirValueParameterSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ParameterDescriptor
-
-    abstract override val symbol: IrValueParameterSymbol
 
     abstract var index: Int
 

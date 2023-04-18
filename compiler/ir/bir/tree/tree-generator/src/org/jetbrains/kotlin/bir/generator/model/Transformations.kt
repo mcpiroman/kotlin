@@ -112,7 +112,7 @@ private fun replaceElementRefs(config: Config, mapping: Map<ElementConfig, Eleme
             .map { transform(it) }
             .partitionIsInstance<TypeRef, ElementRef>()
         el.elementParents = elParents.takeIf { it.isNotEmpty() || el == rootEl.element } ?: listOf(rootEl)
-        el.otherParents = otherParents.castAll<ClassRef<*>>().toList()
+        el.otherParents += otherParents.castAll<ClassRef<*>>().toList()
 
         for (field in el.fields) {
             when (field) {
@@ -147,7 +147,7 @@ private fun markLeaves(elements: List<Element>) {
 private fun addAbstractElement(elements: List<Element>) {
     for (el in elements) {
         if (el.kind!!.typeKind == TypeKind.Class && el.elementParents.none { it.element.kind!!.typeKind == TypeKind.Class }) {
-            el.otherParents += org.jetbrains.kotlin.bir.generator.elementBaseType
+            el.otherParents += elementBaseType
         }
     }
 }

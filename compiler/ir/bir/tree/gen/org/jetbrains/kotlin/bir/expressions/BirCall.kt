@@ -8,8 +8,8 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
 
 /**
  * A leafB IR tree element.
@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.call]
  */
 abstract class BirCall : BirFunctionAccessExpression() {
-    abstract override val symbol: IrSimpleFunctionSymbol
+    abstract override var symbol: BirSimpleFunctionSymbol
 
-    abstract var superQualifierSymbol: IrClassSymbol?
+    abstract var superQualifierSymbol: BirClassSymbol?
 }

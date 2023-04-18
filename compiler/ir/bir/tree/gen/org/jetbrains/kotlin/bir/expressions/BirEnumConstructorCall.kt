@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
+import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
 
 /**
  * A leafB IR tree element.
@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.enumConstructorCall]
  */
 abstract class BirEnumConstructorCall : BirFunctionAccessExpression() {
-    abstract override val symbol: IrConstructorSymbol
+    abstract override var symbol: BirConstructorSymbol
 }

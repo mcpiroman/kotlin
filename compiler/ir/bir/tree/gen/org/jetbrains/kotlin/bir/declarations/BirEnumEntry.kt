@@ -9,20 +9,20 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
+import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrEnumEntrySymbol
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.enumEntry]
  */
-abstract class BirEnumEntry : BirDeclarationBase(), BirDeclarationWithName {
+abstract class BirEnumEntry : BirDeclarationBase(), BirDeclarationWithName, BirSymbolElement,
+        BirEnumEntrySymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
-
-    abstract override val symbol: IrEnumEntrySymbol
 
     abstract var initializerExpression: BirExpressionBody?
 

@@ -16,12 +16,10 @@ import org.jetbrains.kotlin.bir.declarations.BirExternalPackageFragment
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrExternalPackageFragmentSymbol
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirExternalPackageFragmentImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val symbol: IrExternalPackageFragmentSymbol,
     override val containerSource: DeserializedContainerSource?,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: PackageFragmentDescriptor,

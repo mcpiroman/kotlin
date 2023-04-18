@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.bir.generator.config.ElementConfig
 import org.jetbrains.kotlin.bir.generator.config.FieldConfig
 import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig
 import org.jetbrains.kotlin.bir.generator.config.SimpleFieldConfig
+import org.jetbrains.kotlin.bir.generator.symbolElement
 import org.jetbrains.kotlin.bir.generator.util.*
 
 class Element(
@@ -21,7 +22,7 @@ class Element(
     val fields: MutableList<Field>,
 ) {
     var elementParents: List<ElementRef> = emptyList()
-    var otherParents: List<ClassRef<*>> = emptyList()
+    val otherParents: MutableList<ClassRef<*>> = mutableListOf()
     val targetKind = config.typeKind
     var kind: Kind? = null
     val typeName
@@ -39,6 +40,12 @@ class Element(
     val suppressPrint = config.suppressPrint
     val propertyName = config.propertyName
     val kDoc = config.kDoc
+
+    init {
+        config.symbol?.let {
+            otherParents += listOf(symbolElement, it)
+        }
+    }
 
     override fun toString() = name
 
@@ -79,6 +86,7 @@ sealed class Field(
     var passViaConstructorParameter = false
     val defaultToThis = (config as? SimpleFieldConfig)?.initializeToThis ?: false
 
+    val generationCallback = config?.generationCallback
     val kdoc = config?.kdoc
 
     val printProperty = config?.printProperty ?: true

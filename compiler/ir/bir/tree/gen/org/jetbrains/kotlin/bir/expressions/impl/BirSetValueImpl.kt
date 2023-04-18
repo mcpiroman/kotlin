@@ -13,14 +13,15 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirSetValue
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
+import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirSetValueImpl(
-    override val symbol: IrValueSymbol,
+    override var symbol: BirValueSymbol,
     value: BirExpression,
     override var origin: IrStatementOrigin?,
     override var type: IrType,
@@ -48,5 +49,9 @@ class BirSetValueImpl(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.value.accept(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.symbol === old) this.symbol = new as BirValueSymbol
     }
 }

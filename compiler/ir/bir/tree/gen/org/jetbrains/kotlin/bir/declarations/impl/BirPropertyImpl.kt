@@ -15,6 +15,8 @@ import org.jetbrains.kotlin.bir.declarations.BirField
 import org.jetbrains.kotlin.bir.declarations.BirProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
@@ -23,14 +25,12 @@ import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: PropertyDescriptor,
-    override val symbol: IrPropertySymbol,
     override var isVar: Boolean,
     override var isConst: Boolean,
     override var isLateinit: Boolean,
@@ -40,7 +40,7 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     backingField: BirField?,
     getter: BirSimpleFunction?,
     setter: BirSimpleFunction?,
-    override var overriddenSymbols: List<IrPropertySymbol>,
+    override var overriddenSymbols: List<BirPropertySymbol>,
     override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
@@ -91,5 +91,10 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
         this.backingField?.accept(visitor)
         this.getter?.accept(visitor)
         this.setter?.accept(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        this.overriddenSymbols = this.overriddenSymbols.map { if(it === old) new as
+                BirPropertySymbol else it }
     }
 }

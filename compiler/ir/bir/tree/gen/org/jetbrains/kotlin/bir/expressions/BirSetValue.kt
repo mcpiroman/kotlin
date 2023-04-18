@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
+import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
 
 /**
  * A leafB IR tree element.
@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.setValue]
  */
 abstract class BirSetValue : BirValueAccessExpression() {
-    abstract override val symbol: IrValueSymbol
+    abstract override var symbol: BirValueSymbol
 
     abstract var value: BirExpression
 }

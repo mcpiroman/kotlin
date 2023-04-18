@@ -14,19 +14,20 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirPropertyReference
+import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirPropertyReferenceImpl(
-    override val symbol: IrPropertySymbol,
-    override var field: IrFieldSymbol?,
-    override var getter: IrSimpleFunctionSymbol?,
-    override var setter: IrSimpleFunctionSymbol?,
+    override var symbol: BirPropertySymbol,
+    override var field: BirFieldSymbol?,
+    override var getter: BirSimpleFunctionSymbol?,
+    override var setter: BirSimpleFunctionSymbol?,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
@@ -71,5 +72,12 @@ class BirPropertyReferenceImpl(
         this.dispatchReceiver?.accept(visitor)
         this.extensionReceiver?.accept(visitor)
         this.valueArguments.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.symbol === old) this.symbol = new as BirPropertySymbol
+        if(this.field === old) this.field = new as BirFieldSymbol
+        if(this.getter === old) this.getter = new as BirSimpleFunctionSymbol
+        if(this.setter === old) this.setter = new as BirSimpleFunctionSymbol
     }
 }

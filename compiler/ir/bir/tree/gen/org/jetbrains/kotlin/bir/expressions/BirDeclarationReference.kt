@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 
 /**
  * A non-leafB IR tree element.
@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.ir.symbols.IrSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.declarationReference]
  */
 abstract class BirDeclarationReference : BirExpression() {
-    abstract val symbol: IrSymbol
+    abstract val symbol: BirSymbol
 }

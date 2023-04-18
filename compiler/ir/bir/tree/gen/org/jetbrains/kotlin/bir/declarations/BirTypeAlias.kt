@@ -8,9 +8,10 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.symbols.BirTypeAliasSymbol
 import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrTypeAliasSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -19,11 +20,10 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.typeAlias]
  */
 abstract class BirTypeAlias : BirDeclarationBase(), BirDeclarationWithName,
-        BirDeclarationWithVisibility, BirTypeParametersContainer {
+        BirDeclarationWithVisibility, BirTypeParametersContainer, BirSymbolElement,
+        BirTypeAliasSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: TypeAliasDescriptor
-
-    abstract override val symbol: IrTypeAliasSymbol
 
     abstract var isActual: Boolean
 
