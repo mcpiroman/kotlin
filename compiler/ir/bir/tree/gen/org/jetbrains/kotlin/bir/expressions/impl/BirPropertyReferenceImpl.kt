@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirPropertyReferenceImpl(
-    override var symbol: BirPropertySymbol,
+    override var target: BirPropertySymbol,
     override var field: BirFieldSymbol?,
     override var getter: BirSimpleFunctionSymbol?,
     override var setter: BirSimpleFunctionSymbol?,
@@ -75,7 +75,7 @@ class BirPropertyReferenceImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.symbol === old) this.symbol = new as BirPropertySymbol
+        if(this.target === old) this.target = new as BirPropertySymbol
         if(this.field === old) this.field = new as BirFieldSymbol
         if(this.getter === old) this.getter = new as BirSimpleFunctionSymbol
         if(this.setter === old) this.setter = new as BirSimpleFunctionSymbol

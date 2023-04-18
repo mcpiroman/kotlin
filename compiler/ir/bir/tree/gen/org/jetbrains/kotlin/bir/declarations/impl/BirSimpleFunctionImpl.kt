@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.MetadataSource
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
@@ -38,7 +37,7 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isFakeOverride: Boolean,
     override var isOperator: Boolean,
     override var isInfix: Boolean,
-    override var correspondingPropertySymbol: BirPropertySymbol?,
+    override var correspondingProperty: BirPropertySymbol?,
     override var overriddenSymbols: List<BirSimpleFunctionSymbol>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: FunctionDescriptor,
@@ -57,7 +56,6 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     override var name: Name,
     override var visibility: DescriptorVisibility,
     override val containerSource: DeserializedContainerSource?,
-    override var metadata: MetadataSource?,
     override var modality: Modality,
     override var originalBeforeInline: BirAttributeContainer?,
 ) : BirSimpleFunction() {
@@ -114,8 +112,7 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.correspondingPropertySymbol === old) this.correspondingPropertySymbol = new as
-                BirPropertySymbol
+        if(this.correspondingProperty === old) this.correspondingProperty = new as BirPropertySymbol
         this.overriddenSymbols = this.overriddenSymbols.map { if(it === old) new as
                 BirSimpleFunctionSymbol else it }
     }

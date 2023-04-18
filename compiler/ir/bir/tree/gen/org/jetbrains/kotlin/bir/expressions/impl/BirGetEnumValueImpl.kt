@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetEnumValueImpl(
-    override var symbol: BirEnumEntrySymbol,
+    override var target: BirEnumEntrySymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,

@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.declarationReference]
  */
 abstract class BirDeclarationReference : BirExpression() {
-    abstract val symbol: BirSymbol
+    abstract val target: BirSymbol
 }

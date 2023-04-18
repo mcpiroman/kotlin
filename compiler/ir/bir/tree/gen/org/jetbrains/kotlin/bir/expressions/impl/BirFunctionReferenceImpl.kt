@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirFunctionReferenceImpl(
-    override var symbol: BirFunctionSymbol,
+    override var target: BirFunctionSymbol,
     override var reflectionTarget: BirFunctionSymbol?,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
@@ -71,7 +71,7 @@ class BirFunctionReferenceImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.symbol === old) this.symbol = new as BirFunctionSymbol
+        if(this.target === old) this.target = new as BirFunctionSymbol
         if(this.reflectionTarget === old) this.reflectionTarget = new as BirFunctionSymbol
     }
 }

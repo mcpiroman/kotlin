@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 
 class BirReturnImpl(
     value: BirExpression,
-    override var returnTargetSymbol: BirReturnTargetSymbol,
+    override var returnTarget: BirReturnTargetSymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
@@ -50,6 +50,6 @@ class BirReturnImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.returnTargetSymbol === old) this.returnTargetSymbol = new as BirReturnTargetSymbol
+        if(this.returnTarget === old) this.returnTarget = new as BirReturnTargetSymbol
     }
 }

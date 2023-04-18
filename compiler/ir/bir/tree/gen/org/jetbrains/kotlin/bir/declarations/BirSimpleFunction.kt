@@ -30,7 +30,7 @@ abstract class BirSimpleFunction : BirFunction(),
 
     abstract var isInfix: Boolean
 
-    abstract var correspondingPropertySymbol: BirPropertySymbol?
+    abstract var correspondingProperty: BirPropertySymbol?
 
     abstract override var overriddenSymbols: List<BirSimpleFunctionSymbol>
 }

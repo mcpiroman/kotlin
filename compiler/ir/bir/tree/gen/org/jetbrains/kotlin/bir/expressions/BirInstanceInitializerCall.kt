@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.instanceInitializerCall]
  */
 abstract class BirInstanceInitializerCall : BirExpression() {
-    abstract var classSymbol: BirClassSymbol
+    abstract var `class`: BirClassSymbol
 }

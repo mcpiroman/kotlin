@@ -22,8 +22,8 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetFieldImpl(
-    override var symbol: BirFieldSymbol,
-    override var superQualifierSymbol: BirClassSymbol?,
+    override var target: BirFieldSymbol,
+    override var superQualifier: BirClassSymbol?,
     receiver: BirExpression?,
     override var origin: IrStatementOrigin?,
     override var type: IrType,
@@ -54,7 +54,7 @@ class BirGetFieldImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.symbol === old) this.symbol = new as BirFieldSymbol
-        if(this.superQualifierSymbol === old) this.superQualifierSymbol = new as BirClassSymbol
+        if(this.target === old) this.target = new as BirFieldSymbol
+        if(this.superQualifier === old) this.superQualifier = new as BirClassSymbol
     }
 }

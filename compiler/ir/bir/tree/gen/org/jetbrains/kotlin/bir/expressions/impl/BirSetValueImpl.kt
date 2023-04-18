@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirSetValueImpl(
-    override var symbol: BirValueSymbol,
+    override var target: BirValueSymbol,
     value: BirExpression,
     override var origin: IrStatementOrigin?,
     override var type: IrType,
@@ -52,6 +52,6 @@ class BirSetValueImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.symbol === old) this.symbol = new as BirValueSymbol
+        if(this.target === old) this.target = new as BirValueSymbol
     }
 }

@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.delegatingConstructorCall]
  */
 abstract class BirDelegatingConstructorCall : BirFunctionAccessExpression() {
-    abstract override var symbol: BirConstructorSymbol
+    abstract override var target: BirConstructorSymbol
 }

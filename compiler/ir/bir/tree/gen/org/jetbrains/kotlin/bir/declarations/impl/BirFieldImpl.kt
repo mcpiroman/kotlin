@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.MetadataSource
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
@@ -32,7 +31,7 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isFinal: Boolean,
     override var isStatic: Boolean,
     initializer: BirExpressionBody?,
-    override var correspondingPropertySymbol: BirPropertySymbol?,
+    override var correspondingProperty: BirPropertySymbol?,
     override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
@@ -40,7 +39,6 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isExternal: Boolean,
     override var name: Name,
     override var visibility: DescriptorVisibility,
-    override var metadata: MetadataSource?,
 ) : BirField() {
     override var initializer: BirExpressionBody? = initializer
         set(value) {
@@ -63,7 +61,6 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.correspondingPropertySymbol === old) this.correspondingPropertySymbol = new as
-                BirPropertySymbol
+        if(this.correspondingProperty === old) this.correspondingProperty = new as BirPropertySymbol
     }
 }

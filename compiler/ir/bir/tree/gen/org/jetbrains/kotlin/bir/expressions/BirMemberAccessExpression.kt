@@ -23,7 +23,7 @@ abstract class BirMemberAccessExpression<S : BirSymbol> : BirDeclarationReferenc
 
     abstract var extensionReceiver: BirExpression?
 
-    abstract override val symbol: S
+    abstract override val target: S
 
     abstract var origin: IrStatementOrigin?
 

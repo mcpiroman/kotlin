@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.propertyReference]
  */
 abstract class BirPropertyReference : BirCallableReference<BirPropertySymbol>() {
-    abstract override var symbol: BirPropertySymbol
+    abstract override var target: BirPropertySymbol
 
     abstract var field: BirFieldSymbol?
 

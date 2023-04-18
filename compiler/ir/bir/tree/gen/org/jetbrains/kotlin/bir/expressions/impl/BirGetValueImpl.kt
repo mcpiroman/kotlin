@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetValueImpl(
-    override var symbol: BirValueSymbol,
+    override var target: BirValueSymbol,
     override var origin: IrStatementOrigin?,
     override var type: IrType,
     override val startOffset: Int,

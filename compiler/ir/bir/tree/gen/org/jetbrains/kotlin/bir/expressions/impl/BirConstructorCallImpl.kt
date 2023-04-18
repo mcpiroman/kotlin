@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirConstructorCallImpl(
-    override var symbol: BirConstructorSymbol,
+    override var target: BirConstructorSymbol,
     override var source: SourceElement,
     override var constructorTypeArgumentsCount: Int,
     override var contextReceiversCount: Int,
@@ -74,6 +74,6 @@ class BirConstructorCallImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.symbol === old) this.symbol = new as BirConstructorSymbol
+        if(this.target === old) this.target = new as BirConstructorSymbol
     }
 }

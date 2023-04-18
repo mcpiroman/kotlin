@@ -23,8 +23,8 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirCallImpl(
-    override var symbol: BirSimpleFunctionSymbol,
-    override var superQualifierSymbol: BirClassSymbol?,
+    override var target: BirSimpleFunctionSymbol,
+    override var superQualifier: BirClassSymbol?,
     override var contextReceiversCount: Int,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
@@ -73,7 +73,7 @@ class BirCallImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.symbol === old) this.symbol = new as BirSimpleFunctionSymbol
-        if(this.superQualifierSymbol === old) this.superQualifierSymbol = new as BirClassSymbol
+        if(this.target === old) this.target = new as BirSimpleFunctionSymbol
+        if(this.superQualifier === old) this.superQualifier = new as BirClassSymbol
     }
 }

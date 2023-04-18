@@ -29,7 +29,6 @@ import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.ValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.MetadataSource
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
@@ -58,7 +57,6 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override var name: Name,
     override var visibility: DescriptorVisibility,
     override var originalBeforeInline: BirAttributeContainer?,
-    override var metadata: MetadataSource?,
 ) : BirClass() {
     override var thisReceiver: BirValueParameter? = thisReceiver
         set(value) {

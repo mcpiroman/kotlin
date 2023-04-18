@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.MetadataSource
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
@@ -46,7 +45,6 @@ class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
     override var name: Name,
     override var visibility: DescriptorVisibility,
     override val containerSource: DeserializedContainerSource?,
-    override var metadata: MetadataSource?,
 ) : BirConstructor() {
     override var dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
         set(value) {

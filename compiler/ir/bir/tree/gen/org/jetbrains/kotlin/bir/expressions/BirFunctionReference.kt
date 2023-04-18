@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.functionReference]
  */
 abstract class BirFunctionReference : BirCallableReference<BirFunctionSymbol>() {
-    abstract override var symbol: BirFunctionSymbol
+    abstract override var target: BirFunctionSymbol
 
     abstract var reflectionTarget: BirFunctionSymbol?
 }
