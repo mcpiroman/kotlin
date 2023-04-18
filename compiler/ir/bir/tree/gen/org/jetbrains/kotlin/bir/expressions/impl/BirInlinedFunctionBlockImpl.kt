@@ -23,13 +23,14 @@ class BirInlinedFunctionBlockImpl(
     override var inlineCall: BirFunctionAccessExpression,
     override var inlinedElement: BirElement,
     override var origin: IrStatementOrigin?,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirInlinedFunctionBlock() {
     override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
+
+    override var attributeOwnerId: BirAttributeContainer = this
 
     override fun getFirstChild(): BirElement? = statements.firstOrNull()
 

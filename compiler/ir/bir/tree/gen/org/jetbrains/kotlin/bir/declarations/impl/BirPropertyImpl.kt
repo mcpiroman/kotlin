@@ -50,7 +50,6 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var modality: Modality,
     override var visibility: DescriptorVisibility,
     override var metadata: MetadataSource?,
-    override var attributeOwnerId: BirAttributeContainer,
     override var originalBeforeInline: BirAttributeContainer?,
     override val containerSource: DeserializedContainerSource?,
 ) : BirProperty() {
@@ -71,6 +70,8 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
             setChildField(field, value, this.getter ?: this.backingField)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(backingField, null)
         initChildField(getter, backingField)

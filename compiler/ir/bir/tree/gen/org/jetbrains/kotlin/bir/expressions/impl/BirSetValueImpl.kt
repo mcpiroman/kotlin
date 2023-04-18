@@ -23,17 +23,18 @@ class BirSetValueImpl(
     override val symbol: IrValueSymbol,
     value: BirExpression,
     override var origin: IrStatementOrigin?,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirSetValue() {
     override var value: BirExpression = value
         set(value) {
             setChildField(field, value, null)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(value, null)
     }

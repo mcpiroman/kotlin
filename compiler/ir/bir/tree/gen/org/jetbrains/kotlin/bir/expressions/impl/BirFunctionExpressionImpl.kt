@@ -21,17 +21,18 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirFunctionExpressionImpl(
     override var origin: IrStatementOrigin,
     function: BirSimpleFunction,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirFunctionExpression() {
     override var function: BirSimpleFunction = function
         set(value) {
             setChildField(field, value, null)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(function, null)
     }

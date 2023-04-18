@@ -15,9 +15,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetEnumValueImpl(
     override val symbol: IrEnumEntrySymbol,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
-) : BirGetEnumValue()
+    override var originalBeforeInline: BirAttributeContainer?,
+) : BirGetEnumValue() {
+    override var attributeOwnerId: BirAttributeContainer = this
+}

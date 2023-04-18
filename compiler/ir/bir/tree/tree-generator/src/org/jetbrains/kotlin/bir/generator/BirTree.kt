@@ -200,7 +200,9 @@ object BirTree : AbstractTreeBuilder() {
               idempotence invariant and can contain a chain of declarations.
         """.trimIndent()
 
-        +field("attributeOwnerId", attributeContainer)
+        +field("attributeOwnerId", attributeContainer) {
+            initializeToThis = true
+        }
         +field("originalBeforeInline", attributeContainer, nullable = true) // null <=> this element wasn't inlined
     }
     val annotationContainerElement: ElementConfig by element(Declaration) {
@@ -452,10 +454,6 @@ object BirTree : AbstractTreeBuilder() {
         parent(varargElement)
         parent(attributeContainer)
 
-        +field("attributeOwnerId", attributeContainer) {
-            baseDefaultValue = code("this")
-        }
-        +field("originalBeforeInline", attributeContainer, nullable = true)
         +field("type", irTypeType)
     }
     val statementContainer: ElementConfig by element(Expression) {

@@ -57,7 +57,6 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isExternal: Boolean,
     override var name: Name,
     override var visibility: DescriptorVisibility,
-    override var attributeOwnerId: BirAttributeContainer,
     override var originalBeforeInline: BirAttributeContainer?,
     override var metadata: MetadataSource?,
 ) : BirClass() {
@@ -72,6 +71,8 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
 
     override val declarations: BirChildElementList<BirDeclaration> =
             BirChildElementList(this)
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(thisReceiver, null)
     }

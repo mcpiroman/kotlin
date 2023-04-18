@@ -24,15 +24,16 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirReturnableBlockImpl @ObsoleteDescriptorBasedAPI constructor(
     override val symbol: IrReturnableBlockSymbol,
     override var origin: IrStatementOrigin?,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: FunctionDescriptor,
 ) : BirReturnableBlock() {
     override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
+
+    override var attributeOwnerId: BirAttributeContainer = this
 
     override fun getFirstChild(): BirElement? = statements.firstOrNull()
 

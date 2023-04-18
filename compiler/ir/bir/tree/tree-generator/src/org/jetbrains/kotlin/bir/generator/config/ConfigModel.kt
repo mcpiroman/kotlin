@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.bir.generator.config
 
 import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.kotlin.bir.generator.BASE_PACKAGE
 import org.jetbrains.kotlin.bir.generator.util.*
@@ -92,7 +91,9 @@ class SimpleFieldConfig(
     val nullable: Boolean,
     val mutable: Boolean,
     isChildElement: Boolean,
-) : FieldConfig(name, isChildElement)
+) : FieldConfig(name, isChildElement) {
+    var initializeToThis = false
+}
 
 class ListFieldConfig(
     name: String,

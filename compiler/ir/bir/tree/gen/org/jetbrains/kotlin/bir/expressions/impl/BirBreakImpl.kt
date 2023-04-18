@@ -16,9 +16,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirBreakImpl(
     override var loop: BirLoop,
     override var label: String?,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
-) : BirBreak()
+    override var originalBeforeInline: BirAttributeContainer?,
+) : BirBreak() {
+    override var attributeOwnerId: BirAttributeContainer = this
+}

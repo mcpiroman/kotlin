@@ -146,12 +146,12 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             isExternal = ir.isExternal,
             name = ir.name,
             visibility = ir.visibility,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             symbol = ir.symbol,
             originalBeforeInline = null,
             metadata = ir.metadata,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.thisReceiver = mapIrElement(ir.thisReceiver) as BirValueParameter?
         moveChildElementList(ir.typeParameters, bir.typeParameters)
         moveChildElementList(ir.declarations, bir.declarations)
@@ -294,10 +294,10 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             visibility = ir.visibility,
             containerSource = ir.containerSource,
             metadata = ir.metadata,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.dispatchReceiverParameter = mapIrElement(ir.dispatchReceiverParameter) as
                 BirValueParameter?
         bir.extensionReceiverParameter = mapIrElement(ir.extensionReceiverParameter) as
@@ -337,11 +337,11 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             name = ir.name,
             visibility = ir.visibility,
             metadata = ir.metadata,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             containerSource = ir.containerSource,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.getter = mapIrElement(ir.getter) as BirSimpleFunction?
         bir.setter = mapIrElement(ir.setter) as BirSimpleFunction?
         bir.backingField = mapIrElement(ir.backingField) as BirField?
@@ -435,11 +435,11 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             modality = ir.modality,
             visibility = ir.visibility,
             metadata = ir.metadata,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             containerSource = ir.containerSource,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.backingField = mapIrElement(ir.backingField) as BirField?
         bir.getter = mapIrElement(ir.getter) as BirSimpleFunction?
         bir.setter = mapIrElement(ir.setter) as BirSimpleFunction?
@@ -508,10 +508,10 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             containerSource = ir.containerSource,
             metadata = ir.metadata,
             modality = ir.modality,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.dispatchReceiverParameter = mapIrElement(ir.dispatchReceiverParameter) as BirValueParameter?
         bir.extensionReceiverParameter = mapIrElement(ir.extensionReceiverParameter) as BirValueParameter?
         moveChildElementList(ir.valueParameters, bir.valueParameters)
@@ -628,13 +628,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             extensionReceiver = null,
             origin = ir.origin,
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
@@ -645,13 +645,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertGetObjectValue(ir: IrGetObjectValue): BirGetObjectValue {
         val bir = BirGetObjectValueImpl(
             symbol = mapSymbol(ir, ir.symbol),
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -659,13 +659,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertGetEnumValue(ir: IrGetEnumValue): BirGetEnumValue {
         val bir = BirGetEnumValueImpl(
             symbol = mapSymbol(ir, ir.symbol),
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -673,13 +673,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertRawFunctionReference(ir: IrRawFunctionReference): BirRawFunctionReference {
         val bir = BirRawFunctionReferenceImpl(
             symbol = mapSymbol(ir, ir.symbol),
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -687,13 +687,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertBlock(ir: IrBlock): BirBlock {
         val bir = BirBlockImpl(
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.statements, bir.statements)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -702,13 +702,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertComposite(ir: IrComposite): BirComposite {
         val bir = BirCompositeImpl(
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.statements, bir.statements)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -717,7 +717,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertReturnableBlock(ir: IrReturnableBlock): BirReturnableBlock {
         val bir = BirReturnableBlockImpl(
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
@@ -726,6 +725,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             descriptor = ir.descriptor,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.statements, bir.statements)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -736,13 +736,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             inlineCall = mapIrElement(ir.inlineCall) as BirFunctionAccessExpression,
             inlinedElement = mapIrElement(ir.inlinedElement) as BirElement,
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.statements, bir.statements)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -762,13 +762,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirBreakImpl(
             loop = mapIrElement(ir.loop) as BirLoop,
             label = ir.label,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -777,13 +777,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirContinueImpl(
             loop = mapIrElement(ir.loop) as BirLoop,
             label = ir.label,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -797,13 +797,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             extensionReceiver = null,
             origin = ir.origin,
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.superQualifierSymbol = ir.superQualifierSymbol?.let { mapSymbol(ir, it) }
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
@@ -820,13 +820,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             extensionReceiver = null,
             origin = ir.origin,
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.reflectionTarget = ir.reflectionTarget?.let { mapSymbol(ir, it) }
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
@@ -845,13 +845,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             extensionReceiver = null,
             origin = ir.origin,
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.field = ir.field?.let { mapSymbol(ir, it) }
         bir.getter = ir.getter?.let { mapSymbol(ir, it) }
         bir.setter = ir.setter?.let { mapSymbol(ir, it) }
@@ -873,13 +873,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             extensionReceiver = null,
             origin = ir.origin,
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.setter = ir.setter?.let { mapSymbol(ir, it) }
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
@@ -892,13 +892,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirClassReferenceImpl(
             symbol = mapSymbol(ir, ir.symbol),
             classType = ir.classType,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -907,13 +907,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirConstImpl<Any?>(
             kind = ir.kind as IrConstKind<Any?>,
             value = ir.value,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -921,13 +921,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertConstantPrimitive(ir: IrConstantPrimitive): BirConstantPrimitive {
         val bir = BirConstantPrimitiveImpl(
             value = mapIrElement(ir.value) as BirConst<*>,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -936,13 +936,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirConstantObjectImpl(
             constructor = mapSymbol(ir, ir.constructor),
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.valueArguments, bir.valueArguments)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -950,13 +950,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
 
     private fun convertConstantArray(ir: IrConstantArray): BirConstantArray {
         val bir = BirConstantArrayImpl(
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.elements, bir.elements)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -971,13 +971,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             extensionReceiver = null,
             origin = ir.origin,
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
@@ -990,13 +990,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirDynamicOperatorExpressionImpl(
             operator = ir.operator,
             receiver = mapIrElement(ir.receiver) as BirExpression,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.arguments, bir.arguments)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -1007,13 +1007,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirDynamicMemberExpressionImpl(
             memberName = ir.memberName,
             receiver = mapIrElement(ir.receiver) as BirExpression,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1026,13 +1026,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             extensionReceiver = null,
             origin = ir.origin,
             typeArguments = ir.typeArguments,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
@@ -1044,13 +1044,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirErrorCallExpressionImpl(
             explicitReceiver = null,
             description = ir.description,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.explicitReceiver = mapIrElement(ir.explicitReceiver) as BirExpression?
         moveChildElementList(ir.arguments, bir.arguments)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
@@ -1063,13 +1063,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             superQualifierSymbol = null,
             receiver = null,
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.superQualifierSymbol = ir.superQualifierSymbol?.let { mapSymbol(ir, it) }
         bir.receiver = mapIrElement(ir.receiver) as BirExpression?
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
@@ -1083,13 +1083,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             superQualifierSymbol = null,
             receiver = null,
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.superQualifierSymbol = ir.superQualifierSymbol?.let { mapSymbol(ir, it) }
         bir.receiver = mapIrElement(ir.receiver) as BirExpression?
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
@@ -1100,13 +1100,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirFunctionExpressionImpl(
             origin = ir.origin,
             function = mapIrElement(ir.function) as BirSimpleFunction,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1114,13 +1114,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertGetClass(ir: IrGetClass): BirGetClass {
         val bir = BirGetClassImpl(
             argument = mapIrElement(ir.argument) as BirExpression,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -1130,13 +1130,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             BirInstanceInitializerCall {
         val bir = BirInstanceInitializerCallImpl(
             classSymbol = mapSymbol(ir, ir.classSymbol),
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1147,13 +1147,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             body = null,
             condition = mapIrElement(ir.condition) as BirExpression,
             label = ir.label,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.body = mapIrElement(ir.body) as BirExpression?
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -1165,13 +1165,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             body = null,
             condition = mapIrElement(ir.condition) as BirExpression,
             label = ir.label,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.body = mapIrElement(ir.body) as BirExpression?
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -1181,26 +1181,26 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirReturnImpl(
             value = mapIrElement(ir.value) as BirExpression,
             returnTargetSymbol = mapSymbol(ir, ir.returnTargetSymbol),
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
 
     private fun convertStringConcatenation(ir: IrStringConcatenation): BirStringConcatenation {
         val bir = BirStringConcatenationImpl(
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.arguments, bir.arguments)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -1211,13 +1211,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             suspensionPointIdParameter = mapIrElement(ir.suspensionPointIdParameter) as BirVariable,
             result = mapIrElement(ir.result) as BirExpression,
             resumeResult = mapIrElement(ir.resumeResult) as BirExpression,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1227,13 +1227,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirSuspendableExpressionImpl(
             suspensionPointId = mapIrElement(ir.suspensionPointId) as BirExpression,
             result = mapIrElement(ir.result) as BirExpression,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1241,13 +1241,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertThrow(ir: IrThrow): BirThrow {
         val bir = BirThrowImpl(
             value = mapIrElement(ir.value) as BirExpression,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1256,13 +1256,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirTryImpl(
             tryResult = mapIrElement(ir.tryResult) as BirExpression,
             finallyExpression = null,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.catches, bir.catches)
         bir.finallyExpression = mapIrElement(ir.finallyExpression) as BirExpression?
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
@@ -1285,13 +1285,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             operator = ir.operator,
             argument = mapIrElement(ir.argument) as BirExpression,
             typeOperand = ir.typeOperand,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1300,13 +1300,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirGetValueImpl(
             symbol = mapSymbol(ir, ir.symbol),
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1316,13 +1316,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             symbol = mapSymbol(ir, ir.symbol),
             value = mapIrElement(ir.value) as BirExpression,
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
     }
@@ -1330,13 +1330,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertVararg(ir: IrVararg): BirVararg {
         val bir = BirVarargImpl(
             varargElementType = ir.varargElementType,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.elements, bir.elements)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir
@@ -1355,13 +1355,13 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertWhen(ir: IrWhen): BirWhen {
         val bir = BirWhenImpl(
             origin = ir.origin,
-            attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer,
             originalBeforeInline = null,
             type = ir.type,
             startOffset = ir.startOffset,
             endOffset = ir.endOffset,
         )
         registerNewElement(ir, bir)
+        bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer
         moveChildElementList(ir.branches, bir.branches)
         bir.originalBeforeInline = mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
         return bir

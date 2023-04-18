@@ -16,9 +16,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirConstImpl<T>(
     override var kind: IrConstKind<T>,
     override var value: T,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
-) : BirConst<T>()
+    override var originalBeforeInline: BirAttributeContainer?,
+) : BirConst<T>() {
+    override var attributeOwnerId: BirAttributeContainer = this
+}

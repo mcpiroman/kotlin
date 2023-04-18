@@ -19,13 +19,14 @@ import org.jetbrains.kotlin.ir.types.IrType
 
 class BirVarargImpl(
     override var varargElementType: IrType,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirVararg() {
     override val elements: BirChildElementList<BirVarargElement> = BirChildElementList(this)
+
+    override var attributeOwnerId: BirAttributeContainer = this
 
     override fun getFirstChild(): BirElement? = elements.firstOrNull()
 

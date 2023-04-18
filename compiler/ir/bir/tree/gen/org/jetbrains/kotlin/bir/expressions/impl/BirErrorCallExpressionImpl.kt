@@ -21,11 +21,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirErrorCallExpressionImpl(
     explicitReceiver: BirExpression?,
     override var description: String,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirErrorCallExpression() {
     override var explicitReceiver: BirExpression? = explicitReceiver
         set(value) {
@@ -34,6 +33,8 @@ class BirErrorCallExpressionImpl(
         }
 
     override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(explicitReceiver, null)
     }
