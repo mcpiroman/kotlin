@@ -8,13 +8,9 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
-
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.errorDeclaration]
  */
-abstract class BirErrorDeclaration : BirDeclarationBase() {
-    abstract override val symbol: IrSymbol
-}
+abstract class BirErrorDeclaration : BirDeclarationBase()

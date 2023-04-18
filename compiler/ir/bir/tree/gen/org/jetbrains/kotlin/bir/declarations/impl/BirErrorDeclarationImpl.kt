@@ -13,10 +13,8 @@ import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
 
 class BirErrorDeclarationImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val symbol: IrSymbol,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: DeclarationDescriptor,
     override var origin: IrDeclarationOrigin,

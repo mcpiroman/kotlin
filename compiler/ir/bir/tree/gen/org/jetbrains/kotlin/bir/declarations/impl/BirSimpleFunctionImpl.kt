@@ -17,6 +17,9 @@ import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.declarations.BirValueParameter
 import org.jetbrains.kotlin.bir.expressions.BirBody
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
@@ -25,21 +28,18 @@ import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val symbol: IrSimpleFunctionSymbol,
     override var isTailrec: Boolean,
     override var isSuspend: Boolean,
     override var isFakeOverride: Boolean,
     override var isOperator: Boolean,
     override var isInfix: Boolean,
-    override var correspondingPropertySymbol: IrPropertySymbol?,
-    override var overriddenSymbols: List<IrSimpleFunctionSymbol>,
+    override var correspondingPropertySymbol: BirPropertySymbol?,
+    override var overriddenSymbols: List<BirSimpleFunctionSymbol>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: FunctionDescriptor,
     override var isInline: Boolean,
@@ -111,5 +111,12 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
         this.valueParameters.acceptChildren(visitor)
         this.body?.accept(visitor)
         this.typeParameters.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.correspondingPropertySymbol === old) this.correspondingPropertySymbol = new as
+                BirPropertySymbol
+        this.overriddenSymbols = this.overriddenSymbols.map { if(it === old) new as
+                BirSimpleFunctionSymbol else it }
     }
 }

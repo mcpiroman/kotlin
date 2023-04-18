@@ -18,14 +18,12 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: ParameterDescriptor,
-    override val symbol: IrValueParameterSymbol,
     override var index: Int,
     override var varargElementType: IrType?,
     override var isCrossinline: Boolean,

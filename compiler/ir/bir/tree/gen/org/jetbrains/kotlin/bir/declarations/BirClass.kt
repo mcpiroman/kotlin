@@ -8,13 +8,14 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.ValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 
@@ -25,11 +26,9 @@ import org.jetbrains.kotlin.ir.types.IrType
  */
 abstract class BirClass : BirDeclarationBase(), BirPossiblyExternalDeclaration,
         BirDeclarationWithVisibility, BirTypeParametersContainer, BirDeclarationContainer,
-        BirAttributeContainer, BirMetadataSourceOwner {
+        BirAttributeContainer, BirMetadataSourceOwner, BirSymbolElement, BirClassSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
-
-    abstract override val symbol: IrClassSymbol
 
     abstract var kind: ClassKind
 
@@ -55,5 +54,5 @@ abstract class BirClass : BirDeclarationBase(), BirPossiblyExternalDeclaration,
 
     abstract var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?
 
-    abstract var sealedSubclasses: List<IrClassSymbol>
+    abstract var sealedSubclasses: List<BirClassSymbol>
 }

@@ -14,15 +14,16 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.expressions.BirExpression
+import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirConstructorCallImpl(
-    override val symbol: IrConstructorSymbol,
+    override var symbol: BirConstructorSymbol,
     override var source: SourceElement,
     override var constructorTypeArgumentsCount: Int,
     override var contextReceiversCount: Int,
@@ -70,5 +71,9 @@ class BirConstructorCallImpl(
         this.dispatchReceiver?.accept(visitor)
         this.extensionReceiver?.accept(visitor)
         this.valueArguments.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.symbol === old) this.symbol = new as BirConstructorSymbol
     }
 }

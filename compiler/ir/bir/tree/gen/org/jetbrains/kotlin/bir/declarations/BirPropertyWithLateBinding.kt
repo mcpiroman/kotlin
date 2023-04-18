@@ -15,5 +15,5 @@ package org.jetbrains.kotlin.bir.declarations
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.propertyWithLateBinding]
  */
 abstract class BirPropertyWithLateBinding : BirProperty() {
-    abstract val isBound: Boolean
+    abstract val isElementBound: Boolean
 }

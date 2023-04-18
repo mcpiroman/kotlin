@@ -9,20 +9,20 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.expressions.BirExpression
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.symbols.BirVariableSymbol
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrVariableSymbol
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.variable]
  */
-abstract class BirVariable : BirDeclarationBase(), BirValueDeclaration {
+abstract class BirVariable : BirDeclarationBase(), BirValueDeclaration, BirSymbolElement,
+        BirVariableSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: VariableDescriptor
-
-    abstract override val symbol: IrVariableSymbol
 
     abstract var isVar: Boolean
 

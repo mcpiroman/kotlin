@@ -10,9 +10,12 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.expressions.BirStatementContainer
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrScriptSymbol
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirScriptSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.descriptors.ScriptDescriptor
+import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -21,8 +24,10 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.script]
  */
 abstract class BirScript : BirDeclarationBase(), BirDeclarationWithName,
-        BirDeclarationParent, BirStatementContainer, BirMetadataSourceOwner {
-    abstract override val symbol: IrScriptSymbol
+        BirDeclarationParent, BirStatementContainer, BirMetadataSourceOwner, BirSymbolElement,
+        BirScriptSymbol {
+    @ObsoleteDescriptorBasedAPI
+    abstract override val descriptor: ScriptDescriptor
 
     abstract var thisReceiver: BirValueParameter?
 
@@ -32,17 +37,17 @@ abstract class BirScript : BirDeclarationBase(), BirDeclarationWithName,
 
     abstract var implicitReceiversParameters: BirChildElementList<BirValueParameter>
 
-    abstract var providedProperties: List<IrPropertySymbol>
+    abstract var providedProperties: List<BirPropertySymbol>
 
     abstract var providedPropertiesParameters: BirChildElementList<BirValueParameter>
 
-    abstract var resultProperty: IrPropertySymbol?
+    abstract var resultProperty: BirPropertySymbol?
 
     abstract var earlierScriptsParameter: BirValueParameter?
 
-    abstract var earlierScripts: List<IrScriptSymbol>?
+    abstract var earlierScripts: List<BirScriptSymbol>?
 
-    abstract var targetClass: IrClassSymbol?
+    abstract var targetClass: BirClassSymbol?
 
     abstract var constructor: BirConstructor?
 }

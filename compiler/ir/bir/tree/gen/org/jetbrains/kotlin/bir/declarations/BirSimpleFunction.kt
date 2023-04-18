@@ -8,8 +8,9 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 
 /**
  * A non-leafB IR tree element.
@@ -17,9 +18,8 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.simpleFunction]
  */
 abstract class BirSimpleFunction : BirFunction(),
-        BirOverridableDeclaration<IrSimpleFunctionSymbol>, BirAttributeContainer {
-    abstract override val symbol: IrSimpleFunctionSymbol
-
+        BirOverridableDeclaration<BirSimpleFunctionSymbol>, BirAttributeContainer, BirSymbolElement,
+        BirSimpleFunctionSymbol {
     abstract var isTailrec: Boolean
 
     abstract var isSuspend: Boolean
@@ -30,7 +30,7 @@ abstract class BirSimpleFunction : BirFunction(),
 
     abstract var isInfix: Boolean
 
-    abstract var correspondingPropertySymbol: IrPropertySymbol?
+    abstract var correspondingPropertySymbol: BirPropertySymbol?
 
-    abstract override var overriddenSymbols: List<IrSimpleFunctionSymbol>
+    abstract override var overriddenSymbols: List<BirSimpleFunctionSymbol>
 }

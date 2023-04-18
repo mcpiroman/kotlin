@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.bir
 
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -30,6 +31,7 @@ abstract class BirElementBase() : BirElement, BirElementBaseOrList() {
     internal open fun getChildren(children: Array<BirElementOrList?>): Int = 0
     override fun acceptChildren(visitor: BirElementVisitor) = Unit
     protected open fun replaceChildProperty(old: BirElement, new: BirElement?) = Unit
+    internal open fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) = Unit
 
     protected fun throwChildForReplacementNotFound(old: BirElement) {
         throw IllegalStateException("The child property $old not found in its parent $this")

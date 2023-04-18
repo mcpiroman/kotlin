@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.bir.declarations.BirDeclaration
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.declarations.BirValueParameter
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
+import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -28,7 +30,6 @@ import org.jetbrains.kotlin.descriptors.ValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
@@ -36,7 +37,6 @@ import org.jetbrains.kotlin.name.Name
 class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: ClassDescriptor,
-    override val symbol: IrClassSymbol,
     override var kind: ClassKind,
     override var modality: Modality,
     override var isCompanion: Boolean,
@@ -49,7 +49,7 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override var superTypes: List<IrType>,
     thisReceiver: BirValueParameter?,
     override var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?,
-    override var sealedSubclasses: List<IrClassSymbol>,
+    override var sealedSubclasses: List<BirClassSymbol>,
     override var origin: IrDeclarationOrigin,
     override val startOffset: Int,
     override val endOffset: Int,
@@ -91,5 +91,10 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
         this.thisReceiver?.accept(visitor)
         this.typeParameters.acceptChildren(visitor)
         this.declarations.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        this.sealedSubclasses = this.sealedSubclasses.map { if(it === old) new as BirClassSymbol
+                else it }
     }
 }

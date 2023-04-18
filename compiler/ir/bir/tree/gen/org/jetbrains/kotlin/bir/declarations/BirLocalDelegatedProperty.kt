@@ -8,9 +8,10 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.symbols.BirLocalDelegatedPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.VariableDescriptorWithAccessors
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrLocalDelegatedPropertySymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -19,11 +20,9 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.localDelegatedProperty]
  */
 abstract class BirLocalDelegatedProperty : BirDeclarationBase(), BirDeclarationWithName,
-        BirSymbolOwner, BirMetadataSourceOwner {
+        BirMetadataSourceOwner, BirSymbolElement, BirLocalDelegatedPropertySymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: VariableDescriptorWithAccessors
-
-    abstract override val symbol: IrLocalDelegatedPropertySymbol
 
     abstract var type: IrType
 

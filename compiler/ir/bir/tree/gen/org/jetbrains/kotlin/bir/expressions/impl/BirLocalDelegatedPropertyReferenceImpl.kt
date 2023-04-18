@@ -14,19 +14,20 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirLocalDelegatedPropertyReference
+import org.jetbrains.kotlin.bir.symbols.BirLocalDelegatedPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
+import org.jetbrains.kotlin.bir.symbols.BirVariableSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrLocalDelegatedPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.symbols.IrVariableSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirLocalDelegatedPropertyReferenceImpl(
-    override val symbol: IrLocalDelegatedPropertySymbol,
-    override var delegate: IrVariableSymbol,
-    override var getter: IrSimpleFunctionSymbol,
-    override var setter: IrSimpleFunctionSymbol?,
+    override var symbol: BirLocalDelegatedPropertySymbol,
+    override var delegate: BirVariableSymbol,
+    override var getter: BirSimpleFunctionSymbol,
+    override var setter: BirSimpleFunctionSymbol?,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
@@ -71,5 +72,12 @@ class BirLocalDelegatedPropertyReferenceImpl(
         this.dispatchReceiver?.accept(visitor)
         this.extensionReceiver?.accept(visitor)
         this.valueArguments.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.symbol === old) this.symbol = new as BirLocalDelegatedPropertySymbol
+        if(this.delegate === old) this.delegate = new as BirVariableSymbol
+        if(this.getter === old) this.getter = new as BirSimpleFunctionSymbol
+        if(this.setter === old) this.setter = new as BirSimpleFunctionSymbol
     }
 }

@@ -8,9 +8,9 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrLocalDelegatedPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.symbols.IrVariableSymbol
+import org.jetbrains.kotlin.bir.symbols.BirLocalDelegatedPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirVariableSymbol
 
 /**
  * A leafB IR tree element.
@@ -18,12 +18,12 @@ import org.jetbrains.kotlin.ir.symbols.IrVariableSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.localDelegatedPropertyReference]
  */
 abstract class BirLocalDelegatedPropertyReference :
-        BirCallableReference<IrLocalDelegatedPropertySymbol>() {
-    abstract override val symbol: IrLocalDelegatedPropertySymbol
+        BirCallableReference<BirLocalDelegatedPropertySymbol>() {
+    abstract override var symbol: BirLocalDelegatedPropertySymbol
 
-    abstract var delegate: IrVariableSymbol
+    abstract var delegate: BirVariableSymbol
 
-    abstract var getter: IrSimpleFunctionSymbol
+    abstract var getter: BirSimpleFunctionSymbol
 
-    abstract var setter: IrSimpleFunctionSymbol?
+    abstract var setter: BirSimpleFunctionSymbol?
 }

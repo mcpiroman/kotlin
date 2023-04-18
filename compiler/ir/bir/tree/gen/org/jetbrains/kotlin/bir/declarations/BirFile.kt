@@ -8,8 +8,9 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.symbols.BirFileSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.ir.IrFileEntry
-import org.jetbrains.kotlin.ir.symbols.IrFileSymbol
 
 /**
  * A leafB IR tree element.
@@ -17,9 +18,7 @@ import org.jetbrains.kotlin.ir.symbols.IrFileSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.file]
  */
 abstract class BirFile : BirPackageFragment(), BirAnnotationContainerElement,
-        BirMetadataSourceOwner {
-    abstract override val symbol: IrFileSymbol
-
+        BirMetadataSourceOwner, BirSymbolElement, BirFileSymbol {
     abstract var module: BirModuleFragment
 
     abstract var fileEntry: IrFileEntry

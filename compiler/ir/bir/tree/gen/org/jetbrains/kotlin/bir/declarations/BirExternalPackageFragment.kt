@@ -8,7 +8,8 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
-import org.jetbrains.kotlin.ir.symbols.IrExternalPackageFragmentSymbol
+import org.jetbrains.kotlin.bir.symbols.BirExternalPackageFragmentSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 /**
@@ -16,8 +17,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.externalPackageFragment]
  */
-abstract class BirExternalPackageFragment : BirPackageFragment() {
-    abstract override val symbol: IrExternalPackageFragmentSymbol
-
+abstract class BirExternalPackageFragment : BirPackageFragment(), BirSymbolElement,
+        BirExternalPackageFragmentSymbol {
     abstract val containerSource: DeserializedContainerSource?
 }

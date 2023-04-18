@@ -9,7 +9,7 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
+import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.constantObject]
  */
 abstract class BirConstantObject : BirConstantValue() {
-    abstract var constructor: IrConstructorSymbol
+    abstract var constructor: BirConstructorSymbol
 
     abstract val valueArguments: BirChildElementList<BirConstantValue>
 

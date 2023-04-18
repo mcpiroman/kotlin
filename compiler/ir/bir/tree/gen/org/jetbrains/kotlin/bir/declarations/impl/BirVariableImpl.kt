@@ -18,14 +18,12 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.symbols.IrVariableSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirVariableImpl @ObsoleteDescriptorBasedAPI constructor(
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: VariableDescriptor,
-    override val symbol: IrVariableSymbol,
     override var isVar: Boolean,
     override var isConst: Boolean,
     override var isLateinit: Boolean,

@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrEnumEntrySymbol
+import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
 
 /**
  * A leafB IR tree element.
@@ -16,5 +16,5 @@ import org.jetbrains.kotlin.ir.symbols.IrEnumEntrySymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.getEnumValue]
  */
 abstract class BirGetEnumValue : BirGetSingletonValue() {
-    abstract override val symbol: IrEnumEntrySymbol
+    abstract override var symbol: BirEnumEntrySymbol
 }

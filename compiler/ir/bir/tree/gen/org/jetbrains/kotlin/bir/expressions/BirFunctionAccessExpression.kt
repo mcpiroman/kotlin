@@ -8,13 +8,13 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.functionAccessExpression]
  */
-abstract class BirFunctionAccessExpression : BirMemberAccessExpression<IrFunctionSymbol>() {
+abstract class BirFunctionAccessExpression : BirMemberAccessExpression<BirFunctionSymbol>() {
     abstract var contextReceiversCount: Int
 }

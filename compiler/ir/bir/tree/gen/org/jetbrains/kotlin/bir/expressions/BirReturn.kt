@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrReturnTargetSymbol
+import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
 
 /**
  * A leafB IR tree element.
@@ -18,5 +18,5 @@ import org.jetbrains.kotlin.ir.symbols.IrReturnTargetSymbol
 abstract class BirReturn : BirExpression() {
     abstract var value: BirExpression
 
-    abstract var returnTargetSymbol: IrReturnTargetSymbol
+    abstract var returnTargetSymbol: BirReturnTargetSymbol
 }

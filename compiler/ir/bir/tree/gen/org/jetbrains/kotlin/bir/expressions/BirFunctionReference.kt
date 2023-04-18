@@ -8,15 +8,15 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.functionReference]
  */
-abstract class BirFunctionReference : BirCallableReference<IrFunctionSymbol>() {
-    abstract override val symbol: IrFunctionSymbol
+abstract class BirFunctionReference : BirCallableReference<BirFunctionSymbol>() {
+    abstract override var symbol: BirFunctionSymbol
 
-    abstract var reflectionTarget: IrFunctionSymbol?
+    abstract var reflectionTarget: BirFunctionSymbol?
 }

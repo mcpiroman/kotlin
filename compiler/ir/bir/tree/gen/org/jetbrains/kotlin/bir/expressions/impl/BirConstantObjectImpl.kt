@@ -14,12 +14,13 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirConstantObject
 import org.jetbrains.kotlin.bir.expressions.BirConstantValue
+import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirConstantObjectImpl(
-    override var constructor: IrConstructorSymbol,
+    override var constructor: BirConstructorSymbol,
     override val typeArguments: List<IrType>,
     override var type: IrType,
     override val startOffset: Int,
@@ -40,5 +41,9 @@ class BirConstantObjectImpl(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.valueArguments.acceptChildren(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.constructor === old) this.constructor = new as BirConstructorSymbol
     }
 }

@@ -38,9 +38,7 @@ fun printElements(generationPath: File, model: Model) = sequence {
 
             val (classes, interfaces) = element.allParents.partition { it.typeKind == TypeKind.Class }
             classes.singleOrNull()?.let {
-                val actual =
-                    if (it == org.jetbrains.kotlin.bir.generator.elementBaseType) org.jetbrains.kotlin.bir.generator.elementBaseType else it
-                superclass(actual.toPoet())
+                superclass(it.toPoet())
             }
             addSuperinterfaces(interfaces.map { it.toPoet() })
 
@@ -57,6 +55,8 @@ fun printElements(generationPath: File, model: Model) = sequence {
                     if (field.needsDescriptorApiAnnotation) {
                         addAnnotation(descriptorApiAnnotation)
                     }
+
+                    field.generationCallback?.invoke(this)
                 }.build())
             }
 

@@ -18,11 +18,9 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrReturnableBlockSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirReturnableBlockImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val symbol: IrReturnableBlockSymbol,
     override var origin: IrStatementOrigin?,
     override var type: IrType,
     override val startOffset: Int,

@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirStatement
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
@@ -18,9 +19,9 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.declaration]
  */
-interface BirDeclaration : BirStatement, BirSymbolOwner, BirAnnotationContainerElement {
+interface BirDeclaration : BirStatement, BirAnnotationContainerElement, BirSymbolElement {
     @ObsoleteDescriptorBasedAPI
-    val descriptor: DeclarationDescriptor
+    override val descriptor: DeclarationDescriptor
 
     var origin: IrDeclarationOrigin
 }

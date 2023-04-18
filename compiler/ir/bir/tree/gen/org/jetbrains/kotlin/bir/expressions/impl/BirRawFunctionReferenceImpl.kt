@@ -10,11 +10,11 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirRawFunctionReference
-import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirRawFunctionReferenceImpl(
-    override val symbol: IrFunctionSymbol,
+    override var symbol: BirFunctionSymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,

@@ -8,11 +8,11 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.callableReference]
  */
-abstract class BirCallableReference<S : IrSymbol> : BirMemberAccessExpression<S>()
+abstract class BirCallableReference<S : BirSymbol> : BirMemberAccessExpression<S>()

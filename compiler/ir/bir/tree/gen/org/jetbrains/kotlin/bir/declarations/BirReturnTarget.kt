@@ -8,18 +8,18 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.symbols.IrReturnTargetSymbol
 
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.returnTarget]
  */
-interface BirReturnTarget : BirSymbolOwner {
+interface BirReturnTarget : BirElement, BirSymbolElement, BirReturnTargetSymbol {
     @ObsoleteDescriptorBasedAPI
-    val descriptor: FunctionDescriptor
-
-    override val symbol: IrReturnTargetSymbol
+    override val descriptor: FunctionDescriptor
 }

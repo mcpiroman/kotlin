@@ -13,14 +13,15 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirReturn
+import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
-import org.jetbrains.kotlin.ir.symbols.IrReturnTargetSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirReturnImpl(
     value: BirExpression,
-    override var returnTargetSymbol: IrReturnTargetSymbol,
+    override var returnTargetSymbol: BirReturnTargetSymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
@@ -46,5 +47,9 @@ class BirReturnImpl(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.value.accept(visitor)
+    }
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.returnTargetSymbol === old) this.returnTargetSymbol = new as BirReturnTargetSymbol
     }
 }

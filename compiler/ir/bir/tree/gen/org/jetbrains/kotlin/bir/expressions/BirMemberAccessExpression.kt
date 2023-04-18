@@ -9,8 +9,8 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.memberAccessExpression]
  */
-abstract class BirMemberAccessExpression<S : IrSymbol> : BirDeclarationReference() {
+abstract class BirMemberAccessExpression<S : BirSymbol> : BirDeclarationReference() {
     abstract var dispatchReceiver: BirExpression?
 
     abstract var extensionReceiver: BirExpression?

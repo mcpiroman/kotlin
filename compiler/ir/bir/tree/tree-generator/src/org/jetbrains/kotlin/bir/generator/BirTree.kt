@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlin.bir.generator
 
-import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.KModifier
 import org.jetbrains.kotlin.bir.generator.config.AbstractTreeBuilder
 import org.jetbrains.kotlin.bir.generator.config.ElementConfig
 import org.jetbrains.kotlin.bir.generator.config.ElementConfig.Category.*
@@ -29,9 +29,13 @@ import org.jetbrains.kotlin.types.Variance
 // 2) parents
 // 3) fields
 object BirTree : AbstractTreeBuilder() {
-    private fun symbol(type: TypeRef) = field("symbol", type, mutable = false)
-    private fun descriptor(typeName: String) =
-        field("descriptor", ClassRef<TypeParameterRef>(TypeKind.Interface, "org.jetbrains.kotlin.descriptors", typeName), mutable = false)
+    private fun symbol(type: TypeRef, mutable: Boolean = true): SimpleFieldConfig = field("symbol", type, mutable = mutable)
+    private fun descriptor(typeName: String, initializer: SimpleFieldConfig.() -> Unit = {}): SimpleFieldConfig = field(
+        "descriptor",
+        ClassRef<TypeParameterRef>(TypeKind.Interface, "org.jetbrains.kotlin.descriptors", typeName),
+        mutable = false,
+        initializer = initializer
+    )
 
     override val rootElement: ElementConfig by element(Other, name = "element") {
         fun offsetField(prefix: String) = field(prefix + "Offset", int, mutable = false) {
@@ -54,10 +58,14 @@ object BirTree : AbstractTreeBuilder() {
 
     val declaration: ElementConfig by element(Declaration) {
         parent(statement)
-        parent(symbolOwner)
         parent(annotationContainerElement)
+        parent(symbolElement)
 
-        +descriptor("DeclarationDescriptor")
+        +descriptor("DeclarationDescriptor") {
+            generationCallback = {
+                addModifiers(KModifier.OVERRIDE)
+            }
+        }
         +field("origin", type("org.jetbrains.kotlin.ir.declarations", "IrDeclarationOrigin"))
     }
     val declarationBase: ElementConfig by element(Declaration) {
@@ -79,9 +87,6 @@ object BirTree : AbstractTreeBuilder() {
         parent(declarationWithName)
 
         +field("isExternal", boolean)
-    }
-    val symbolOwner: ElementConfig by element(Declaration) {
-        +symbol(symbolType)
     }
     val metadataSourceOwner: ElementConfig by element(Declaration) {
         val metadataField = +field("metadata", type("org.jetbrains.kotlin.ir.declarations", "MetadataSource"), nullable = true) {
@@ -108,7 +113,7 @@ object BirTree : AbstractTreeBuilder() {
         parent(declaration)
         parent(declarationWithVisibility)
         parent(declarationWithName)
-        parent(symbolOwner)
+        parent(symbolElement)
 
         +field("modality", type<Modality>())
     }
@@ -116,8 +121,9 @@ object BirTree : AbstractTreeBuilder() {
         val s = +param("S", symbolType)
 
         parent(overridableMember)
+        parent(symbolType)
+        parent(symbolElement)
 
-        +field("symbol", s, mutable = false)
         +field("isFakeOverride", boolean)
         +listField("overriddenSymbols", s, mutability = Var)
     }
@@ -127,20 +133,21 @@ object BirTree : AbstractTreeBuilder() {
         +field("containerSource", type<DeserializedContainerSource>(), nullable = true, mutable = false)
     }
     val valueDeclaration: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.value
+
         parent(declarationWithName)
-        parent(symbolOwner)
 
         +descriptor("ValueDescriptor")
-        +symbol(SymbolTypes.value)
         +field("type", irTypeType)
         +field("isAssignable", boolean, mutable = false)
     }
     val valueParameter: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.valueParameter
+
         parent(declarationBase)
         parent(valueDeclaration)
 
         +descriptor("ParameterDescriptor")
-        +symbol(SymbolTypes.valueParameter)
         +field("index", int)
         +field("varargElementType", irTypeType, nullable = true)
         +field("isCrossinline", boolean)
@@ -153,6 +160,8 @@ object BirTree : AbstractTreeBuilder() {
         +field("defaultValue", expressionBody, nullable = true, isChild = true)
     }
     val `class`: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.`class`
+
         parent(declarationBase)
         parent(possiblyExternalDeclaration)
         parent(declarationWithVisibility)
@@ -162,7 +171,6 @@ object BirTree : AbstractTreeBuilder() {
         parent(metadataSourceOwner)
 
         +descriptor("ClassDescriptor")
-        +symbol(SymbolTypes.`class`)
         +field("kind", type<ClassKind>())
         +field("modality", type<Modality>())
         +field("isCompanion", boolean)
@@ -212,10 +220,11 @@ object BirTree : AbstractTreeBuilder() {
         +listField("annotations", constructorCall, mutability = Var)
     }
     val anonymousInitializer: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.anonymousInitializer
+
         parent(declarationBase)
 
         +descriptor("ClassDescriptor") // TODO special descriptor for anonymous initializer blocks
-        +symbol(SymbolTypes.anonymousInitializer)
         +field("isStatic", boolean)
         +field("body", blockBody, isChild = true)
     }
@@ -231,35 +240,39 @@ object BirTree : AbstractTreeBuilder() {
         +listField("typeParameters", typeParameter, mutability = Var, isChild = true)
     }
     val typeParameter: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.typeParameter
+
         parent(declarationBase)
         parent(declarationWithName)
 
         +descriptor("TypeParameterDescriptor")
-        +symbol(SymbolTypes.typeParameter)
         +field("variance", type<Variance>())
         +field("index", int)
         +field("isReified", boolean)
         +listField("superTypes", irTypeType, mutability = Var)
     }
     val returnTarget: ElementConfig by element(Declaration) {
-        parent(symbolOwner)
+        symbol = SymbolTypes.returnTarget
 
-        +descriptor("FunctionDescriptor")
-        +symbol(SymbolTypes.returnTarget)
+        +descriptor("FunctionDescriptor") {
+            generationCallback = {
+                addModifiers(KModifier.OVERRIDE)
+            }
+        }
     }
     val function: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.function
+
         parent(declarationBase)
         parent(possiblyExternalDeclaration)
         parent(declarationWithVisibility)
         parent(typeParametersContainer)
-        parent(symbolOwner)
         parent(declarationParent)
         parent(returnTarget)
         parent(memberWithContainerSource)
         parent(metadataSourceOwner)
 
         +descriptor("FunctionDescriptor")
-        +symbol(SymbolTypes.function)
         // NB: there's an inline constructor for Array and each primitive array class.
         +field("isInline", boolean)
         +field("isExpect", boolean)
@@ -272,37 +285,39 @@ object BirTree : AbstractTreeBuilder() {
         +field("body", body, nullable = true, isChild = true)
     }
     val constructor: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.constructor
+
         parent(function)
 
         +descriptor("ClassConstructorDescriptor")
-        +symbol(SymbolTypes.constructor)
         +field("isPrimary", boolean)
     }
     val enumEntry: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.enumEntry
+
         parent(declarationBase)
         parent(declarationWithName)
 
         +descriptor("ClassDescriptor")
-        +symbol(SymbolTypes.enumEntry)
         +field("initializerExpression", expressionBody, nullable = true, isChild = true)
         +field("correspondingClass", `class`, nullable = true, isChild = true)
     }
     val errorDeclaration: ElementConfig by element(Declaration) {
         parent(declarationBase)
-
-        +field("symbol", symbolType, mutable = false)
     }
     val functionWithLateBinding: ElementConfig by element(Declaration) {
         parent(simpleFunction)
 
-        +field("isBound", boolean, mutable = false)
+        +field("isElementBound", boolean, mutable = false) // isBound would collide with IrSymbol.isBound
     }
     val propertyWithLateBinding: ElementConfig by element(Declaration) {
         parent(property)
 
-        +field("isBound", boolean, mutable = false)
+        +field("isElementBound", boolean, mutable = false) // isBound would collide with IrSymbol.isBound
     }
     val field: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.field
+
         parent(declarationBase)
         parent(possiblyExternalDeclaration)
         parent(declarationWithVisibility)
@@ -310,7 +325,6 @@ object BirTree : AbstractTreeBuilder() {
         parent(metadataSourceOwner)
 
         +descriptor("PropertyDescriptor")
-        +symbol(SymbolTypes.field)
         +field("type", irTypeType)
         +field("isFinal", boolean)
         +field("isStatic", boolean)
@@ -318,13 +332,13 @@ object BirTree : AbstractTreeBuilder() {
         +field("correspondingPropertySymbol", SymbolTypes.property, nullable = true)
     }
     val localDelegatedProperty: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.localDelegatedProperty
+
         parent(declarationBase)
         parent(declarationWithName)
-        parent(symbolOwner)
         parent(metadataSourceOwner)
 
         +descriptor("VariableDescriptorWithAccessors")
-        +symbol(SymbolTypes.localDelegatedProperty)
         +field("type", irTypeType)
         +field("isVar", boolean)
         +field("delegate", variable, isChild = true)
@@ -340,6 +354,7 @@ object BirTree : AbstractTreeBuilder() {
         +field("endOffset", int, mutable = false)
     }
     val property: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.property
         hasImpl = true
 
         parent(declarationBase)
@@ -350,7 +365,6 @@ object BirTree : AbstractTreeBuilder() {
         parent(memberWithContainerSource)
 
         +descriptor("PropertyDescriptor")
-        +symbol(SymbolTypes.property)
         +field("isVar", boolean)
         +field("isConst", boolean)
         +field("isLateinit", boolean)
@@ -366,15 +380,17 @@ object BirTree : AbstractTreeBuilder() {
     //TODO: make IrScript as IrPackageFragment, because script is used as a file, not as a class
     //NOTE: declarations and statements stored separately
     val script: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.script
+
         parent(declarationBase)
         parent(declarationWithName)
         parent(declarationParent)
         parent(statementContainer)
         parent(metadataSourceOwner)
 
-        +symbol(SymbolTypes.script)
         // NOTE: is the result of the FE conversion, because there script interpreted as a class and has receiver
         // TODO: consider removing from here and handle appropriately in the lowering
+        +descriptor("ScriptDescriptor")
         +field("thisReceiver", valueParameter, isChild = true, nullable = true) // K1
         +field("baseClass", irTypeType, nullable = true) // K1
         +listField("explicitCallParameters", variable, mutability = Var, isChild = true)
@@ -388,13 +404,13 @@ object BirTree : AbstractTreeBuilder() {
         +field("constructor", constructor, nullable = true) // K1
     }
     val simpleFunction: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.simpleFunction
         hasImpl = true
 
         parent(function)
         parent(overridableDeclaration.withArgs("S" to SymbolTypes.simpleFunction))
         parent(attributeContainer)
 
-        +symbol(SymbolTypes.simpleFunction)
         +field("isTailrec", boolean)
         +field("isSuspend", boolean)
         +field("isFakeOverride", boolean)
@@ -404,47 +420,55 @@ object BirTree : AbstractTreeBuilder() {
         +listField("overriddenSymbols", SymbolTypes.simpleFunction, mutability = Var)
     }
     val typeAlias: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.typeAlias
+
         parent(declarationBase)
         parent(declarationWithName)
         parent(declarationWithVisibility)
         parent(typeParametersContainer)
 
         +descriptor("TypeAliasDescriptor")
-        +symbol(SymbolTypes.typeAlias)
         +field("isActual", boolean)
         +field("expandedType", irTypeType)
     }
     val variable: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.variable
+
         parent(declarationBase)
         parent(valueDeclaration)
 
         +descriptor("VariableDescriptor")
-        +symbol(SymbolTypes.variable)
         +field("isVar", boolean)
         +field("isConst", boolean)
         +field("isLateinit", boolean)
         +field("initializer", expression, nullable = true, isChild = true)
     }
     val packageFragment: ElementConfig by element(Declaration) {
-        parent(declarationContainer)
-        parent(symbolOwner)
+        symbol = SymbolTypes.packageFragment
 
-        +symbol(SymbolTypes.packageFragment)
-        +descriptor("PackageFragmentDescriptor")
+        parent(declarationContainer)
+
+        +descriptor("PackageFragmentDescriptor") {
+            generationCallback = {
+                addModifiers(KModifier.OVERRIDE)
+            }
+        }
         +field("fqName", type<FqName>())
     }
     val externalPackageFragment: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.externalPackageFragment
+
         parent(packageFragment)
 
-        +symbol(SymbolTypes.externalPackageFragment)
         +field("containerSource", type<DeserializedContainerSource>(), nullable = true, mutable = false)
     }
     val file: ElementConfig by element(Declaration) {
+        symbol = SymbolTypes.file
+
         parent(packageFragment)
         parent(annotationContainerElement)
         parent(metadataSourceOwner)
 
-        +symbol(SymbolTypes.file)
         +field("module", moduleFragment)
         +field("fileEntry", type("org.jetbrains.kotlin.ir", "IrFileEntry"))
     }
@@ -474,7 +498,7 @@ object BirTree : AbstractTreeBuilder() {
     val declarationReference: ElementConfig by element(Expression) {
         parent(expression)
 
-        +symbol(symbolType)
+        +symbol(symbolType, mutable = false)
     }
     val memberAccessExpression: ElementConfig by element(Expression) {
         val s = +param("S", symbolType)
@@ -483,7 +507,7 @@ object BirTree : AbstractTreeBuilder() {
 
         +field("dispatchReceiver", expression, nullable = true, isChild = true)
         +field("extensionReceiver", expression, nullable = true, isChild = true)
-        +symbol(s)
+        +symbol(s, mutable = false)
         +field("origin", statementOriginType, nullable = true)
         +listField("valueArguments", expression, mutability = Array, isChild = true)
         +listField("typeArguments", irTypeType.copy(nullable = true), mutability = Array)
@@ -541,11 +565,10 @@ object BirTree : AbstractTreeBuilder() {
         parent(containerExpression)
     }
     val returnableBlock: ElementConfig by element(Expression) {
-        parent(block)
-        parent(symbolOwner)
-        parent(returnTarget)
+        symbol = SymbolTypes.returnableBlock
 
-        +symbol(SymbolTypes.returnableBlock)
+        parent(block)
+        parent(returnTarget)
     }
     val inlinedFunctionBlock: ElementConfig by element(Expression) {
         parent(block)

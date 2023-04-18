@@ -10,11 +10,11 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirGetEnumValue
-import org.jetbrains.kotlin.ir.symbols.IrEnumEntrySymbol
+import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetEnumValueImpl(
-    override val symbol: IrEnumEntrySymbol,
+    override var symbol: BirEnumEntrySymbol,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,

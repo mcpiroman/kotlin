@@ -8,21 +8,21 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
-import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
+import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.propertyReference]
  */
-abstract class BirPropertyReference : BirCallableReference<IrPropertySymbol>() {
-    abstract override val symbol: IrPropertySymbol
+abstract class BirPropertyReference : BirCallableReference<BirPropertySymbol>() {
+    abstract override var symbol: BirPropertySymbol
 
-    abstract var field: IrFieldSymbol?
+    abstract var field: BirFieldSymbol?
 
-    abstract var getter: IrSimpleFunctionSymbol?
+    abstract var getter: BirSimpleFunctionSymbol?
 
-    abstract var setter: IrSimpleFunctionSymbol?
+    abstract var setter: BirSimpleFunctionSymbol?
 }
