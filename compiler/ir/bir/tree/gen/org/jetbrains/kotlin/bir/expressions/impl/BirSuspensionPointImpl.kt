@@ -22,11 +22,10 @@ class BirSuspensionPointImpl(
     suspensionPointIdParameter: BirVariable,
     result: BirExpression,
     resumeResult: BirExpression,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirSuspensionPoint() {
     override var suspensionPointIdParameter: BirVariable = suspensionPointIdParameter
         set(value) {
@@ -45,6 +44,8 @@ class BirSuspensionPointImpl(
             setChildField(field, value, this.result)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(suspensionPointIdParameter, null)
         initChildField(result, suspensionPointIdParameter)

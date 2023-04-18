@@ -22,17 +22,18 @@ class BirTypeOperatorCallImpl(
     override var operator: IrTypeOperator,
     argument: BirExpression,
     override var typeOperand: IrType,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirTypeOperatorCall() {
     override var argument: BirExpression = argument
         set(value) {
             setChildField(field, value, null)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(argument, null)
     }

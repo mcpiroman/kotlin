@@ -27,11 +27,10 @@ class BirFunctionReferenceImpl(
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
     override val typeArguments: Array<IrType?>,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirFunctionReference() {
     override var dispatchReceiver: BirExpression? = dispatchReceiver
         set(value) {
@@ -47,6 +46,8 @@ class BirFunctionReferenceImpl(
 
     override val valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this)
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(dispatchReceiver, null)
         initChildField(extensionReceiver, dispatchReceiver)

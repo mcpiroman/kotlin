@@ -22,11 +22,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirTryImpl(
     tryResult: BirExpression,
     finallyExpression: BirExpression?,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirTry() {
     override var tryResult: BirExpression = tryResult
         set(value) {
@@ -41,6 +40,8 @@ class BirTryImpl(
             setChildField(field, value, this.catches)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(tryResult, null)
         initChildField(finallyExpression, catches)

@@ -50,7 +50,9 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         )
                     }
 
-                    if (field.passViaConstructorParameter) {
+                    if (field.defaultToThis) {
+                        initializer("this")
+                    } else if (field.passViaConstructorParameter) {
                         initializer(field.name)
                     } else if (field is ListField && field.isChild) {
                         initializer("BirChildElementList(this)")

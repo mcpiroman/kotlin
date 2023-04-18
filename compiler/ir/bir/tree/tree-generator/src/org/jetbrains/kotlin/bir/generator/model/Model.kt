@@ -9,6 +9,8 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import org.jetbrains.kotlin.bir.generator.config.ElementConfig
 import org.jetbrains.kotlin.bir.generator.config.FieldConfig
+import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig
+import org.jetbrains.kotlin.bir.generator.config.SimpleFieldConfig
 import org.jetbrains.kotlin.bir.generator.util.*
 
 class Element(
@@ -75,6 +77,7 @@ sealed class Field(
     var isOverride = false
     var needsDescriptorApiAnnotation = false
     var passViaConstructorParameter = false
+    val defaultToThis = (config as? SimpleFieldConfig)?.initializeToThis ?: false
 
     val kdoc = config?.kdoc
 
@@ -84,18 +87,17 @@ sealed class Field(
 }
 
 class SingleField(
-    config: FieldConfig?,
+    config: SimpleFieldConfig?,
     name: String,
     override var type: TypeRef,
     nullable: Boolean,
     mutable: Boolean,
     isChild: Boolean,
 ) : Field(config, name, nullable, mutable, isChild) {
-
 }
 
 class ListField(
-    config: FieldConfig?,
+    config: ListFieldConfig?,
     name: String,
     var elementType: TypeRef,
     private val listType: ClassRef<PositionTypeParameterRef>,

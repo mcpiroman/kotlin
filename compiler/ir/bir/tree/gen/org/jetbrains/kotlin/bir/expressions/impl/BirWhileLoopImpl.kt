@@ -23,11 +23,10 @@ class BirWhileLoopImpl(
     body: BirExpression?,
     condition: BirExpression,
     override var label: String?,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirWhileLoop() {
     override var body: BirExpression? = body
         set(value) {
@@ -40,6 +39,8 @@ class BirWhileLoopImpl(
             setChildField(field, value, this.body)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(body, null)
         initChildField(condition, body)

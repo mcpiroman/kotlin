@@ -20,11 +20,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirSuspendableExpressionImpl(
     suspensionPointId: BirExpression,
     result: BirExpression,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirSuspendableExpression() {
     override var suspensionPointId: BirExpression = suspensionPointId
         set(value) {
@@ -37,6 +36,8 @@ class BirSuspendableExpressionImpl(
             setChildField(field, value, this.suspensionPointId)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(suspensionPointId, null)
         initChildField(result, suspensionPointId)

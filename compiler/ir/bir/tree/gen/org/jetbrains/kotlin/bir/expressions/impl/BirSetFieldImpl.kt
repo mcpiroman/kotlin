@@ -26,11 +26,10 @@ class BirSetFieldImpl(
     override var superQualifierSymbol: IrClassSymbol?,
     receiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirSetField() {
     override var value: BirExpression = value
         set(value) {
@@ -43,6 +42,8 @@ class BirSetFieldImpl(
             setChildField(field, value, this.value)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(value, null)
         initChildField(receiver, value)

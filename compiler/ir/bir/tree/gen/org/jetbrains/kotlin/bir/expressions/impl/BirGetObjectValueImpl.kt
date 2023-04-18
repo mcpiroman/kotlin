@@ -15,9 +15,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetObjectValueImpl(
     override val symbol: IrClassSymbol,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
-) : BirGetObjectValue()
+    override var originalBeforeInline: BirAttributeContainer?,
+) : BirGetObjectValue() {
+    override var attributeOwnerId: BirAttributeContainer = this
+}

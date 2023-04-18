@@ -60,7 +60,6 @@ class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
     override val containerSource: DeserializedContainerSource?,
     override var metadata: MetadataSource?,
     override var modality: Modality,
-    override var attributeOwnerId: BirAttributeContainer,
     override var originalBeforeInline: BirAttributeContainer?,
 ) : BirFunctionWithLateBinding() {
     override var dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
@@ -86,6 +85,8 @@ class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
 
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(dispatchReceiverParameter, null)
         initChildField(extensionReceiverParameter, dispatchReceiverParameter)

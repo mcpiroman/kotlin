@@ -240,7 +240,7 @@ private fun computeAllFields(elements: List<Element>) {
 
             element.allFields = allFields
             for (field in allFields) {
-                field.passViaConstructorParameter = !(field is ListField && field.isChild)
+                field.passViaConstructorParameter = !(field is ListField && field.isChild) && !field.defaultToThis
             }
         }
     }

@@ -16,9 +16,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirClassReferenceImpl(
     override val symbol: IrClassifierSymbol,
     override var classType: IrType,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
-) : BirClassReference()
+    override var originalBeforeInline: BirAttributeContainer?,
+) : BirClassReference() {
+    override var attributeOwnerId: BirAttributeContainer = this
+}

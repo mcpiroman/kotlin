@@ -21,17 +21,18 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirReturnImpl(
     value: BirExpression,
     override var returnTargetSymbol: IrReturnTargetSymbol,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirReturn() {
     override var value: BirExpression = value
         set(value) {
             setChildField(field, value, null)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(value, null)
     }

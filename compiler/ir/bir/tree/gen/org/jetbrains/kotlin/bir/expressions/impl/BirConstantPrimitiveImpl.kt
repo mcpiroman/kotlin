@@ -19,17 +19,18 @@ import org.jetbrains.kotlin.ir.types.IrType
 
 class BirConstantPrimitiveImpl(
     value: BirConst<*>,
-    override var attributeOwnerId: BirAttributeContainer,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override val startOffset: Int,
     override val endOffset: Int,
+    override var originalBeforeInline: BirAttributeContainer?,
 ) : BirConstantPrimitive() {
     override var value: BirConst<*> = value
         set(value) {
             setChildField(field, value, null)
             field = value
         }
+
+    override var attributeOwnerId: BirAttributeContainer = this
     init {
         initChildField(value, null)
     }
