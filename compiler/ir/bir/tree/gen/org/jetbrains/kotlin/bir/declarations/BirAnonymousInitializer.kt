@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.expressions.BirBlockBody
 import org.jetbrains.kotlin.bir.symbols.BirAnonymousInitializerSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -19,7 +20,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.anonymousInitializer]
  */
-abstract class BirAnonymousInitializer : BirDeclarationBase(), BirSymbolElement,
+abstract class BirAnonymousInitializer : BirElementBase(), BirDeclaration, BirSymbolElement,
         BirAnonymousInitializerSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor

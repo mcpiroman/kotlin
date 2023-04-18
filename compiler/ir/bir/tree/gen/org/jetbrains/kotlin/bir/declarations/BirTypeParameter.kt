@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirTypeParameterSymbol
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
@@ -20,7 +21,7 @@ import org.jetbrains.kotlin.types.Variance
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.typeParameter]
  */
-abstract class BirTypeParameter : BirDeclarationBase(), BirDeclarationWithName,
+abstract class BirTypeParameter : BirElementBase(), BirDeclaration, BirDeclarationWithName,
         BirSymbolElement, BirTypeParameterSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: TypeParameterDescriptor

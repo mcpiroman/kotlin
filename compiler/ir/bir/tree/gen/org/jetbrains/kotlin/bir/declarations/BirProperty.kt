@@ -18,9 +18,9 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.property]
  */
-abstract class BirProperty : BirDeclarationBase(), BirPossiblyExternalDeclaration,
-        BirOverridableDeclaration<BirPropertySymbol>, BirMemberWithContainerSource,
-        BirAttributeContainer, BirSymbolElement, BirPropertySymbol {
+abstract class BirProperty : BirOverridableDeclaration<BirPropertySymbol>(), BirDeclaration,
+        BirPossiblyExternalDeclaration, BirMemberWithContainerSource, BirAttributeContainer,
+        BirSymbolElement, BirPropertySymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: PropertyDescriptor
 

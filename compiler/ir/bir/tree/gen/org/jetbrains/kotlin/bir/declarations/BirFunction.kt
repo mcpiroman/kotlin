@@ -21,25 +21,25 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.function]
  */
-abstract class BirFunction : BirDeclarationBase(), BirDeclarationWithVisibility,
+interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirReturnTarget,
         BirMemberWithContainerSource, BirSymbolElement, BirFunctionSymbol {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: FunctionDescriptor
+    override val descriptor: FunctionDescriptor
 
-    abstract var isInline: Boolean
+    var isInline: Boolean
 
-    abstract var isExpect: Boolean
+    var isExpect: Boolean
 
-    abstract var returnType: IrType
+    var returnType: IrType
 
-    abstract var dispatchReceiverParameter: BirValueParameter?
+    var dispatchReceiverParameter: BirValueParameter?
 
-    abstract var extensionReceiverParameter: BirValueParameter?
+    var extensionReceiverParameter: BirValueParameter?
 
-    abstract var valueParameters: BirChildElementList<BirValueParameter>
+    var valueParameters: BirChildElementList<BirValueParameter>
 
-    abstract var contextReceiverParametersCount: Int
+    var contextReceiverParametersCount: Int
 
-    abstract var body: BirBody?
+    var body: BirBody?
 }

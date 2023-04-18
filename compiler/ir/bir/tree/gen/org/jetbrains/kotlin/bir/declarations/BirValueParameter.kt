@@ -20,8 +20,8 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.valueParameter]
  */
-abstract class BirValueParameter : BirDeclarationBase(), BirValueDeclaration,
-        BirSymbolElement, BirValueParameterSymbol {
+abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSymbolElement,
+        BirValueParameterSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ParameterDescriptor
 

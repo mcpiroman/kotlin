@@ -67,12 +67,6 @@ object BirTree : AbstractTreeBuilder() {
         }
         +field("origin", type("org.jetbrains.kotlin.ir.declarations", "IrDeclarationOrigin"))
     }
-
-    // todo: probably remove
-    val declarationBase: ElementConfig by element(Declaration) {
-        typeKind = TypeKind.Class
-        parent(declaration)
-    }
     val declarationWithVisibility: ElementConfig by element(Declaration) {
         parent(declaration)
 
@@ -123,7 +117,7 @@ object BirTree : AbstractTreeBuilder() {
     val valueParameter: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.valueParameter
 
-        parent(declarationBase)
+        parent(declaration)
         parent(valueDeclaration)
 
         +descriptor("ParameterDescriptor")
@@ -141,7 +135,7 @@ object BirTree : AbstractTreeBuilder() {
     val `class`: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.`class`
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithVisibility)
         parent(possiblyExternalDeclaration)
         parent(typeParametersContainer)
@@ -199,7 +193,7 @@ object BirTree : AbstractTreeBuilder() {
     val anonymousInitializer: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.anonymousInitializer
 
-        parent(declarationBase)
+        parent(declaration)
 
         +descriptor("ClassDescriptor") // TODO special descriptor for anonymous initializer blocks
         +field("isStatic", boolean)
@@ -216,7 +210,7 @@ object BirTree : AbstractTreeBuilder() {
     val typeParameter: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.typeParameter
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithName)
 
         +descriptor("TypeParameterDescriptor")
@@ -237,7 +231,7 @@ object BirTree : AbstractTreeBuilder() {
     val function: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.function
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithVisibility)
         parent(possiblyExternalDeclaration)
         parent(typeParametersContainer)
@@ -267,7 +261,7 @@ object BirTree : AbstractTreeBuilder() {
     val enumEntry: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.enumEntry
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithName)
 
         +descriptor("ClassDescriptor")
@@ -275,7 +269,7 @@ object BirTree : AbstractTreeBuilder() {
         +field("correspondingClass", `class`, nullable = true, isChild = true)
     }
     val errorDeclaration: ElementConfig by element(Declaration) {
-        parent(declarationBase)
+        parent(declaration)
     }
     val functionWithLateBinding: ElementConfig by element(Declaration) {
         parent(simpleFunction)
@@ -290,7 +284,7 @@ object BirTree : AbstractTreeBuilder() {
     val field: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.field
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithVisibility)
         parent(possiblyExternalDeclaration)
 
@@ -304,7 +298,7 @@ object BirTree : AbstractTreeBuilder() {
     val localDelegatedProperty: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.localDelegatedProperty
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithName)
 
         +descriptor("VariableDescriptorWithAccessors")
@@ -326,7 +320,7 @@ object BirTree : AbstractTreeBuilder() {
         symbol = SymbolTypes.property
         hasImpl = true
 
-        parent(declarationBase)
+        parent(declaration)
         parent(possiblyExternalDeclaration)
         parent(overridableDeclaration.withArgs("S" to SymbolTypes.property))
         parent(memberWithContainerSource)
@@ -350,7 +344,7 @@ object BirTree : AbstractTreeBuilder() {
     val script: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.script
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithName)
         parent(statementContainer)
 
@@ -388,7 +382,7 @@ object BirTree : AbstractTreeBuilder() {
     val typeAlias: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.typeAlias
 
-        parent(declarationBase)
+        parent(declaration)
         parent(declarationWithName)
         parent(declarationWithVisibility)
         parent(typeParametersContainer)
@@ -400,7 +394,7 @@ object BirTree : AbstractTreeBuilder() {
     val variable: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.variable
 
-        parent(declarationBase)
+        parent(declaration)
         parent(valueDeclaration)
 
         +descriptor("VariableDescriptor")
