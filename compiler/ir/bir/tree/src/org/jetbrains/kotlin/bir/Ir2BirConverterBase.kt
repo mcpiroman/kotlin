@@ -7,15 +7,16 @@ package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
-import org.jetbrains.kotlin.bir.symbols.BirIrSymbolWrapper
+import org.jetbrains.kotlin.bir.expressions.impl.BirNoExpressionImpl
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.symbols.LateBindBirSymbol
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
+import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
-import org.jetbrains.kotlin.ir.types.IrType
-import java.util.IdentityHashMap
 import org.jetbrains.kotlin.ir.symbols.*
+import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.impl.IrUninitializedType
 import java.util.*
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -98,6 +99,8 @@ abstract class Ir2BirConverterBase() {
             val arg = ir.getValueArgument(i)
             if (arg != null) {
                 bir.valueArguments += mapIrElement(arg) as BirExpression
+            } else {
+                bir.valueArguments += BirNoExpressionImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, null, IrUninitializedType)
             }
         }
     }

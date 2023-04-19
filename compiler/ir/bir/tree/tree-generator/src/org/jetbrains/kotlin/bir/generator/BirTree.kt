@@ -792,4 +792,7 @@ object BirTree : AbstractTreeBuilder() {
     val elseBranch: ElementConfig by element(Expression) {
         parent(branch)
     }
+    val noExpression: ElementConfig by element(Expression) {
+        parent(expression)
+    }
 }
