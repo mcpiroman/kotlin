@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -18,7 +19,8 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.simpleFunction]
  */
 abstract class BirSimpleFunction : BirOverridableDeclaration<BirSimpleFunctionSymbol>(),
-        BirFunction, BirAttributeContainer, BirSymbolElement, BirSimpleFunctionSymbol {
+        BirFunction, BirAttributeContainer, BirSymbolElement, BirSimpleFunctionSymbol,
+        BirElementTrackingBackReferences {
     abstract var isTailrec: Boolean
 
     abstract var isSuspend: Boolean

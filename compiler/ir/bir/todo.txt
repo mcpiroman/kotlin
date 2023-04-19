@@ -1,9 +1,13 @@
 Properly handle external (not BirElement) symbols
 Properly handle IrExternalPackageFragment, which is not directly attached to the IR tree - maybe also add externalPackages child to BirModuleFragment
+Try to replace by-symbol references with direct element fields where possible (where it is already carelessly used as element.symbol.owner)
 Back references
     Decide on arrays vs. linked lists - measure perf, esp. removing element
     Protocol for (sub)tree attach/detach
     Decide on egaer/lazy removal of back references
+    Properly handle multiple refs to the same element (if that can ever happen)
+    Investigate using multiple 'channels' of back refs (dedicated back refs)
+    Reimplement correspondingProperty with back refs
 Reshape BIR tree
 Additional per-element storage
 By class element cache (getAllElementsOfType)

@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions.impl
 
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
@@ -28,6 +29,9 @@ class BirWhileLoopImpl(
     condition: BirExpression,
     override var label: String?,
 ) : BirWhileLoop() {
+    override var referencedBy: BirBackReferenceCollectionArrayStyle =
+            BirBackReferenceCollectionArrayStyle()
+
     override var attributeOwnerId: BirAttributeContainer = this
 
     override var body: BirExpression? = body

@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirLocalDelegatedProperty
@@ -36,6 +37,9 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     getter: BirSimpleFunction,
     setter: BirSimpleFunction?,
 ) : BirLocalDelegatedProperty() {
+    override var referencedBy: BirBackReferenceCollectionArrayStyle =
+            BirBackReferenceCollectionArrayStyle()
+
     override var delegate: BirVariable = delegate
         set(value) {
             setChildField(field, value, null)

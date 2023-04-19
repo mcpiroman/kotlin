@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirVariable
@@ -36,6 +37,9 @@ class BirVariableImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isLateinit: Boolean,
     initializer: BirExpression?,
 ) : BirVariable() {
+    override var referencedBy: BirBackReferenceCollectionArrayStyle =
+            BirBackReferenceCollectionArrayStyle()
+
     override var initializer: BirExpression? = initializer
         set(value) {
             setChildField(field, value, null)

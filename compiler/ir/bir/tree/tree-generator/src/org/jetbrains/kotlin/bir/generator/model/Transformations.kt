@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.bir.generator.model
 
+import org.jetbrains.kotlin.bir.generator.Packages
 import org.jetbrains.kotlin.bir.generator.config.*
 import org.jetbrains.kotlin.bir.generator.elementBaseType
 import org.jetbrains.kotlin.bir.generator.util.*
@@ -73,6 +74,7 @@ fun config2model(config: Config): Model {
     markLeaves(elements)
     configureDescriptorApiAnnotation(elements)
     processFieldOverrides(elements)
+    configureTrackedReferences(elements)
     computeAllFields(elements)
 
     return Model(elements, rootElement)
@@ -174,6 +176,7 @@ private fun processFieldOverrides(elements: List<Element>) {
                         field.isOverride = true
                         field.needsDescriptorApiAnnotation =
                             field.needsDescriptorApiAnnotation || overriddenField.needsDescriptorApiAnnotation
+                        field.trackRef = field.trackRef || overriddenField.trackRef
 
                         fun transformInferredType(type: TypeRef, overriddenType: TypeRef) =
                             type.takeUnless { it is InferredOverriddenType } ?: overriddenType
@@ -244,5 +247,46 @@ private fun computeAllFields(elements: List<Element>) {
         for (field in allFields) {
             field.passViaConstructorParameter = !(field is ListField && field.isChild) && !field.defaultToThis
         }
+    }
+}
+
+private fun configureTrackedReferences(elements: List<Element>) {
+    val elementsImplementingSymbol = mutableMapOf<String, MutableList<Element>>()
+    for (el in elements) {
+        for (parent in el.otherParents) {
+            if (parent.simpleName.startsWith("Bir") && parent.simpleName.endsWith("Symbol")) {
+                elementsImplementingSymbol.computeIfAbsent(parent.canonicalName) { mutableListOf() }.add(el)
+            }
+        }
+    }
+
+    for (el in elements) {
+        for (field in el.fields) {
+            if (field.trackRef) {
+                val targetElements = (field.type as? ElementRef)?.element?.let { listOf(it) }
+                    ?: (field.type as? ClassRef<*>)?.canonicalName?.let { elementsImplementingSymbol[it] }
+                    ?: emptyList()
+                for (targetElement in targetElements) {
+                    if (!targetElement.hasTrackedBackReferences) {
+                        targetElement.hasTrackedBackReferences = true
+                        targetElement.otherParents += type(Packages.tree, "BirElementTrackingBackReferences")
+                    }
+                }
+            }
+        }
+    }
+
+    for (el in elements) {
+        fun visitParents(visiting: Element) {
+            for (parent in visiting.elementParents) {
+                visitParents(parent.element)
+            }
+
+            for (parent in visiting.elementParents) {
+                visiting.hasTrackedBackReferences = visiting.hasTrackedBackReferences || parent.element.hasTrackedBackReferences
+            }
+        }
+
+        visitParents(el)
     }
 }

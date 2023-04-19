@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirVariableSymbol
@@ -20,7 +21,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.variable]
  */
 abstract class BirVariable : BirValueDeclaration(), BirDeclaration, BirSymbolElement,
-        BirVariableSymbol {
+        BirVariableSymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: VariableDescriptor
 

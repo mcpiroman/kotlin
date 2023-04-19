@@ -26,12 +26,18 @@ class BirGetFieldImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    override var target: BirFieldSymbol,
+    target: BirFieldSymbol,
     override var superQualifier: BirClassSymbol?,
     receiver: BirExpression?,
     override var origin: IrStatementOrigin?,
 ) : BirGetField() {
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override var target: BirFieldSymbol = target
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
 
     override var receiver: BirExpression? = receiver
         set(value) {
@@ -40,6 +46,7 @@ class BirGetFieldImpl(
         }
     init {
         initChildField(receiver, null)
+        initTrackedElementReferenceArrayStyle(target)
     }
 
     override fun getFirstChild(): BirElement? = receiver

@@ -98,11 +98,12 @@ object BirTree : AbstractTreeBuilder() {
         parent(symbolType)
 
         +field("isFakeOverride", boolean)
-        +listField("overriddenSymbols", s, mutability = Var)
+        +listField("overriddenSymbols", s, mutability = Var) // ref: possibly, possibly dedicated
     }
     val memberWithContainerSource: ElementConfig by element(Declaration) {
         parent(declarationWithName)
 
+        // Rarely used, probably move to aux storage
         +field("containerSource", type<DeserializedContainerSource>(), nullable = true, mutable = false)
     }
     val valueDeclaration: ElementConfig by element(Declaration) {
@@ -159,7 +160,7 @@ object BirTree : AbstractTreeBuilder() {
             type<ValueClassRepresentation<*>>().withArgs(type("org.jetbrains.kotlin.ir.types", "IrSimpleType")),
             nullable = true,
         )
-        +listField("sealedSubclasses", SymbolTypes.`class`, mutability = Var) {
+        +listField("sealedSubclasses", SymbolTypes.`class`, mutability = Var) { // ref: rather not, probably move to uax storage
             kdoc = """
             If this is a sealed class or interface, this list contains symbols of all its immediate subclasses.
             Otherwise, this is an empty list.
@@ -188,7 +189,7 @@ object BirTree : AbstractTreeBuilder() {
 
     // Equivalent of IrMutableAnnotationContainer which is not an IR element (but could be)
     val annotationContainerElement: ElementConfig by element(Declaration) {
-        +listField("annotations", constructorCall, mutability = Var)
+        +listField("annotations", constructorCall, mutability = Var) // shouldn't those be child elements? rather not ref
     }
     val anonymousInitializer: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.anonymousInitializer
@@ -293,7 +294,7 @@ object BirTree : AbstractTreeBuilder() {
         +field("isFinal", boolean)
         +field("isStatic", boolean)
         +field("initializer", expressionBody, nullable = true, isChild = true)
-        +field("correspondingProperty", SymbolTypes.property, nullable = true)
+        +field("correspondingProperty", SymbolTypes.property, nullable = true) // by dedicated ref
     }
     val localDelegatedProperty: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.localDelegatedProperty
@@ -313,8 +314,6 @@ object BirTree : AbstractTreeBuilder() {
         +field("name", type<Name>(), mutable = false)
         +field("irBuiltins", type("org.jetbrains.kotlin.ir", "IrBuiltIns"), mutable = false)
         +listField("files", file, mutability = List, isChild = true)
-        +field("startOffset", int, mutable = false)
-        +field("endOffset", int, mutable = false)
     }
     val property: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.property
@@ -341,6 +340,7 @@ object BirTree : AbstractTreeBuilder() {
 
     //TODO: make BirScript as BirPackageFragment, because script is used as a file, not as a class
     //NOTE: declarations and statements stored separately
+    // this is rather a mess so for now don't consider it for refs
     val script: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.script
 
@@ -376,7 +376,7 @@ object BirTree : AbstractTreeBuilder() {
         +field("isFakeOverride", boolean)
         +field("isOperator", boolean)
         +field("isInfix", boolean)
-        +field("correspondingProperty", SymbolTypes.property, nullable = true)
+        +field("correspondingProperty", SymbolTypes.property, nullable = true) // by dedicated ref
         +listField("overriddenSymbols", SymbolTypes.simpleFunction, mutability = Var)
     }
     val typeAlias: ElementConfig by element(Declaration) {
@@ -457,7 +457,7 @@ object BirTree : AbstractTreeBuilder() {
     val declarationReference: ElementConfig by element(Expression) {
         parent(expression)
 
-        +field("target", symbolType, mutable = false)
+        +field("target", symbolType, mutable = false, trackRef = true) // ref: rather only at sub-elements
     }
     val memberAccessExpression: ElementConfig by element(Expression) {
         val s = +param("S", symbolType)
@@ -466,7 +466,7 @@ object BirTree : AbstractTreeBuilder() {
 
         +field("dispatchReceiver", expression, nullable = true, isChild = true)
         +field("extensionReceiver", expression, nullable = true, isChild = true)
-        +field("target", s, mutable = false)
+        +field("target", s, mutable = false) // ref: possibly here but maybe only at sub-elements
         +field("origin", statementOriginType, nullable = true)
         +listField("valueArguments", expression, mutability = Array, isChild = true)
         +listField("typeArguments", irTypeType.copy(nullable = true), mutability = Array)
@@ -479,7 +479,7 @@ object BirTree : AbstractTreeBuilder() {
     val constructorCall: ElementConfig by element(Expression) {
         parent(functionAccessExpression)
 
-        +field("target", SymbolTypes.constructor)
+        +field("target", SymbolTypes.constructor) // ref: here or on super-element
         +field("source", type<SourceElement>())
         +field("constructorTypeArgumentsCount", int)
     }
@@ -489,12 +489,12 @@ object BirTree : AbstractTreeBuilder() {
     val getObjectValue: ElementConfig by element(Expression) {
         parent(getSingletonValue)
 
-        +field("target", SymbolTypes.`class`)
+        +field("target", SymbolTypes.`class`) // ref: here or on super-element
     }
     val getEnumValue: ElementConfig by element(Expression) {
         parent(getSingletonValue)
 
-        +field("target", SymbolTypes.enumEntry)
+        +field("target", SymbolTypes.enumEntry) // ref: here or on super-element
     }
 
     /**
@@ -506,7 +506,7 @@ object BirTree : AbstractTreeBuilder() {
     val rawFunctionReference: ElementConfig by element(Expression) {
         parent(declarationReference)
 
-        +field("target", SymbolTypes.function)
+        +field("target", SymbolTypes.function) // ref: here or on super-element
     }
     val containerExpression: ElementConfig by element(Expression) {
         parent(expression)
@@ -532,8 +532,8 @@ object BirTree : AbstractTreeBuilder() {
     val inlinedFunctionBlock: ElementConfig by element(Expression) {
         parent(block)
 
-        +field("inlineCall", functionAccessExpression)
-        +field("inlinedElement", rootElement)
+        +field("inlineCall", functionAccessExpression) // ref: possibly
+        +field("inlinedElement", rootElement) // ref: possibly
     }
     val syntheticBody: ElementConfig by element(Expression) {
         parent(body)
@@ -543,7 +543,7 @@ object BirTree : AbstractTreeBuilder() {
     val breakContinue: ElementConfig by element(Expression) {
         parent(expression)
 
-        +field("loop", loop)
+        +field("loop", loop, trackRef = true) // ref
         +field("label", string, nullable = true)
     }
     val `break` by element(Expression) {
@@ -555,8 +555,8 @@ object BirTree : AbstractTreeBuilder() {
     val call: ElementConfig by element(Expression) {
         parent(functionAccessExpression)
 
-        +field("target", SymbolTypes.simpleFunction)
-        +field("superQualifier", SymbolTypes.`class`, nullable = true)
+        +field("target", SymbolTypes.simpleFunction) // ref: here or on super-element
+        +field("superQualifier", SymbolTypes.`class`, nullable = true) // ref: possibly
     }
     val callableReference: ElementConfig by element(Expression) {
         val s = +param("S", symbolType)
@@ -566,29 +566,29 @@ object BirTree : AbstractTreeBuilder() {
     val functionReference: ElementConfig by element(Expression) {
         parent(callableReference.withArgs("S" to SymbolTypes.function))
 
-        +field("target", SymbolTypes.function)
-        +field("reflectionTarget", SymbolTypes.function, nullable = true)
+        +field("target", SymbolTypes.function) // ref: here or on super-element
+        +field("reflectionTarget", SymbolTypes.function, nullable = true) // ref: possibly
     }
     val propertyReference: ElementConfig by element(Expression) {
         parent(callableReference.withArgs("S" to SymbolTypes.property))
 
-        +field("target", SymbolTypes.property)
-        +field("field", SymbolTypes.field, nullable = true)
-        +field("getter", SymbolTypes.simpleFunction, nullable = true)
-        +field("setter", SymbolTypes.simpleFunction, nullable = true)
+        +field("target", SymbolTypes.property) // ref: here or on super-element
+        +field("field", SymbolTypes.field, nullable = true, trackRef = true) // ref
+        +field("getter", SymbolTypes.simpleFunction, nullable = true) // ref: possibly
+        +field("setter", SymbolTypes.simpleFunction, nullable = true) // ref: possibly
     }
     val localDelegatedPropertyReference: ElementConfig by element(Expression) {
         parent(callableReference.withArgs("S" to SymbolTypes.localDelegatedProperty))
 
-        +field("target", SymbolTypes.localDelegatedProperty)
-        +field("delegate", SymbolTypes.variable)
-        +field("getter", SymbolTypes.simpleFunction)
-        +field("setter", SymbolTypes.simpleFunction, nullable = true)
+        +field("target", SymbolTypes.localDelegatedProperty) // ref: here or on super-element
+        +field("delegate", SymbolTypes.variable, trackRef = true) // ref
+        +field("getter", SymbolTypes.simpleFunction) // ref: possibly
+        +field("setter", SymbolTypes.simpleFunction, nullable = true) // ref: possibly
     }
     val classReference: ElementConfig by element(Expression) {
         parent(declarationReference)
 
-        +field("target", SymbolTypes.classifier)
+        +field("target", SymbolTypes.classifier) // ref: here or on super-element
         +field("classType", irTypeType)
     }
     val const: ElementConfig by element(Expression) {
@@ -610,7 +610,7 @@ object BirTree : AbstractTreeBuilder() {
     val constantObject: ElementConfig by element(Expression) {
         parent(constantValue)
 
-        +field("constructor", SymbolTypes.constructor)
+        +field("constructor", SymbolTypes.constructor, trackRef = true) // ref
         +listField("valueArguments", constantValue, mutability = List, isChild = true)
         +listField("typeArguments", irTypeType)
     }
@@ -622,7 +622,7 @@ object BirTree : AbstractTreeBuilder() {
     val delegatingConstructorCall: ElementConfig by element(Expression) {
         parent(functionAccessExpression)
 
-        +field("target", SymbolTypes.constructor)
+        +field("target", SymbolTypes.constructor) // ref: here or on super-element
     }
     val dynamicExpression: ElementConfig by element(Expression) {
         parent(expression)
@@ -643,7 +643,7 @@ object BirTree : AbstractTreeBuilder() {
     val enumConstructorCall: ElementConfig by element(Expression) {
         parent(functionAccessExpression)
 
-        +field("target", SymbolTypes.constructor)
+        +field("target", SymbolTypes.constructor) // ref: here or on super-element
     }
     val errorExpression: ElementConfig by element(Expression) {
         parent(expression)
@@ -659,8 +659,8 @@ object BirTree : AbstractTreeBuilder() {
     val fieldAccessExpression: ElementConfig by element(Expression) {
         parent(declarationReference)
 
-        +field("target", SymbolTypes.field)
-        +field("superQualifier", SymbolTypes.`class`, nullable = true)
+        +field("target", SymbolTypes.field) // ref: here or on super-element
+        +field("superQualifier", SymbolTypes.`class`, nullable = true) // ref: possibly
         +field("receiver", expression, nullable = true, isChild = true)
         +field("origin", statementOriginType, nullable = true)
     }
@@ -686,7 +686,7 @@ object BirTree : AbstractTreeBuilder() {
     val instanceInitializerCall: ElementConfig by element(Expression) {
         parent(expression)
 
-        +field("class", SymbolTypes.`class`)
+        +field("class", SymbolTypes.`class`) // ref: possibly
     }
     val loop: ElementConfig by element(Expression) {
         parent(expression)
@@ -708,7 +708,7 @@ object BirTree : AbstractTreeBuilder() {
         parent(expression)
 
         +field("value", expression, isChild = true)
-        +field("returnTarget", SymbolTypes.returnTarget)
+        +field("returnTarget", SymbolTypes.returnTarget) // ref: possibly
     }
     val stringConcatenation: ElementConfig by element(Expression) {
         parent(expression)
@@ -754,7 +754,7 @@ object BirTree : AbstractTreeBuilder() {
     val valueAccessExpression: ElementConfig by element(Expression) {
         parent(declarationReference)
 
-        +field("target", SymbolTypes.value)
+        +field("target", SymbolTypes.value) // ref: here or on super-element
         +field("origin", statementOriginType, nullable = true)
     }
     val getValue: ElementConfig by element(Expression) {
@@ -763,7 +763,7 @@ object BirTree : AbstractTreeBuilder() {
     val setValue: ElementConfig by element(Expression) {
         parent(valueAccessExpression)
 
-        +field("target", SymbolTypes.value)
+        +field("target", SymbolTypes.value) // ref: here or on super-element
         +field("value", expression, isChild = true)
     }
     val varargElement: ElementConfig by element(Expression)

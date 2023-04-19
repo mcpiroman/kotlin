@@ -208,9 +208,3 @@ class BirChildElementList<E : BirElement>(
         }
     }
 }
-
-private object EmptyIterator : MutableIterator<Any> {
-    override fun hasNext(): Boolean = false
-    override fun next(): Nothing = throw NoSuchElementException()
-    override fun remove(): Nothing = throw NoSuchElementException()
-}

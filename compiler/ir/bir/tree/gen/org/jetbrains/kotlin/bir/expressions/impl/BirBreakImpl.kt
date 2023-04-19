@@ -18,8 +18,17 @@ class BirBreakImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    override var loop: BirLoop,
+    loop: BirLoop,
     override var label: String?,
 ) : BirBreak() {
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override var loop: BirLoop = loop
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
+    init {
+        initTrackedElementReferenceArrayStyle(loop)
+    }
 }

@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -27,7 +28,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  */
 abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirDeclarationContainer,
-        BirAttributeContainer, BirSymbolElement, BirClassSymbol {
+        BirAttributeContainer, BirSymbolElement, BirClassSymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
 

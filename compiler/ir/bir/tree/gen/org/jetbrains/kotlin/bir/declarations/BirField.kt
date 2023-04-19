@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
@@ -23,7 +24,8 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.field]
  */
 abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVisibility,
-        BirPossiblyExternalDeclaration, BirSymbolElement, BirFieldSymbol {
+        BirPossiblyExternalDeclaration, BirSymbolElement, BirFieldSymbol,
+        BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: PropertyDescriptor
 

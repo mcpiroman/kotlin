@@ -24,13 +24,22 @@ class BirConstantObjectImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    override var constructor: BirConstructorSymbol,
+    constructor: BirConstructorSymbol,
     override val typeArguments: List<IrType>,
 ) : BirConstantObject() {
     override var attributeOwnerId: BirAttributeContainer = this
 
+    override var constructor: BirConstructorSymbol = constructor
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
+
     override val valueArguments: BirChildElementList<BirConstantValue> =
             BirChildElementList(this)
+    init {
+        initTrackedElementReferenceArrayStyle(constructor)
+    }
 
     override fun getFirstChild(): BirElement? = valueArguments.firstOrNull()
 

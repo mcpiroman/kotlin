@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.bir.generator.config
 
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.kotlin.bir.generator.BASE_PACKAGE
@@ -77,6 +76,7 @@ class ElementConfigRef(
 sealed class FieldConfig(
     val name: String,
     val isChild: Boolean,
+    val trackRef: Boolean,
 ) {
     var printProperty = true
     var generationCallback: (PropertySpec.Builder.() -> Unit)? = null
@@ -91,7 +91,8 @@ class SimpleFieldConfig(
     val nullable: Boolean,
     val mutable: Boolean,
     isChildElement: Boolean,
-) : FieldConfig(name, isChildElement) {
+    trackRef: Boolean,
+) : FieldConfig(name, isChildElement, trackRef) {
     var initializeToThis = false
 }
 
@@ -101,7 +102,7 @@ class ListFieldConfig(
     val nullable: Boolean,
     val mutability: Mutability,
     isChildElement: Boolean,
-) : FieldConfig(name, isChildElement) {
+) : FieldConfig(name, isChildElement, false) {
     enum class Mutability {
         Immutable,
         Var,

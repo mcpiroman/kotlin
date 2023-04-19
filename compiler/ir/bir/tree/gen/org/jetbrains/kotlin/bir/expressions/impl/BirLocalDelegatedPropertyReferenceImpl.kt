@@ -28,16 +28,22 @@ class BirLocalDelegatedPropertyReferenceImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    override var target: BirLocalDelegatedPropertySymbol,
+    target: BirLocalDelegatedPropertySymbol,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
     override val typeArguments: Array<IrType?>,
-    override var delegate: BirVariableSymbol,
+    delegate: BirVariableSymbol,
     override var getter: BirSimpleFunctionSymbol,
     override var setter: BirSimpleFunctionSymbol?,
 ) : BirLocalDelegatedPropertyReference() {
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override var target: BirLocalDelegatedPropertySymbol = target
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
 
     override var dispatchReceiver: BirExpression? = dispatchReceiver
         set(value) {
@@ -53,9 +59,17 @@ class BirLocalDelegatedPropertyReferenceImpl(
 
     override val valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this)
+
+    override var delegate: BirVariableSymbol = delegate
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
     init {
         initChildField(dispatchReceiver, null)
         initChildField(extensionReceiver, dispatchReceiver)
+        initTrackedElementReferenceArrayStyle(target)
+        initTrackedElementReferenceArrayStyle(delegate)
     }
 
     override fun getFirstChild(): BirElement? = dispatchReceiver ?: extensionReceiver ?:
