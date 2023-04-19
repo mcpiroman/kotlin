@@ -82,6 +82,7 @@ object BirTree : AbstractTreeBuilder() {
 
         +field("isExternal", boolean)
     }
+    val metadataSourceOwner: ElementConfig by element(Declaration)
     val overridableMember: ElementConfig by element(Declaration) {
         parent(declaration)
         parent(declarationWithName)
@@ -142,6 +143,7 @@ object BirTree : AbstractTreeBuilder() {
         parent(typeParametersContainer)
         parent(declarationContainer)
         parent(attributeContainer)
+        parent(metadataSourceOwner)
 
         +descriptor("ClassDescriptor")
         +field("kind", type<ClassKind>())
@@ -238,6 +240,7 @@ object BirTree : AbstractTreeBuilder() {
         parent(typeParametersContainer)
         parent(returnTarget)
         parent(memberWithContainerSource)
+        parent(metadataSourceOwner)
 
         +descriptor("FunctionDescriptor")
         // NB: there's an inline constructor for Array and each primitive array class.
@@ -288,6 +291,7 @@ object BirTree : AbstractTreeBuilder() {
         parent(declaration)
         parent(declarationWithVisibility)
         parent(possiblyExternalDeclaration)
+        parent(metadataSourceOwner)
 
         +descriptor("PropertyDescriptor")
         +field("type", irTypeType)
@@ -301,6 +305,7 @@ object BirTree : AbstractTreeBuilder() {
 
         parent(declaration)
         parent(declarationWithName)
+        parent(metadataSourceOwner)
 
         +descriptor("VariableDescriptorWithAccessors")
         +field("type", irTypeType)
@@ -324,6 +329,7 @@ object BirTree : AbstractTreeBuilder() {
         parent(overridableDeclaration.withArgs("S" to SymbolTypes.property))
         parent(memberWithContainerSource)
         parent(attributeContainer)
+        parent(metadataSourceOwner)
 
         +descriptor("PropertyDescriptor")
         +field("isVar", boolean)
@@ -347,6 +353,7 @@ object BirTree : AbstractTreeBuilder() {
         parent(declaration)
         parent(declarationWithName)
         parent(statementContainer)
+        parent(metadataSourceOwner)
 
         // NOTE: is the result of the FE conversion, because there script interpreted as a class and has receiver
         // TODO: consider removing from here and handle appropriately in the lowering
@@ -427,6 +434,7 @@ object BirTree : AbstractTreeBuilder() {
 
         parent(packageFragment)
         parent(annotationContainerElement)
+        parent(metadataSourceOwner)
 
         +field("module", moduleFragment) // todo: maybe remove and make a extension property that searches parents?
         +field("fileEntry", type("org.jetbrains.kotlin.ir", "IrFileEntry"))

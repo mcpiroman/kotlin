@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.bir
 
+import org.jetbrains.kotlin.bir.declarations.BirMetadataSourceOwner
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
 import org.jetbrains.kotlin.bir.expressions.impl.BirNoExpressionImpl
@@ -13,6 +14,7 @@ import org.jetbrains.kotlin.bir.symbols.LateBindBirSymbol
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
+import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
 import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.IrType
@@ -20,7 +22,7 @@ import org.jetbrains.kotlin.ir.types.impl.IrUninitializedType
 import java.util.*
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-abstract class Ir2BirConverterBase() {
+abstract class Ir2BirConverterBase {
     private var ir2birElementMap = IdentityHashMap<IrElement, BirElement>()
     private val elementsWithSymbolsToLateBind = mutableListOf<Pair<IrElement, LateBindBirSymbol<*, *>>>()
     private var currentlyConvertedElement: IrElement? = null
@@ -39,6 +41,7 @@ abstract class Ir2BirConverterBase() {
     fun convertIrTree(irRootElements: List<IrElement>): List<BirElement> {
         val birRootElements = irRootElements.map { mapIrElement(it) }
         lateBindSymbols()
+        registerAuxStorage()
         return birRootElements
     }
 
@@ -135,7 +138,7 @@ abstract class Ir2BirConverterBase() {
                 birSymbol as BirS
             }
         } else {
-            BirIrSymbolWrapper(symbol) as BirS
+            symbol as BirS
         }
     }
 
@@ -150,6 +153,16 @@ abstract class Ir2BirConverterBase() {
             // fragments are not directly linked to the tree (thus not visited).
             val birElementBehindSymbol = mapIrElement(lateBindBirSymbol.irSymbol.owner)
             containerElement.replaceSymbolProperty(lateBindBirSymbol, birElementBehindSymbol as BirSymbol)
+        }
+    }
+
+    private fun registerAuxStorage() {
+        ir2birElementMap.entries.forEach { (ir, bir) ->
+            bir as BirElementBase
+
+            if (ir is IrMetadataSourceOwner) {
+                (bir as BirMetadataSourceOwner)[GlobalBirElementAuxStorageTokens.Metadata] = ir.metadata
+            }
         }
     }
 

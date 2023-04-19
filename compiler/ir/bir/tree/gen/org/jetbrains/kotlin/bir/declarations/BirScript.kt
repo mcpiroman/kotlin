@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.script]
  */
 abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithName,
-        BirStatementContainer, BirSymbolElement, BirScriptSymbol {
+        BirStatementContainer, BirMetadataSourceOwner, BirSymbolElement, BirScriptSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ScriptDescriptor
 

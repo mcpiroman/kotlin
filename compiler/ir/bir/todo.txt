@@ -8,7 +8,7 @@ Back references
     Investigate using multiple 'channels' of back refs (dedicated back refs)
     Reimplement correspondingProperty with back refs
 Reshape BIR tree
-Additional per-element storage
+    Do something with LateBindFunction/Property?
 By class element cache (getAllElementsOfType)
 Tree mutation-while-traversing protocol
 Maybe eventually remove descriptors, but they seem necessary for now
