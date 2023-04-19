@@ -14,11 +14,11 @@ import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.types.model.TypeConstructorMarker
 import org.jetbrains.kotlin.types.model.TypeParameterMarker
 
-interface BirSymbol : IrSymbol
+typealias BirSymbol = IrSymbol
 
-class BirIrSymbolWrapper(
+/*class BirIrSymbolWrapper(
     val original: IrSymbol
-) : BirSymbol, IrSymbol by original
+) : BirSymbol, IrSymbol by original*/
 
 
 interface BirPossiblyElementSymbol<out D : DeclarationDescriptor, E : BirElement> : BirSymbol {
