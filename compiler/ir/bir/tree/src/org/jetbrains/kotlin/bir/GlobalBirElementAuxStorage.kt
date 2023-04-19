@@ -5,15 +5,26 @@
 
 package org.jetbrains.kotlin.bir
 
+import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
+import org.jetbrains.kotlin.bir.declarations.BirClass
+import org.jetbrains.kotlin.bir.declarations.BirMemberWithContainerSource
 import org.jetbrains.kotlin.bir.declarations.BirMetadataSourceOwner
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 object GlobalBirElementAuxStorage {
-    val Metadata = BirElementAuxStorageKey<BirMetadataSourceOwner, MetadataSource>()
+    val Metadata = BirElementAuxStorageKey<BirMetadataSourceOwner, MetadataSource?>() // probably rename e.g. to 'source'
+    val ContainerSource = BirElementAuxStorageKey<BirMemberWithContainerSource, DeserializedContainerSource?>()
+    val SealedSubclasses = BirElementAuxStorageKey<BirClass, List<IrClassSymbol>>() // Seems only used in JVM
+    val OriginalBeforeInline = BirElementAuxStorageKey<BirAttributeContainer, BirAttributeContainer?>() // Seems only used inside lowering
 }
 
 object GlobalBirElementAuxStorageTokens {
     val manager = BirElementAuxStorageManager()
 
     val Metadata = manager.registerToken(GlobalBirElementAuxStorage.Metadata)
+    val ContainerSource = manager.registerToken(GlobalBirElementAuxStorage.ContainerSource)
+    val SealedSubclasses = manager.registerToken(GlobalBirElementAuxStorage.SealedSubclasses)
+    val OriginalBeforeInline = manager.registerToken(GlobalBirElementAuxStorage.OriginalBeforeInline)
 }

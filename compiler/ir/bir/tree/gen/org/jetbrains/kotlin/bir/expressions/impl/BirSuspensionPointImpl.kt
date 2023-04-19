@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirSuspensionPointImpl(
     override val startOffset: Int,
     override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     suspensionPointIdParameter: BirVariable,
     result: BirExpression,

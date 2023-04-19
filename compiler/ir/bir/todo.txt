@@ -7,6 +7,13 @@ Back references
     Properly handle multiple refs to the same element (if that can ever happen)
     Investigate using multiple 'channels' of back refs (dedicated back refs)
     Reimplement correspondingProperty with back refs
+    Investigate storing back references in aux data storage
+        Also with restricted scope as other aux data
+Per element aux data storage
+    Restricted scope
+        Per phase / per backend / serialization / fir2ir/ codegen
+        Maybe dedicate a class that is both key and token for global data
+    Remove reflection?
 Reshape BIR tree
     Do something with LateBindFunction/Property?
 By class element cache (getAllElementsOfType)

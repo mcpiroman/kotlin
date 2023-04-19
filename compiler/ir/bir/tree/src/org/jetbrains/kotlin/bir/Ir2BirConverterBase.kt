@@ -5,6 +5,9 @@
 
 package org.jetbrains.kotlin.bir
 
+import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
+import org.jetbrains.kotlin.bir.declarations.BirClass
+import org.jetbrains.kotlin.bir.declarations.BirMemberWithContainerSource
 import org.jetbrains.kotlin.bir.declarations.BirMetadataSourceOwner
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
@@ -14,6 +17,9 @@ import org.jetbrains.kotlin.bir.symbols.LateBindBirSymbol
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
+import org.jetbrains.kotlin.ir.declarations.IrAttributeContainer
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrMemberWithContainerSource
 import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
 import org.jetbrains.kotlin.ir.symbols.*
@@ -103,7 +109,7 @@ abstract class Ir2BirConverterBase {
             if (arg != null) {
                 bir.valueArguments += mapIrElement(arg) as BirExpression
             } else {
-                bir.valueArguments += BirNoExpressionImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, null, IrUninitializedType)
+                bir.valueArguments += BirNoExpressionImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, IrUninitializedType)
             }
         }
     }
@@ -162,6 +168,19 @@ abstract class Ir2BirConverterBase {
 
             if (ir is IrMetadataSourceOwner) {
                 (bir as BirMetadataSourceOwner)[GlobalBirElementAuxStorageTokens.Metadata] = ir.metadata
+            }
+
+            if (ir is IrMemberWithContainerSource) {
+                (bir as BirMemberWithContainerSource)[GlobalBirElementAuxStorageTokens.ContainerSource] = ir.containerSource
+            }
+
+            if (ir is IrAttributeContainer) {
+                (bir as BirAttributeContainer)[GlobalBirElementAuxStorageTokens.OriginalBeforeInline] =
+                    mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
+            }
+
+            if (ir is IrClass) {
+                (bir as BirClass)[GlobalBirElementAuxStorageTokens.SealedSubclasses] = ir.sealedSubclasses
             }
         }
     }

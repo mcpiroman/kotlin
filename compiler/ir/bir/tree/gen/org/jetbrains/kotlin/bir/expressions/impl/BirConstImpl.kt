@@ -16,7 +16,6 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirConstImpl<T>(
     override val startOffset: Int,
     override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     override var kind: IrConstKind<T>,
     override var value: T,

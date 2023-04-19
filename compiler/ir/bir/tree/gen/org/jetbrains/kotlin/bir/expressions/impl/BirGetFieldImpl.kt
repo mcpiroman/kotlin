@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirGetFieldImpl(
     override val startOffset: Int,
     override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     target: BirFieldSymbol,
     override var superQualifier: BirClassSymbol?,

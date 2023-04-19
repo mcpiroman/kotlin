@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirPropertyReferenceImpl(
     override val startOffset: Int,
     override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
     target: BirPropertySymbol,
     dispatchReceiver: BirExpression?,
