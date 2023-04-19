@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  */
 interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirReturnTarget,
-        BirMemberWithContainerSource, BirSymbolElement, BirFunctionSymbol,
+        BirMemberWithContainerSource, BirMetadataSourceOwner, BirSymbolElement, BirFunctionSymbol,
         BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
     override val descriptor: FunctionDescriptor

@@ -17,6 +17,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal var rawParent: BirElementBaseOrList? = null
     override var next: BirElementBase? = null
     internal var firstChildPtr: BirElementBase? = null
+    private var auxStorage: Array<Any?>? = null
 
     final override val parent: BirElementBase?
         get() = when (val owner = rawParent) {
@@ -173,6 +174,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         firstChildPtr = newNext
     }
 
+
     /*@OptIn(InternalBirApi::class)
     protected fun <T : BirElementBase> setTrackedElementReferenceLinkedListStyle(
         old: BirElementTrackingBackReferences?,
@@ -208,14 +210,12 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
     }*/
 
-    //@OptIn(InternalBirApi::class)
     protected fun initTrackedElementReferenceArrayStyle(value: Any?) {
         if (value is BirElementTrackingBackReferences) {
             value.referencedBy = value.referencedBy.add(this)
         }
     }
 
-    //@OptIn(InternalBirApi::class)
     protected fun setTrackedElementReferenceArrayStyle(
         old: Any?,
         new: Any?,
@@ -232,6 +232,26 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
     }
 
+
+    internal fun <T> getAuxData(token: BirElementAuxStorageToken<*, T>): T? {
+        return auxStorage?.get(token.key.index) as T?
+    }
+
+    internal fun <T> setAuxData(token: BirElementAuxStorageToken<*, T>, value: T?) {
+        var auxStorage = auxStorage
+        if (auxStorage == null) {
+            if (value == null) {
+                // optimization: next read will return null if the array is null, so no need to initialize it
+                return
+            }
+
+            val size = token.manager.getInitialAuxStorageArraySize(javaClass)
+            auxStorage = if (size == 0) null else arrayOfNulls(size)
+            this.auxStorage = auxStorage
+        }
+
+        auxStorage!![token.key.index] = value
+    }
 }
 
 interface BirElementPropertyTransformer {

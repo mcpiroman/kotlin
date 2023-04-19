@@ -16,3 +16,11 @@ interface BirElement : BirElementOrList {
     val startOffset: Int
     val endOffset: Int
 }
+
+operator fun <E : BirElement, T> E.get(token: BirElementAuxStorageToken<E, T>): T? {
+    return (this as BirElementBase).getAuxData(token)
+}
+
+operator fun <E : BirElement, T> E.set(token: BirElementAuxStorageToken<E, T>, value: T?) {
+    (this as BirElementBase).setAuxData(token, value)
+}
