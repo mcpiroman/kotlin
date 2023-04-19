@@ -11,10 +11,9 @@ package org.jetbrains.kotlin.bir.expressions.impl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
+import org.jetbrains.kotlin.bir.declarations.BirValueDeclaration
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirSetValue
-import org.jetbrains.kotlin.bir.symbols.BirSymbol
-import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
@@ -25,13 +24,13 @@ class BirSetValueImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    target: BirValueSymbol,
+    target: BirValueDeclaration,
     override var origin: IrStatementOrigin?,
     value: BirExpression,
 ) : BirSetValue() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var target: BirValueSymbol = target
+    override var target: BirValueDeclaration = target
         set(value) {
             setTrackedElementReferenceArrayStyle(field, value)
             field = value
@@ -56,9 +55,5 @@ class BirSetValueImpl(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.value.accept(visitor)
-    }
-
-    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.target === old) this.target = new as BirValueSymbol
     }
 }

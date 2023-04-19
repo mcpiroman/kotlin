@@ -9,8 +9,8 @@
 package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
+import org.jetbrains.kotlin.bir.declarations.BirValueDeclaration
 import org.jetbrains.kotlin.bir.expressions.BirGetValue
-import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
@@ -19,12 +19,12 @@ class BirGetValueImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    target: BirValueSymbol,
+    target: BirValueDeclaration,
     override var origin: IrStatementOrigin?,
 ) : BirGetValue() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var target: BirValueSymbol = target
+    override var target: BirValueDeclaration = target
         set(value) {
             setTrackedElementReferenceArrayStyle(field, value)
             field = value
