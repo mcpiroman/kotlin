@@ -25,7 +25,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
@@ -37,7 +36,6 @@ class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
     override var visibility: DescriptorVisibility,
     override var name: Name,
     override var isExternal: Boolean,
-    override val containerSource: DeserializedContainerSource?,
     override var isInline: Boolean,
     override var isExpect: Boolean,
     override var returnType: IrType,

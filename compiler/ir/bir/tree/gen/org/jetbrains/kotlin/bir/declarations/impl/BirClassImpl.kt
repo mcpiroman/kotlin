@@ -18,8 +18,6 @@ import org.jetbrains.kotlin.bir.declarations.BirDeclaration
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.declarations.BirValueParameter
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
-import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
-import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -44,7 +42,6 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override var visibility: DescriptorVisibility,
     override var name: Name,
     override var isExternal: Boolean,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var kind: ClassKind,
     override var modality: Modality,
     override var isCompanion: Boolean,
@@ -57,7 +54,6 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override var superTypes: List<IrType>,
     thisReceiver: BirValueParameter?,
     override var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?,
-    override var sealedSubclasses: List<BirClassSymbol>,
 ) : BirClass() {
     override var referencedBy: BirBackReferenceCollectionArrayStyle =
             BirBackReferenceCollectionArrayStyle()
@@ -93,10 +89,5 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
         this.typeParameters.acceptChildren(visitor)
         this.declarations.acceptChildren(visitor)
         this.thisReceiver?.accept(visitor)
-    }
-
-    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        this.sealedSubclasses = this.sealedSubclasses.map { if(it === old) new as BirClassSymbol
-                else it }
     }
 }

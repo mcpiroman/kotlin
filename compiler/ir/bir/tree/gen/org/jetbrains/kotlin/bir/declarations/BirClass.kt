@@ -56,6 +56,4 @@ abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVi
     abstract var thisReceiver: BirValueParameter?
 
     abstract var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?
-
-    abstract var sealedSubclasses: List<BirClassSymbol>
 }

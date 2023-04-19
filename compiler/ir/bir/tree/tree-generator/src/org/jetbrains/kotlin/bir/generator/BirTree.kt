@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig.Mutability.*
 import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig.Mutability.Array
 import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig.Mutability.List
 import org.jetbrains.kotlin.bir.generator.config.SimpleFieldConfig
-import org.jetbrains.kotlin.bir.generator.model.Element.Companion.elementName2typeName
 import org.jetbrains.kotlin.bir.generator.util.*
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
@@ -103,9 +102,6 @@ object BirTree : AbstractTreeBuilder() {
     }
     val memberWithContainerSource: ElementConfig by element(Declaration) {
         parent(declarationWithName)
-
-        // Rarely used, probably move to aux storage
-        +field("containerSource", type<DeserializedContainerSource>(), nullable = true, mutable = false)
     }
     val valueDeclaration: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.value
@@ -154,23 +150,15 @@ object BirTree : AbstractTreeBuilder() {
         +field("isValue", boolean)
         +field("isExpect", boolean)
         +field("isFun", boolean)
-        +field("source", type<SourceElement>(), mutable = false)
+        +field("source", type<SourceElement>(), mutable = false) // aux storage candidate
         +listField("superTypes", irTypeType, mutability = Var)
         +field("thisReceiver", valueParameter, nullable = true, isChild = true)
         +field(
+            // aux storage candidate
             "valueClassRepresentation",
             type<ValueClassRepresentation<*>>().withArgs(type("org.jetbrains.kotlin.ir.types", "IrSimpleType")),
             nullable = true,
         )
-        +listField("sealedSubclasses", SymbolTypes.`class`, mutability = Var) { // ref: rather not, probably move to uax storage
-            kdoc = """
-            If this is a sealed class or interface, this list contains symbols of all its immediate subclasses.
-            Otherwise, this is an empty list.
-            
-            NOTE: If this [${elementName2typeName(this@element.name)}] was deserialized from a klib, this list will always be empty!
-            See [KT-54028](https://youtrack.jetbrains.com/issue/KT-54028).
-            """.trimIndent()
-        }
     }
     val attributeContainer: ElementConfig by element(Declaration) {
         kDoc = """
@@ -183,10 +171,9 @@ object BirTree : AbstractTreeBuilder() {
               idempotence invariant and can contain a chain of declarations.
         """.trimIndent()
 
-        +field("attributeOwnerId", attributeContainer) {
+        +field("attributeOwnerId", attributeContainer) { // aux storage candidate - looks like it used a lot though
             initializeToThis = true
         }
-        +field("originalBeforeInline", attributeContainer, nullable = true) // null <=> this element wasn't inlined
     }
 
     // Equivalent of IrMutableAnnotationContainer which is not an IR element (but could be)
@@ -427,7 +414,7 @@ object BirTree : AbstractTreeBuilder() {
 
         parent(packageFragment)
 
-        +field("containerSource", type<DeserializedContainerSource>(), nullable = true, mutable = false)
+        +field("containerSource", type<DeserializedContainerSource>(), nullable = true, mutable = false) // aux storage candidate
     }
     val file: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.file

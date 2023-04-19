@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
@@ -42,7 +41,6 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     override var visibility: DescriptorVisibility,
     override var name: Name,
     override var isExternal: Boolean,
-    override val containerSource: DeserializedContainerSource?,
     override var isInline: Boolean,
     override var isExpect: Boolean,
     override var returnType: IrType,
@@ -53,7 +51,6 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     override var modality: Modality,
     override var isFakeOverride: Boolean,
     override var overriddenSymbols: List<BirSimpleFunctionSymbol>,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var isTailrec: Boolean,
     override var isSuspend: Boolean,
     override var isOperator: Boolean,

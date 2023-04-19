@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.ir.types.IrType
 class BirStringConcatenationImpl(
     override val startOffset: Int,
     override val endOffset: Int,
-    override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
 ) : BirStringConcatenation() {
     override var attributeOwnerId: BirAttributeContainer = this
