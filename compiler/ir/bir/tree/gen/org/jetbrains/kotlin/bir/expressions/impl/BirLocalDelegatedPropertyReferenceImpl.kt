@@ -12,12 +12,12 @@ import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
+import org.jetbrains.kotlin.bir.declarations.BirLocalDelegatedProperty
+import org.jetbrains.kotlin.bir.declarations.BirVariable
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirLocalDelegatedPropertyReference
-import org.jetbrains.kotlin.bir.symbols.BirLocalDelegatedPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
-import org.jetbrains.kotlin.bir.symbols.BirVariableSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
@@ -28,18 +28,18 @@ class BirLocalDelegatedPropertyReferenceImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    target: BirLocalDelegatedPropertySymbol,
+    target: BirLocalDelegatedProperty,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
     override val typeArguments: Array<IrType?>,
-    delegate: BirVariableSymbol,
+    delegate: BirVariable,
     override var getter: BirSimpleFunctionSymbol,
     override var setter: BirSimpleFunctionSymbol?,
 ) : BirLocalDelegatedPropertyReference() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var target: BirLocalDelegatedPropertySymbol = target
+    override var target: BirLocalDelegatedProperty = target
         set(value) {
             setTrackedElementReferenceArrayStyle(field, value)
             field = value
@@ -60,7 +60,7 @@ class BirLocalDelegatedPropertyReferenceImpl(
     override val valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this)
 
-    override var delegate: BirVariableSymbol = delegate
+    override var delegate: BirVariable = delegate
         set(value) {
             setTrackedElementReferenceArrayStyle(field, value)
             field = value
@@ -89,8 +89,6 @@ class BirLocalDelegatedPropertyReferenceImpl(
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
-        if(this.target === old) this.target = new as BirLocalDelegatedPropertySymbol
-        if(this.delegate === old) this.delegate = new as BirVariableSymbol
         if(this.getter === old) this.getter = new as BirSimpleFunctionSymbol
         if(this.setter === old) this.setter = new as BirSimpleFunctionSymbol
     }

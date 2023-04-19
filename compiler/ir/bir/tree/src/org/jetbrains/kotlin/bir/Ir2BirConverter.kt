@@ -837,7 +837,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             BirLocalDelegatedPropertyReference {
         val bir = BirLocalDelegatedPropertyReferenceImpl(
             target = mapSymbol(ir, ir.symbol),
-            delegate = mapSymbol(ir, ir.delegate),
+            delegate = mapIrElement(ir.delegate.owner) as BirVariable,
             getter = mapSymbol(ir, ir.getter),
             setter = null,
             dispatchReceiver = null,
@@ -1269,7 +1269,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
 
     private fun convertGetValue(ir: IrGetValue): BirGetValue {
         val bir = BirGetValueImpl(
-            target = mapSymbol(ir, ir.symbol),
+            target = mapIrElement(ir.symbol.owner) as BirValueDeclaration,
             origin = ir.origin,
             originalBeforeInline = null,
             type = ir.type,
@@ -1284,7 +1284,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
 
     private fun convertSetValue(ir: IrSetValue): BirSetValue {
         val bir = BirSetValueImpl(
-            target = mapSymbol(ir, ir.symbol),
+            target = mapIrElement(ir.symbol.owner) as BirValueDeclaration,
             value = mapIrElement(ir.value) as BirExpression,
             origin = ir.origin,
             originalBeforeInline = null,

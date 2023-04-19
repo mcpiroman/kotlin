@@ -1,6 +1,5 @@
 Properly handle external (not BirElement) symbols
 Properly handle IrExternalPackageFragment, which is not directly attached to the IR tree - maybe also add externalPackages child to BirModuleFragment
-Try to replace by-symbol references with direct element fields where possible (where it is already carelessly used as element.symbol.owner)
 Back references
     Decide on arrays vs. linked lists - measure perf, esp. removing element
     Protocol for (sub)tree attach/detach
@@ -14,3 +13,4 @@ By class element cache (getAllElementsOfType)
 Tree mutation-while-traversing protocol
 Maybe eventually remove descriptors, but they seem necessary for now
 Reorder fields in Impl classes even more
+Try to reduce symbol hierarchy - esp. for removed by-private-symbol references

@@ -578,10 +578,10 @@ object BirTree : AbstractTreeBuilder() {
         +field("setter", SymbolTypes.simpleFunction, nullable = true) // ref: possibly
     }
     val localDelegatedPropertyReference: ElementConfig by element(Expression) {
-        parent(callableReference.withArgs("S" to SymbolTypes.localDelegatedProperty))
+        parent(callableReference.withArgs("S" to localDelegatedProperty))
 
-        +field("target", SymbolTypes.localDelegatedProperty) // ref: here or on super-element
-        +field("delegate", SymbolTypes.variable, trackRef = true) // ref
+        +field("target", localDelegatedProperty) // ref: here or on super-element
+        +field("delegate", variable, trackRef = true) // ref
         +field("getter", SymbolTypes.simpleFunction) // ref: possibly
         +field("setter", SymbolTypes.simpleFunction, nullable = true) // ref: possibly
     }
@@ -754,7 +754,7 @@ object BirTree : AbstractTreeBuilder() {
     val valueAccessExpression: ElementConfig by element(Expression) {
         parent(declarationReference)
 
-        +field("target", SymbolTypes.value) // ref: here or on super-element
+        +field("target", valueDeclaration) // ref: here or on super-element
         +field("origin", statementOriginType, nullable = true)
     }
     val getValue: ElementConfig by element(Expression) {
@@ -763,7 +763,6 @@ object BirTree : AbstractTreeBuilder() {
     val setValue: ElementConfig by element(Expression) {
         parent(valueAccessExpression)
 
-        +field("target", SymbolTypes.value) // ref: here or on super-element
         +field("value", expression, isChild = true)
     }
     val varargElement: ElementConfig by element(Expression)
