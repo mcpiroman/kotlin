@@ -7,6 +7,7 @@ dependencies {
     api(project(":compiler:util"))
     api(project(":compiler:backend-common"))
     api(project(":compiler:bir:tree"))
+    api(project(":compiler:backend.wasm"))
     compileOnly(intellijCore())
 }
 
