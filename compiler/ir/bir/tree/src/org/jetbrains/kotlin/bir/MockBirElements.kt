@@ -12,7 +12,9 @@ private class MockBirClass(
     override val startOffset: Int,
     override val endOffset: Int,
     field2: MockBirValueParameter
-) : BirElementBase() {
+) : BirElementBase(), BirElementTrackingBackReferences {
+    override var referencedBy = BirBackReferenceCollectionArrayStyle()
+
     var field1: MockBirValueParameter? = null
         set(value) {
             setChildField(field, value, null)
@@ -33,10 +35,12 @@ private class MockBirClass(
     val list3 = BirChildElementList<MockBirDeclaration>(this)
 
     init {
-        field1 = field1
+        initChildField(field1, null)
+        initChildField(field2, field1)
+        initChildField(field3, field2)
     }
 
-    override fun getFirstChild(): BirElement? =
+    override fun getFirstChild(): BirElement =
         field1 ?: field2
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
@@ -81,6 +85,21 @@ private class MockBirClass(
             old === field3 -> field3 = new as MockBirTypeParameter?
             else -> throwChildForReplacementNotFound(old)
         }
+    }
+}
+
+private class MockBirConstructor(
+    override val startOffset: Int,
+    override val endOffset: Int,
+) : BirElementBase() {
+    var target: MockBirClass? = null
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
+
+    init {
+        initTrackedElementReferenceArrayStyle(target)
     }
 }
 

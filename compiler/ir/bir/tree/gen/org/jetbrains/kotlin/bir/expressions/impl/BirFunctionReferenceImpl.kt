@@ -26,7 +26,7 @@ class BirFunctionReferenceImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    override var target: BirFunctionSymbol,
+    target: BirFunctionSymbol,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
@@ -34,6 +34,12 @@ class BirFunctionReferenceImpl(
     override var reflectionTarget: BirFunctionSymbol?,
 ) : BirFunctionReference() {
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override var target: BirFunctionSymbol = target
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
 
     override var dispatchReceiver: BirExpression? = dispatchReceiver
         set(value) {
@@ -52,6 +58,7 @@ class BirFunctionReferenceImpl(
     init {
         initChildField(dispatchReceiver, null)
         initChildField(extensionReceiver, dispatchReceiver)
+        initTrackedElementReferenceArrayStyle(target)
     }
 
     override fun getFirstChild(): BirElement? = dispatchReceiver ?: extensionReceiver ?:

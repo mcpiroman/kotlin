@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
@@ -60,6 +61,9 @@ class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
     override var correspondingProperty: BirPropertySymbol?,
     override val isElementBound: Boolean,
 ) : BirFunctionWithLateBinding() {
+    override var referencedBy: BirBackReferenceCollectionArrayStyle =
+            BirBackReferenceCollectionArrayStyle()
+
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)
 

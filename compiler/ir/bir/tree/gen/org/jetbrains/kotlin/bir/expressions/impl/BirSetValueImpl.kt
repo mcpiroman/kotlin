@@ -25,11 +25,17 @@ class BirSetValueImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    override var target: BirValueSymbol,
+    target: BirValueSymbol,
     override var origin: IrStatementOrigin?,
     value: BirExpression,
 ) : BirSetValue() {
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override var target: BirValueSymbol = target
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
 
     override var value: BirExpression = value
         set(value) {
@@ -38,6 +44,7 @@ class BirSetValueImpl(
         }
     init {
         initChildField(value, null)
+        initTrackedElementReferenceArrayStyle(target)
     }
 
     override fun getFirstChild(): BirElement? = value

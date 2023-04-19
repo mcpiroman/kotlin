@@ -7,9 +7,8 @@ package org.jetbrains.kotlin.bir.generator.print
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import org.jetbrains.kotlin.bir.generator.*
+import org.jetbrains.kotlin.bir.generator.Packages
 import org.jetbrains.kotlin.bir.generator.model.*
-import org.jetbrains.kotlin.bir.generator.print.toPoet
 import org.jetbrains.kotlin.bir.generator.util.ClassRef
 import org.jetbrains.kotlin.bir.generator.util.PositionTypeParameterRef
 import org.jetbrains.kotlin.bir.generator.util.TypeRef
@@ -25,6 +24,17 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                 addSuperinterface(element.toPoetSelfParameterized())
             } else {
                 superclass(element.toPoetSelfParameterized())
+            }
+
+            if (element.hasTrackedBackReferences) {
+                val type = ClassName(Packages.tree, "BirBackReferenceCollectionArrayStyle")
+                addProperty(
+                    PropertySpec.builder("referencedBy", type)
+                        .mutable(true)
+                        .addModifiers(KModifier.OVERRIDE)
+                        .initializer(type.simpleName + "()")
+                        .build()
+                )
             }
 
             val ctor = FunSpec.constructorBuilder()
@@ -67,6 +77,14 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                                 .addCode("field = value")
                                 .build()
                         )
+                    } else if (field.trackRef) {
+                        setter(
+                            FunSpec.setterBuilder()
+                                .addParameter(ParameterSpec("value", poetType))
+                                .addCode("setTrackedElementReferenceArrayStyle(field, value)\n")
+                                .addCode("field = value")
+                                .build()
+                        )
                     }
                 }.build())
             }
@@ -78,9 +96,15 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
 
             val allChildren = allFields.filter { it.isChild }
             allChildren.forEachIndexed { fieldIndex, child ->
-                if (child.passViaConstructorParameter) {
+                if (child is SingleField) {
                     val prevChildSelectCode = codeToSelectFirstChild(allChildren.subList(0, fieldIndex).asReversed(), false, false)
                     ctor.addCode("initChildField(${child.name}, $prevChildSelectCode)\n")
+                }
+            }
+
+            allFields.forEach { field ->
+                if (field.trackRef) {
+                    ctor.addCode("initTrackedElementReferenceArrayStyle(${field.name})\n")
                 }
             }
 
@@ -203,4 +227,4 @@ private fun codeToSelectFirstChild(fields: List<Field>, selectFirstFromList: Boo
 }
 
 private val descriptorApiAnnotation = ClassName("org.jetbrains.kotlin.ir", "ObsoleteDescriptorBasedAPI")
-private val elementAccept = MemberName(org.jetbrains.kotlin.bir.generator.Packages.tree + ".traversal", "accept", true)
+private val elementAccept = MemberName(Packages.tree + ".traversal", "accept", true)

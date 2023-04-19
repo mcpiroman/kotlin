@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 
@@ -17,7 +18,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.overridableDeclaration]
  */
 abstract class BirOverridableDeclaration<S : BirSymbol> : BirOverridableMember(),
-        BirSymbolElement, BirSymbol {
+        BirSymbolElement, BirSymbol, BirElementTrackingBackReferences {
     abstract var isFakeOverride: Boolean
 
     abstract var overriddenSymbols: List<S>

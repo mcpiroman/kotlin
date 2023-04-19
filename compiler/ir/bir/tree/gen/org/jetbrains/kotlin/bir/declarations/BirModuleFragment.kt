@@ -28,8 +28,4 @@ abstract class BirModuleFragment : BirElementBase(), BirElement {
     abstract val irBuiltins: IrBuiltIns
 
     abstract val files: BirChildElementList<BirFile>
-
-    abstract override val startOffset: Int
-
-    abstract override val endOffset: Int
 }

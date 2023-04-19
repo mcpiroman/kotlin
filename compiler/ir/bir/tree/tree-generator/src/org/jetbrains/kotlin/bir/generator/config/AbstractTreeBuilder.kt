@@ -40,10 +40,11 @@ abstract class AbstractTreeBuilder {
         nullable: Boolean = false,
         mutable: Boolean = true,
         isChild: Boolean = false,
+        trackRef: Boolean = false,
         initializer: SimpleFieldConfig.() -> Unit = {}
     ): SimpleFieldConfig {
         checkChildType(isChild, type, name)
-        return SimpleFieldConfig(name, type, nullable, mutable, isChild).apply(initializer)
+        return SimpleFieldConfig(name, type, nullable, mutable, isChild, trackRef).apply(initializer)
     }
 
     protected fun listField(

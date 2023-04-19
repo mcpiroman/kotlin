@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirChildElementList
+import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.expressions.BirBody
 import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -23,7 +24,8 @@ import org.jetbrains.kotlin.ir.types.IrType
  */
 interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirReturnTarget,
-        BirMemberWithContainerSource, BirSymbolElement, BirFunctionSymbol {
+        BirMemberWithContainerSource, BirSymbolElement, BirFunctionSymbol,
+        BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
     override val descriptor: FunctionDescriptor
 

@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.bir.generator.model
 
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import org.jetbrains.kotlin.bir.generator.config.ElementConfig
 import org.jetbrains.kotlin.bir.generator.config.FieldConfig
 import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig
@@ -32,6 +31,7 @@ class Element(
     var isLeaf = false
     var allFields: List<Field> = emptyList()
     val childrenOrderOverride: List<String>? = config.childrenOrderOverride
+    var hasTrackedBackReferences = false
 
     var hasImpl = config.hasImpl
     val elementImplName = ClassName(packageName + ".impl", typeName + "Impl")
@@ -80,6 +80,7 @@ sealed class Field(
     val mutable: Boolean,
     val isChild: Boolean,
 ) {
+    var trackRef = config?.trackRef ?: false
     abstract val type: TypeRef
     var isOverride = false
     var needsDescriptorApiAnnotation = false
@@ -101,8 +102,7 @@ class SingleField(
     nullable: Boolean,
     mutable: Boolean,
     isChild: Boolean,
-) : Field(config, name, nullable, mutable, isChild) {
-}
+) : Field(config, name, nullable, mutable, isChild)
 
 class ListField(
     config: ListFieldConfig?,

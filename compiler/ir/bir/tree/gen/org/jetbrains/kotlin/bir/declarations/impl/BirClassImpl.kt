@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
@@ -58,6 +59,9 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?,
     override var sealedSubclasses: List<BirClassSymbol>,
 ) : BirClass() {
+    override var referencedBy: BirBackReferenceCollectionArrayStyle =
+            BirBackReferenceCollectionArrayStyle()
+
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)
 

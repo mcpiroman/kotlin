@@ -18,7 +18,16 @@ class BirGetEnumValueImpl(
     override val endOffset: Int,
     override var originalBeforeInline: BirAttributeContainer?,
     override var type: IrType,
-    override var target: BirEnumEntrySymbol,
+    target: BirEnumEntrySymbol,
 ) : BirGetEnumValue() {
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override var target: BirEnumEntrySymbol = target
+        set(value) {
+            setTrackedElementReferenceArrayStyle(field, value)
+            field = value
+        }
+    init {
+        initTrackedElementReferenceArrayStyle(target)
+    }
 }

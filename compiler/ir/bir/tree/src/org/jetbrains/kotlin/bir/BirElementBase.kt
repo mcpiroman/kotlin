@@ -7,14 +7,12 @@ package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
 
-sealed class BirElementBaseOrList() : BirElementOrList {
+sealed class BirElementBaseOrList : BirElementOrList {
     internal abstract val next: BirElementBase?
 }
 
-abstract class BirElementBase() : BirElement, BirElementBaseOrList() {
+abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     //var originalIrElement: IrElement? = null
     internal var rawParent: BirElementBaseOrList? = null
     override var next: BirElementBase? = null
@@ -174,6 +172,66 @@ abstract class BirElementBase() : BirElement, BirElementBaseOrList() {
 
         firstChildPtr = newNext
     }
+
+    /*@OptIn(InternalBirApi::class)
+    protected fun <T : BirElementBase> setTrackedElementReferenceLinkedListStyle(
+        old: BirElementTrackingBackReferences?,
+        new: BirElementTrackingBackReferences?,
+        nextTrackedElementReferenceProperty: KMutableProperty1<T, BirElementBase?>
+    ) {
+        if (old === new) return
+
+        if (old != null) {
+            var next: T? = old.referencedBy.first as T?
+            if (next != null) {
+                var last: BirElement? = null
+                while (next !== this) {
+                    last = next
+                    next = nextTrackedElementReferenceProperty.get(next!!) as T?
+                }
+
+                val newNext = new as T? ?: nextTrackedElementReferenceProperty.get(this)
+                if (last == null) {
+                    old.referencedBy = BirBackReferenceCollectionLinkedListStyle(newNext)
+                } else {
+                    nextTrackedElementReferenceProperty.set(last as T, newNext)
+                }
+            }
+
+            if (new == null) {
+                nextTrackedElementReferenceProperty.set(this as T, null)
+            }
+        } else if (new != null) {
+            val oldFirst = new.referencedBy.first
+            new.referencedBy = BirBackReferenceCollectionLinkedListStyle(this)
+            nextTrackedElementReferenceProperty.set(this as T, oldFirst)
+        }
+    }*/
+
+    //@OptIn(InternalBirApi::class)
+    protected fun initTrackedElementReferenceArrayStyle(value: Any?) {
+        if (value is BirElementTrackingBackReferences) {
+            value.referencedBy = value.referencedBy.add(this)
+        }
+    }
+
+    //@OptIn(InternalBirApi::class)
+    protected fun setTrackedElementReferenceArrayStyle(
+        old: Any?,
+        new: Any?,
+    ) {
+        if (old === new) return
+
+        if (old is BirElementTrackingBackReferences) {
+            val newCollection = old.referencedBy.remove(this)
+            require(newCollection != null) { "Element $this was not registered as a back reference on element $old" }
+            old.referencedBy = newCollection
+        }
+        if (new is BirElementTrackingBackReferences) {
+            new.referencedBy = new.referencedBy.add(this)
+        }
+    }
+
 }
 
 interface BirElementPropertyTransformer {
