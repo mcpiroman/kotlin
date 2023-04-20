@@ -16,6 +16,9 @@ class BirTreeParentBasedTraverseScope(
 
 fun BirElement.traverseParentBased(includeSelf: Boolean = true, block: BirTreeParentBasedTraverseScope.(node: BirElement) -> NextWalkStep) {
     this as BirElementBase
+
+    if (!includeSelf && !hasChildren) return
+
     val scope = BirTreeParentBasedTraverseScope(block)
     var next: BirElementBase? = if (includeSelf) this else breach()
 
@@ -28,8 +31,10 @@ fun BirElement.traverseParentBased(includeSelf: Boolean = true, block: BirTreePa
         if (result == NextWalkStep.EndTraversal) return
 
         if (result == NextWalkStep.StepInto) {
-            next = current.getFirstChild() as BirElementBase?
-            if (next != null) continue
+            if (current.hasChildren) {
+                next = current.getFirstChild() as BirElementBase
+                continue
+            }
         }
 
         next = current.next
@@ -57,6 +62,9 @@ fun BirElement.traverseParentBasedWithInnerPtr(
     block: BirTreeParentBasedTraverseScope.(node: BirElement) -> NextWalkStep
 ) {
     this as BirElementBase
+
+    if (!includeSelf && !hasChildren) return
+
     val scope = BirTreeParentBasedTraverseScope(block)
     var next: BirElementBase? = if (includeSelf) this else breach()
 

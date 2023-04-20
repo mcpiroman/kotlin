@@ -11,13 +11,17 @@ class BirTreeContext {
     private val elementsByClass = hashMapOf<Class<*>, MutableList<BirElementBase>>()
 
     internal fun elementAttached(element: BirElementBase) {
-        element.traverseStackBased {
+        // separated so that we can use optimized traversal with includeSelf = false
+        attachElement(element)
+        element.traverseStackBased(false) {
             attachElement(it as BirElementBase)
             it.recurse()
         }
     }
 
     private fun attachElement(element: BirElementBase) {
+        element.attachedToTree = true
+
         val klass = element.javaClass
         val list = elementsByClass[klass] ?: mutableListOf<BirElementBase>().also {
             elementsByClass[klass] = it
@@ -26,13 +30,16 @@ class BirTreeContext {
     }
 
     internal fun elementDetached(element: BirElementBase) {
-        element.traverseStackBased {
+        detachElement(element)
+        element.traverseStackBased(false) {
             detachElement(it as BirElementBase)
             it.recurse()
         }
     }
 
     private fun detachElement(element: BirElementBase) {
+        element.attachedToTree = false
+
         val klass = element.javaClass
         val list = elementsByClass.getValue(klass)
         list.remove(element)

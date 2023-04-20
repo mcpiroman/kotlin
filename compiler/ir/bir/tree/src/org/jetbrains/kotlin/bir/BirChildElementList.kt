@@ -34,7 +34,7 @@ class BirChildElementList<E : BirElement>(
             element.next = headOrNext
             this.headOrNext = element
 
-            linkPreviousSiblingToNewHead(element)
+            setupNewHeadElement(element)
         } else {
             element.next = tail.next
             tail.next = element
@@ -55,7 +55,7 @@ class BirChildElementList<E : BirElement>(
         return true
     }
 
-    private fun linkPreviousSiblingToNewHead(newHead: BirElementBase?) {
+    private fun setupNewHeadElement(newHead: BirElementBase?) {
         parent.setNextAfterNewChildSetSlow(newHead, this)
     }
 
@@ -73,7 +73,7 @@ class BirChildElementList<E : BirElement>(
         if (previous == null) {
             new.next = headOrNext!!.next
             headOrNext = new
-            linkPreviousSiblingToNewHead(new)
+            setupNewHeadElement(new)
         } else {
             new.next = old.next
             previous.next = new
@@ -104,7 +104,7 @@ class BirChildElementList<E : BirElement>(
         val previous = findPreviousNode(tail, element, hintPreviousElement)
         if (previous == null) {
             headOrNext = element.next
-            linkPreviousSiblingToNewHead(headOrNext)
+            setupNewHeadElement(headOrNext)
         } else {
             previous.next = element.next
         }
