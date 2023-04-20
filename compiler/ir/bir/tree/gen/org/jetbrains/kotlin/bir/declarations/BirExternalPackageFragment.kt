@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirExternalPackageFragmentSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
@@ -18,6 +19,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.externalPackageFragment]
  */
+context(BirTreeContext)
 abstract class BirExternalPackageFragment : BirElementBase(), BirPackageFragment,
         BirSymbolElement, BirExternalPackageFragmentSymbol {
     abstract val containerSource: DeserializedContainerSource?

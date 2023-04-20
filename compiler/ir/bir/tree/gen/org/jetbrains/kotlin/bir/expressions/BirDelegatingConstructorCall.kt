@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
 
 /**
@@ -15,6 +16,7 @@ import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.delegatingConstructorCall]
  */
+context(BirTreeContext)
 abstract class BirDelegatingConstructorCall : BirFunctionAccessExpression() {
     abstract override var target: BirConstructorSymbol
 }

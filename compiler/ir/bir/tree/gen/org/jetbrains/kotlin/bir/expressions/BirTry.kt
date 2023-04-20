@@ -9,12 +9,14 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
+import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.try]
  */
+context(BirTreeContext)
 abstract class BirTry : BirExpression() {
     abstract var tryResult: BirExpression
 

@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirValueDeclaration
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
@@ -16,6 +17,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.valueAccessExpression]
  */
+context(BirTreeContext)
 abstract class BirValueAccessExpression : BirDeclarationReference() {
     abstract override var target: BirValueDeclaration
 

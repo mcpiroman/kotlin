@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
@@ -17,6 +18,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.fieldAccessExpression]
  */
+context(BirTreeContext)
 abstract class BirFieldAccessExpression : BirDeclarationReference() {
     abstract override var target: BirFieldSymbol
 

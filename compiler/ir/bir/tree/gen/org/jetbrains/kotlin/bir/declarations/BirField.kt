@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
@@ -23,6 +24,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.field]
  */
+context(BirTreeContext)
 abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirMetadataSourceOwner, BirSymbolElement, BirFieldSymbol,
         BirElementTrackingBackReferences {

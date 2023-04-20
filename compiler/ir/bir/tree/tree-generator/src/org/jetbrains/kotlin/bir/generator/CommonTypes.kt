@@ -5,8 +5,6 @@
 
 package org.jetbrains.kotlin.bir.generator
 
-import org.jetbrains.kotlin.bir.generator.Packages.declarations
-import org.jetbrains.kotlin.bir.generator.Packages.exprs
 import org.jetbrains.kotlin.bir.generator.Packages.symbols
 import org.jetbrains.kotlin.bir.generator.Packages.tree
 import org.jetbrains.kotlin.bir.generator.util.TypeKind
@@ -29,6 +27,7 @@ val irTypeType = type("org.jetbrains.kotlin.ir.types", "IrType")
 val statementOriginType = type("org.jetbrains.kotlin.ir.expressions", "IrStatementOrigin")
 val symbolType = type(symbols, "BirSymbol")
 val symbolElement = type(symbols, "BirSymbolElement")
+val treeContext = type(tree, "BirTreeContext")
 
 object SymbolTypes {
     val packageFragment = type(symbols, "BirPackageFragmentSymbol")

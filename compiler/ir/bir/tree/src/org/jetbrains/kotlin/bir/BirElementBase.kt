@@ -12,6 +12,7 @@ sealed class BirElementBaseOrList : BirElementOrList {
     internal abstract val next: BirElementBase?
 }
 
+context (BirTreeContext)
 abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     //var originalIrElement: IrElement? = null
     internal var rawParent: BirElementBaseOrList? = null
@@ -20,11 +21,14 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     private var auxStorage: Array<Any?>? = null
 
     final override val parent: BirElementBase?
-        get() = when (val owner = rawParent) {
+        get() = when (val rawParent = rawParent) {
             null -> null
-            is BirElementBase -> owner
-            is BirChildElementList<*> -> owner.parent
+            is BirElementBase -> rawParent
+            is BirChildElementList<*> -> rawParent.parent
         }
+
+    internal val context: BirTreeContext
+        get() = this@BirTreeContext
 
     internal open fun getFirstChild(): BirElement? = null
     internal open fun getChildren(children: Array<BirElementOrList?>): Int = 0
@@ -112,6 +116,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         new as BirElementBase?
         prevChildOrList as BirElementBaseOrList?
 
+        if (old != null) {
+            elementDetached(old)
+        }
+
         setChildFieldCommon(
             new,
             prevChildOrList,
@@ -148,6 +156,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
                     setNextAfterNewChildSetSlow(prevNext, prevChildOrList)
                 }
             }
+        }
+
+        if (new != null) {
+            elementAttached(new)
         }
     }
 
@@ -252,8 +264,4 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
         auxStorage!![token.key.index] = value
     }
-}
-
-interface BirElementPropertyTransformer {
-    fun <T> transform(value: T, isMutable: Boolean): T
 }

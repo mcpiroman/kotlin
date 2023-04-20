@@ -11,6 +11,7 @@ package org.jetbrains.kotlin.bir.declarations.impl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirTypeAlias
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
@@ -22,6 +23,7 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
+context(BirTreeContext)
 class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,

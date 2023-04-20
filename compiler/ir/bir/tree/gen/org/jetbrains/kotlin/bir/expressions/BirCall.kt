@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
 
@@ -16,6 +17,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.call]
  */
+context(BirTreeContext)
 abstract class BirCall : BirFunctionAccessExpression() {
     abstract override var target: BirSimpleFunctionSymbol
 

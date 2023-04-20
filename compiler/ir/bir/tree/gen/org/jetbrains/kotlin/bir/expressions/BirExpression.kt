@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirStatement
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.ir.types.IrType
 
@@ -18,6 +19,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.expression]
  */
+context(BirTreeContext)
 abstract class BirExpression : BirElementBase(), BirStatement, BirVarargElement,
         BirAttributeContainer {
     abstract var type: IrType

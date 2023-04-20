@@ -9,12 +9,14 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
+import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.stringConcatenation]
  */
+context(BirTreeContext)
 abstract class BirStringConcatenation : BirExpression() {
     abstract val arguments: BirChildElementList<BirExpression>
 }

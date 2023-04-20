@@ -8,9 +8,11 @@
 
 package org.jetbrains.kotlin.bir.expressions.impl
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirSyntheticBody
 import org.jetbrains.kotlin.ir.expressions.IrSyntheticBodyKind
 
+context(BirTreeContext)
 class BirSyntheticBodyImpl(
     override val startOffset: Int,
     override val endOffset: Int,

@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
 import org.jetbrains.kotlin.descriptors.ValueDescriptor
@@ -21,6 +22,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.valueDeclaration]
  */
+context(BirTreeContext)
 abstract class BirValueDeclaration : BirElementBase(), BirDeclarationWithName,
         BirSymbolElement, BirValueSymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI

@@ -41,16 +41,21 @@ abstract class Ir2BirConverterBase {
         ir2birElementMap.putAll(old)
     }
 
+    context(BirTreeContext)
     protected abstract fun convertIrElement(ir: IrElement): BirElement
+
     protected abstract fun elementRefMayAppearTwice(ir: IrElement): Boolean
 
-    fun convertIrTree(irRootElements: List<IrElement>): List<BirElement> {
-        val birRootElements = irRootElements.map { mapIrElement(it) }
-        lateBindSymbols()
-        registerAuxStorage()
-        return birRootElements
+    fun convertIrTree(treeContext: BirTreeContext, irRootElements: List<IrElement>): List<BirElement> {
+        with(treeContext) {
+            val birRootElements = irRootElements.map { mapIrElement(it) }
+            lateBindSymbols()
+            registerAuxStorage()
+            return birRootElements
+        }
     }
 
+    context(BirTreeContext)
     protected fun mapIrElement(ir: IrElement): BirElement {
         // Optimization for converting reference to self if it comes directly after [registerNewElement]
         if (ir === lastNewRegisteredElementSource) {
@@ -67,6 +72,7 @@ abstract class Ir2BirConverterBase {
         return new
     }
 
+    context(BirTreeContext)
     private fun doConvertElement(ir: IrElement): BirElement {
         val last = currentlyConvertedElement
         currentlyConvertedElement = ir
@@ -87,14 +93,17 @@ abstract class Ir2BirConverterBase {
         }
     }
 
+    context(BirTreeContext)
     @JvmName("mapIrElementNullable")
     protected fun mapIrElement(ir: IrElement?): BirElement? = if (ir == null) null else mapIrElement(ir)
 
+    context(BirTreeContext)
     protected fun <Bir : BirElement> mapIrElementList(list: List<IrElement>): MutableList<Bir> {
         @Suppress("UNCHECKED_CAST")
         return list.mapTo(ArrayList(list.size)) { mapIrElement(it) } as MutableList<Bir>
     }
 
+    context(BirTreeContext)
     protected fun <Ir : IrElement, Bir : BirElement> moveChildElementList(from: List<Ir>, to: BirChildElementList<Bir>) {
         for (ir in from) {
             @Suppress("UNCHECKED_CAST")
@@ -103,6 +112,7 @@ abstract class Ir2BirConverterBase {
         }
     }
 
+    context(BirTreeContext)
     protected fun moveIrMemberAccessExpressionValueArguments(ir: IrMemberAccessExpression<*>, bir: BirMemberAccessExpression<*>) {
         for (i in 0 until ir.valueArgumentsCount) {
             val arg = ir.getValueArgument(i)
@@ -148,6 +158,7 @@ abstract class Ir2BirConverterBase {
         }
     }
 
+    context(BirTreeContext)
     private fun lateBindSymbols() {
         while (true) {
             // new elements may appear in [mapIrElement] call
@@ -162,6 +173,7 @@ abstract class Ir2BirConverterBase {
         }
     }
 
+    context(BirTreeContext)
     private fun registerAuxStorage() {
         ir2birElementMap.entries.forEach { (ir, bir) ->
             bir as BirElementBase
@@ -187,9 +199,9 @@ abstract class Ir2BirConverterBase {
 
 
     companion object {
-        fun IrElement.convertToBir(): BirElement {
+        fun IrElement.convertToBir(treeContext: BirTreeContext): BirElement {
             val converter = Ir2BirConverter()
-            return converter.convertIrTree(listOf(this)).single()
+            return converter.convertIrTree(treeContext, listOf(this)).single()
         }
     }
 }

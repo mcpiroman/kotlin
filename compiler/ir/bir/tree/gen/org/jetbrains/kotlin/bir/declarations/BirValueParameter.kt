@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirValueParameterSymbol
@@ -20,6 +21,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.valueParameter]
  */
+context(BirTreeContext)
 abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSymbolElement,
         BirValueParameterSymbol {
     @ObsoleteDescriptorBasedAPI

@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.ir.expressions.*
 
 @ObsoleteDescriptorBasedAPI
 class Ir2BirConverter : Ir2BirConverterBase() {
+    context(BirTreeContext)
     override fun convertIrElement(ir: IrElement): BirElement = when (ir) {
         is IrValueParameter -> convertValueParameter(ir)
         is IrClass -> convertClass(ir)
@@ -99,6 +100,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             IrConstructor || ir is IrModuleFragment || ir is IrFunctionAccessExpression || ir is
             IrLoop
 
+    context(BirTreeContext)
     private fun convertValueParameter(ir: IrValueParameter): BirValueParameter {
         val bir = BirValueParameterImpl(
             descriptor = ir.descriptor,
@@ -122,6 +124,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertClass(ir: IrClass): BirClass {
         val bir = BirClassImpl(
             descriptor = ir.descriptor,
@@ -154,6 +157,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertAnonymousInitializer(ir: IrAnonymousInitializer): BirAnonymousInitializer {
         val bir = BirAnonymousInitializerImpl(
             descriptor = ir.descriptor,
@@ -169,6 +173,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertTypeParameter(ir: IrTypeParameter): BirTypeParameter {
         val bir = BirTypeParameterImpl(
             descriptor = ir.descriptor,
@@ -187,6 +192,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertConstructor(ir: IrConstructor): BirConstructor {
         val bir = BirConstructorImpl(
             descriptor = ir.descriptor,
@@ -218,6 +224,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertEnumEntry(ir: IrEnumEntry): BirEnumEntry {
         val bir = BirEnumEntryImpl(
             descriptor = ir.descriptor,
@@ -236,6 +243,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertErrorDeclaration(ir: IrErrorDeclaration): BirErrorDeclaration {
         val bir = BirErrorDeclarationImpl(
             descriptor = ir.descriptor,
@@ -250,6 +258,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     }
 
 
+    context(BirTreeContext)
     private fun convertFunctionWithLateBinding(ir: IrFunctionWithLateBindingImpl):
             BirFunctionWithLateBinding {
         val bir = BirFunctionWithLateBindingImpl(
@@ -293,6 +302,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertPropertyWithLateBinding(ir: IrPropertyWithLateBindingImpl):
             BirPropertyWithLateBinding {
         val bir = BirPropertyWithLateBindingImpl(
@@ -327,6 +337,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertField(ir: IrField): BirField {
         val bir = BirFieldImpl(
             descriptor = ir.descriptor,
@@ -350,6 +361,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertLocalDelegatedProperty(ir: IrLocalDelegatedProperty):
             BirLocalDelegatedProperty {
         val bir = BirLocalDelegatedPropertyImpl(
@@ -371,6 +383,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertModuleFragment(ir: IrModuleFragment): BirModuleFragment {
         val bir = BirModuleFragmentImpl(
             descriptor = ir.descriptor,
@@ -384,6 +397,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertProperty(ir: IrProperty): BirProperty {
         val bir = BirPropertyImpl(
             descriptor = ir.descriptor,
@@ -416,6 +430,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertScript(ir: IrScript): BirScript {
         val bir = BirScriptImpl(
             thisReceiver = null,
@@ -445,6 +460,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertSimpleFunction(ir: IrSimpleFunction): BirSimpleFunction {
         val bir = BirSimpleFunctionImpl(
             isTailrec = ir.isTailrec,
@@ -484,6 +500,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertTypeAlias(ir: IrTypeAlias): BirTypeAlias {
         val bir = BirTypeAliasImpl(
             descriptor = ir.descriptor,
@@ -502,6 +519,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertVariable(ir: IrVariable): BirVariable {
         val bir = BirVariableImpl(
             descriptor = ir.descriptor,
@@ -523,6 +541,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertExternalPackageFragment(ir: IrExternalPackageFragment):
             BirExternalPackageFragment {
         val bir = BirExternalPackageFragmentImpl(
@@ -537,6 +556,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertFile(ir: IrFile): BirFile {
         val bir = BirFileImpl(
             module = mapIrElement(ir.module) as BirModuleFragment,
@@ -553,6 +573,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertExpressionBody(ir: IrExpressionBody): BirExpressionBody {
         val bir = BirExpressionBodyImpl(
             expression = mapIrElement(ir.expression) as BirExpression,
@@ -563,6 +584,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertBlockBody(ir: IrBlockBody): BirBlockBody {
         val bir = BirBlockBodyImpl(
             startOffset = ir.startOffset,
@@ -573,6 +595,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertConstructorCall(ir: IrConstructorCall): BirConstructorCall {
         val bir = BirConstructorCallImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -595,6 +618,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertGetObjectValue(ir: IrGetObjectValue): BirGetObjectValue {
         val bir = BirGetObjectValueImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -607,6 +631,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertGetEnumValue(ir: IrGetEnumValue): BirGetEnumValue {
         val bir = BirGetEnumValueImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -619,6 +644,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertRawFunctionReference(ir: IrRawFunctionReference): BirRawFunctionReference {
         val bir = BirRawFunctionReferenceImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -631,6 +657,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertBlock(ir: IrBlock): BirBlock {
         val bir = BirBlockImpl(
             origin = ir.origin,
@@ -644,6 +671,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertComposite(ir: IrComposite): BirComposite {
         val bir = BirCompositeImpl(
             origin = ir.origin,
@@ -657,6 +685,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertReturnableBlock(ir: IrReturnableBlock): BirReturnableBlock {
         val bir = BirReturnableBlockImpl(
             origin = ir.origin,
@@ -671,6 +700,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertInlinedFunctionBlock(ir: IrInlinedFunctionBlock): BirInlinedFunctionBlock {
         val bir = BirInlinedFunctionBlockImpl(
             inlineCall = mapIrElement(ir.inlineCall) as BirFunctionAccessExpression,
@@ -686,6 +716,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertSyntheticBody(ir: IrSyntheticBody): BirSyntheticBody {
         val bir = BirSyntheticBodyImpl(
             kind = ir.kind,
@@ -696,6 +727,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertBreak(ir: IrBreak): BirBreak {
         val bir = BirBreakImpl(
             loop = mapIrElement(ir.loop) as BirLoop,
@@ -709,6 +741,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertContinue(ir: IrContinue): BirContinue {
         val bir = BirContinueImpl(
             loop = mapIrElement(ir.loop) as BirLoop,
@@ -722,6 +755,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertCall(ir: IrCall): BirCall {
         val bir = BirCallImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -744,6 +778,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertFunctionReference(ir: IrFunctionReference): BirFunctionReference {
         val bir = BirFunctionReferenceImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -765,6 +800,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertPropertyReference(ir: IrPropertyReference): BirPropertyReference {
         val bir = BirPropertyReferenceImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -790,6 +826,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertLocalDelegatedPropertyReference(ir: IrLocalDelegatedPropertyReference):
             BirLocalDelegatedPropertyReference {
         val bir = BirLocalDelegatedPropertyReferenceImpl(
@@ -814,6 +851,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertClassReference(ir: IrClassReference): BirClassReference {
         val bir = BirClassReferenceImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -827,6 +865,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertConst(ir: IrConst<*>): BirConst<*> {
         val bir = BirConstImpl<Any?>(
             kind = ir.kind as IrConstKind<Any?>,
@@ -840,6 +879,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertConstantPrimitive(ir: IrConstantPrimitive): BirConstantPrimitive {
         val bir = BirConstantPrimitiveImpl(
             value = mapIrElement(ir.value) as BirConst<*>,
@@ -852,6 +892,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertConstantObject(ir: IrConstantObject): BirConstantObject {
         val bir = BirConstantObjectImpl(
             constructor = mapSymbol(ir, ir.constructor),
@@ -866,6 +907,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertConstantArray(ir: IrConstantArray): BirConstantArray {
         val bir = BirConstantArrayImpl(
             type = ir.type,
@@ -878,6 +920,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertDelegatingConstructorCall(ir: IrDelegatingConstructorCall):
             BirDelegatingConstructorCall {
         val bir = BirDelegatingConstructorCallImpl(
@@ -899,6 +942,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertDynamicOperatorExpression(ir: IrDynamicOperatorExpression):
             BirDynamicOperatorExpression {
         val bir = BirDynamicOperatorExpressionImpl(
@@ -914,6 +958,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertDynamicMemberExpression(ir: IrDynamicMemberExpression):
             BirDynamicMemberExpression {
         val bir = BirDynamicMemberExpressionImpl(
@@ -928,6 +973,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertEnumConstructorCall(ir: IrEnumConstructorCall): BirEnumConstructorCall {
         val bir = BirEnumConstructorCallImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -948,6 +994,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertErrorCallExpression(ir: IrErrorCallExpression): BirErrorCallExpression {
         val bir = BirErrorCallExpressionImpl(
             explicitReceiver = null,
@@ -963,6 +1010,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertGetField(ir: IrGetField): BirGetField {
         val bir = BirGetFieldImpl(
             target = mapSymbol(ir, ir.symbol),
@@ -980,6 +1028,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertSetField(ir: IrSetField): BirSetField {
         val bir = BirSetFieldImpl(
             value = mapIrElement(ir.value) as BirExpression,
@@ -998,6 +1047,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertFunctionExpression(ir: IrFunctionExpression): BirFunctionExpression {
         val bir = BirFunctionExpressionImpl(
             origin = ir.origin,
@@ -1011,6 +1061,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertGetClass(ir: IrGetClass): BirGetClass {
         val bir = BirGetClassImpl(
             argument = mapIrElement(ir.argument) as BirExpression,
@@ -1023,6 +1074,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertInstanceInitializerCall(ir: IrInstanceInitializerCall):
             BirInstanceInitializerCall {
         val bir = BirInstanceInitializerCallImpl(
@@ -1036,6 +1088,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertWhileLoop(ir: IrWhileLoop): BirWhileLoop {
         val bir = BirWhileLoopImpl(
             origin = ir.origin,
@@ -1052,6 +1105,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertDoWhileLoop(ir: IrDoWhileLoop): BirDoWhileLoop {
         val bir = BirDoWhileLoopImpl(
             origin = ir.origin,
@@ -1068,6 +1122,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertReturn(ir: IrReturn): BirReturn {
         val bir = BirReturnImpl(
             value = mapIrElement(ir.value) as BirExpression,
@@ -1081,6 +1136,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertStringConcatenation(ir: IrStringConcatenation): BirStringConcatenation {
         val bir = BirStringConcatenationImpl(
             type = ir.type,
@@ -1093,6 +1149,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertSuspensionPoint(ir: IrSuspensionPoint): BirSuspensionPoint {
         val bir = BirSuspensionPointImpl(
             suspensionPointIdParameter = mapIrElement(ir.suspensionPointIdParameter) as BirVariable,
@@ -1107,6 +1164,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertSuspendableExpression(ir: IrSuspendableExpression):
             BirSuspendableExpression {
         val bir = BirSuspendableExpressionImpl(
@@ -1121,6 +1179,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertThrow(ir: IrThrow): BirThrow {
         val bir = BirThrowImpl(
             value = mapIrElement(ir.value) as BirExpression,
@@ -1133,6 +1192,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertTry(ir: IrTry): BirTry {
         val bir = BirTryImpl(
             tryResult = mapIrElement(ir.tryResult) as BirExpression,
@@ -1148,6 +1208,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertCatch(ir: IrCatch): BirCatch {
         val bir = BirCatchImpl(
             catchParameter = mapIrElement(ir.catchParameter) as BirVariable,
@@ -1159,6 +1220,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertTypeOperatorCall(ir: IrTypeOperatorCall): BirTypeOperatorCall {
         val bir = BirTypeOperatorCallImpl(
             operator = ir.operator,
@@ -1173,6 +1235,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertGetValue(ir: IrGetValue): BirGetValue {
         val bir = BirGetValueImpl(
             target = mapIrElement(ir.symbol.owner) as BirValueDeclaration,
@@ -1186,6 +1249,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertSetValue(ir: IrSetValue): BirSetValue {
         val bir = BirSetValueImpl(
             target = mapIrElement(ir.symbol.owner) as BirValueDeclaration,
@@ -1200,6 +1264,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertVararg(ir: IrVararg): BirVararg {
         val bir = BirVarargImpl(
             varargElementType = ir.varargElementType,
@@ -1213,6 +1278,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertSpreadElement(ir: IrSpreadElement): BirSpreadElement {
         val bir = BirSpreadElementImpl(
             expression = mapIrElement(ir.expression) as BirExpression,
@@ -1223,6 +1289,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertWhen(ir: IrWhen): BirWhen {
         val bir = BirWhenImpl(
             origin = ir.origin,
@@ -1236,6 +1303,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertBranch(ir: IrBranch): BirBranch {
         val bir = BirBranchImpl(
             condition = mapIrElement(ir.condition) as BirExpression,
@@ -1247,6 +1315,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         return bir
     }
 
+    context(BirTreeContext)
     private fun convertElseBranch(ir: IrElseBranch): BirElseBranch {
         val bir = BirElseBranchImpl(
             condition = mapIrElement(ir.condition) as BirExpression,

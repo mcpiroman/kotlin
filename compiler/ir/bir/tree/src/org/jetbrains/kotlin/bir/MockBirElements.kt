@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.bir
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
+context (BirTreeContext)
 private class MockBirClass(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -88,6 +89,7 @@ private class MockBirClass(
     }
 }
 
+context (BirTreeContext)
 private class MockBirConstructor(
     override val startOffset: Int,
     override val endOffset: Int,

@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 
 /**
@@ -15,6 +16,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.declarationReference]
  */
+context(BirTreeContext)
 abstract class BirDeclarationReference : BirExpression() {
     abstract val target: BirSymbol
 }

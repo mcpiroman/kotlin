@@ -8,12 +8,14 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.propertyWithLateBinding]
  */
+context(BirTreeContext)
 abstract class BirPropertyWithLateBinding : BirProperty() {
     abstract val isElementBound: Boolean
 }
