@@ -14,6 +14,9 @@ class BirTreeStackBasedTraverseScope(
 ) : BirTreeTraverseScope() {
     fun BirElement.recurse() {
         this as BirElementBase
+
+        if (!hasChildren) return
+
         var nextChild = getFirstChild() as BirElementBase?
         while (nextChild != null) {
             lastVisited = current
@@ -26,6 +29,9 @@ class BirTreeStackBasedTraverseScope(
 
 fun BirElement.traverseStackBased(includeSelf: Boolean = true, block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit) {
     this as BirElementBase
+
+    if (!includeSelf && !hasChildren) return
+
     val scope = BirTreeStackBasedTraverseScope(block)
     if (includeSelf) {
         scope.current = this
@@ -57,6 +63,9 @@ fun BirElement.traverseStackBasedWithInnerPtr(
     block: BirTreeStackBasedTraverseScopeWithInnerPtr.(node: BirElement) -> Unit
 ) {
     this as BirElementBase
+
+    if (!includeSelf && !hasChildren) return
+
     val scope = BirTreeStackBasedTraverseScopeWithInnerPtr(block)
     if (includeSelf) {
         scope.current = this

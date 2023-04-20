@@ -7,6 +7,9 @@ package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
+import kotlin.experimental.and
+import kotlin.experimental.inv
+import kotlin.experimental.or
 
 sealed class BirElementBaseOrList : BirElementOrList {
     internal abstract val next: BirElementBase?
@@ -19,6 +22,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     override var next: BirElementBase? = null
     internal var firstChildPtr: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
+    private var flags: Byte = 0
 
     final override val parent: BirElementBase?
         get() = when (val rawParent = rawParent) {
@@ -29,6 +33,21 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
     internal val context: BirTreeContext
         get() = this@BirTreeContext
+
+    internal var attachedToTree: Boolean
+        get() = hasFlag(FLAG_ATTACHED_TO_TREE)
+        set(value) = setFlag(FLAG_ATTACHED_TO_TREE, value)
+
+    internal var hasChildren: Boolean
+        get() = hasFlag(FLAG_HAS_CHILDREN)
+        set(value) = setFlag(FLAG_HAS_CHILDREN, value)
+
+    private fun hasFlag(flag: Byte): Boolean =
+        (flags and flag) != 0.toByte()
+
+    private fun setFlag(flag: Byte, value: Boolean) {
+        flags = if (value) flags or flag else flags and flag.inv()
+    }
 
     internal open fun getFirstChild(): BirElement? = null
     internal open fun getChildren(children: Array<BirElementOrList?>): Int = 0
@@ -103,6 +122,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             null,
             value
         )
+
+        if (value != null) {
+            hasChildren = true
+        }
     }
 
     protected fun setChildField(
@@ -120,12 +143,14 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             elementDetached(old)
         }
 
+        val newsNext = if (old != null) old.next
+        else if (prevChildOrList != null) prevChildOrList.next
+        else firstChildPtr
+
         setChildFieldCommon(
             new,
             prevChildOrList,
-            if (old != null) old.next
-            else if (prevChildOrList != null) prevChildOrList.next
-            else firstChildPtr,
+            newsNext,
             new ?: old?.next
         )
 
@@ -133,6 +158,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             old.rawParent = null
             old.next = null
         }
+
+        hasChildren = new != null || newsNext != null
     }
 
     private fun setChildFieldCommon(
@@ -184,6 +211,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
 
         firstChildPtr = newNext
+        hasChildren = newNext != null
     }
 
 
@@ -263,5 +291,11 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
 
         auxStorage!![token.key.index] = value
+    }
+
+
+    companion object {
+        private const val FLAG_ATTACHED_TO_TREE: Byte = 1
+        private const val FLAG_HAS_CHILDREN: Byte = 2
     }
 }
