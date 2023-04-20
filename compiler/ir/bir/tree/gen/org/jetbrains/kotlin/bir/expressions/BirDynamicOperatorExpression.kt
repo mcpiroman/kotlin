@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.ir.expressions.IrDynamicOperator
 
 /**
@@ -16,6 +17,7 @@ import org.jetbrains.kotlin.ir.expressions.IrDynamicOperator
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.dynamicOperatorExpression]
  */
+context(BirTreeContext)
 abstract class BirDynamicOperatorExpression : BirDynamicExpression() {
     abstract var operator: IrDynamicOperator
 

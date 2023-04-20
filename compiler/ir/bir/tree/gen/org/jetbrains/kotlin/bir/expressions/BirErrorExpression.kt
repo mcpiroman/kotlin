@@ -8,12 +8,14 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.errorExpression]
  */
+context(BirTreeContext)
 abstract class BirErrorExpression : BirExpression() {
     abstract var description: String
 }

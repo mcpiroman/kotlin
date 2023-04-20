@@ -13,7 +13,7 @@ runtimeOnly.extendsFrom(compileOnly)
 dependencies {
     implementation(project(":generators"))
     implementation(project(":core:compiler.common"))
-    implementation("com.squareup:kotlinpoet:1.11.0")
+    implementation("com.squareup:kotlinpoet:1.13.0")
 
     compileOnly(intellijCore())
     compileOnly(commonDependency("org.jetbrains.intellij.deps:trove4j"))

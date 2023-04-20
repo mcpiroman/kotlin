@@ -9,11 +9,13 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.jetbrains.kotlin.bir.generator.Packages
 import org.jetbrains.kotlin.bir.generator.model.*
+import org.jetbrains.kotlin.bir.generator.treeContext
 import org.jetbrains.kotlin.bir.generator.util.ClassRef
 import org.jetbrains.kotlin.bir.generator.util.PositionTypeParameterRef
 import org.jetbrains.kotlin.bir.generator.util.TypeRef
 import java.io.File
 
+@OptIn(ExperimentalKotlinPoetApi::class)
 fun printElementImpls(generationPath: File, model: Model) = sequence {
     for (element in model.elements.filter { it.hasImpl }) {
         val elementType = TypeSpec.classBuilder(element.elementImplName).apply {
@@ -25,6 +27,8 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
             } else {
                 superclass(element.toPoetSelfParameterized())
             }
+
+            contextReceivers(treeContext.toPoet())
 
             if (element.hasTrackedBackReferences) {
                 val type = ClassName(Packages.tree, "BirBackReferenceCollectionArrayStyle")

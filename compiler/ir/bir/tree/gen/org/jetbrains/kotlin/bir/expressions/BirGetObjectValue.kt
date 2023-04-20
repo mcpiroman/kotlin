@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 
 /**
@@ -15,6 +16,7 @@ import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.getObjectValue]
  */
+context(BirTreeContext)
 abstract class BirGetObjectValue : BirGetSingletonValue() {
     abstract override var target: BirClassSymbol
 }

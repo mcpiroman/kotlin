@@ -8,9 +8,12 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
+
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.block]
  */
+context(BirTreeContext)
 abstract class BirBlock : BirContainerExpression()

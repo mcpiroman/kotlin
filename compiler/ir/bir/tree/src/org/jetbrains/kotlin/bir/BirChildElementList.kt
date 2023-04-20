@@ -43,6 +43,8 @@ class BirChildElementList<E : BirElement>(
         this.tail = element
         element.rawParent = this
         size++
+
+        parent.context.elementAttached(element)
         return true
     }
 
@@ -84,6 +86,10 @@ class BirChildElementList<E : BirElement>(
         new.rawParent = this
         old.rawParent = null
         old.next = null
+
+        parent.context.elementDetached(old)
+        parent.context.elementAttached(new)
+
         return true
     }
 
@@ -110,6 +116,9 @@ class BirChildElementList<E : BirElement>(
         element.rawParent = null
         element.next = null
         size--
+
+        parent.context.elementDetached(element)
+
         return true
     }
 

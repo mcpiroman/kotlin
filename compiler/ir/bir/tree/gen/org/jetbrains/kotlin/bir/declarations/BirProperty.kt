@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -19,6 +20,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.property]
  */
+context(BirTreeContext)
 abstract class BirProperty : BirOverridableDeclaration<BirPropertySymbol>(), BirDeclaration,
         BirPossiblyExternalDeclaration, BirMemberWithContainerSource, BirAttributeContainer,
         BirMetadataSourceOwner, BirSymbolElement, BirPropertySymbol,

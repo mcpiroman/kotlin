@@ -1,0 +1,28 @@
+/*
+ * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ */
+
+package org.jetbrains.kotlin.bir
+
+import org.jetbrains.kotlin.bir.traversal.traverseStackBased
+
+fun measureElementDistribution(birTree: BirElement) {
+    class Metric(val className: String) {
+        var total = 0
+        var withNextSameType = 0
+    }
+
+    val elementsByClass = mutableMapOf<Class<*>, Metric>()
+    birTree.traverseStackBased { element ->
+        val cls = element.javaClass
+        val metric: Metric = elementsByClass.computeIfAbsent(cls) { Metric(cls.simpleName.removeSuffix("Impl")) }
+        metric.total++
+        @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+        if ((element as BirElementBase).next?.javaClass == cls)
+            metric.withNextSameType++
+
+        element.recurse()
+    }
+    println(elementsByClass.values.joinToString("\n") { "${it.className} ${it.total} ${it.withNextSameType}" })
+}

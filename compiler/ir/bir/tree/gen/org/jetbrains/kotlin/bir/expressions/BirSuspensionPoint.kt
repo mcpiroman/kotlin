@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirVariable
 
 /**
@@ -15,6 +16,7 @@ import org.jetbrains.kotlin.bir.declarations.BirVariable
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.suspensionPoint]
  */
+context(BirTreeContext)
 abstract class BirSuspensionPoint : BirExpression() {
     abstract var suspensionPointIdParameter: BirVariable
 

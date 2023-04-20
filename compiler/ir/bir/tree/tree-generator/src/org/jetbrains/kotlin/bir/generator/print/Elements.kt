@@ -6,14 +6,13 @@
 package org.jetbrains.kotlin.bir.generator.print
 
 import com.squareup.kotlinpoet.*
-import org.jetbrains.kotlin.bir.generator.BASE_PACKAGE
-import org.jetbrains.kotlin.bir.generator.elementBaseType
-import org.jetbrains.kotlin.bir.generator.model.*
+import org.jetbrains.kotlin.bir.generator.model.Element
+import org.jetbrains.kotlin.bir.generator.model.Model
+import org.jetbrains.kotlin.bir.generator.treeContext
 import org.jetbrains.kotlin.bir.generator.util.TypeKind
-import org.jetbrains.kotlin.bir.generator.util.TypeRefWithNullability
-import org.jetbrains.kotlin.bir.generator.util.tryParameterizedBy
 import java.io.File
 
+@OptIn(ExperimentalKotlinPoetApi::class)
 fun printElements(generationPath: File, model: Model) = sequence {
     for (element in model.elements) {
         if (element == model.rootElement) continue
@@ -41,6 +40,10 @@ fun printElements(generationPath: File, model: Model) = sequence {
                 superclass(it.toPoet())
             }
             addSuperinterfaces(interfaces.map { it.toPoet() })
+
+            if (element.kind?.typeKind == TypeKind.Class) {
+                contextReceivers(treeContext.toPoet())
+            }
 
             element.fields.forEach { field ->
                 if (!field.printProperty) return@forEach

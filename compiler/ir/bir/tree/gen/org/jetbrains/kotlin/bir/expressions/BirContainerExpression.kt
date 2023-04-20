@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirStatement
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 /**
@@ -17,6 +18,7 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.containerExpression]
  */
+context(BirTreeContext)
 abstract class BirContainerExpression : BirExpression(), BirStatementContainer {
     abstract var origin: IrStatementOrigin?
 

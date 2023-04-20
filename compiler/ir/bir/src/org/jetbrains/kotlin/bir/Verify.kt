@@ -45,12 +45,14 @@ private class BirIterator(val root: BirElement) {
 
     fun lower() {
         root.traverseStackBased(false) { element ->
-            val child = Node(element)
-            head.children.add(child)
-            val oldHead = head
-            head = child
-            element.recurse()
-            head = oldHead
+            if (element !is BirNoExpression) {
+                val child = Node(element)
+                head.children.add(child)
+                val oldHead = head
+                head = child
+                element.recurse()
+                head = oldHead
+            }
         }
     }
 }

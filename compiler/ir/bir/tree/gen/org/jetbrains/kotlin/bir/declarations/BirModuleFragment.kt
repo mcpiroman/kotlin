@@ -11,6 +11,7 @@ package org.jetbrains.kotlin.bir.declarations
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.name.Name
@@ -20,6 +21,7 @@ import org.jetbrains.kotlin.name.Name
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.moduleFragment]
  */
+context(BirTreeContext)
 abstract class BirModuleFragment : BirElementBase(), BirElement {
     abstract val descriptor: ModuleDescriptor
 

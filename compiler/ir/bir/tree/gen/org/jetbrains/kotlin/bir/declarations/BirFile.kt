@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirFileSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.ir.IrFileEntry
@@ -18,6 +19,7 @@ import org.jetbrains.kotlin.ir.IrFileEntry
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.file]
  */
+context(BirTreeContext)
 abstract class BirFile : BirElementBase(), BirPackageFragment, BirAnnotationContainerElement,
         BirMetadataSourceOwner, BirSymbolElement, BirFileSymbol {
     abstract var module: BirModuleFragment
