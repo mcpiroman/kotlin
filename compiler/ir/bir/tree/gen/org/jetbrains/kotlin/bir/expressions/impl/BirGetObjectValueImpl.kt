@@ -8,13 +8,11 @@
 
 package org.jetbrains.kotlin.bir.expressions.impl
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirGetObjectValue
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirGetObjectValueImpl(
     override val startOffset: Int,
     override val endOffset: Int,

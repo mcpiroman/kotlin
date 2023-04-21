@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
@@ -18,7 +17,6 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
-context(BirTreeContext)
 class BirTypeParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,

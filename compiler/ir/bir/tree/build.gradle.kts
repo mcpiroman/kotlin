@@ -19,7 +19,6 @@ dependencies {
 
 tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
     kotlinOptions {
-        languageVersion = "2.0"
         allWarningsAsErrors = false
     }
 }

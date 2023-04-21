@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirGetFieldImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -40,25 +39,29 @@ class BirGetFieldImpl(
             field = value
         }
 
-    override var receiver: BirExpression? = receiver
+    private var _receiver: BirExpression? = receiver
+
+    context(BirTreeContext)
+    override var receiver: BirExpression?
+        get() = _receiver
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_receiver, value, null)
+            _receiver = value
         }
     init {
-        initChildField(receiver, null)
+        initChildField(_receiver, null)
         initTrackedElementReferenceArrayStyle(target)
     }
 
-    override fun getFirstChild(): BirElement? = receiver
+    override fun getFirstChild(): BirElement? = _receiver
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.receiver
+        children[0] = this._receiver
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.receiver?.accept(visitor)
+        this._receiver?.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

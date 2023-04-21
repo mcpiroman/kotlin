@@ -16,8 +16,8 @@ import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.return]
  */
-context(BirTreeContext)
 abstract class BirReturn : BirExpression() {
+    context(BirTreeContext)
     abstract var value: BirExpression
 
     abstract var returnTarget: BirReturnTargetSymbol

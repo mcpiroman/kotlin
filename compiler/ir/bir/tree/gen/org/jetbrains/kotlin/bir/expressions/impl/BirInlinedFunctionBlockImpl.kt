@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirStatement
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirFunctionAccessExpression
 import org.jetbrains.kotlin.bir.expressions.BirInlinedFunctionBlock
@@ -20,7 +19,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirInlinedFunctionBlockImpl(
     override val startOffset: Int,
     override val endOffset: Int,

@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.constantPrimitive]
  */
-context(BirTreeContext)
 abstract class BirConstantPrimitive : BirConstantValue() {
+    context(BirTreeContext)
     abstract var value: BirConst<*>
 }

@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirSuspensionPointImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -30,41 +29,53 @@ class BirSuspensionPointImpl(
 ) : BirSuspensionPoint() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var suspensionPointIdParameter: BirVariable = suspensionPointIdParameter
+    private var _suspensionPointIdParameter: BirVariable = suspensionPointIdParameter
+
+    context(BirTreeContext)
+    override var suspensionPointIdParameter: BirVariable
+        get() = _suspensionPointIdParameter
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_suspensionPointIdParameter, value, null)
+            _suspensionPointIdParameter = value
         }
 
-    override var result: BirExpression = result
+    private var _result: BirExpression = result
+
+    context(BirTreeContext)
+    override var result: BirExpression
+        get() = _result
         set(value) {
-            setChildField(field, value, this.suspensionPointIdParameter)
-            field = value
+            setChildField(_result, value, this._suspensionPointIdParameter)
+            _result = value
         }
 
-    override var resumeResult: BirExpression = resumeResult
+    private var _resumeResult: BirExpression = resumeResult
+
+    context(BirTreeContext)
+    override var resumeResult: BirExpression
+        get() = _resumeResult
         set(value) {
-            setChildField(field, value, this.result)
-            field = value
+            setChildField(_resumeResult, value, this._result)
+            _resumeResult = value
         }
     init {
-        initChildField(suspensionPointIdParameter, null)
-        initChildField(result, suspensionPointIdParameter)
-        initChildField(resumeResult, result)
+        initChildField(_suspensionPointIdParameter, null)
+        initChildField(_result, _suspensionPointIdParameter)
+        initChildField(_resumeResult, _result)
     }
 
-    override fun getFirstChild(): BirElement? = suspensionPointIdParameter
+    override fun getFirstChild(): BirElement? = _suspensionPointIdParameter
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.suspensionPointIdParameter
-        children[1] = this.result
-        children[2] = this.resumeResult
+        children[0] = this._suspensionPointIdParameter
+        children[1] = this._result
+        children[2] = this._resumeResult
         return 3
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.suspensionPointIdParameter.accept(visitor)
-        this.result.accept(visitor)
-        this.resumeResult.accept(visitor)
+        this._suspensionPointIdParameter.accept(visitor)
+        this._result.accept(visitor)
+        this._resumeResult.accept(visitor)
     }
 }

@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
 
 /**
@@ -16,7 +15,6 @@ import org.jetbrains.kotlin.ir.expressions.IrConstKind
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.const]
  */
-context(BirTreeContext)
 abstract class BirConst<T> : BirExpression() {
     abstract var kind: IrConstKind<T>
 

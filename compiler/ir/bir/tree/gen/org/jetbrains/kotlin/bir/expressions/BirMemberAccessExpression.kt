@@ -19,10 +19,11 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.memberAccessExpression]
  */
-context(BirTreeContext)
 abstract class BirMemberAccessExpression<S : BirSymbol> : BirDeclarationReference() {
+    context(BirTreeContext)
     abstract var dispatchReceiver: BirExpression?
 
+    context(BirTreeContext)
     abstract var extensionReceiver: BirExpression?
 
     abstract override val target: S

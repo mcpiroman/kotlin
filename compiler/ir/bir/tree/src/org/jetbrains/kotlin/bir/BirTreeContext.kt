@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlin.bir
 
-class BirTreeContext {
+open class BirTreeContext {
     private val elementsByClass = hashMapOf<Class<*>, ElementOfClassList>()
 
     internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {

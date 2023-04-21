@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirChildElementList<E : BirElement>(
     internal val parent: BirElementBase,
-) : BirElementBaseOrList(), MutableCollection<E> {
+) : BirElementBaseOrList(), Collection<E> {
     override var size: Int = 0
         private set
 
@@ -25,7 +25,8 @@ class BirChildElementList<E : BirElement>(
 
     override fun containsAll(elements: Collection<E>) = elements.all { it in this }
 
-    override fun add(element: E): Boolean {
+    context (BirTreeContext)
+    fun add(element: E): Boolean {
         element as BirElementBase
         element.checkCanBoundToTree()
 
@@ -50,7 +51,8 @@ class BirChildElementList<E : BirElement>(
         return true
     }
 
-    override fun addAll(elements: Collection<E>): Boolean {
+    context (BirTreeContext)
+    fun addAll(elements: Collection<E>): Boolean {
         elements.forEach {
             add(it)
         }
@@ -61,8 +63,10 @@ class BirChildElementList<E : BirElement>(
         return parent.setNextAfterNewChildSetSlow(newHead, this)
     }
 
+    context (BirTreeContext)
     fun replace(old: E, new: E): Boolean = replace(old, new, null)
 
+    context (BirTreeContext)
     fun replace(old: E, new: E, hintPreviousElement: BirElementBase?): Boolean {
         if (old !in this) return false
         old as BirElementBase
@@ -98,8 +102,10 @@ class BirChildElementList<E : BirElement>(
     }
 
 
-    override fun remove(element: E): Boolean = remove(element, null)
+    context (BirTreeContext)
+    fun remove(element: E): Boolean = remove(element, null)
 
+    context (BirTreeContext)
     fun remove(element: E, hintPreviousElement: BirElementBase?): Boolean {
         if (element !in this) return false
         element as BirElementBase
@@ -151,20 +157,11 @@ class BirChildElementList<E : BirElement>(
         return previous
     }
 
-    override fun removeAll(elements: Collection<E>): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun retainAll(elements: Collection<E>): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun clear() {
+    fun clear() {
         headOrNext = tail?.next
         tail = null
         size = 0
     }
-
 
     override val next: BirElementBase?
         get() = tail.let {
@@ -198,9 +195,38 @@ class BirChildElementList<E : BirElement>(
     fun last(): E = tail as E? ?: throw NoSuchElementException("Collection is empty.")
     fun lastOrNull(): E? = tail as E?
 
-    override fun iterator(): MutableIterator<E> = Iterator(this)
+    context (BirTreeContext)
+    operator fun plusAssign(element: E) {
+        add(element)
+    }
 
-    private class Iterator<E : BirElement>(
+    context (BirTreeContext)
+    operator fun minusAssign(element: E) {
+        remove(element)
+    }
+
+    override fun iterator(): Iterator<E> = ReadonlyIter(this)
+
+    context (BirTreeContext)
+    fun mutableIterator(): MutableIterator<E> = MutableIter(this)
+
+    private class ReadonlyIter<E : BirElement>(
+        list: BirChildElementList<E>,
+    ) : Iterator<E> {
+        private val tail = list.tail
+        private var next: BirElementBase? = if (list.isEmpty()) null else list.headOrNext
+
+        override fun hasNext() = next != null
+
+        override fun next(): E {
+            val current = next!!
+            this.next = if (current === tail) null else current.next!!
+            return current as E
+        }
+    }
+
+    context (BirTreeContext)
+    private class MutableIter<E : BirElement>(
         private val list: BirChildElementList<E>,
     ) : MutableIterator<E> {
         private val tail = list.tail

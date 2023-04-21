@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirReturnTarget
 import org.jetbrains.kotlin.bir.symbols.BirReturnableBlockSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -18,6 +17,5 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.returnableBlock]
  */
-context(BirTreeContext)
 abstract class BirReturnableBlock : BirBlock(), BirReturnTarget, BirSymbolElement,
         BirReturnableBlockSymbol

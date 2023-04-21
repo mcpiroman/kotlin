@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.variable]
  */
-context(BirTreeContext)
 abstract class BirVariable : BirValueDeclaration(), BirDeclaration, BirSymbolElement,
         BirVariableSymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
@@ -33,5 +32,6 @@ abstract class BirVariable : BirValueDeclaration(), BirDeclaration, BirSymbolEle
 
     abstract var isLateinit: Boolean
 
+    context(BirTreeContext)
     abstract var initializer: BirExpression?
 }

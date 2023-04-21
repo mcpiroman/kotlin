@@ -31,3 +31,10 @@ sourceSets {
     }
     "test" {}
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
+    kotlinOptions {
+        allWarningsAsErrors = false
+        languageVersion = "2.0"
+    }
+}

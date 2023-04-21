@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirSetFieldImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -41,34 +40,42 @@ class BirSetFieldImpl(
             field = value
         }
 
-    override var receiver: BirExpression? = receiver
+    private var _receiver: BirExpression? = receiver
+
+    context(BirTreeContext)
+    override var receiver: BirExpression?
+        get() = _receiver
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_receiver, value, null)
+            _receiver = value
         }
 
-    override var value: BirExpression = value
+    private var _value: BirExpression = value
+
+    context(BirTreeContext)
+    override var value: BirExpression
+        get() = _value
         set(value) {
-            setChildField(field, value, this.receiver)
-            field = value
+            setChildField(_value, value, this._receiver)
+            _value = value
         }
     init {
-        initChildField(receiver, null)
-        initChildField(value, receiver)
+        initChildField(_receiver, null)
+        initChildField(_value, _receiver)
         initTrackedElementReferenceArrayStyle(target)
     }
 
-    override fun getFirstChild(): BirElement? = receiver ?: value
+    override fun getFirstChild(): BirElement? = _receiver ?: _value
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.receiver
-        children[1] = this.value
+        children[0] = this._receiver
+        children[1] = this._value
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.receiver?.accept(visitor)
-        this.value.accept(visitor)
+        this._receiver?.accept(visitor)
+        this._value.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

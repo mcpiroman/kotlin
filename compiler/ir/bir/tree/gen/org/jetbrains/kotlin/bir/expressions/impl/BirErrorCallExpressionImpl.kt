@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirErrorCallExpressionImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -29,27 +28,31 @@ class BirErrorCallExpressionImpl(
 ) : BirErrorCallExpression() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var explicitReceiver: BirExpression? = explicitReceiver
+    private var _explicitReceiver: BirExpression? = explicitReceiver
+
+    context(BirTreeContext)
+    override var explicitReceiver: BirExpression?
+        get() = _explicitReceiver
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_explicitReceiver, value, null)
+            _explicitReceiver = value
         }
 
     override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
     init {
-        initChildField(explicitReceiver, null)
+        initChildField(_explicitReceiver, null)
     }
 
-    override fun getFirstChild(): BirElement? = explicitReceiver ?: arguments.firstOrNull()
+    override fun getFirstChild(): BirElement? = _explicitReceiver ?: arguments.firstOrNull()
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.explicitReceiver
+        children[0] = this._explicitReceiver
         children[1] = this.arguments
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.explicitReceiver?.accept(visitor)
+        this._explicitReceiver?.accept(visitor)
         this.arguments.acceptChildren(visitor)
     }
 }

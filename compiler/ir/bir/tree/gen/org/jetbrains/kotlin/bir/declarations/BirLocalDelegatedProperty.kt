@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.localDelegatedProperty]
  */
-context(BirTreeContext)
 abstract class BirLocalDelegatedProperty : BirElementBase(), BirDeclaration,
         BirDeclarationWithName, BirMetadataSourceOwner, BirSymbolElement,
         BirLocalDelegatedPropertySymbol, BirElementTrackingBackReferences {
@@ -33,9 +32,12 @@ abstract class BirLocalDelegatedProperty : BirElementBase(), BirDeclaration,
 
     abstract var isVar: Boolean
 
+    context(BirTreeContext)
     abstract var delegate: BirVariable
 
+    context(BirTreeContext)
     abstract var getter: BirSimpleFunction
 
+    context(BirTreeContext)
     abstract var setter: BirSimpleFunction?
 }

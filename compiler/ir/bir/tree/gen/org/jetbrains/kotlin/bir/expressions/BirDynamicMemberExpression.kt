@@ -15,9 +15,9 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.dynamicMemberExpression]
  */
-context(BirTreeContext)
 abstract class BirDynamicMemberExpression : BirDynamicExpression() {
     abstract var memberName: String
 
+    context(BirTreeContext)
     abstract var receiver: BirExpression
 }

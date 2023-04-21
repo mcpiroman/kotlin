@@ -16,39 +16,46 @@ import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
-context(BirTreeContext)
 class BirElseBranchImpl(
     override val startOffset: Int,
     override val endOffset: Int,
     condition: BirExpression,
     result: BirExpression,
 ) : BirElseBranch() {
-    override var condition: BirExpression = condition
+    private var _condition: BirExpression = condition
+
+    context(BirTreeContext)
+    override var condition: BirExpression
+        get() = _condition
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_condition, value, null)
+            _condition = value
         }
 
-    override var result: BirExpression = result
+    private var _result: BirExpression = result
+
+    context(BirTreeContext)
+    override var result: BirExpression
+        get() = _result
         set(value) {
-            setChildField(field, value, this.condition)
-            field = value
+            setChildField(_result, value, this._condition)
+            _result = value
         }
     init {
-        initChildField(condition, null)
-        initChildField(result, condition)
+        initChildField(_condition, null)
+        initChildField(_result, _condition)
     }
 
-    override fun getFirstChild(): BirElement? = condition
+    override fun getFirstChild(): BirElement? = _condition
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.condition
-        children[1] = this.result
+        children[0] = this._condition
+        children[1] = this._result
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.condition.accept(visitor)
-        this.result.accept(visitor)
+        this._condition.accept(visitor)
+        this._result.accept(visitor)
     }
 }

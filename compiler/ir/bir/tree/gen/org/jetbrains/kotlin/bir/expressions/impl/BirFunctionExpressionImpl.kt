@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirFunctionExpressionImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -29,23 +28,27 @@ class BirFunctionExpressionImpl(
 ) : BirFunctionExpression() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var function: BirSimpleFunction = function
+    private var _function: BirSimpleFunction = function
+
+    context(BirTreeContext)
+    override var function: BirSimpleFunction
+        get() = _function
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_function, value, null)
+            _function = value
         }
     init {
-        initChildField(function, null)
+        initChildField(_function, null)
     }
 
-    override fun getFirstChild(): BirElement? = function
+    override fun getFirstChild(): BirElement? = _function
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.function
+        children[0] = this._function
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.function.accept(visitor)
+        this._function.accept(visitor)
     }
 }

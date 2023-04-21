@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.property]
  */
-context(BirTreeContext)
 abstract class BirProperty : BirOverridableDeclaration<BirPropertySymbol>(), BirDeclaration,
         BirPossiblyExternalDeclaration, BirMemberWithContainerSource, BirAttributeContainer,
         BirMetadataSourceOwner, BirSymbolElement, BirPropertySymbol,
@@ -40,10 +39,13 @@ abstract class BirProperty : BirOverridableDeclaration<BirPropertySymbol>(), Bir
 
     abstract override var isFakeOverride: Boolean
 
+    context(BirTreeContext)
     abstract var backingField: BirField?
 
+    context(BirTreeContext)
     abstract var getter: BirSimpleFunction?
 
+    context(BirTreeContext)
     abstract var setter: BirSimpleFunction?
 
     abstract override var overriddenSymbols: List<BirPropertySymbol>

@@ -9,14 +9,12 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.inlinedFunctionBlock]
  */
-context(BirTreeContext)
 abstract class BirInlinedFunctionBlock : BirBlock() {
     abstract var inlineCall: BirFunctionAccessExpression
 

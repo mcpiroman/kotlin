@@ -11,7 +11,6 @@ package org.jetbrains.kotlin.bir.declarations.impl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirFile
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
@@ -19,7 +18,6 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirModuleFragmentImpl(
     override val startOffset: Int,
     override val endOffset: Int,

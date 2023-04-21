@@ -17,9 +17,10 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.branch]
  */
-context(BirTreeContext)
 abstract class BirBranch : BirElementBase(), BirElement {
+    context(BirTreeContext)
     abstract var condition: BirExpression
 
+    context(BirTreeContext)
     abstract var result: BirExpression
 }

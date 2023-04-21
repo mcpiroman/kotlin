@@ -28,7 +28,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -56,42 +55,54 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
 
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var backingField: BirField? = backingField
+    private var _backingField: BirField? = backingField
+
+    context(BirTreeContext)
+    override var backingField: BirField?
+        get() = _backingField
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_backingField, value, null)
+            _backingField = value
         }
 
-    override var getter: BirSimpleFunction? = getter
+    private var _getter: BirSimpleFunction? = getter
+
+    context(BirTreeContext)
+    override var getter: BirSimpleFunction?
+        get() = _getter
         set(value) {
-            setChildField(field, value, this.backingField)
-            field = value
+            setChildField(_getter, value, this._backingField)
+            _getter = value
         }
 
-    override var setter: BirSimpleFunction? = setter
+    private var _setter: BirSimpleFunction? = setter
+
+    context(BirTreeContext)
+    override var setter: BirSimpleFunction?
+        get() = _setter
         set(value) {
-            setChildField(field, value, this.getter ?: this.backingField)
-            field = value
+            setChildField(_setter, value, this._getter ?: this._backingField)
+            _setter = value
         }
     init {
-        initChildField(backingField, null)
-        initChildField(getter, backingField)
-        initChildField(setter, getter ?: backingField)
+        initChildField(_backingField, null)
+        initChildField(_getter, _backingField)
+        initChildField(_setter, _getter ?: _backingField)
     }
 
-    override fun getFirstChild(): BirElement? = backingField ?: getter ?: setter
+    override fun getFirstChild(): BirElement? = _backingField ?: _getter ?: _setter
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.backingField
-        children[1] = this.getter
-        children[2] = this.setter
+        children[0] = this._backingField
+        children[1] = this._getter
+        children[2] = this._setter
         return 3
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.backingField?.accept(visitor)
-        this.getter?.accept(visitor)
-        this.setter?.accept(visitor)
+        this._backingField?.accept(visitor)
+        this._getter?.accept(visitor)
+        this._setter?.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

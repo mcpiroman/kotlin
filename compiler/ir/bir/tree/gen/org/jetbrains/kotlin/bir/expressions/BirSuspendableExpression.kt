@@ -15,9 +15,10 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.suspendableExpression]
  */
-context(BirTreeContext)
 abstract class BirSuspendableExpression : BirExpression() {
+    context(BirTreeContext)
     abstract var suspensionPointId: BirExpression
 
+    context(BirTreeContext)
     abstract var result: BirExpression
 }

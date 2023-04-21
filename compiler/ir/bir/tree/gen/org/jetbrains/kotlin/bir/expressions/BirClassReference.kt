@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
@@ -17,7 +16,6 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.classReference]
  */
-context(BirTreeContext)
 abstract class BirClassReference : BirDeclarationReference() {
     abstract override var target: BirClassifierSymbol
 

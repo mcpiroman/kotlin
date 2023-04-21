@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
 
 /**
@@ -16,7 +15,6 @@ import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.getEnumValue]
  */
-context(BirTreeContext)
 abstract class BirGetEnumValue : BirGetSingletonValue() {
     abstract override var target: BirEnumEntrySymbol
 }

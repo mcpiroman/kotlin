@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.expressionBody]
  */
-context(BirTreeContext)
 abstract class BirExpressionBody : BirBody() {
+    context(BirTreeContext)
     abstract var expression: BirExpression
 }

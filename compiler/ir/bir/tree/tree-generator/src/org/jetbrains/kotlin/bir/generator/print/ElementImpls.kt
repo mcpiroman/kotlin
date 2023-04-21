@@ -28,8 +28,6 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                 superclass(element.toPoetSelfParameterized())
             }
 
-            contextReceivers(treeContext.toPoet())
-
             if (element.hasTrackedBackReferences) {
                 val type = ClassName(Packages.tree, "BirBackReferenceCollectionArrayStyle")
                 addProperty(
@@ -67,18 +65,34 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                     if (field.defaultToThis) {
                         initializer("this")
                     } else if (field.passViaConstructorParameter) {
-                        initializer(field.name)
+                        if (field is SingleField && field.isChild && field.mutable) {
+                            addProperty(
+                                PropertySpec.builder(field.backingFieldName, poetType)
+                                    .mutable(true)
+                                    .addModifiers(KModifier.PRIVATE)
+                                    .initializer(field.name)
+                                    .build()
+                            )
+                            getter(
+                                FunSpec.getterBuilder()
+                                    .addCode("return ${field.backingFieldName}")
+                                    .build()
+                            )
+                            contextReceivers(treeContext.toPoet())
+                        } else {
+                            initializer(field.name)
+                        }
                     } else if (field is ListField && field.isChild) {
                         initializer("BirChildElementList(this)")
                     }
 
-                    if (field is SingleField && field.isChild) {
+                    if (field is SingleField && field.isChild && field.mutable) {
                         val prevChildSelectCode = codeToSelectFirstChild(allFields.subList(0, fieldIndex).asReversed(), false, true)
                         setter(
                             FunSpec.setterBuilder()
                                 .addParameter(ParameterSpec("value", poetType))
-                                .addCode("setChildField(field, value, $prevChildSelectCode)\n")
-                                .addCode("field = value")
+                                .addCode("setChildField(${field.backingFieldName}, value, $prevChildSelectCode)\n")
+                                .addCode("${field.backingFieldName} = value")
                                 .build()
                         )
                     } else if (field.trackRef) {
@@ -102,7 +116,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
             allChildren.forEachIndexed { fieldIndex, child ->
                 if (child is SingleField) {
                     val prevChildSelectCode = codeToSelectFirstChild(allChildren.subList(0, fieldIndex).asReversed(), false, false)
-                    ctor.addCode("initChildField(${child.name}, $prevChildSelectCode)\n")
+                    ctor.addCode("initChildField(${child.backingFieldName}, $prevChildSelectCode)\n")
                 }
             }
 
@@ -136,7 +150,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         )
                         .apply {
                             allChildren.forEachIndexed { index, child ->
-                                addCode("children[%L] = this.${child.name}\n", index)
+                                addCode("children[%L] = this.${if (child is SingleField) child.backingFieldName else child.name}\n", index)
                             }
                             addCode("return %L", allChildren.size)
                         }
@@ -151,7 +165,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         .addParameter("visitor", org.jetbrains.kotlin.bir.generator.elementVisitor.toPoet())
                         .apply {
                             allChildren.forEach { child ->
-                                addCode("this.${child.name}")
+                                addCode("this.${if (child is SingleField) child.backingFieldName else child.name}")
                                 when (child) {
                                     is SingleField -> {
                                         if (child.nullable) addCode("?")
@@ -223,10 +237,13 @@ private fun codeToSelectFirstChild(fields: List<Field>, selectFirstFromList: Boo
     return if (prevChildren.isEmpty()) "null"
     else prevChildren.joinToString(" ?: ") {
         (if (prefixFieldAccessWithThis) "this." else "") +
-                if (it is ListField) {
-                    if (selectFirstFromList) "${it.name}.firstOrNull()"
-                    else it.name
-                } else it.name
+                when (it) {
+                    is SingleField -> it.backingFieldName
+                    is ListField -> {
+                        if (selectFirstFromList) "${it.name}.firstOrNull()"
+                        else it.name
+                    }
+                }
     }
 }
 

@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 
 /**
@@ -16,7 +15,6 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.functionAccessExpression]
  */
-context(BirTreeContext)
 abstract class BirFunctionAccessExpression : BirMemberAccessExpression<BirFunctionSymbol>() {
     abstract var contextReceiversCount: Int
 }

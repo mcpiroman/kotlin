@@ -33,7 +33,6 @@ import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -68,28 +67,32 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
 
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var thisReceiver: BirValueParameter? = thisReceiver
+    private var _thisReceiver: BirValueParameter? = thisReceiver
+
+    context(BirTreeContext)
+    override var thisReceiver: BirValueParameter?
+        get() = _thisReceiver
         set(value) {
-            setChildField(field, value, this.declarations)
-            field = value
+            setChildField(_thisReceiver, value, this.declarations)
+            _thisReceiver = value
         }
     init {
-        initChildField(thisReceiver, declarations)
+        initChildField(_thisReceiver, declarations)
     }
 
     override fun getFirstChild(): BirElement? = typeParameters.firstOrNull() ?:
-            declarations.firstOrNull() ?: thisReceiver
+            declarations.firstOrNull() ?: _thisReceiver
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
         children[0] = this.typeParameters
         children[1] = this.declarations
-        children[2] = this.thisReceiver
+        children[2] = this._thisReceiver
         return 3
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.typeParameters.acceptChildren(visitor)
         this.declarations.acceptChildren(visitor)
-        this.thisReceiver?.accept(visitor)
+        this._thisReceiver?.accept(visitor)
     }
 }

@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -42,41 +41,53 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var referencedBy: BirBackReferenceCollectionArrayStyle =
             BirBackReferenceCollectionArrayStyle()
 
-    override var delegate: BirVariable = delegate
+    private var _delegate: BirVariable = delegate
+
+    context(BirTreeContext)
+    override var delegate: BirVariable
+        get() = _delegate
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_delegate, value, null)
+            _delegate = value
         }
 
-    override var getter: BirSimpleFunction = getter
+    private var _getter: BirSimpleFunction = getter
+
+    context(BirTreeContext)
+    override var getter: BirSimpleFunction
+        get() = _getter
         set(value) {
-            setChildField(field, value, this.delegate)
-            field = value
+            setChildField(_getter, value, this._delegate)
+            _getter = value
         }
 
-    override var setter: BirSimpleFunction? = setter
+    private var _setter: BirSimpleFunction? = setter
+
+    context(BirTreeContext)
+    override var setter: BirSimpleFunction?
+        get() = _setter
         set(value) {
-            setChildField(field, value, this.getter)
-            field = value
+            setChildField(_setter, value, this._getter)
+            _setter = value
         }
     init {
-        initChildField(delegate, null)
-        initChildField(getter, delegate)
-        initChildField(setter, getter)
+        initChildField(_delegate, null)
+        initChildField(_getter, _delegate)
+        initChildField(_setter, _getter)
     }
 
-    override fun getFirstChild(): BirElement? = delegate
+    override fun getFirstChild(): BirElement? = _delegate
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.delegate
-        children[1] = this.getter
-        children[2] = this.setter
+        children[0] = this._delegate
+        children[1] = this._getter
+        children[2] = this._setter
         return 3
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.delegate.accept(visitor)
-        this.getter.accept(visitor)
-        this.setter?.accept(visitor)
+        this._delegate.accept(visitor)
+        this._getter.accept(visitor)
+        this._setter?.accept(visitor)
     }
 }

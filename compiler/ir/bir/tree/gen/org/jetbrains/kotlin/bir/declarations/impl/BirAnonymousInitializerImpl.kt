@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 
-context(BirTreeContext)
 class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -31,23 +30,27 @@ class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isStatic: Boolean,
     body: BirBlockBody,
 ) : BirAnonymousInitializer() {
-    override var body: BirBlockBody = body
+    private var _body: BirBlockBody = body
+
+    context(BirTreeContext)
+    override var body: BirBlockBody
+        get() = _body
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_body, value, null)
+            _body = value
         }
     init {
-        initChildField(body, null)
+        initChildField(_body, null)
     }
 
-    override fun getFirstChild(): BirElement? = body
+    override fun getFirstChild(): BirElement? = _body
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.body
+        children[0] = this._body
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.body.accept(visitor)
+        this._body.accept(visitor)
     }
 }

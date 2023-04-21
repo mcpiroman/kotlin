@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirTypeOperatorCallImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -30,23 +29,27 @@ class BirTypeOperatorCallImpl(
 ) : BirTypeOperatorCall() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var argument: BirExpression = argument
+    private var _argument: BirExpression = argument
+
+    context(BirTreeContext)
+    override var argument: BirExpression
+        get() = _argument
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_argument, value, null)
+            _argument = value
         }
     init {
-        initChildField(argument, null)
+        initChildField(_argument, null)
     }
 
-    override fun getFirstChild(): BirElement? = argument
+    override fun getFirstChild(): BirElement? = _argument
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.argument
+        children[0] = this._argument
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.argument.accept(visitor)
+        this._argument.accept(visitor)
     }
 }

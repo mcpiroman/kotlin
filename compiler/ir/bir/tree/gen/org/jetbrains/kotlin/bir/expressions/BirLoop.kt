@@ -17,12 +17,13 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.loop]
  */
-context(BirTreeContext)
 abstract class BirLoop : BirExpression(), BirElementTrackingBackReferences {
     abstract var origin: IrStatementOrigin?
 
+    context(BirTreeContext)
     abstract var body: BirExpression?
 
+    context(BirTreeContext)
     abstract var condition: BirExpression
 
     abstract var label: String?

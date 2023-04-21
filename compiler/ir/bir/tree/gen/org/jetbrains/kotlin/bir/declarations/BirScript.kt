@@ -25,12 +25,12 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.script]
  */
-context(BirTreeContext)
 abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithName,
         BirStatementContainer, BirMetadataSourceOwner, BirSymbolElement, BirScriptSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ScriptDescriptor
 
+    context(BirTreeContext)
     abstract var thisReceiver: BirValueParameter?
 
     abstract var baseClass: IrType?
@@ -45,6 +45,7 @@ abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithN
 
     abstract var resultProperty: BirPropertySymbol?
 
+    context(BirTreeContext)
     abstract var earlierScriptsParameter: BirValueParameter?
 
     abstract var earlierScripts: List<BirScriptSymbol>?

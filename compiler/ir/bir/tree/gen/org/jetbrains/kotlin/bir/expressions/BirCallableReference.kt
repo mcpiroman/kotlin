@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 
 /**
@@ -16,5 +15,4 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.callableReference]
  */
-context(BirTreeContext)
 abstract class BirCallableReference<S : BirSymbol> : BirMemberAccessExpression<S>()

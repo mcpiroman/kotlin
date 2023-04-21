@@ -9,6 +9,7 @@ abstract class BirTreeTraverseScope {
     internal var current: BirElementBase? = null
     internal var lastVisited: BirElementBase? = null
 
+    context(BirTreeContext)
     fun replaceCurrent(new: BirElement?) {
         val current = current!!
         val owner = current.rawParent
@@ -20,5 +21,6 @@ abstract class BirTreeTraverseScope {
         }
     }
 
+    context(BirTreeContext)
     fun removeCurrent() = replaceCurrent(null)
 }

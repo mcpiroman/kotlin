@@ -16,29 +16,32 @@ import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
-context(BirTreeContext)
 class BirExpressionBodyImpl(
     override val startOffset: Int,
     override val endOffset: Int,
     expression: BirExpression,
 ) : BirExpressionBody() {
-    override var expression: BirExpression = expression
+    private var _expression: BirExpression = expression
+
+    context(BirTreeContext)
+    override var expression: BirExpression
+        get() = _expression
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_expression, value, null)
+            _expression = value
         }
     init {
-        initChildField(expression, null)
+        initChildField(_expression, null)
     }
 
-    override fun getFirstChild(): BirElement? = expression
+    override fun getFirstChild(): BirElement? = _expression
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.expression
+        children[0] = this._expression
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.expression.accept(visitor)
+        this._expression.accept(visitor)
     }
 }

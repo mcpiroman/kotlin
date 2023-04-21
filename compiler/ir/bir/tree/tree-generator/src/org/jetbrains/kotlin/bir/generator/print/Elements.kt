@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.bir.generator.print
 import com.squareup.kotlinpoet.*
 import org.jetbrains.kotlin.bir.generator.model.Element
 import org.jetbrains.kotlin.bir.generator.model.Model
+import org.jetbrains.kotlin.bir.generator.model.SingleField
 import org.jetbrains.kotlin.bir.generator.treeContext
 import org.jetbrains.kotlin.bir.generator.util.TypeKind
 import java.io.File
@@ -41,10 +42,6 @@ fun printElements(generationPath: File, model: Model) = sequence {
             }
             addSuperinterfaces(interfaces.map { it.toPoet() })
 
-            if (element.kind?.typeKind == TypeKind.Class) {
-                contextReceivers(treeContext.toPoet())
-            }
-
             element.fields.forEach { field ->
                 if (!field.printProperty) return@forEach
                 val poetType = field.type.toPoet().copy(nullable = field.nullable)
@@ -57,6 +54,10 @@ fun printElements(generationPath: File, model: Model) = sequence {
 
                     if (field.needsDescriptorApiAnnotation) {
                         addAnnotation(descriptorApiAnnotation)
+                    }
+
+                    if (field is SingleField && field.isChild && field.mutable) {
+                        addAnnotation(treeContext.toPoet() as ClassName)
                     }
 
                     field.generationCallback?.invoke(this)
