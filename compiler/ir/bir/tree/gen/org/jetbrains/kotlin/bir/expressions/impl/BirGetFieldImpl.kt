@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
@@ -35,7 +36,7 @@ class BirGetFieldImpl(
 
     override var target: BirFieldSymbol = target
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 0)
             field = value
         }
 
@@ -50,7 +51,6 @@ class BirGetFieldImpl(
         }
     init {
         initChildField(_receiver, null)
-        initTrackedElementReferenceArrayStyle(target)
     }
 
     override fun getFirstChild(): BirElement? = _receiver
@@ -67,5 +67,9 @@ class BirGetFieldImpl(
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
         if(this.target === old) this.target = new as BirFieldSymbol
         if(this.superQualifier === old) this.superQualifier = new as BirClassSymbol
+    }
+
+    override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
+        registerTrackedBackReferenceTo(target, 0, unregisterFrom)
     }
 }

@@ -6,7 +6,13 @@
 package org.jetbrains.kotlin.bir
 
 @JvmInline
-value class BirBackReferenceCollectionLinkedListStyle(
+value class BirBackReferenceCollection internal constructor(private val owner: BirElementTrackingBackReferences) :
+    Iterable<BirElementBase> {
+    override fun iterator(): Iterator<BirElementBase> = owner._referencedBy.iterator(owner as BirElementBase)
+}
+
+@JvmInline
+value class BirBackReferenceCollectionLinkedListStyleImpl(
     val first: BirElementBase?
 ) : Iterable<BirElementBase> {
     constructor() : this(null)
@@ -31,20 +37,20 @@ value class BirBackReferenceCollectionLinkedListStyle(
 // Alternatively grow more aggressively (maybe exponentially) and find last element with binary search
 @Suppress("UNCHECKED_CAST")
 @JvmInline
-value class BirBackReferenceCollectionArrayStyle(
+value class BirBackReferenceCollectionArrayStyleImpl(
     private val elementsOrSingle: Any? // Array<BirElementBase?> | BirElementBase | null
-) : Iterable<BirElementBase> {
+) {
     constructor() : this(null)
 
-    internal fun add(referencingElement: BirElementBase): BirBackReferenceCollectionArrayStyle {
+    fun add(referencingElement: BirElementBase): BirBackReferenceCollectionArrayStyleImpl {
         var elementsOrSingle = elementsOrSingle
         when (elementsOrSingle) {
-            null -> return BirBackReferenceCollectionArrayStyle(referencingElement)
+            null -> return BirBackReferenceCollectionArrayStyleImpl(referencingElement)
             is BirElementBase -> {
                 val elements = arrayOfNulls<BirElementBase>(RESIZE_GRADUALITY)
                 elements[0] = elementsOrSingle
                 elements[1] = referencingElement
-                return BirBackReferenceCollectionArrayStyle(elements)
+                return BirBackReferenceCollectionArrayStyleImpl(elements)
             }
             else -> {
                 elementsOrSingle as Array<BirElementBase?>
@@ -55,18 +61,18 @@ value class BirBackReferenceCollectionArrayStyle(
                 }
                 elementsOrSingle[newIndex] = referencingElement
 
-                return BirBackReferenceCollectionArrayStyle(elementsOrSingle)
+                return BirBackReferenceCollectionArrayStyleImpl(elementsOrSingle)
             }
         }
     }
 
-    internal fun remove(referencingElement: BirElementBase): BirBackReferenceCollectionArrayStyle? {
+    fun remove(referencingElement: BirElementBase): BirBackReferenceCollectionArrayStyleImpl? {
         val elementsOrSingle = elementsOrSingle
             ?: return null
 
         if (elementsOrSingle is BirElementBase) {
             return if (elementsOrSingle === referencingElement) {
-                BirBackReferenceCollectionArrayStyle(null)
+                BirBackReferenceCollectionArrayStyleImpl(null)
             } else {
                 null
             }
@@ -86,7 +92,7 @@ value class BirBackReferenceCollectionArrayStyle(
             if (!found) return null
 
             if (elementsOrSingle.size == 2) {
-                return BirBackReferenceCollectionArrayStyle(
+                return BirBackReferenceCollectionArrayStyleImpl(
                     if (elIdx == 0) elementsOrSingle[1] else elementsOrSingle[0]
                 )
             }
@@ -99,7 +105,7 @@ value class BirBackReferenceCollectionArrayStyle(
 
             val trailingGap = elementsOrSingle.size - lastIdx - 1
             if (trailingGap > RESIZE_GRADUALITY - 1) {
-                return BirBackReferenceCollectionArrayStyle(
+                return BirBackReferenceCollectionArrayStyleImpl(
                     elementsOrSingle.copyOf(lastIdx / RESIZE_GRADUALITY * RESIZE_GRADUALITY)
                 )
             } else {
@@ -109,11 +115,11 @@ value class BirBackReferenceCollectionArrayStyle(
         }
     }
 
-    override fun iterator(): Iterator<BirElementBase> =
+    fun iterator(owner: BirElementBase): Iterator<BirElementBase> =
         when (val elementsOrSingle = elementsOrSingle) {
             null -> EmptyIterator as Iterator<BirElementBase>
-            is BirElementBase -> SingleElementIterator(elementsOrSingle)
-            else -> CompactingIter(elementsOrSingle as Array<BirElementBase?>)
+            is BirElementBase -> SingleElementIterator(elementsOrSingle) // fixme: compacting version
+            else -> CompactingIter(owner, elementsOrSingle as Array<BirElementBase?>)
         }
 
     companion object {
@@ -121,6 +127,7 @@ value class BirBackReferenceCollectionArrayStyle(
     }
 
     private class CompactingIter(
+        private val owner: BirElementBase,
         private val elements: Array<BirElementBase?>
     ) : Iterator<BirElementBase> {
         private var nextIdx = -1
@@ -159,6 +166,7 @@ value class BirBackReferenceCollectionArrayStyle(
                         elements[i] = elements[lastElementIndex]
                         elements[lastElementIndex] = null
                         lastElementIndex--
+                        el.registerTrackedBackReferences(owner)
                     }
                 }
             }

@@ -33,7 +33,7 @@ private class MockBirClassImpl(
     override val endOffset: Int,
     field2: MockBirValueParameter
 ) : MockBirClass() {
-    override var referencedBy = BirBackReferenceCollectionArrayStyle()
+    override var _referencedBy = BirBackReferenceCollectionArrayStyleImpl()
 
     private var _field1: MockBirValueParameter? = null
     context (BirTreeContext)
@@ -126,12 +126,12 @@ private class MockBirConstructor(
 ) : BirElementBase() {
     var target: MockBirClass? = null
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 0)
             field = value
         }
 
-    init {
-        initTrackedElementReferenceArrayStyle(target)
+    override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
+        registerTrackedBackReferenceTo(target, 0, unregisterFrom)
     }
 }
 

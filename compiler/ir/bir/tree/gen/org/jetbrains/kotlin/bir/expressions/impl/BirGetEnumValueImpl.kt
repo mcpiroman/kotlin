@@ -8,9 +8,11 @@
 
 package org.jetbrains.kotlin.bir.expressions.impl
 
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirGetEnumValue
 import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirGetEnumValueImpl(
@@ -23,10 +25,15 @@ class BirGetEnumValueImpl(
 
     override var target: BirEnumEntrySymbol = target
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 0)
             field = value
         }
-    init {
-        initTrackedElementReferenceArrayStyle(target)
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.target === old) this.target = new as BirEnumEntrySymbol
+    }
+
+    override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
+        registerTrackedBackReferenceTo(target, 0, unregisterFrom)
     }
 }

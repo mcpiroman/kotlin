@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirConstantObject
@@ -30,15 +31,12 @@ class BirConstantObjectImpl(
 
     override var constructor: BirConstructorSymbol = constructor
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 0)
             field = value
         }
 
     override val valueArguments: BirChildElementList<BirConstantValue> =
             BirChildElementList(this)
-    init {
-        initTrackedElementReferenceArrayStyle(constructor)
-    }
 
     override fun getFirstChild(): BirElement? = valueArguments.firstOrNull()
 
@@ -53,5 +51,9 @@ class BirConstantObjectImpl(
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
         if(this.constructor === old) this.constructor = new as BirConstructorSymbol
+    }
+
+    override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
+        registerTrackedBackReferenceTo(constructor, 0, unregisterFrom)
     }
 }

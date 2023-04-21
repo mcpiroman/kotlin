@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
@@ -32,7 +33,7 @@ class BirSetValueImpl(
 
     override var target: BirValueDeclaration = target
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 0)
             field = value
         }
 
@@ -47,7 +48,6 @@ class BirSetValueImpl(
         }
     init {
         initChildField(_value, null)
-        initTrackedElementReferenceArrayStyle(target)
     }
 
     override fun getFirstChild(): BirElement? = _value
@@ -59,5 +59,9 @@ class BirSetValueImpl(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this._value.accept(visitor)
+    }
+
+    override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
+        registerTrackedBackReferenceTo(target, 0, unregisterFrom)
     }
 }

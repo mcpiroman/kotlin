@@ -22,6 +22,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal var firstChildPtr: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
     private var flags: Byte = 0
+    private var registeredBackRefs: Byte = 0
 
     final override val parent: BirElementBase?
         get() = when (val rawParent = rawParent) {
@@ -43,7 +44,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         set(value) = setFlag(FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR, value)
 
     private fun hasFlag(flag: Byte): Boolean =
-        (flags and flag) != 0.toByte()
+        (flags and flag).toInt() != 0
 
     private fun setFlag(flag: Byte, value: Boolean) {
         flags = if (value) flags or flag else flags and flag.inv()
@@ -54,6 +55,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     override fun acceptChildren(visitor: BirElementVisitor) = Unit
     protected open fun replaceChildProperty(old: BirElement, new: BirElement?) = Unit
     internal open fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) = Unit
+    internal open fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) = Unit
 
     protected fun throwChildForReplacementNotFound(old: BirElement) {
         throw IllegalStateException("The child property $old not found in its parent $this")
@@ -270,7 +272,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
                 val newNext = new as T? ?: nextTrackedElementReferenceProperty.get(this)
                 if (last == null) {
-                    old.referencedBy = BirBackReferenceCollectionLinkedListStyle(newNext)
+                    old.referencedBy = BirBackReferenceCollectionLinkedListStyleImpl(newNext)
                 } else {
                     nextTrackedElementReferenceProperty.set(last as T, newNext)
                 }
@@ -281,31 +283,53 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             }
         } else if (new != null) {
             val oldFirst = new.referencedBy.first
-            new.referencedBy = BirBackReferenceCollectionLinkedListStyle(this)
+            new.referencedBy = BirBackReferenceCollectionLinkedListStyleImpl(this)
             nextTrackedElementReferenceProperty.set(this as T, oldFirst)
         }
     }*/
 
-    protected fun initTrackedElementReferenceArrayStyle(value: Any?) {
-        if (value is BirElementTrackingBackReferences) {
-            value.referencedBy = value.referencedBy.add(this)
+    protected fun registerTrackedBackReferenceTo(value: Any?, referenceIndex: Int, unregisterFrom: BirElementBase?) {
+        if (unregisterFrom == null) {
+            if (value is BirElementTrackingBackReferences) {
+                val referenceMask = (1 shl referenceIndex).toByte()
+                if ((registeredBackRefs and referenceMask).toInt() == 0) {
+                    registerTrackedBackReference(value, referenceIndex)
+                }
+            }
+        } else {
+            if (value === unregisterFrom) {
+                unsetTrackedBackReference(referenceIndex)
+            }
         }
     }
 
-    protected fun setTrackedElementReferenceArrayStyle(
+    protected fun setTrackedElementReference(
         old: Any?,
         new: Any?,
+        referenceIndex: Int,
     ) {
         if (old === new) return
 
         if (old is BirElementTrackingBackReferences) {
-            val newCollection = old.referencedBy.remove(this)
+            val newCollection = old._referencedBy.remove(this)
             require(newCollection != null) { "Element $this was not registered as a back reference on element $old" }
-            old.referencedBy = newCollection
+            old._referencedBy = newCollection
+            unsetTrackedBackReference(referenceIndex)
         }
-        if (new is BirElementTrackingBackReferences) {
-            new.referencedBy = new.referencedBy.add(this)
+        if (attachedToTree && new is BirElementTrackingBackReferences) {
+            registerTrackedBackReference(new, referenceIndex)
         }
+    }
+
+    private fun registerTrackedBackReference(target: BirElementTrackingBackReferences, referenceIndex: Int) {
+        val referenceMask = (1 shl referenceIndex).toByte()
+        target._referencedBy = target._referencedBy.add(this)
+        registeredBackRefs = registeredBackRefs or referenceMask
+    }
+
+    private fun unsetTrackedBackReference(referenceIndex: Int) {
+        val referenceMask = (1 shl referenceIndex).toByte()
+        registeredBackRefs = registeredBackRefs and referenceMask.inv()
     }
 
 

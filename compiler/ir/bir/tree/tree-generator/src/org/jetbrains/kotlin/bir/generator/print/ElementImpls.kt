@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.bir.generator.print
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.jetbrains.kotlin.bir.generator.Packages
+import org.jetbrains.kotlin.bir.generator.elementBaseType
 import org.jetbrains.kotlin.bir.generator.model.*
 import org.jetbrains.kotlin.bir.generator.treeContext
 import org.jetbrains.kotlin.bir.generator.util.ClassRef
@@ -29,9 +30,9 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
             }
 
             if (element.hasTrackedBackReferences) {
-                val type = ClassName(Packages.tree, "BirBackReferenceCollectionArrayStyle")
+                val type = ClassName(Packages.tree, "BirBackReferenceCollectionArrayStyleImpl")
                 addProperty(
-                    PropertySpec.builder("referencedBy", type)
+                    PropertySpec.builder("_referencedBy", type)
                         .mutable(true)
                         .addModifiers(KModifier.OVERRIDE)
                         .initializer(type.simpleName + "()")
@@ -99,7 +100,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         setter(
                             FunSpec.setterBuilder()
                                 .addParameter(ParameterSpec("value", poetType))
-                                .addCode("setTrackedElementReferenceArrayStyle(field, value)\n")
+                                .addCode("setTrackedElementReference(field, value, %L)\n", field.trackedRefIndex)
                                 .addCode("field = value")
                                 .build()
                         )
@@ -117,12 +118,6 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                 if (child is SingleField) {
                     val prevChildSelectCode = codeToSelectFirstChild(allChildren.subList(0, fieldIndex).asReversed(), false, false)
                     ctor.addCode("initChildField(${child.backingFieldName}, $prevChildSelectCode)\n")
-                }
-            }
-
-            allFields.forEach { field ->
-                if (field.trackRef) {
-                    ctor.addCode("initTrackedElementReferenceArrayStyle(${field.name})\n")
                 }
             }
 
@@ -179,45 +174,61 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         }
                         .build()
                 )
+            }
 
-                val symbolFields = allFields.mapNotNull { field ->
-                    fun typeIfSymbol(type: TypeRef) =
-                        if (type is ClassRef<*> && type.simpleName.startsWith("Bir") && type.simpleName.endsWith("Symbol")) type else null
+            val symbolFields = allFields.mapNotNull { field ->
+                fun typeIfSymbol(type: TypeRef) =
+                    if (type is ClassRef<*> && type.simpleName.startsWith("Bir") && type.simpleName.endsWith("Symbol")) type else null
 
-                    val type = field.type
-                    @Suppress("UNCHECKED_CAST")
-                    when (field) {
-                        is SingleField -> typeIfSymbol(type)
-                        is ListField -> typeIfSymbol((type as ClassRef<PositionTypeParameterRef>).args[PositionTypeParameterRef(0)]!!)
-                    }?.let { field to it }
-                }
-                if (symbolFields.isNotEmpty()) {
-                    addFunction(
-                        FunSpec
-                            .builder("replaceSymbolProperty")
-                            .addModifiers(KModifier.OVERRIDE)
-                            .addParameter("old", org.jetbrains.kotlin.bir.generator.symbolType.toPoet())
-                            .addParameter("new", org.jetbrains.kotlin.bir.generator.symbolType.toPoet())
-                            .apply {
-                                symbolFields.forEach { (field, symbolType) ->
-                                    when (field) {
-                                        is SingleField -> {
-                                            addCode(
-                                                "if(this.${field.name} === old) this.${field.name} = new as %T\n",
-                                                symbolType.toPoet()
-                                            )
-                                        }
-                                        is ListField -> {
-                                            addCode("this.${field.name} = this.${field.name}")
-                                            if (field.nullable) addCode("?")
-                                            addCode(".map { if(it === old) new as %T else it }\n", symbolType.toPoet())
-                                        }
+                val type = field.type
+                @Suppress("UNCHECKED_CAST")
+                when (field) {
+                    is SingleField -> typeIfSymbol(type)
+                    is ListField -> typeIfSymbol((type as ClassRef<PositionTypeParameterRef>).args[PositionTypeParameterRef(0)]!!)
+                }?.let { field to it }
+            }
+            if (symbolFields.isNotEmpty()) {
+                addFunction(
+                    FunSpec
+                        .builder("replaceSymbolProperty")
+                        .addModifiers(KModifier.OVERRIDE)
+                        .addParameter("old", org.jetbrains.kotlin.bir.generator.symbolType.toPoet())
+                        .addParameter("new", org.jetbrains.kotlin.bir.generator.symbolType.toPoet())
+                        .apply {
+                            symbolFields.forEach { (field, symbolType) ->
+                                when (field) {
+                                    is SingleField -> {
+                                        addCode(
+                                            "if(this.%N === old) this.%N = new as %T\n",
+                                            field.name, field.name, symbolType.toPoet()
+                                        )
+                                    }
+                                    is ListField -> {
+                                        addCode("this.%N = this.%N", field.name, field.name)
+                                        if (field.nullable) addCode("?")
+                                        addCode(".map { if(it === old) new as %T else it }\n", symbolType.toPoet())
                                     }
                                 }
                             }
-                            .build()
-                    )
-                }
+                        }
+                        .build()
+                )
+            }
+
+            val trackedRefs = allFields.filter { it.trackRef }
+            if (trackedRefs.isNotEmpty()) {
+                addFunction(
+                    FunSpec
+                        .builder("registerTrackedBackReferences")
+                        .addModifiers(KModifier.OVERRIDE)
+                        .addParameter("unregisterFrom", elementBaseType.toPoet().copy(nullable = true))
+                        .apply {
+                            trackedRefs.forEach { field ->
+                                addCode("registerTrackedBackReferenceTo(${field.name}, %L, unregisterFrom)\n", field.trackedRefIndex)
+                            }
+                        }
+                        .build()
+                )
             }
         }.build()
 

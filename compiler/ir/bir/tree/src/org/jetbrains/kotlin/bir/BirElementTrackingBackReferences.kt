@@ -10,5 +10,8 @@ package org.jetbrains.kotlin.bir
 
 interface BirElementTrackingBackReferences : BirElement {
     //@set:InternalBirApi
-    var referencedBy: BirBackReferenceCollectionArrayStyle
+    var _referencedBy: BirBackReferenceCollectionArrayStyleImpl
+
+    val referencedBy: BirBackReferenceCollection
+        get() = BirBackReferenceCollection(this)
 }
