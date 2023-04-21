@@ -5,10 +5,7 @@
 
 package org.jetbrains.kotlin.bir
 
-import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
-import org.jetbrains.kotlin.bir.declarations.BirClass
-import org.jetbrains.kotlin.bir.declarations.BirMemberWithContainerSource
-import org.jetbrains.kotlin.bir.declarations.BirMetadataSourceOwner
+import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
 import org.jetbrains.kotlin.bir.expressions.impl.BirNoExpressionImpl
@@ -90,6 +87,11 @@ abstract class Ir2BirConverterBase {
 
         if (elementRefMayAppearTwice(ir)) {
             ir2birElementMap[ir] = bir
+        }
+
+        if (bir is BirModuleFragment || bir is BirExternalPackageFragment) {
+            // this element is a root of BIR tree
+            (bir as BirElementBase).attachedToTree = true
         }
     }
 
