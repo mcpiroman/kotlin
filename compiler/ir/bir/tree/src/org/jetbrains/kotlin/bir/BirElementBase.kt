@@ -42,6 +42,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         get() = hasFlag(FLAG_HAS_CHILDREN)
         set(value) = setFlag(FLAG_HAS_CHILDREN, value)
 
+    internal var inByClassCacheViaNextPtr: Boolean
+        get() = hasFlag(FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR)
+        set(value) = setFlag(FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR, value)
+
     private fun hasFlag(flag: Byte): Boolean =
         (flags and flag) != 0.toByte()
 
@@ -113,18 +117,20 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         value: BirElement?,
         prevChildOrList: BirElementOrList?
     ) {
-        value as BirElementBase?
-        prevChildOrList as BirElementBaseOrList?
-
-        setChildFieldCommon(
-            value,
-            prevChildOrList,
-            null,
-            value
-        )
-
         if (value != null) {
+            value as BirElementBase
+            prevChildOrList as BirElementBaseOrList?
+
+            setChildFieldCommon(
+                value,
+                prevChildOrList,
+                null,
+                value
+            )
+
             hasChildren = true
+            // No need to call [attachChild] as this element is being initialized,
+            // so it itself is definitely not yet attached.
         }
     }
 
@@ -139,15 +145,11 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         new as BirElementBase?
         prevChildOrList as BirElementBaseOrList?
 
-        if (old != null) {
-            elementDetached(old)
-        }
-
         val newsNext = if (old != null) old.next
         else if (prevChildOrList != null) prevChildOrList.next
         else firstChildPtr
 
-        setChildFieldCommon(
+        val prev = setChildFieldCommon(
             new,
             prevChildOrList,
             newsNext,
@@ -160,6 +162,14 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
 
         hasChildren = new != null || newsNext != null
+
+        if (old != null) {
+            elementDetached(old, prev)
+        }
+
+        if (new != null) {
+            childAttached(new, prev)
+        }
     }
 
     private fun setChildFieldCommon(
@@ -167,30 +177,39 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         prevChildOrList: BirElementBaseOrList?,
         next: BirElementBase?,
         prevNext: BirElementBase?,
-    ) {
+    ): BirElementBase? {
         if (new != null) {
             new.checkCanBoundToTree()
             new.rawParent = this
             new.next = next
         }
 
-        when (prevChildOrList) {
-            null -> firstChildPtr = prevNext
-            is BirElementBase -> prevChildOrList.next = prevNext
+        val prev = when (prevChildOrList) {
+            null -> {
+                firstChildPtr = prevNext
+                null
+            }
+            is BirElementBase -> {
+                prevChildOrList.next = prevNext
+                prevChildOrList
+            }
             is BirChildElementList<*> -> {
                 prevChildOrList.setNextSibling(prevNext)
-                if (prevChildOrList.isEmpty()) {
+                if (prevChildOrList.isNotEmpty()) {
+                    prevChildOrList.last() as BirElementBase
+                } else {
                     setNextAfterNewChildSetSlow(prevNext, prevChildOrList)
                 }
             }
         }
 
-        if (new != null) {
-            elementAttached(new)
-        }
+        return prev
     }
 
-    internal fun setNextAfterNewChildSetSlow(newNext: BirElementBase?, lastListBeforeTheNewElement: BirChildElementList<*>) {
+    internal fun setNextAfterNewChildSetSlow(
+        newNext: BirElementBase?,
+        lastListBeforeTheNewElement: BirChildElementList<*>
+    ): BirElementBase? {
         val children = arrayOfNulls<BirElementOrList?>(8)
         val maxChildrenCount = getChildren(children)
         val listIndex = children.indexOf(lastListBeforeTheNewElement)
@@ -200,11 +219,13 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
                 null -> {}
                 is BirElementBase -> {
                     child.next = newNext
-                    return
+                    return child
                 }
                 is BirChildElementList<*> -> {
                     child.setNextSibling(newNext)
-                    if (child.isNotEmpty()) return
+                    if (child.isNotEmpty()) {
+                        return child.last() as BirElementBase
+                    }
                 }
                 else -> error(child.toString())
             }
@@ -212,6 +233,19 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
         firstChildPtr = newNext
         hasChildren = newNext != null
+        return null
+    }
+
+    internal fun childAttached(element: BirElementBase, prev: BirElementBase?) {
+        if (attachedToTree) {
+            elementAttached(element, prev)
+        }
+    }
+
+    internal fun childDetached(element: BirElementBase, prev: BirElementBase?) {
+        if (attachedToTree) {
+            elementDetached(element, prev)
+        }
     }
 
 
@@ -297,5 +331,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     companion object {
         private const val FLAG_ATTACHED_TO_TREE: Byte = 1
         private const val FLAG_HAS_CHILDREN: Byte = 2
+        private const val FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR: Byte = 4
     }
 }

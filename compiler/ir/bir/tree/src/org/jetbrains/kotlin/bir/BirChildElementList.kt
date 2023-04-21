@@ -30,21 +30,23 @@ class BirChildElementList<E : BirElement>(
         element.checkCanBoundToTree()
 
         val tail = tail
+        val prev: BirElementBase?
         if (tail == null) {
             element.next = headOrNext
             this.headOrNext = element
 
-            setupNewHeadElement(element)
+            prev = setupNewHeadElement(element)
         } else {
-            element.next = tail.next
-            tail.next = element
+            prev = tail
+            element.next = prev.next
+            prev.next = element
         }
 
         this.tail = element
         element.rawParent = this
         size++
 
-        parent.context.elementAttached(element)
+        parent.childAttached(element, prev)
         return true
     }
 
@@ -55,8 +57,8 @@ class BirChildElementList<E : BirElement>(
         return true
     }
 
-    private fun setupNewHeadElement(newHead: BirElementBase?) {
-        parent.setNextAfterNewChildSetSlow(newHead, this)
+    private fun setupNewHeadElement(newHead: BirElementBase?): BirElementBase? {
+        return parent.setNextAfterNewChildSetSlow(newHead, this)
     }
 
     fun replace(old: E, new: E): Boolean = replace(old, new, null)
@@ -69,14 +71,16 @@ class BirChildElementList<E : BirElement>(
         new.checkCanBoundToTree()
 
         val tail = tail!!
-        val previous = findPreviousNode(tail, old, hintPreviousElement)
-        if (previous == null) {
+        val prevInList = findPreviousNode(tail, old, hintPreviousElement)
+        val prev: BirElementBase?
+        if (prevInList == null) {
             new.next = headOrNext!!.next
             headOrNext = new
-            setupNewHeadElement(new)
+            prev = setupNewHeadElement(new)
         } else {
             new.next = old.next
-            previous.next = new
+            prevInList.next = new
+            prev = prevInList
         }
 
         if (old === tail) {
@@ -87,8 +91,8 @@ class BirChildElementList<E : BirElement>(
         old.rawParent = null
         old.next = null
 
-        parent.context.elementDetached(old)
-        parent.context.elementAttached(new)
+        parent.childDetached(old, prev)
+        parent.childAttached(new, prev)
 
         return true
     }
@@ -101,23 +105,25 @@ class BirChildElementList<E : BirElement>(
         element as BirElementBase
 
         val tail = tail!!
-        val previous = findPreviousNode(tail, element, hintPreviousElement)
-        if (previous == null) {
+        val prevInList = findPreviousNode(tail, element, hintPreviousElement)
+        val prev: BirElementBase?
+        if (prevInList == null) {
             headOrNext = element.next
-            setupNewHeadElement(headOrNext)
+            prev = setupNewHeadElement(headOrNext)
         } else {
-            previous.next = element.next
+            prevInList.next = element.next
+            prev = prevInList
         }
 
         if (element === tail) {
-            this.tail = previous
+            this.tail = prevInList
         }
 
         element.rawParent = null
         element.next = null
         size--
 
-        parent.context.elementDetached(element)
+        parent.childDetached(element, prev)
 
         return true
     }
@@ -192,28 +198,31 @@ class BirChildElementList<E : BirElement>(
     fun last(): E = tail as E? ?: throw NoSuchElementException("Collection is empty.")
     fun lastOrNull(): E? = tail as E?
 
-    override fun iterator(): MutableIterator<E> = headOrNext?.let { Iterator(this, it, tail!!) } ?: EmptyIterator as MutableIterator<E>
+    override fun iterator(): MutableIterator<E> = Iterator(this)
 
-    // Works only for non-empty collection
     private class Iterator<E : BirElement>(
         private val list: BirChildElementList<E>,
-        head: BirElementBase,
-        private val tail: BirElementBase,
     ) : MutableIterator<E> {
+        private val tail = list.tail
         private var last: BirElementBase? = null
-        private var next = head
+        private var current: BirElementBase? = null
 
-        override fun hasNext() = last !== tail
+        override fun hasNext() = current !== tail // this also works when list is empty
 
         override fun next(): E {
-            val n = next
-            last = n
-            next = n.next!!
-            return n as E
+            var current = current
+            if (current == null) {
+                current = list.headOrNext
+            } else {
+                last = current
+                current = current.next!!
+            }
+            this.current = current
+            return current as E
         }
 
         override fun remove() {
-            list.remove(last as E) // todo: supply hint previous element
+            list.remove(current as E, last)
         }
     }
 }
