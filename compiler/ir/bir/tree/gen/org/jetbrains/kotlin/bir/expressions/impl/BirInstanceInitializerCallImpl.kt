@@ -11,6 +11,7 @@ package org.jetbrains.kotlin.bir.expressions.impl
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirInstanceInitializerCall
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirInstanceInitializerCallImpl(
@@ -20,4 +21,8 @@ class BirInstanceInitializerCallImpl(
     override var `class`: BirClassSymbol,
 ) : BirInstanceInitializerCall() {
     override var attributeOwnerId: BirAttributeContainer = this
+
+    override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
+        if(this.`class` === old) this.`class` = new as BirClassSymbol
+    }
 }

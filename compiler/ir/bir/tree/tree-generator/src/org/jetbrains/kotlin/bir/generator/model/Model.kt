@@ -81,6 +81,7 @@ sealed class Field(
     val isChild: Boolean,
 ) {
     var trackRef = config?.trackRef ?: false
+    var trackedRefIndex = -1
     abstract val type: TypeRef
     var isOverride = false
     var needsDescriptorApiAnnotation = false

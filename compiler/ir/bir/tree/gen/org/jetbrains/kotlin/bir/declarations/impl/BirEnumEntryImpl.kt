@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
-import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirTreeContext
@@ -34,8 +34,8 @@ class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
     initializerExpression: BirExpressionBody?,
     correspondingClass: BirClass?,
 ) : BirEnumEntry() {
-    override var referencedBy: BirBackReferenceCollectionArrayStyle =
-            BirBackReferenceCollectionArrayStyle()
+    override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
+            BirBackReferenceCollectionArrayStyleImpl()
 
     private var _initializerExpression: BirExpressionBody? = initializerExpression
 

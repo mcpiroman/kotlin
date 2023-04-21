@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
-import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
@@ -46,8 +46,8 @@ class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
     body: BirBody?,
     override var isPrimary: Boolean,
 ) : BirConstructor() {
-    override var referencedBy: BirBackReferenceCollectionArrayStyle =
-            BirBackReferenceCollectionArrayStyle()
+    override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
+            BirBackReferenceCollectionArrayStyleImpl()
 
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)

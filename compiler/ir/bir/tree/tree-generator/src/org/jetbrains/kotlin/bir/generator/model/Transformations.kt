@@ -261,8 +261,10 @@ private fun configureTrackedReferences(elements: List<Element>) {
     }
 
     for (el in elements) {
+        var idx = 0
         for (field in el.fields) {
             if (field.trackRef) {
+                field.trackedRefIndex = idx++
                 val targetElements = (field.type as? ElementRef)?.element?.let { listOf(it) }
                     ?: (field.type as? ClassRef<*>)?.canonicalName?.let { elementsImplementingSymbol[it] }
                     ?: emptyList()

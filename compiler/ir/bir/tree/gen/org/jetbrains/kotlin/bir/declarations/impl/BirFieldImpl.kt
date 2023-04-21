@@ -8,7 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations.impl
 
-import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyle
+import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirTreeContext
@@ -42,8 +42,8 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
     initializer: BirExpressionBody?,
     override var correspondingProperty: BirPropertySymbol?,
 ) : BirField() {
-    override var referencedBy: BirBackReferenceCollectionArrayStyle =
-            BirBackReferenceCollectionArrayStyle()
+    override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
+            BirBackReferenceCollectionArrayStyleImpl()
 
     private var _initializer: BirExpressionBody? = initializer
 

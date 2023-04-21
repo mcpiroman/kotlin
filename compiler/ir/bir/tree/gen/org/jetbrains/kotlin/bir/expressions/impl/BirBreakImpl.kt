@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions.impl
 
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirBreak
 import org.jetbrains.kotlin.bir.expressions.BirLoop
@@ -24,10 +25,11 @@ class BirBreakImpl(
 
     override var loop: BirLoop = loop
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 0)
             field = value
         }
-    init {
-        initTrackedElementReferenceArrayStyle(loop)
+
+    override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
+        registerTrackedBackReferenceTo(loop, 0, unregisterFrom)
     }
 }

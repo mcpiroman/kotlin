@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
@@ -41,7 +42,7 @@ class BirPropertyReferenceImpl(
 
     override var target: BirPropertySymbol = target
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 0)
             field = value
         }
 
@@ -70,14 +71,12 @@ class BirPropertyReferenceImpl(
 
     override var field: BirFieldSymbol? = field
         set(value) {
-            setTrackedElementReferenceArrayStyle(field, value)
+            setTrackedElementReference(field, value, 1)
             field = value
         }
     init {
         initChildField(_dispatchReceiver, null)
         initChildField(_extensionReceiver, _dispatchReceiver)
-        initTrackedElementReferenceArrayStyle(target)
-        initTrackedElementReferenceArrayStyle(field)
     }
 
     override fun getFirstChild(): BirElement? = _dispatchReceiver ?: _extensionReceiver ?:
@@ -101,5 +100,10 @@ class BirPropertyReferenceImpl(
         if(this.field === old) this.field = new as BirFieldSymbol
         if(this.getter === old) this.getter = new as BirSimpleFunctionSymbol
         if(this.setter === old) this.setter = new as BirSimpleFunctionSymbol
+    }
+
+    override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
+        registerTrackedBackReferenceTo(target, 0, unregisterFrom)
+        registerTrackedBackReferenceTo(field, 1, unregisterFrom)
     }
 }

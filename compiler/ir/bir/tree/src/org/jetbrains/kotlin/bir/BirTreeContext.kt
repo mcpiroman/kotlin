@@ -24,6 +24,8 @@ open class BirTreeContext {
         } else {
             addElementToClassCache(element)
         }
+
+        element.registerTrackedBackReferences(null)
     }
 
     internal fun elementDetached(element: BirElementBase, prev: BirElementBase?) {
