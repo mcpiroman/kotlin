@@ -17,39 +17,46 @@ import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
-context(BirTreeContext)
 class BirCatchImpl(
     override val startOffset: Int,
     override val endOffset: Int,
     catchParameter: BirVariable,
     result: BirExpression,
 ) : BirCatch() {
-    override var catchParameter: BirVariable = catchParameter
+    private var _catchParameter: BirVariable = catchParameter
+
+    context(BirTreeContext)
+    override var catchParameter: BirVariable
+        get() = _catchParameter
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_catchParameter, value, null)
+            _catchParameter = value
         }
 
-    override var result: BirExpression = result
+    private var _result: BirExpression = result
+
+    context(BirTreeContext)
+    override var result: BirExpression
+        get() = _result
         set(value) {
-            setChildField(field, value, this.catchParameter)
-            field = value
+            setChildField(_result, value, this._catchParameter)
+            _result = value
         }
     init {
-        initChildField(catchParameter, null)
-        initChildField(result, catchParameter)
+        initChildField(_catchParameter, null)
+        initChildField(_result, _catchParameter)
     }
 
-    override fun getFirstChild(): BirElement? = catchParameter
+    override fun getFirstChild(): BirElement? = _catchParameter
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.catchParameter
-        children[1] = this.result
+        children[0] = this._catchParameter
+        children[1] = this._result
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.catchParameter.accept(visitor)
-        this.result.accept(visitor)
+        this._catchParameter.accept(visitor)
+        this._result.accept(visitor)
     }
 }

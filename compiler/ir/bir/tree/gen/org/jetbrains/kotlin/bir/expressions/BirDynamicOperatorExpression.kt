@@ -17,10 +17,10 @@ import org.jetbrains.kotlin.ir.expressions.IrDynamicOperator
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.dynamicOperatorExpression]
  */
-context(BirTreeContext)
 abstract class BirDynamicOperatorExpression : BirDynamicExpression() {
     abstract var operator: IrDynamicOperator
 
+    context(BirTreeContext)
     abstract var receiver: BirExpression
 
     abstract val arguments: BirChildElementList<BirExpression>

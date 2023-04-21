@@ -12,11 +12,9 @@ import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirStatement
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirBlockBody
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 
-context(BirTreeContext)
 class BirBlockBodyImpl(
     override val startOffset: Int,
     override val endOffset: Int,

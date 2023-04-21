@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirBody
 import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -35,13 +36,16 @@ interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
 
     var returnType: IrType
 
+    context(BirTreeContext)
     var dispatchReceiverParameter: BirValueParameter?
 
+    context(BirTreeContext)
     var extensionReceiverParameter: BirValueParameter?
 
     var valueParameters: BirChildElementList<BirValueParameter>
 
     var contextReceiverParametersCount: Int
 
+    context(BirTreeContext)
     var body: BirBody?
 }

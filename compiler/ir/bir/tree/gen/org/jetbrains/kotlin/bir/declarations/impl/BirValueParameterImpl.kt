@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -44,23 +43,27 @@ class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     override var referencedBy: BirBackReferenceCollectionArrayStyle =
             BirBackReferenceCollectionArrayStyle()
 
-    override var defaultValue: BirExpressionBody? = defaultValue
+    private var _defaultValue: BirExpressionBody? = defaultValue
+
+    context(BirTreeContext)
+    override var defaultValue: BirExpressionBody?
+        get() = _defaultValue
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_defaultValue, value, null)
+            _defaultValue = value
         }
     init {
-        initChildField(defaultValue, null)
+        initChildField(_defaultValue, null)
     }
 
-    override fun getFirstChild(): BirElement? = defaultValue
+    override fun getFirstChild(): BirElement? = _defaultValue
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.defaultValue
+        children[0] = this._defaultValue
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.defaultValue?.accept(visitor)
+        this._defaultValue?.accept(visitor)
     }
 }

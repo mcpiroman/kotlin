@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirDoWhileLoopImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -35,32 +34,40 @@ class BirDoWhileLoopImpl(
 
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var body: BirExpression? = body
+    private var _body: BirExpression? = body
+
+    context(BirTreeContext)
+    override var body: BirExpression?
+        get() = _body
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_body, value, null)
+            _body = value
         }
 
-    override var condition: BirExpression = condition
+    private var _condition: BirExpression = condition
+
+    context(BirTreeContext)
+    override var condition: BirExpression
+        get() = _condition
         set(value) {
-            setChildField(field, value, this.body)
-            field = value
+            setChildField(_condition, value, this._body)
+            _condition = value
         }
     init {
-        initChildField(body, null)
-        initChildField(condition, body)
+        initChildField(_body, null)
+        initChildField(_condition, _body)
     }
 
-    override fun getFirstChild(): BirElement? = body ?: condition
+    override fun getFirstChild(): BirElement? = _body ?: _condition
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.body
-        children[1] = this.condition
+        children[0] = this._body
+        children[1] = this._condition
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.body?.accept(visitor)
-        this.condition.accept(visitor)
+        this._body?.accept(visitor)
+        this._condition.accept(visitor)
     }
 }

@@ -15,7 +15,6 @@ sealed class BirElementBaseOrList : BirElementOrList {
     internal abstract val next: BirElementBase?
 }
 
-context (BirTreeContext)
 abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     //var originalIrElement: IrElement? = null
     internal var rawParent: BirElementBaseOrList? = null
@@ -30,9 +29,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             is BirElementBase -> rawParent
             is BirChildElementList<*> -> rawParent.parent
         }
-
-    internal val context: BirTreeContext
-        get() = this@BirTreeContext
 
     internal var attachedToTree: Boolean
         get() = hasFlag(FLAG_ATTACHED_TO_TREE)
@@ -67,6 +63,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         require(rawParent == null) { "Element $this is already bound to the tree as a child of $parent." }
     }
 
+    context (BirTreeContext)
     fun replace(new: BirElement?) {
         val owner = rawParent
         require(owner != null) { "Element is not bound to a tree - its parent is null" }
@@ -81,6 +78,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
     }
 
+    context (BirTreeContext)
     internal fun replaceInsideList(
         list: BirChildElementList<BirElement>,
         new: BirElement?,
@@ -95,6 +93,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         if (!success) list.parent.throwChildForReplacementNotFound(this)
     }
 
+    context (BirTreeContext)
     fun remove() = replace(null)
 
     fun nextNonChild(): BirElementBase? {
@@ -134,6 +133,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
     }
 
+    context (BirTreeContext)
     protected fun setChildField(
         old: BirElement?,
         new: BirElement?,
@@ -236,12 +236,14 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         return null
     }
 
+    context (BirTreeContext)
     internal fun childAttached(element: BirElementBase, prev: BirElementBase?) {
         if (attachedToTree) {
             elementAttached(element, prev)
         }
     }
 
+    context (BirTreeContext)
     internal fun childDetached(element: BirElementBase, prev: BirElementBase?) {
         if (attachedToTree) {
             elementDetached(element, prev)

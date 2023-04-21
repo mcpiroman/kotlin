@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirPropertyReferenceImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -46,16 +45,24 @@ class BirPropertyReferenceImpl(
             field = value
         }
 
-    override var dispatchReceiver: BirExpression? = dispatchReceiver
+    private var _dispatchReceiver: BirExpression? = dispatchReceiver
+
+    context(BirTreeContext)
+    override var dispatchReceiver: BirExpression?
+        get() = _dispatchReceiver
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_dispatchReceiver, value, null)
+            _dispatchReceiver = value
         }
 
-    override var extensionReceiver: BirExpression? = extensionReceiver
+    private var _extensionReceiver: BirExpression? = extensionReceiver
+
+    context(BirTreeContext)
+    override var extensionReceiver: BirExpression?
+        get() = _extensionReceiver
         set(value) {
-            setChildField(field, value, this.dispatchReceiver)
-            field = value
+            setChildField(_extensionReceiver, value, this._dispatchReceiver)
+            _extensionReceiver = value
         }
 
     override val valueArguments: BirChildElementList<BirExpression> =
@@ -67,25 +74,25 @@ class BirPropertyReferenceImpl(
             field = value
         }
     init {
-        initChildField(dispatchReceiver, null)
-        initChildField(extensionReceiver, dispatchReceiver)
+        initChildField(_dispatchReceiver, null)
+        initChildField(_extensionReceiver, _dispatchReceiver)
         initTrackedElementReferenceArrayStyle(target)
         initTrackedElementReferenceArrayStyle(field)
     }
 
-    override fun getFirstChild(): BirElement? = dispatchReceiver ?: extensionReceiver ?:
+    override fun getFirstChild(): BirElement? = _dispatchReceiver ?: _extensionReceiver ?:
             valueArguments.firstOrNull()
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.dispatchReceiver
-        children[1] = this.extensionReceiver
+        children[0] = this._dispatchReceiver
+        children[1] = this._extensionReceiver
         children[2] = this.valueArguments
         return 3
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.dispatchReceiver?.accept(visitor)
-        this.extensionReceiver?.accept(visitor)
+        this._dispatchReceiver?.accept(visitor)
+        this._extensionReceiver?.accept(visitor)
         this.valueArguments.acceptChildren(visitor)
     }
 

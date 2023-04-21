@@ -28,6 +28,7 @@ fun printTypeCommon(generationPath: File, packageName: String, type: TypeSpec): 
         .replace(":\\s*Unit".toRegex(), "")
         .replace("import kotlin\\..*\\n".toRegex(), "")
         .replace("KotlinArray<", "Array<")
+        .replace("@BirTreeContext", "context(BirTreeContext)")
 
     val text = PREFIX + code
     return GeneratedFile(getPathForFile(generationPath, packageName, type.name!!), text)

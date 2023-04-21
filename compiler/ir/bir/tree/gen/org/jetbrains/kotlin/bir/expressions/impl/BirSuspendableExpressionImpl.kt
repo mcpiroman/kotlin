@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirSuspendableExpressionImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -28,32 +27,40 @@ class BirSuspendableExpressionImpl(
 ) : BirSuspendableExpression() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var suspensionPointId: BirExpression = suspensionPointId
+    private var _suspensionPointId: BirExpression = suspensionPointId
+
+    context(BirTreeContext)
+    override var suspensionPointId: BirExpression
+        get() = _suspensionPointId
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_suspensionPointId, value, null)
+            _suspensionPointId = value
         }
 
-    override var result: BirExpression = result
+    private var _result: BirExpression = result
+
+    context(BirTreeContext)
+    override var result: BirExpression
+        get() = _result
         set(value) {
-            setChildField(field, value, this.suspensionPointId)
-            field = value
+            setChildField(_result, value, this._suspensionPointId)
+            _result = value
         }
     init {
-        initChildField(suspensionPointId, null)
-        initChildField(result, suspensionPointId)
+        initChildField(_suspensionPointId, null)
+        initChildField(_result, _suspensionPointId)
     }
 
-    override fun getFirstChild(): BirElement? = suspensionPointId
+    override fun getFirstChild(): BirElement? = _suspensionPointId
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.suspensionPointId
-        children[1] = this.result
+        children[0] = this._suspensionPointId
+        children[1] = this._result
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.suspensionPointId.accept(visitor)
-        this.result.accept(visitor)
+        this._suspensionPointId.accept(visitor)
+        this._result.accept(visitor)
     }
 }

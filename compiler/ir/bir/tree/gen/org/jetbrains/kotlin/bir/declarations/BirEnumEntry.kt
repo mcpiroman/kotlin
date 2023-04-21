@@ -22,13 +22,14 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.enumEntry]
  */
-context(BirTreeContext)
 abstract class BirEnumEntry : BirElementBase(), BirDeclaration, BirDeclarationWithName,
         BirSymbolElement, BirEnumEntrySymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
     abstract override val descriptor: ClassDescriptor
 
+    context(BirTreeContext)
     abstract var initializerExpression: BirExpressionBody?
 
+    context(BirTreeContext)
     abstract var correspondingClass: BirClass?
 }

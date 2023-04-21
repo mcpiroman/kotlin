@@ -18,12 +18,12 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.fieldAccessExpression]
  */
-context(BirTreeContext)
 abstract class BirFieldAccessExpression : BirDeclarationReference() {
     abstract override var target: BirFieldSymbol
 
     abstract var superQualifier: BirClassSymbol?
 
+    context(BirTreeContext)
     abstract var receiver: BirExpression?
 
     abstract var origin: IrStatementOrigin?

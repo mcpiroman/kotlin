@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.setField]
  */
-context(BirTreeContext)
 abstract class BirSetField : BirFieldAccessExpression() {
+    context(BirTreeContext)
     abstract var value: BirExpression
 }

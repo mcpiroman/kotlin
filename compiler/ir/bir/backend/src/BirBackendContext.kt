@@ -4,6 +4,7 @@
  */
 
 import org.jetbrains.kotlin.backend.wasm.WasmSymbols
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.ir.IrBuiltIns
@@ -30,7 +31,7 @@ class WasmBirContext(
     override val irBuiltIns: IrBuiltIns,
     override val configuration: CompilerConfiguration,
     val wasmSymbols: WasmSymbols
-) : BirBackendContext {
+) : BirTreeContext(), BirBackendContext {
     override val internalPackageFqn = FqName("kotlin.wasm")
     override val typeSystem: IrTypeSystemContext = IrTypeSystemContextImpl(irBuiltIns)
 }

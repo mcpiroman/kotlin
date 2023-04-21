@@ -11,14 +11,12 @@ package org.jetbrains.kotlin.bir.expressions.impl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirVararg
 import org.jetbrains.kotlin.bir.expressions.BirVarargElement
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirVarargImpl(
     override val startOffset: Int,
     override val endOffset: Int,

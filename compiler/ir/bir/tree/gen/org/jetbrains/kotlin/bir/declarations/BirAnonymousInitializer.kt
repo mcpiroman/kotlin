@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.anonymousInitializer]
  */
-context(BirTreeContext)
 abstract class BirAnonymousInitializer : BirElementBase(), BirDeclaration, BirSymbolElement,
         BirAnonymousInitializerSymbol {
     @ObsoleteDescriptorBasedAPI
@@ -29,5 +28,6 @@ abstract class BirAnonymousInitializer : BirElementBase(), BirDeclaration, BirSy
 
     abstract var isStatic: Boolean
 
+    context(BirTreeContext)
     abstract var body: BirBlockBody
 }

@@ -9,14 +9,12 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
-import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.constantArray]
  */
-context(BirTreeContext)
 abstract class BirConstantArray : BirConstantValue() {
     abstract val elements: BirChildElementList<BirConstantValue>
 }

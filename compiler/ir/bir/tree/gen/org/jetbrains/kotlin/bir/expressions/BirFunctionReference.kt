@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 
 /**
@@ -16,7 +15,6 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.functionReference]
  */
-context(BirTreeContext)
 abstract class BirFunctionReference : BirCallableReference<BirFunctionSymbol>() {
     abstract override var target: BirFunctionSymbol
 

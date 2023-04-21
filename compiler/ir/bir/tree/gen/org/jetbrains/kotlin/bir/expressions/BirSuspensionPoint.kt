@@ -16,11 +16,13 @@ import org.jetbrains.kotlin.bir.declarations.BirVariable
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.suspensionPoint]
  */
-context(BirTreeContext)
 abstract class BirSuspensionPoint : BirExpression() {
+    context(BirTreeContext)
     abstract var suspensionPointIdParameter: BirVariable
 
+    context(BirTreeContext)
     abstract var result: BirExpression
 
+    context(BirTreeContext)
     abstract var resumeResult: BirExpression
 }

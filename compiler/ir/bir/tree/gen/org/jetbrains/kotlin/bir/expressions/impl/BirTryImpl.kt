@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirTryImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -30,36 +29,44 @@ class BirTryImpl(
 ) : BirTry() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var tryResult: BirExpression = tryResult
+    private var _tryResult: BirExpression = tryResult
+
+    context(BirTreeContext)
+    override var tryResult: BirExpression
+        get() = _tryResult
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_tryResult, value, null)
+            _tryResult = value
         }
 
     override val catches: BirChildElementList<BirCatch> = BirChildElementList(this)
 
-    override var finallyExpression: BirExpression? = finallyExpression
+    private var _finallyExpression: BirExpression? = finallyExpression
+
+    context(BirTreeContext)
+    override var finallyExpression: BirExpression?
+        get() = _finallyExpression
         set(value) {
-            setChildField(field, value, this.catches)
-            field = value
+            setChildField(_finallyExpression, value, this.catches)
+            _finallyExpression = value
         }
     init {
-        initChildField(tryResult, null)
-        initChildField(finallyExpression, catches)
+        initChildField(_tryResult, null)
+        initChildField(_finallyExpression, catches)
     }
 
-    override fun getFirstChild(): BirElement? = tryResult
+    override fun getFirstChild(): BirElement? = _tryResult
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.tryResult
+        children[0] = this._tryResult
         children[1] = this.catches
-        children[2] = this.finallyExpression
+        children[2] = this._finallyExpression
         return 3
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.tryResult.accept(visitor)
+        this._tryResult.accept(visitor)
         this.catches.acceptChildren(visitor)
-        this.finallyExpression?.accept(visitor)
+        this._finallyExpression?.accept(visitor)
     }
 }

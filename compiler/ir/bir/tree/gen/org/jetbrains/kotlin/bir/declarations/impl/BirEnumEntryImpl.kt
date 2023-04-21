@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -38,32 +37,40 @@ class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
     override var referencedBy: BirBackReferenceCollectionArrayStyle =
             BirBackReferenceCollectionArrayStyle()
 
-    override var initializerExpression: BirExpressionBody? = initializerExpression
+    private var _initializerExpression: BirExpressionBody? = initializerExpression
+
+    context(BirTreeContext)
+    override var initializerExpression: BirExpressionBody?
+        get() = _initializerExpression
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_initializerExpression, value, null)
+            _initializerExpression = value
         }
 
-    override var correspondingClass: BirClass? = correspondingClass
+    private var _correspondingClass: BirClass? = correspondingClass
+
+    context(BirTreeContext)
+    override var correspondingClass: BirClass?
+        get() = _correspondingClass
         set(value) {
-            setChildField(field, value, this.initializerExpression)
-            field = value
+            setChildField(_correspondingClass, value, this._initializerExpression)
+            _correspondingClass = value
         }
     init {
-        initChildField(initializerExpression, null)
-        initChildField(correspondingClass, initializerExpression)
+        initChildField(_initializerExpression, null)
+        initChildField(_correspondingClass, _initializerExpression)
     }
 
-    override fun getFirstChild(): BirElement? = initializerExpression ?: correspondingClass
+    override fun getFirstChild(): BirElement? = _initializerExpression ?: _correspondingClass
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.initializerExpression
-        children[1] = this.correspondingClass
+        children[0] = this._initializerExpression
+        children[1] = this._correspondingClass
         return 2
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.initializerExpression?.accept(visitor)
-        this.correspondingClass?.accept(visitor)
+        this._initializerExpression?.accept(visitor)
+        this._correspondingClass?.accept(visitor)
     }
 }

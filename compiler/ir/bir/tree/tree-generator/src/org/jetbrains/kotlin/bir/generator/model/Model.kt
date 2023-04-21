@@ -102,7 +102,10 @@ class SingleField(
     nullable: Boolean,
     mutable: Boolean,
     isChild: Boolean,
-) : Field(config, name, nullable, mutable, isChild)
+) : Field(config, name, nullable, mutable, isChild) {
+    val backingFieldName: String
+        get() = "_" + name
+}
 
 class ListField(
     config: ListFieldConfig?,

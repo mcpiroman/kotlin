@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.valueParameter]
  */
-context(BirTreeContext)
 abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSymbolElement,
         BirValueParameterSymbol {
     @ObsoleteDescriptorBasedAPI
@@ -37,5 +36,6 @@ abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSym
 
     abstract var isHidden: Boolean
 
+    context(BirTreeContext)
     abstract var defaultValue: BirExpressionBody?
 }

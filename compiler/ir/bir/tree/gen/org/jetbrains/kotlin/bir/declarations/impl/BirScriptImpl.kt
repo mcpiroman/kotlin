@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -50,10 +49,14 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
 ) : BirScript() {
     override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
 
-    override var thisReceiver: BirValueParameter? = thisReceiver
+    private var _thisReceiver: BirValueParameter? = thisReceiver
+
+    context(BirTreeContext)
+    override var thisReceiver: BirValueParameter?
+        get() = _thisReceiver
         set(value) {
-            setChildField(field, value, this.statements)
-            field = value
+            setChildField(_thisReceiver, value, this.statements)
+            _thisReceiver = value
         }
 
     override var explicitCallParameters: BirChildElementList<BirVariable> =
@@ -65,37 +68,41 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
     override var providedPropertiesParameters: BirChildElementList<BirValueParameter> =
             BirChildElementList(this)
 
-    override var earlierScriptsParameter: BirValueParameter? = earlierScriptsParameter
+    private var _earlierScriptsParameter: BirValueParameter? = earlierScriptsParameter
+
+    context(BirTreeContext)
+    override var earlierScriptsParameter: BirValueParameter?
+        get() = _earlierScriptsParameter
         set(value) {
-            setChildField(field, value, this.providedPropertiesParameters)
-            field = value
+            setChildField(_earlierScriptsParameter, value, this.providedPropertiesParameters)
+            _earlierScriptsParameter = value
         }
     init {
-        initChildField(thisReceiver, statements)
-        initChildField(earlierScriptsParameter, providedPropertiesParameters)
+        initChildField(_thisReceiver, statements)
+        initChildField(_earlierScriptsParameter, providedPropertiesParameters)
     }
 
-    override fun getFirstChild(): BirElement? = statements.firstOrNull() ?: thisReceiver ?:
+    override fun getFirstChild(): BirElement? = statements.firstOrNull() ?: _thisReceiver ?:
             explicitCallParameters.firstOrNull() ?: implicitReceiversParameters.firstOrNull() ?:
-            providedPropertiesParameters.firstOrNull() ?: earlierScriptsParameter
+            providedPropertiesParameters.firstOrNull() ?: _earlierScriptsParameter
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
         children[0] = this.statements
-        children[1] = this.thisReceiver
+        children[1] = this._thisReceiver
         children[2] = this.explicitCallParameters
         children[3] = this.implicitReceiversParameters
         children[4] = this.providedPropertiesParameters
-        children[5] = this.earlierScriptsParameter
+        children[5] = this._earlierScriptsParameter
         return 6
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.statements.acceptChildren(visitor)
-        this.thisReceiver?.accept(visitor)
+        this._thisReceiver?.accept(visitor)
         this.explicitCallParameters.acceptChildren(visitor)
         this.implicitReceiversParameters.acceptChildren(visitor)
         this.providedPropertiesParameters.acceptChildren(visitor)
-        this.earlierScriptsParameter?.accept(visitor)
+        this._earlierScriptsParameter?.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

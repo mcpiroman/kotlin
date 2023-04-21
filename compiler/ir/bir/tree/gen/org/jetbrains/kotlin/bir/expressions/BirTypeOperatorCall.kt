@@ -17,10 +17,10 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.typeOperatorCall]
  */
-context(BirTreeContext)
 abstract class BirTypeOperatorCall : BirExpression() {
     abstract var operator: IrTypeOperator
 
+    context(BirTreeContext)
     abstract var argument: BirExpression
 
     abstract var typeOperand: IrType

@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirSetValueImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -37,24 +36,28 @@ class BirSetValueImpl(
             field = value
         }
 
-    override var value: BirExpression = value
+    private var _value: BirExpression = value
+
+    context(BirTreeContext)
+    override var value: BirExpression
+        get() = _value
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_value, value, null)
+            _value = value
         }
     init {
-        initChildField(value, null)
+        initChildField(_value, null)
         initTrackedElementReferenceArrayStyle(target)
     }
 
-    override fun getFirstChild(): BirElement? = value
+    override fun getFirstChild(): BirElement? = _value
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.value
+        children[0] = this._value
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.value.accept(visitor)
+        this._value.accept(visitor)
     }
 }

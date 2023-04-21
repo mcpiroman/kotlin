@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirDynamicMemberExpressionImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -28,23 +27,27 @@ class BirDynamicMemberExpressionImpl(
 ) : BirDynamicMemberExpression() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var receiver: BirExpression = receiver
+    private var _receiver: BirExpression = receiver
+
+    context(BirTreeContext)
+    override var receiver: BirExpression
+        get() = _receiver
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_receiver, value, null)
+            _receiver = value
         }
     init {
-        initChildField(receiver, null)
+        initChildField(_receiver, null)
     }
 
-    override fun getFirstChild(): BirElement? = receiver
+    override fun getFirstChild(): BirElement? = _receiver
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.receiver
+        children[0] = this._receiver
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.receiver.accept(visitor)
+        this._receiver.accept(visitor)
     }
 }

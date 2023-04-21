@@ -8,14 +8,12 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.breakContinue]
  */
-context(BirTreeContext)
 abstract class BirBreakContinue : BirExpression() {
     abstract var loop: BirLoop
 

@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.field]
  */
-context(BirTreeContext)
 abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirMetadataSourceOwner, BirSymbolElement, BirFieldSymbol,
         BirElementTrackingBackReferences {
@@ -37,6 +36,7 @@ abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVi
 
     abstract var isStatic: Boolean
 
+    context(BirTreeContext)
     abstract var initializer: BirExpressionBody?
 
     abstract var correspondingProperty: BirPropertySymbol?

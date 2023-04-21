@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.ir.types.IrType
 
-context(BirTreeContext)
 class BirReturnImpl(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -30,24 +29,28 @@ class BirReturnImpl(
 ) : BirReturn() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override var value: BirExpression = value
+    private var _value: BirExpression = value
+
+    context(BirTreeContext)
+    override var value: BirExpression
+        get() = _value
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_value, value, null)
+            _value = value
         }
     init {
-        initChildField(value, null)
+        initChildField(_value, null)
     }
 
-    override fun getFirstChild(): BirElement? = value
+    override fun getFirstChild(): BirElement? = _value
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = this.value
+        children[0] = this._value
         return 1
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        this.value.accept(visitor)
+        this._value.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

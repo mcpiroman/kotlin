@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.Modality
 
@@ -18,7 +17,6 @@ import org.jetbrains.kotlin.descriptors.Modality
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.overridableMember]
  */
-context(BirTreeContext)
 abstract class BirOverridableMember : BirElementBase(), BirDeclaration,
         BirDeclarationWithName, BirDeclarationWithVisibility, BirSymbolElement {
     abstract var modality: Modality

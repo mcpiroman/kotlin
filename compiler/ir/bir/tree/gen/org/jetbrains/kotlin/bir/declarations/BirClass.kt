@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.ir.types.IrType
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.class]
  */
-context(BirTreeContext)
 abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVisibility,
         BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirDeclarationContainer,
         BirAttributeContainer, BirMetadataSourceOwner, BirSymbolElement, BirClassSymbol,
@@ -55,6 +54,7 @@ abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVi
 
     abstract var superTypes: List<IrType>
 
+    context(BirTreeContext)
     abstract var thisReceiver: BirValueParameter?
 
     abstract var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?

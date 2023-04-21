@@ -18,9 +18,10 @@ import org.jetbrains.kotlin.bir.declarations.BirVariable
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.catch]
  */
-context(BirTreeContext)
 abstract class BirCatch : BirElementBase(), BirElement {
+    context(BirTreeContext)
     abstract var catchParameter: BirVariable
 
+    context(BirTreeContext)
     abstract var result: BirExpression
 }

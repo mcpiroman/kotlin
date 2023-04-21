@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.spreadElement]
  */
-context(BirTreeContext)
 abstract class BirSpreadElement : BirElementBase(), BirVarargElement {
+    context(BirTreeContext)
     abstract var expression: BirExpression
 }

@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.ir.expressions.IrSyntheticBodyKind
 
 /**
@@ -16,7 +15,6 @@ import org.jetbrains.kotlin.ir.expressions.IrSyntheticBodyKind
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.syntheticBody]
  */
-context(BirTreeContext)
 abstract class BirSyntheticBody : BirBody() {
     abstract var kind: IrSyntheticBodyKind
 }

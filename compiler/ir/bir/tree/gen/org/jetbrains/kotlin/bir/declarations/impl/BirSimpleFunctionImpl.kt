@@ -32,7 +32,6 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
-context(BirTreeContext)
 class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -65,53 +64,66 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)
 
-    override var dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
+    private var _dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
+
+    context(BirTreeContext)
+    override var dispatchReceiverParameter: BirValueParameter?
+        get() = _dispatchReceiverParameter
         set(value) {
-            setChildField(field, value, this.typeParameters)
-            field = value
+            setChildField(_dispatchReceiverParameter, value, this.typeParameters)
+            _dispatchReceiverParameter = value
         }
 
-    override var extensionReceiverParameter: BirValueParameter? = extensionReceiverParameter
+    private var _extensionReceiverParameter: BirValueParameter? = extensionReceiverParameter
+
+    context(BirTreeContext)
+    override var extensionReceiverParameter: BirValueParameter?
+        get() = _extensionReceiverParameter
         set(value) {
-            setChildField(field, value, this.dispatchReceiverParameter ?: this.typeParameters)
-            field = value
+            setChildField(_extensionReceiverParameter, value, this._dispatchReceiverParameter ?:
+                    this.typeParameters)
+            _extensionReceiverParameter = value
         }
 
     override var valueParameters: BirChildElementList<BirValueParameter> =
             BirChildElementList(this)
 
-    override var body: BirBody? = body
+    private var _body: BirBody? = body
+
+    context(BirTreeContext)
+    override var body: BirBody?
+        get() = _body
         set(value) {
-            setChildField(field, value, this.valueParameters)
-            field = value
+            setChildField(_body, value, this.valueParameters)
+            _body = value
         }
 
     override var attributeOwnerId: BirAttributeContainer = this
     init {
-        initChildField(dispatchReceiverParameter, typeParameters)
-        initChildField(extensionReceiverParameter, dispatchReceiverParameter ?: typeParameters)
-        initChildField(body, valueParameters)
+        initChildField(_dispatchReceiverParameter, typeParameters)
+        initChildField(_extensionReceiverParameter, _dispatchReceiverParameter ?: typeParameters)
+        initChildField(_body, valueParameters)
     }
 
     override fun getFirstChild(): BirElement? = typeParameters.firstOrNull() ?:
-            dispatchReceiverParameter ?: extensionReceiverParameter ?: valueParameters.firstOrNull()
-            ?: body
+            _dispatchReceiverParameter ?: _extensionReceiverParameter ?:
+            valueParameters.firstOrNull() ?: _body
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
         children[0] = this.typeParameters
-        children[1] = this.dispatchReceiverParameter
-        children[2] = this.extensionReceiverParameter
+        children[1] = this._dispatchReceiverParameter
+        children[2] = this._extensionReceiverParameter
         children[3] = this.valueParameters
-        children[4] = this.body
+        children[4] = this._body
         return 5
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.typeParameters.acceptChildren(visitor)
-        this.dispatchReceiverParameter?.accept(visitor)
-        this.extensionReceiverParameter?.accept(visitor)
+        this._dispatchReceiverParameter?.accept(visitor)
+        this._extensionReceiverParameter?.accept(visitor)
         this.valueParameters.acceptChildren(visitor)
-        this.body?.accept(visitor)
+        this._body?.accept(visitor)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

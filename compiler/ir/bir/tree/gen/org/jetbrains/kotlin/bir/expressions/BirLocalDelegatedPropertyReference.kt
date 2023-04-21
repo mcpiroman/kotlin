@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirLocalDelegatedProperty
 import org.jetbrains.kotlin.bir.declarations.BirVariable
 import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
@@ -18,7 +17,6 @@ import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.localDelegatedPropertyReference]
  */
-context(BirTreeContext)
 abstract class BirLocalDelegatedPropertyReference :
         BirCallableReference<BirLocalDelegatedProperty>() {
     abstract override var target: BirLocalDelegatedProperty

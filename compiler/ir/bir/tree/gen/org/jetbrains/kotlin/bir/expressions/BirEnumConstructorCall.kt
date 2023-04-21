@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
 
 /**
@@ -16,7 +15,6 @@ import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.enumConstructorCall]
  */
-context(BirTreeContext)
 abstract class BirEnumConstructorCall : BirFunctionAccessExpression() {
     abstract override var target: BirConstructorSymbol
 }

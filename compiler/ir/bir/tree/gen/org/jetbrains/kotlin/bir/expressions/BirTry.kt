@@ -16,11 +16,12 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.try]
  */
-context(BirTreeContext)
 abstract class BirTry : BirExpression() {
+    context(BirTreeContext)
     abstract var tryResult: BirExpression
 
     abstract val catches: BirChildElementList<BirCatch>
 
+    context(BirTreeContext)
     abstract var finallyExpression: BirExpression?
 }

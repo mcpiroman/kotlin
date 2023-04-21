@@ -8,46 +8,77 @@ package org.jetbrains.kotlin.bir
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
-context (BirTreeContext)
-private class MockBirClass(
+private interface MockBirDeclaration : BirElement {
+    context (BirTreeContext)
+    var field1: MockBirValueParameter?
+}
+
+private abstract class MockBirClass() : BirElementBase(), MockBirDeclaration, BirElementTrackingBackReferences {
+    context (BirTreeContext)
+    abstract override var field1: MockBirValueParameter?
+
+    context (BirTreeContext)
+    abstract var field2: MockBirValueParameter
+
+    context (BirTreeContext)
+    abstract var field3: MockBirTypeParameter?
+
+    abstract val list1: BirChildElementList<MockBirDeclaration>
+    abstract val list2: BirChildElementList<MockBirDeclaration>
+    abstract val list3: BirChildElementList<MockBirDeclaration>
+}
+
+private class MockBirClassImpl(
     override val startOffset: Int,
     override val endOffset: Int,
     field2: MockBirValueParameter
-) : BirElementBase(), BirElementTrackingBackReferences {
+) : MockBirClass() {
     override var referencedBy = BirBackReferenceCollectionArrayStyle()
 
-    var field1: MockBirValueParameter? = null
+    private var _field1: MockBirValueParameter? = null
+    context (BirTreeContext)
+    override var field1: MockBirValueParameter?
+        get() = _field1
         set(value) {
-            setChildField(field, value, null)
-            field = value
+            setChildField(_field1, value, null)
+            _field1 = value
         }
-    var field2: MockBirValueParameter = field2
+
+    private var _field2: MockBirValueParameter = field2
+    context (BirTreeContext)
+    override var field2: MockBirValueParameter
+        get() = _field2
         set(value) {
-            setChildField(field, value, field1)
-            field = value
+            setChildField(_field2, value, field1)
+            _field2 = value
         }
-    var field3: MockBirTypeParameter? = null
+
+    private var _field3: MockBirTypeParameter? = null
+    context (BirTreeContext)
+    override var field3: MockBirTypeParameter?
+        get() = _field3
         set(value) {
-            setChildField(field, value, field2)
-            field = value
+            setChildField(_field3, value, field2)
+            _field3 = value
         }
-    val list1 = BirChildElementList<MockBirDeclaration>(this)
-    val list2 = BirChildElementList<MockBirDeclaration>(this)
-    val list3 = BirChildElementList<MockBirDeclaration>(this)
+
+    override val list1 = BirChildElementList<MockBirDeclaration>(this)
+    override val list2 = BirChildElementList<MockBirDeclaration>(this)
+    override val list3 = BirChildElementList<MockBirDeclaration>(this)
 
     init {
-        initChildField(field1, null)
-        initChildField(field2, field1)
-        initChildField(field3, field2)
+        initChildField(_field1, null)
+        initChildField(_field2, _field1)
+        initChildField(_field3, _field2)
     }
 
     override fun getFirstChild(): BirElement =
-        field1 ?: field2
+        _field1 ?: _field2
 
     override fun getChildren(children: Array<BirElementOrList?>): Int {
-        children[0] = field1
-        children[1] = field2
-        children[2] = field3
+        children[0] = _field1
+        children[1] = _field2
+        children[2] = _field3
         children[3] = list1
         children[4] = list2
         children[5] = list3
@@ -55,9 +86,9 @@ private class MockBirClass(
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) {
-        field1?.accept(visitor)
-        field2.accept(visitor)
-        field3?.accept(visitor)
+        _field1?.accept(visitor)
+        _field2.accept(visitor)
+        _field3?.accept(visitor)
         list1.acceptChildren(visitor)
         list2.acceptChildren(visitor)
         list3.acceptChildren(visitor)
@@ -81,15 +112,14 @@ private class MockBirClass(
 
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-            old === field1 -> field1 = new as MockBirValueParameter?
-            old === field2 -> field2 = new as MockBirValueParameter
-            old === field3 -> field3 = new as MockBirTypeParameter?
+            old === _field1 -> _field1 = new as MockBirValueParameter?
+            old === _field2 -> _field2 = new as MockBirValueParameter
+            old === _field3 -> _field3 = new as MockBirTypeParameter?
             else -> throwChildForReplacementNotFound(old)
         }
     }
 }
 
-context (BirTreeContext)
 private class MockBirConstructor(
     override val startOffset: Int,
     override val endOffset: Int,
@@ -105,6 +135,5 @@ private class MockBirConstructor(
     }
 }
 
-private interface MockBirDeclaration : BirElement
 private interface MockBirValueParameter : BirElement
 private interface MockBirTypeParameter : BirElement
