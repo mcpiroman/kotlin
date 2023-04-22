@@ -9,6 +9,7 @@
 package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirRawFunctionReference
 import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
@@ -16,8 +17,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirRawFunctionReferenceImpl(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     override var type: IrType,
     target: BirFunctionSymbol,
 ) : BirRawFunctionReference() {

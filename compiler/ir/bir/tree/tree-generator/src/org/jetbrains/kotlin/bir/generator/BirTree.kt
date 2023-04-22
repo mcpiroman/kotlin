@@ -36,19 +36,16 @@ object BirTree : AbstractTreeBuilder() {
     )
 
     override val rootElement: ElementConfig by element(Other, name = "element") {
-        fun offsetField(prefix: String) = field(prefix + "Offset", int, mutable = false) {
+        +field("sourceSpan", type(Packages.tree, "SourceSpan"), mutable = false) {
             kdoc = """
-            The $prefix offset of the syntax node from which this BIR node was generated,
-            in number of characters from the start of the source file. If there is no source information for this BIR node,
-            the [UNDEFINED_OFFSET] constant is used. In order to get the line number and the column number from this offset,
+            The span of source code of the syntax node from which this BIR node was generated,
+            in number of characters from the start the source file. If there is no source information for this BIR node,
+            the [SourceSpan.UNDEFINED] is used. In order to get the line number and the column number from this offset,
             [IrFileEntry.getLineNumber] and [IrFileEntry.getColumnNumber] can be used.
             
             @see IrFileEntry.getSourceRangeInfo
             """.trimIndent()
         }
-
-        +offsetField("start")
-        +offsetField("end")
 
         kDoc = "The root interface of the BIR tree. Each BIR node implements this interface."
     }

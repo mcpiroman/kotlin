@@ -11,6 +11,8 @@ import org.jetbrains.kotlin.bir.traversal.accept
 private interface MockBirDeclaration : BirElement {
     context (BirTreeContext)
     var field1: MockBirValueParameter?
+
+    companion object
 }
 
 private abstract class MockBirClass() : BirElementBase(), MockBirDeclaration, BirElementTrackingBackReferences {
@@ -29,8 +31,7 @@ private abstract class MockBirClass() : BirElementBase(), MockBirDeclaration, Bi
 }
 
 private class MockBirClassImpl(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     field2: MockBirValueParameter
 ) : MockBirClass() {
     override var _referencedBy = BirBackReferenceCollectionArrayStyleImpl()
@@ -121,8 +122,7 @@ private class MockBirClassImpl(
 }
 
 private class MockBirConstructor(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
 ) : BirElementBase() {
     var target: MockBirClass? = null
         set(value) {

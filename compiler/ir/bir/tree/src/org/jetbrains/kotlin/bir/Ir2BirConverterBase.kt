@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.symbols.LateBindBirSymbol
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.IrAttributeContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrMemberWithContainerSource
@@ -121,7 +120,7 @@ abstract class Ir2BirConverterBase {
             if (arg != null) {
                 bir.valueArguments += mapIrElement(arg) as BirExpression
             } else {
-                bir.valueArguments += BirNoExpressionImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, IrUninitializedType)
+                bir.valueArguments += BirNoExpressionImpl(SourceSpan.UNDEFINED, IrUninitializedType)
             }
         }
     }

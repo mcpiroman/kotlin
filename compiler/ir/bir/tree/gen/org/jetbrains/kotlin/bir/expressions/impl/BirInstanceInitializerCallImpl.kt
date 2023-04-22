@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.expressions.impl
 
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirInstanceInitializerCall
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
@@ -15,8 +16,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirInstanceInitializerCallImpl(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     override var type: IrType,
     override var `class`: BirClassSymbol,
 ) : BirInstanceInitializerCall() {
