@@ -302,7 +302,6 @@ object BirTree : AbstractTreeBuilder() {
     val moduleFragment: ElementConfig by element(Declaration) {
         +descriptor("ModuleDescriptor")
         +field("name", type<Name>(), mutable = false)
-        +field("irBuiltins", type("org.jetbrains.kotlin.ir", "IrBuiltIns"), mutable = false)
         +listField("files", file, mutability = List, isChild = true)
     }
     val property: ElementConfig by element(Declaration) {

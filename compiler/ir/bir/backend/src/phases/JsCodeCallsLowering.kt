@@ -51,7 +51,7 @@ object BirJsCodeCallsLowering : BirLoweringPhase() {
     context(WasmBirContext)
     private fun BirExpression.getJsCode(): String? {
         val call = this as? BirCall ?: return null
-        if (call.target != wasmSymbols.jsCode) return null
+        //if (call.target != wasmSymbols.jsCode) return null
         @Suppress("UNCHECKED_CAST")
         return (call.valueArguments.first() as IrConst<String>).value
     }

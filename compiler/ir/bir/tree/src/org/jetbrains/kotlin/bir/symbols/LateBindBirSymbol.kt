@@ -8,36 +8,32 @@ package org.jetbrains.kotlin.bir.symbols
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirReturnableBlock
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.declarations.IrSymbolOwner
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
-import org.jetbrains.kotlin.ir.util.IdSignature
 
 abstract class LateBindBirSymbol<E : BirElement>(
     val irSymbol: IrSymbol
 ) : BirPossiblyElementSymbol<E> {
-    @ObsoleteDescriptorBasedAPI
-    final override val descriptor: DeclarationDescriptor
-        get() = error("Not bound")
+    /* @ObsoleteDescriptorBasedAPI
+     final override val descriptor: DeclarationDescriptor
+         get() = error("Not bound")
 
-    @ObsoleteDescriptorBasedAPI
-    final override val hasDescriptor: Boolean
-        get() = error("Not bound")
+     @ObsoleteDescriptorBasedAPI
+     final override val hasDescriptor: Boolean
+         get() = error("Not bound")
 
-    final override val isBound: Boolean
-        get() = false
+     final override val isBound: Boolean
+         get() = false
 
-    final override val owner: IrSymbolOwner
-        get() = TODO("IR fragment in BIR context")
+     final override val owner: IrSymbolOwner
+         get() = TODO("IR fragment in BIR context")
 
-    final override var privateSignature: IdSignature?
-        get() = error("Not bound")
-        set(value) = error("Not bound")
+     final override var privateSignature: IdSignature?
+         get() = error("Not bound")
+         set(value) = error("Not bound")
 
-    final override val signature: IdSignature
-        get() = error("Not bound")
-
+     final override val signature: IdSignature
+         get() = error("Not bound")
+ */
 
     class FileSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirFile>(irSymbol), BirFileSymbol
     class ExternalPackageFragmentSymbol(irSymbol: IrSymbol) :

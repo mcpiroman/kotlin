@@ -8,33 +8,31 @@ package org.jetbrains.kotlin.bir.symbols
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.declarations.IrSymbolOwner
-import org.jetbrains.kotlin.ir.util.IdSignature
 
 interface BirSymbolElement : BirLLPossiblyElementSymbol, BirElement {
-    @Deprecated("Meaningless for BirPossiblyElementSymbol", level = DeprecationLevel.ERROR)
+    /*@Deprecated("Meaningless for BirPossiblyElementSymbol", level = DeprecationLevel.ERROR)
     override val isBound: Boolean
         get() = true
 
     @Deprecated("Meaningless for BirPossiblyElementSymbol", level = DeprecationLevel.ERROR)
     override val owner: IrSymbolOwner
-        get() = TODO("Not yet implemented")
+        get() = TODO("Not yet implemented")*/
 
     @ObsoleteDescriptorBasedAPI
     val _descriptor: DeclarationDescriptor?
 
-    @ObsoleteDescriptorBasedAPI
-    override val descriptor: DeclarationDescriptor
-        get() = _descriptor!!
+    /* @ObsoleteDescriptorBasedAPI
+     override val descriptor: DeclarationDescriptor
+         get() = _descriptor!!
 
-    @ObsoleteDescriptorBasedAPI
-    override val hasDescriptor: Boolean
-        get() = _descriptor != null
+     @ObsoleteDescriptorBasedAPI
+     override val hasDescriptor: Boolean
+         get() = _descriptor != null
 
-    override val signature: IdSignature?
-        get() = TODO("Not yet implemented")
+     override val signature: IdSignature?
+         get() = TODO("Not yet implemented")
 
-    override var privateSignature: IdSignature?
-        get() = TODO("Not yet implemented")
-        set(value) = TODO("Not yet implemented")
+     override var privateSignature: IdSignature?
+         get() = TODO("Not yet implemented")
+         set(value) = TODO("Not yet implemented")*/
 }

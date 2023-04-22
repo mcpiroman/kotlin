@@ -378,7 +378,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
             _descriptor = mapDescriptor(ir.descriptor),
             name = ir.name,
-            irBuiltins = ir.irBuiltins,
         )
         registerNewElement(ir, bir)
         moveChildElementList(ir.files, bir.files)

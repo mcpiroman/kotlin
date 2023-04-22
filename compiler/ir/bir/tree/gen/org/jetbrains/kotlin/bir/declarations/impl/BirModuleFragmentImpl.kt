@@ -16,14 +16,12 @@ import org.jetbrains.kotlin.bir.declarations.BirFile
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.name.Name
 
 class BirModuleFragmentImpl(
     override val sourceSpan: SourceSpan,
     override val _descriptor: ModuleDescriptor?,
     override val name: Name,
-    override val irBuiltins: IrBuiltIns,
 ) : BirModuleFragment() {
     override val files: BirChildElementList<BirFile> = BirChildElementList(this)
 
