@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
 import org.jetbrains.kotlin.bir.expressions.impl.BirNoExpressionImpl
+import org.jetbrains.kotlin.bir.symbols.BirIrSymbolWrapper
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.symbols.LateBindBirSymbol
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -49,9 +50,17 @@ abstract class Ir2BirConverterBase {
             val birRootElements = irRootElements.map { mapIrElement(it) }
             lateBindSymbols()
             registerAuxStorage()
+
+            currentlyConvertedElement = null
+            lastNewRegisteredElement = null
+            lastNewRegisteredElementSource = null
+
             return birRootElements
         }
     }
+
+    fun convertIrTree(treeContext: BirTreeContext, irRootElement: IrElement): BirElement =
+        convertIrTree(treeContext, listOf(irRootElement)).single()
 
     context(BirTreeContext)
     protected fun mapIrElement(ir: IrElement): BirElement {
@@ -157,7 +166,7 @@ abstract class Ir2BirConverterBase {
                 birSymbol as BirS
             }
         } else {
-            symbol as BirS
+            BirIrSymbolWrapper(symbol) as BirS
         }
     }
 

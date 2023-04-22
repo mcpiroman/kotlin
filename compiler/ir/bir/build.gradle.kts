@@ -8,6 +8,7 @@ project.configureJvmToolchain(JdkMajorVersion.JDK_17_0)
 
 dependencies {
     api(project(":compiler:bir:tree"))
+    api(project(":compiler:bir:backend"))
     api(project(":compiler:ir.backend.common"))
     api(project(":compiler:ir.tree"))
     implementation(project(":compiler:util"))

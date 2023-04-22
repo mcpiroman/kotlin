@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.ir.backend.js.IrModuleInfo
 import org.jetbrains.kotlin.ir.backend.js.MainModule
 import org.jetbrains.kotlin.ir.backend.js.ModulesStructure
 import org.jetbrains.kotlin.ir.backend.js.loadIr
-import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.impl.IrFactoryImpl
 import org.jetbrains.kotlin.js.config.EcmaVersion
 import org.jetbrains.kotlin.js.config.ErrorTolerancePolicy
@@ -21,14 +20,14 @@ import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.serialization.js.ModuleKind
 import java.io.File
 
-//data class prepareIrResult(val createContext: () -> JsIrBackendContext, val allModules: List<IrModuleFragment>)
+data class PrepareIrResult(val moduleInfo: IrModuleInfo, val configuration: CompilerConfiguration)
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-fun prepareIr(mainModulePath: String): IrModuleInfo {
+fun prepareIr(mainModulePath: String): PrepareIrResult {
     val project = MockProject(null) {}
 
     val mainModule = MainModule.Klib(mainModulePath)
-    val configuration = createConfig(
+    val configuration = createCompilerConfig(
         listOf(mainModule.libPath).map { File(it).absolutePath },
         emptyList(),
         emptyList(),
@@ -43,10 +42,10 @@ fun prepareIr(mainModulePath: String): IrModuleInfo {
     )
 
     val moduleInfo = loadIr(depsDescriptors, IrFactoryImpl, verifySignatures = false)
-    return moduleInfo //prepareIrResult(createContext, allModules)
+    return PrepareIrResult(moduleInfo, configuration)
 }
 
-fun createConfig(
+fun createCompilerConfig(
     dependencies: List<String>,
     allDependencies: List<String>,
     friends: List<String>,
