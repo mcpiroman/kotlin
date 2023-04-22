@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirLocalDelegatedProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.declarations.BirVariable
@@ -25,8 +26,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: VariableDescriptorWithAccessors,

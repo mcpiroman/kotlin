@@ -11,6 +11,7 @@ package org.jetbrains.kotlin.bir.expressions.impl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirStringConcatenation
@@ -18,8 +19,7 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.ir.types.IrType
 
 class BirStringConcatenationImpl(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     override var type: IrType,
 ) : BirStringConcatenation() {
     override var attributeOwnerId: BirAttributeContainer = this

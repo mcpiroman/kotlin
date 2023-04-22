@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.declarations.BirFunctionWithLateBinding
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
@@ -33,8 +34,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: FunctionDescriptor,

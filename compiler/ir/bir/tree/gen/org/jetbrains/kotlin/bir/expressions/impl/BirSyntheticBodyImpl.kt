@@ -8,11 +8,11 @@
 
 package org.jetbrains.kotlin.bir.expressions.impl
 
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.expressions.BirSyntheticBody
 import org.jetbrains.kotlin.ir.expressions.IrSyntheticBodyKind
 
 class BirSyntheticBodyImpl(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     override var kind: IrSyntheticBodyKind,
 ) : BirSyntheticBody()

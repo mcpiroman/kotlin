@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirStatement
 import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirConstructor
 import org.jetbrains.kotlin.bir.declarations.BirScript
 import org.jetbrains.kotlin.bir.declarations.BirValueParameter
@@ -31,8 +32,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val startOffset: Int,
-    override val endOffset: Int,
+    override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val descriptor: ScriptDescriptor,
