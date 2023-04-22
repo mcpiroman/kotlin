@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 class BirExternalPackageFragmentImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: PackageFragmentDescriptor,
+    override val _descriptor: PackageFragmentDescriptor?,
     override var fqName: FqName,
     override val containerSource: DeserializedContainerSource?,
 ) : BirExternalPackageFragment() {

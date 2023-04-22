@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithName,
         BirStatementContainer, BirMetadataSourceOwner, BirSymbolElement, BirScriptSymbol {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: ScriptDescriptor
+    abstract override val _descriptor: ScriptDescriptor?
 
     context(BirTreeContext)
     abstract var thisReceiver: BirValueParameter?

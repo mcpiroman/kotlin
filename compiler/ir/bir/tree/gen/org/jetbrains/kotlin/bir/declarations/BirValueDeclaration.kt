@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 abstract class BirValueDeclaration : BirElementBase(), BirDeclarationWithName,
         BirSymbolElement, BirValueSymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: ValueDescriptor
+    abstract override val _descriptor: ValueDescriptor?
 
     abstract var type: IrType
 

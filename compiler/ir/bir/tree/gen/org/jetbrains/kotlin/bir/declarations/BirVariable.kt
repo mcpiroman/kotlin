@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 abstract class BirVariable : BirValueDeclaration(), BirDeclaration, BirSymbolElement,
         BirVariableSymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: VariableDescriptor
+    abstract override val _descriptor: VariableDescriptor?
 
     abstract var isVar: Boolean
 

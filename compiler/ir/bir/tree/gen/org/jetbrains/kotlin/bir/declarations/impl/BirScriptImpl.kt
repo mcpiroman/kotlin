@@ -35,7 +35,7 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: ScriptDescriptor,
+    override val _descriptor: ScriptDescriptor?,
     override var origin: IrDeclarationOrigin,
     override var name: Name,
     thisReceiver: BirValueParameter?,

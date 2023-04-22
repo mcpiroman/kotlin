@@ -28,7 +28,7 @@ interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
         BirMemberWithContainerSource, BirMetadataSourceOwner, BirSymbolElement, BirFunctionSymbol,
         BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
-    override val descriptor: FunctionDescriptor
+    override val _descriptor: FunctionDescriptor?
 
     var isInline: Boolean
 

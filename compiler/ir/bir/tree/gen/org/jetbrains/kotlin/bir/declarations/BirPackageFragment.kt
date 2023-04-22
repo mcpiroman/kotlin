@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.name.FqName
 interface BirPackageFragment : BirDeclarationContainer, BirSymbolElement,
         BirPackageFragmentSymbol {
     @ObsoleteDescriptorBasedAPI
-    override val descriptor: PackageFragmentDescriptor
+    override val _descriptor: PackageFragmentDescriptor?
 
     var fqName: FqName
 }

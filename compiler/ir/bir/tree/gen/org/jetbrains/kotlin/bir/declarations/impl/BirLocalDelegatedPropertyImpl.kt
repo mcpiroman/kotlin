@@ -29,7 +29,7 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: VariableDescriptorWithAccessors,
+    override val _descriptor: VariableDescriptorWithAccessors?,
     override var origin: IrDeclarationOrigin,
     override var name: Name,
     override var type: IrType,

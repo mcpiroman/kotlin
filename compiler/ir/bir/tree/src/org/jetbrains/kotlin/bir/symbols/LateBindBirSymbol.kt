@@ -8,18 +8,17 @@ package org.jetbrains.kotlin.bir.symbols
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirReturnableBlock
-import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrSymbolOwner
-import org.jetbrains.kotlin.ir.symbols.IrFileSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.util.IdSignature
 
-abstract class LateBindBirSymbol<out D : DeclarationDescriptor, E : BirElement>(
+abstract class LateBindBirSymbol<E : BirElement>(
     val irSymbol: IrSymbol
-) : BirPossiblyElementSymbol<D, E> {
+) : BirPossiblyElementSymbol<E> {
     @ObsoleteDescriptorBasedAPI
-    final override val descriptor: D
+    final override val descriptor: DeclarationDescriptor
         get() = error("Not bound")
 
     @ObsoleteDescriptorBasedAPI
@@ -40,37 +39,37 @@ abstract class LateBindBirSymbol<out D : DeclarationDescriptor, E : BirElement>(
         get() = error("Not bound")
 
 
-    class FileSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<PackageFragmentDescriptor, BirFile>(irSymbol), BirFileSymbol
+    class FileSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirFile>(irSymbol), BirFileSymbol
     class ExternalPackageFragmentSymbol(irSymbol: IrSymbol) :
-        LateBindBirSymbol<PackageFragmentDescriptor, BirExternalPackageFragment>(irSymbol), BirExternalPackageFragmentSymbol
+        LateBindBirSymbol<BirExternalPackageFragment>(irSymbol), BirExternalPackageFragmentSymbol
 
-    class AnonymousInitializerSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<ClassDescriptor, BirAnonymousInitializer>(irSymbol),
+    class AnonymousInitializerSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirAnonymousInitializer>(irSymbol),
         BirAnonymousInitializerSymbol
 
-    class EnumEntrySymbol(irSymbol: IrSymbol) : LateBindBirSymbol<ClassDescriptor, BirEnumEntry>(irSymbol), BirEnumEntrySymbol
-    class FieldSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<PropertyDescriptor, BirField>(irSymbol), BirFieldSymbol
-    class ClassSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<ClassDescriptor, BirClass>(irSymbol), BirClassSymbol
-    class ScriptSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<ScriptDescriptor, BirScript>(irSymbol), BirScriptSymbol
-    class TypeParameterSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<TypeParameterDescriptor, BirTypeParameter>(irSymbol),
+    class EnumEntrySymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirEnumEntry>(irSymbol), BirEnumEntrySymbol
+    class FieldSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirField>(irSymbol), BirFieldSymbol
+    class ClassSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirClass>(irSymbol), BirClassSymbol
+    class ScriptSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirScript>(irSymbol), BirScriptSymbol
+    class TypeParameterSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirTypeParameter>(irSymbol),
         BirTypeParameterSymbol
 
-    class ValueParameterSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<ParameterDescriptor, BirValueParameter>(irSymbol),
+    class ValueParameterSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirValueParameter>(irSymbol),
         BirValueParameterSymbol
 
-    class VariableSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<VariableDescriptor, BirVariable>(irSymbol), BirVariableSymbol
-    class ConstructorSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<ClassConstructorDescriptor, BirConstructor>(irSymbol),
+    class VariableSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirVariable>(irSymbol), BirVariableSymbol
+    class ConstructorSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirConstructor>(irSymbol),
         BirConstructorSymbol
 
-    class SimpleFunctionSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<FunctionDescriptor, BirSimpleFunction>(irSymbol),
+    class SimpleFunctionSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirSimpleFunction>(irSymbol),
         BirSimpleFunctionSymbol
 
-    class ReturnableBlockSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<FunctionDescriptor, BirReturnableBlock>(irSymbol),
+    class ReturnableBlockSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirReturnableBlock>(irSymbol),
         BirReturnableBlockSymbol
 
-    class PropertySymbol(irSymbol: IrSymbol) : LateBindBirSymbol<PropertyDescriptor, BirProperty>(irSymbol), BirPropertySymbol
+    class PropertySymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirProperty>(irSymbol), BirPropertySymbol
     class LocalDelegatedPropertySymbol(irSymbol: IrSymbol) :
-        LateBindBirSymbol<VariableDescriptorWithAccessors, BirLocalDelegatedProperty>(irSymbol), BirLocalDelegatedPropertySymbol
+        LateBindBirSymbol<BirLocalDelegatedProperty>(irSymbol), BirLocalDelegatedPropertySymbol
 
-    class TypeAliasSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<TypeAliasDescriptor, BirTypeAlias>(irSymbol), BirTypeAliasSymbol
+    class TypeAliasSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirTypeAlias>(irSymbol), BirTypeAliasSymbol
 }
 

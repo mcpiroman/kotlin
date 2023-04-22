@@ -28,7 +28,7 @@ abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVi
         BirPossiblyExternalDeclaration, BirMetadataSourceOwner, BirSymbolElement, BirFieldSymbol,
         BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: PropertyDescriptor
+    abstract override val _descriptor: PropertyDescriptor?
 
     abstract var type: IrType
 

@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrSymbolOwner
 import org.jetbrains.kotlin.ir.util.IdSignature
 
-interface BirSymbolElement : BirSymbol, BirElement {
+interface BirSymbolElement : BirLLPossiblyElementSymbol, BirElement {
     @Deprecated("Meaningless for BirPossiblyElementSymbol", level = DeprecationLevel.ERROR)
     override val isBound: Boolean
         get() = true
@@ -21,8 +21,15 @@ interface BirSymbolElement : BirSymbol, BirElement {
         get() = TODO("Not yet implemented")
 
     @ObsoleteDescriptorBasedAPI
+    val _descriptor: DeclarationDescriptor?
+
+    @ObsoleteDescriptorBasedAPI
+    override val descriptor: DeclarationDescriptor
+        get() = _descriptor!!
+
+    @ObsoleteDescriptorBasedAPI
     override val hasDescriptor: Boolean
-        get() = true
+        get() = _descriptor != null
 
     override val signature: IdSignature?
         get() = TODO("Not yet implemented")

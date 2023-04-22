@@ -37,7 +37,7 @@ class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: FunctionDescriptor,
+    override val _descriptor: FunctionDescriptor?,
     override var origin: IrDeclarationOrigin,
     override var visibility: DescriptorVisibility,
     override var name: Name,

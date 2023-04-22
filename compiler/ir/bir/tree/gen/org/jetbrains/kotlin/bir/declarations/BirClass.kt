@@ -32,7 +32,7 @@ abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVi
         BirAttributeContainer, BirMetadataSourceOwner, BirSymbolElement, BirClassSymbol,
         BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: ClassDescriptor
+    abstract override val _descriptor: ClassDescriptor?
 
     abstract var kind: ClassKind
 

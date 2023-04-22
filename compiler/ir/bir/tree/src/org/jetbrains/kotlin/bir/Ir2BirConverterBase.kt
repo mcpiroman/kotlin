@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
 import org.jetbrains.kotlin.bir.expressions.impl.BirNoExpressionImpl
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.symbols.LateBindBirSymbol
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrAttributeContainer
@@ -25,8 +26,9 @@ import java.util.*
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 abstract class Ir2BirConverterBase {
+    var copyDescriptors = false
     private var ir2birElementMap = IdentityHashMap<IrElement, BirElement>()
-    private val elementsWithSymbolsToLateBind = mutableListOf<Pair<IrElement, LateBindBirSymbol<*, *>>>()
+    private val elementsWithSymbolsToLateBind = mutableListOf<Pair<IrElement, LateBindBirSymbol<*>>>()
     private var currentlyConvertedElement: IrElement? = null
     private var lastNewRegisteredElement: BirElement? = null
     private var lastNewRegisteredElementSource: IrElement? = null
@@ -157,6 +159,10 @@ abstract class Ir2BirConverterBase {
         } else {
             symbol as BirS
         }
+    }
+
+    protected fun <D : DeclarationDescriptor> mapDescriptor(descriptor: D): D? {
+        return if (copyDescriptors) descriptor else null
     }
 
     context(BirTreeContext)
