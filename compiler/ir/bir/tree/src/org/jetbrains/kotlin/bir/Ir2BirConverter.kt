@@ -104,7 +104,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertValueParameter(ir: IrValueParameter): BirValueParameter {
         val bir = BirValueParameterImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             index = ir.index,
             varargElementType = ir.varargElementType,
             isCrossinline = ir.isCrossinline,
@@ -127,7 +127,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertClass(ir: IrClass): BirClass {
         val bir = BirClassImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             kind = ir.kind,
             modality = ir.modality,
             isCompanion = ir.isCompanion,
@@ -159,7 +159,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertAnonymousInitializer(ir: IrAnonymousInitializer): BirAnonymousInitializer {
         val bir = BirAnonymousInitializerImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             isStatic = ir.isStatic,
             body = mapIrElement(ir.body) as BirBlockBody,
             origin = ir.origin,
@@ -174,7 +174,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertTypeParameter(ir: IrTypeParameter): BirTypeParameter {
         val bir = BirTypeParameterImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             variance = ir.variance,
             index = ir.index,
             isReified = ir.isReified,
@@ -192,7 +192,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertConstructor(ir: IrConstructor): BirConstructor {
         val bir = BirConstructorImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             isPrimary = ir.isPrimary,
             isInline = ir.isInline,
             isExpect = ir.isExpect,
@@ -223,7 +223,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertEnumEntry(ir: IrEnumEntry): BirEnumEntry {
         val bir = BirEnumEntryImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             initializerExpression = null,
             correspondingClass = null,
             origin = ir.origin,
@@ -241,7 +241,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertErrorDeclaration(ir: IrErrorDeclaration): BirErrorDeclaration {
         val bir = BirErrorDeclarationImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             origin = ir.origin,
             annotations = emptyList(),
         )
@@ -256,7 +256,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             BirFunctionWithLateBinding {
         val bir = BirFunctionWithLateBindingImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             modality = ir.modality,
             isElementBound = ir.isBound,
             origin = ir.origin,
@@ -299,7 +299,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             BirPropertyWithLateBinding {
         val bir = BirPropertyWithLateBindingImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             modality = ir.modality,
             getter = null,
             setter = null,
@@ -332,7 +332,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertField(ir: IrField): BirField {
         val bir = BirFieldImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             type = ir.type,
             isFinal = ir.isFinal,
             isStatic = ir.isStatic,
@@ -356,7 +356,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             BirLocalDelegatedProperty {
         val bir = BirLocalDelegatedPropertyImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             type = ir.type,
             isVar = ir.isVar,
             delegate = mapIrElement(ir.delegate) as BirVariable,
@@ -376,7 +376,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertModuleFragment(ir: IrModuleFragment): BirModuleFragment {
         val bir = BirModuleFragmentImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             name = ir.name,
             irBuiltins = ir.irBuiltins,
         )
@@ -389,7 +389,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertProperty(ir: IrProperty): BirProperty {
         val bir = BirPropertyImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             isVar = ir.isVar,
             isConst = ir.isConst,
             isLateinit = ir.isLateinit,
@@ -429,7 +429,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             earlierScripts = ir.earlierScripts?.map { mapSymbol(ir, it) },
             targetClass = ir.targetClass?.let { mapSymbol(ir, it) },
             constructor = null,
-            descriptor = ir.descriptor as ScriptDescriptor,
+            _descriptor = mapDescriptor(ir.descriptor) as ScriptDescriptor,
             origin = ir.origin,
             annotations = emptyList(),
             name = ir.name,
@@ -457,7 +457,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             isInfix = ir.isInfix,
             correspondingProperty = null,
             overriddenSymbols = emptyList(),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             isInline = ir.isInline,
             isExpect = ir.isExpect,
             returnType = ir.returnType,
@@ -489,7 +489,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertTypeAlias(ir: IrTypeAlias): BirTypeAlias {
         val bir = BirTypeAliasImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             isActual = ir.isActual,
             expandedType = ir.expandedType,
             origin = ir.origin,
@@ -507,7 +507,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
     private fun convertVariable(ir: IrVariable): BirVariable {
         val bir = BirVariableImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
             isVar = ir.isVar,
             isConst = ir.isConst,
             isLateinit = ir.isLateinit,
@@ -529,7 +529,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             BirExternalPackageFragment {
         val bir = BirExternalPackageFragmentImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
-            descriptor = ir.packageFragmentDescriptor,
+            _descriptor = mapDescriptor(ir.packageFragmentDescriptor),
             fqName = ir.fqName,
             containerSource = ir.containerSource,
         )
@@ -544,7 +544,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
             module = mapIrElement(ir.module) as BirModuleFragment,
             fileEntry = ir.fileEntry,
-            descriptor = ir.packageFragmentDescriptor,
+            _descriptor = mapDescriptor(ir.packageFragmentDescriptor),
             fqName = ir.fqName,
             annotations = emptyList(),
         )
@@ -664,7 +664,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
             origin = ir.origin,
             type = ir.type,
-            descriptor = ir.descriptor,
+            _descriptor = mapDescriptor(ir.descriptor),
         )
         registerNewElement(ir, bir)
         bir.attributeOwnerId = mapIrElement(ir.attributeOwnerId) as BirAttributeContainer

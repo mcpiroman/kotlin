@@ -24,7 +24,7 @@ abstract class BirTypeAlias : BirElementBase(), BirDeclaration, BirDeclarationWi
         BirDeclarationWithVisibility, BirTypeParametersContainer, BirSymbolElement,
         BirTypeAliasSymbol {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: TypeAliasDescriptor
+    abstract override val _descriptor: TypeAliasDescriptor?
 
     abstract var isActual: Boolean
 

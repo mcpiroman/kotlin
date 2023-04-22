@@ -26,7 +26,7 @@ abstract class BirLocalDelegatedProperty : BirElementBase(), BirDeclaration,
         BirDeclarationWithName, BirMetadataSourceOwner, BirSymbolElement,
         BirLocalDelegatedPropertySymbol, BirElementTrackingBackReferences {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: VariableDescriptorWithAccessors
+    abstract override val _descriptor: VariableDescriptorWithAccessors?
 
     abstract var type: IrType
 

@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSymbolElement,
         BirValueParameterSymbol {
     @ObsoleteDescriptorBasedAPI
-    abstract override val descriptor: ParameterDescriptor
+    abstract override val _descriptor: ParameterDescriptor?
 
     abstract var index: Int
 

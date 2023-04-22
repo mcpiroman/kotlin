@@ -31,7 +31,7 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: PropertyDescriptor,
+    override val _descriptor: PropertyDescriptor?,
     override var origin: IrDeclarationOrigin,
     override var visibility: DescriptorVisibility,
     override var name: Name,

@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.name.FqName
 class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: PackageFragmentDescriptor,
+    override val _descriptor: PackageFragmentDescriptor?,
     override var fqName: FqName,
     override var annotations: List<BirConstructorCall>,
     override var module: BirModuleFragment,

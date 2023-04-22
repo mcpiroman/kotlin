@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
  */
 interface BirDeclaration : BirStatement, BirAnnotationContainerElement, BirSymbolElement {
     @ObsoleteDescriptorBasedAPI
-    override val descriptor: DeclarationDescriptor
+    override val _descriptor: DeclarationDescriptor?
 
     var origin: IrDeclarationOrigin
 }

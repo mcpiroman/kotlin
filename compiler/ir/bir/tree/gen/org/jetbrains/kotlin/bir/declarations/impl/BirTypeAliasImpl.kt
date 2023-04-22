@@ -27,7 +27,7 @@ class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: TypeAliasDescriptor,
+    override val _descriptor: TypeAliasDescriptor?,
     override var origin: IrDeclarationOrigin,
     override var name: Name,
     override var visibility: DescriptorVisibility,

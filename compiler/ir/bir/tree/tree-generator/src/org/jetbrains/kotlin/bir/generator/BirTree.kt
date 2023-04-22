@@ -29,9 +29,10 @@ import org.jetbrains.kotlin.types.Variance
 // 3) fields
 object BirTree : AbstractTreeBuilder() {
     private fun descriptor(typeName: String, initializer: SimpleFieldConfig.() -> Unit = {}): SimpleFieldConfig = field(
-        "descriptor",
+        "_descriptor",
         ClassRef<TypeParameterRef>(TypeKind.Interface, "org.jetbrains.kotlin.descriptors", typeName),
         mutable = false,
+        nullable = true,
         initializer = initializer
     )
 

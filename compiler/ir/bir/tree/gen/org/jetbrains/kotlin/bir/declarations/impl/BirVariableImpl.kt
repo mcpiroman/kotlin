@@ -28,7 +28,7 @@ class BirVariableImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: VariableDescriptor,
+    override val _descriptor: VariableDescriptor?,
     override var origin: IrDeclarationOrigin,
     override var name: Name,
     override var type: IrType,

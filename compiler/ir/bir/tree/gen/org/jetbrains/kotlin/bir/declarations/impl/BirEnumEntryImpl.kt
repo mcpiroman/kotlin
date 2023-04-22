@@ -28,7 +28,7 @@ class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: ClassDescriptor,
+    override val _descriptor: ClassDescriptor?,
     override var origin: IrDeclarationOrigin,
     override var name: Name,
     initializerExpression: BirExpressionBody?,

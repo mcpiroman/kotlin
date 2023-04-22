@@ -9,7 +9,6 @@ import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirReturnableBlock
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.types.model.TypeConstructorMarker
 import org.jetbrains.kotlin.types.model.TypeParameterMarker
@@ -20,68 +19,77 @@ typealias BirSymbol = IrSymbol
     val original: IrSymbol
 ) : BirSymbol, IrSymbol by original*/
 
-
-interface BirPossiblyElementSymbol<out D : DeclarationDescriptor, E : BirElement> : BirSymbol {
-    @ObsoleteDescriptorBasedAPI
-    override val descriptor: D
+interface BirSymbolWithTypedDescriptor<out D : DeclarationDescriptor> : BirSymbol {
+    /*@ObsoleteDescriptorBasedAPI
+    override val descriptor: D*/
 }
 
-inline val <reified E : BirElement> BirPossiblyElementSymbol<*, E>.asElement: E?
+interface BirLLPossiblyElementSymbol : BirSymbol
+interface BirPossiblyElementSymbol<out E : BirElement> : BirLLPossiblyElementSymbol
+
+inline val <reified E : BirElement> BirPossiblyElementSymbol<E>.asElement: E?
     get() = this as? E
 
 
 interface BirPackageFragmentSymbol : BirSymbol {
-    @ObsoleteDescriptorBasedAPI
-    override val descriptor: PackageFragmentDescriptor
+    /*@ObsoleteDescriptorBasedAPI
+    override val descriptor: PackageFragmentDescriptor*/
 }
 
-interface BirFileSymbol : BirPackageFragmentSymbol, BirPossiblyElementSymbol<PackageFragmentDescriptor, BirFile>
+interface BirFileSymbol : BirPackageFragmentSymbol, BirSymbolWithTypedDescriptor<PackageFragmentDescriptor>,
+    BirPossiblyElementSymbol<BirFile>
 
 interface BirExternalPackageFragmentSymbol : BirPackageFragmentSymbol,
-    BirPossiblyElementSymbol<PackageFragmentDescriptor, BirExternalPackageFragment>
+    BirSymbolWithTypedDescriptor<PackageFragmentDescriptor>, BirPossiblyElementSymbol<BirExternalPackageFragment>
 
-interface BirAnonymousInitializerSymbol : BirPossiblyElementSymbol<ClassDescriptor, BirAnonymousInitializer>
+interface BirAnonymousInitializerSymbol : BirSymbolWithTypedDescriptor<ClassDescriptor>, BirPossiblyElementSymbol<BirAnonymousInitializer>
 
-interface BirEnumEntrySymbol : BirPossiblyElementSymbol<ClassDescriptor, BirEnumEntry>
+interface BirEnumEntrySymbol : BirSymbolWithTypedDescriptor<ClassDescriptor>, BirPossiblyElementSymbol<BirEnumEntry>
 
-interface BirFieldSymbol : BirPossiblyElementSymbol<PropertyDescriptor, BirField>
+interface BirFieldSymbol : BirSymbolWithTypedDescriptor<PropertyDescriptor>, BirPossiblyElementSymbol<BirField>
 
 interface BirClassifierSymbol : BirSymbol, TypeConstructorMarker {
-    @ObsoleteDescriptorBasedAPI
-    override val descriptor: ClassifierDescriptor
+    /*@ObsoleteDescriptorBasedAPI
+    override val descriptor: ClassifierDescriptor*/
 }
 
-interface BirClassSymbol : BirClassifierSymbol, BirPossiblyElementSymbol<ClassDescriptor, BirClass>
+interface BirClassSymbol : BirClassifierSymbol, BirSymbolWithTypedDescriptor<ClassDescriptor>, BirPossiblyElementSymbol<BirClass>
 
-interface BirScriptSymbol : BirClassifierSymbol, BirPossiblyElementSymbol<ScriptDescriptor, BirScript>
+interface BirScriptSymbol : BirClassifierSymbol, BirSymbolWithTypedDescriptor<ScriptDescriptor>, BirPossiblyElementSymbol<BirScript>
 
-interface BirTypeParameterSymbol : BirClassifierSymbol, BirPossiblyElementSymbol<TypeParameterDescriptor, BirTypeParameter>,
+interface BirTypeParameterSymbol : BirClassifierSymbol, BirSymbolWithTypedDescriptor<TypeParameterDescriptor>,
+    BirPossiblyElementSymbol<BirTypeParameter>,
     TypeParameterMarker
 
 interface BirValueSymbol : BirSymbol {
-    @ObsoleteDescriptorBasedAPI
-    override val descriptor: ValueDescriptor
+    /*@ObsoleteDescriptorBasedAPI
+    override val descriptor: ValueDescriptor*/
 }
 
-interface BirValueParameterSymbol : BirValueSymbol, BirPossiblyElementSymbol<ParameterDescriptor, BirValueParameter>
+interface BirValueParameterSymbol : BirValueSymbol, BirSymbolWithTypedDescriptor<ParameterDescriptor>,
+    BirPossiblyElementSymbol<BirValueParameter>
 
-interface BirVariableSymbol : BirValueSymbol, BirPossiblyElementSymbol<VariableDescriptor, BirVariable>
+interface BirVariableSymbol : BirValueSymbol, BirSymbolWithTypedDescriptor<VariableDescriptor>, BirPossiblyElementSymbol<BirVariable>
 
 interface BirReturnTargetSymbol : BirSymbol {
-    @ObsoleteDescriptorBasedAPI
-    override val descriptor: FunctionDescriptor
+    /*@ObsoleteDescriptorBasedAPI
+    override val descriptor: FunctionDescriptor*/
 }
 
 interface BirFunctionSymbol : BirReturnTargetSymbol
 
-interface BirConstructorSymbol : BirFunctionSymbol, BirPossiblyElementSymbol<ClassConstructorDescriptor, BirConstructor>
+interface BirConstructorSymbol : BirFunctionSymbol, BirSymbolWithTypedDescriptor<ClassConstructorDescriptor>,
+    BirPossiblyElementSymbol<BirConstructor>
 
-interface BirSimpleFunctionSymbol : BirFunctionSymbol, BirPossiblyElementSymbol<FunctionDescriptor, BirSimpleFunction>
+interface BirSimpleFunctionSymbol : BirFunctionSymbol, BirSymbolWithTypedDescriptor<FunctionDescriptor>,
+    BirPossiblyElementSymbol<BirSimpleFunction>
 
-interface BirReturnableBlockSymbol : BirReturnTargetSymbol, BirPossiblyElementSymbol<FunctionDescriptor, BirReturnableBlock>
+interface BirReturnableBlockSymbol : BirReturnTargetSymbol, BirSymbolWithTypedDescriptor<FunctionDescriptor>,
+    BirPossiblyElementSymbol<BirReturnableBlock>
 
-interface BirPropertySymbol : BirPossiblyElementSymbol<PropertyDescriptor, BirProperty>
+interface BirPropertySymbol : BirSymbolWithTypedDescriptor<PropertyDescriptor>, BirPossiblyElementSymbol<BirProperty>
 
-interface BirLocalDelegatedPropertySymbol : BirPossiblyElementSymbol<VariableDescriptorWithAccessors, BirLocalDelegatedProperty>
+interface BirLocalDelegatedPropertySymbol : BirSymbolWithTypedDescriptor<VariableDescriptorWithAccessors>,
+    BirPossiblyElementSymbol<BirLocalDelegatedProperty>
 
-interface BirTypeAliasSymbol : BirPossiblyElementSymbol<TypeAliasDescriptor, BirTypeAlias>
+interface BirTypeAliasSymbol : BirSymbolWithTypedDescriptor<TypeAliasDescriptor>, BirPossiblyElementSymbol<BirTypeAlias>

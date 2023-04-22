@@ -26,7 +26,7 @@ class BirReturnableBlockImpl @ObsoleteDescriptorBasedAPI constructor(
     override var type: IrType,
     override var origin: IrStatementOrigin?,
     @property:ObsoleteDescriptorBasedAPI
-    override val descriptor: FunctionDescriptor,
+    override val _descriptor: FunctionDescriptor?,
 ) : BirReturnableBlock() {
     override var attributeOwnerId: BirAttributeContainer = this
 
