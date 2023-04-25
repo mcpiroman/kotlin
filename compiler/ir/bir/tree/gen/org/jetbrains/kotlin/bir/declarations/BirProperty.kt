@@ -49,4 +49,6 @@ abstract class BirProperty : BirOverridableDeclaration<BirPropertySymbol>(), Bir
     abstract var setter: BirSimpleFunction?
 
     abstract override var overriddenSymbols: List<BirPropertySymbol>
+
+    companion object
 }

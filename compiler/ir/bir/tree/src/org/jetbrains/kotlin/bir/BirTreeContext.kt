@@ -18,6 +18,7 @@ open class BirTreeContext {
     private fun attachElement(element: BirElementBase, prev: BirElementBase?) {
         assert(prev == null || prev.next === element)
         element.attachedToTree = true
+        element.updateLevel()
 
         if (prev != null && prev.javaClass == element.javaClass) {
             element.inByClassCacheViaNextPtr = true
@@ -48,6 +49,7 @@ open class BirTreeContext {
 
     private fun detachElement(element: BirElementBase, prev: BirElementBase?) {
         element.attachedToTree = false
+        element.updateLevel()
 
         if (element.inByClassCacheViaNextPtr) {
             element.inByClassCacheViaNextPtr = false
@@ -84,7 +86,7 @@ open class BirTreeContext {
         list.add(element)
     }
 
-    fun <E : BirElementBase> iterateElementsOfClass(klass: Class<E>): Iterator<E> {
+    fun <E : BirElementBase> getElementsOfClass(klass: Class<E>): Iterator<E> {
         val list = elementsByClass[klass]
             ?: return EmptyIterator as Iterator<E>
         return ElementOfClassListIterator<E>(list)

@@ -9,8 +9,6 @@ import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.types.BirDynamicType
 import org.jetbrains.kotlin.bir.types.BirSimpleType
 import org.jetbrains.kotlin.bir.types.BirType
-import org.jetbrains.kotlin.bir.types.impl.buildSimpleType
-import org.jetbrains.kotlin.bir.types.impl.toBuilder
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.utils.memoryOptimizedFilterNot
 import org.jetbrains.kotlin.utils.memoryOptimizedPlus

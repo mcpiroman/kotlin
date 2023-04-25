@@ -26,4 +26,6 @@ abstract class BirConstructor : BirElementBase(), BirFunction, BirSymbolElement,
     abstract override val _descriptor: ClassConstructorDescriptor?
 
     abstract var isPrimary: Boolean
+
+    companion object
 }

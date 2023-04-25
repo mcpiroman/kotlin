@@ -20,4 +20,6 @@ abstract class BirVararg : BirExpression() {
     abstract var varargElementType: BirType
 
     abstract val elements: BirChildElementList<BirVarargElement>
+
+    companion object
 }

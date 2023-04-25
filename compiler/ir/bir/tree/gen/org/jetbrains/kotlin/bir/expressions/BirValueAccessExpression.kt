@@ -20,4 +20,6 @@ abstract class BirValueAccessExpression : BirDeclarationReference() {
     abstract override var target: BirValueDeclaration
 
     abstract var origin: IrStatementOrigin?
+
+    companion object
 }

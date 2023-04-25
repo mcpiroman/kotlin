@@ -34,4 +34,6 @@ abstract class BirVariable : BirValueDeclaration(), BirDeclaration, BirSymbolEle
 
     context(BirTreeContext)
     abstract var initializer: BirExpression?
+
+    companion object
 }

@@ -17,4 +17,6 @@ import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
  */
 abstract class BirDelegatingConstructorCall : BirFunctionAccessExpression() {
     abstract override var target: BirConstructorSymbol
+
+    companion object
 }

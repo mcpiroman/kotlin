@@ -25,4 +25,6 @@ interface BirPackageFragment : BirDeclarationContainer, BirSymbolElement,
     override val _descriptor: PackageFragmentDescriptor?
 
     var fqName: FqName
+
+    companion object
 }

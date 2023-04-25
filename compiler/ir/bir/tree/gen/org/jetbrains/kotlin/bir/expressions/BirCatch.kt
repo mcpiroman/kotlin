@@ -24,4 +24,6 @@ abstract class BirCatch : BirElementBase(), BirElement {
 
     context(BirTreeContext)
     abstract var result: BirExpression
+
+    companion object
 }

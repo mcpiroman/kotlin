@@ -13,4 +13,6 @@ package org.jetbrains.kotlin.bir.expressions
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.elseBranch]
  */
-abstract class BirElseBranch : BirBranch()
+abstract class BirElseBranch : BirBranch() {
+    companion object
+}

@@ -17,4 +17,6 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
  */
 abstract class BirRawFunctionReference : BirDeclarationReference() {
     abstract override var target: BirFunctionSymbol
+
+    companion object
 }

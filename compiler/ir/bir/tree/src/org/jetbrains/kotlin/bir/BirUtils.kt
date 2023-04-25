@@ -6,19 +6,29 @@
 package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.declarations.*
+import org.jetbrains.kotlin.bir.declarations.impl.BirTypeParameterImpl
+import org.jetbrains.kotlin.bir.declarations.impl.BirValueParameterImpl
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
+import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
+import org.jetbrains.kotlin.bir.symbols.BirTypeParameterSymbol
 import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.symbols.maybeAsElement
-import org.jetbrains.kotlin.bir.types.BirSimpleType
+import org.jetbrains.kotlin.bir.types.*
+import org.jetbrains.kotlin.bir.types.utils.substitute
+import org.jetbrains.kotlin.bir.utils.deepCopy
 import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
-import org.jetbrains.kotlin.ir.types.impl.IrErrorClassImpl.symbol
-import org.jetbrains.kotlin.ir.util.hasEqualFqName
+import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
+import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.SpecialNames
 import org.jetbrains.kotlin.utils.filterIsInstanceAnd
+import org.jetbrains.kotlin.utils.memoryOptimizedMap
+import org.jetbrains.kotlin.utils.memoryOptimizedMapIndexed
 
 internal class BirElementAncestorsIterator(
     initial: BirElement?
@@ -133,6 +143,13 @@ context(BirTreeContext)
 val BirClass.defaultType: BirSimpleType
     get() = this.thisReceiver!!.type as BirSimpleType
 
+val BirTypeParameter.defaultType: BirType
+    get() = BirSimpleTypeImpl(
+        this,
+        SimpleTypeNullability.NOT_SPECIFIED,
+        arguments = emptyList(),
+        annotations = emptyList()
+    )
 
 val BirConstructor.constructedClass
     get() = this.parent as BirClass
@@ -147,7 +164,7 @@ val BirClass.packageFqName: FqName?
     get() = signature?.packageFqName() ?: ancestors().firstNotNullOfOrNull { (it as? BirPackageFragment)?.fqName }
 
 fun BirDeclarationWithName.hasEqualFqName(fqName: FqName): Boolean =
-    symbol.hasEqualFqName(fqName) || name == fqName.shortName() && when (val parent = parent) {
+    hasEqualFqName(fqName) || name == fqName.shortName() && when (val parent = parent) {
         is BirPackageFragment -> parent.fqName == fqName.parent()
         is BirDeclarationWithName -> parent.hasEqualFqName(fqName.parent())
         else -> false
@@ -196,3 +213,186 @@ fun BirTypeParameter.getIndex(): Int {
         ?: return -1
     return list.indexOf(this)
 }
+
+fun makeTypeParameterSubstitutionMap(
+    original: BirTypeParametersContainer,
+    transformed: BirTypeParametersContainer
+): Map<BirTypeParameterSymbol, BirType> =
+    original.typeParameters
+        .zip(transformed.typeParameters.map { it.defaultType })
+        .toMap()
+
+context (BirTreeContext)
+@OptIn(ObsoleteDescriptorBasedAPI::class)
+fun BirFunction.copyReceiverParametersFrom(from: BirFunction, substitutionMap: Map<BirTypeParameterSymbol, BirType>) {
+    dispatchReceiverParameter = from.dispatchReceiverParameter?.run {
+        BirValueParameterImpl(
+            sourceSpan = sourceSpan,
+            origin = origin,
+            name = name,
+            type = type.substitute(substitutionMap),
+            varargElementType = varargElementType?.substitute(substitutionMap),
+            isCrossinline = isCrossinline,
+            isNoinline = isNoinline,
+            isHidden = isHidden,
+            isAssignable = isAssignable,
+            _descriptor = null,
+            defaultValue = null,
+            annotations = emptyList(),
+        )
+    }
+    extensionReceiverParameter = from.extensionReceiverParameter?.copyTo(this)
+}
+
+val BirTypeParametersContainer.classIfConstructor get() = if (this is BirConstructor) parentAsClass else this
+
+context (BirTreeContext)
+@OptIn(ObsoleteDescriptorBasedAPI::class)
+fun BirValueParameter.copyTo(
+    targetFunction: BirFunction,
+    remapTypeMap: Map<BirTypeParameter, BirTypeParameter> = emptyMap(),
+    type: BirType = this.type.remapTypeParameters(
+        (parent as BirTypeParametersContainer).classIfConstructor,
+        targetFunction.classIfConstructor,
+        remapTypeMap
+    ),
+    defaultValue: BirExpressionBody? = this.defaultValue,
+): BirValueParameter {
+    val defaultValueCopy = defaultValue?.deepCopy()
+    return BirValueParameterImpl(
+        sourceSpan = sourceSpan,
+        annotations = annotations.memoryOptimizedMap { it.deepCopy() },
+        _descriptor = _descriptor,
+        origin = origin,
+        name = name,
+        type = type,
+        isAssignable = isAssignable,
+        varargElementType = varargElementType,
+        isCrossinline = isCrossinline,
+        isNoinline = isNoinline,
+        isHidden = false,
+        defaultValue = defaultValueCopy
+    )
+}
+
+/*context (BirTreeContext)
+fun BirAnnotationContainer.copyAnnotationsFrom(source: BirAnnotationContainer) {
+    annotations = annotations memoryOptimizedPlus source.copyAnnotations()
+}*/
+
+context (BirTreeContext)
+fun BirAnnotationContainer.copyAnnotations(): List<BirConstructorCall> {
+    return annotations.memoryOptimizedMap { it.deepCopy() }
+}
+
+context (BirTreeContext)
+fun BirFunction.copyValueParametersFrom(from: BirFunction, substitutionMap: Map<BirTypeParameterSymbol, BirType>) {
+    copyReceiverParametersFrom(from, substitutionMap)
+    valueParameters += from.valueParameters.map {
+        it.copyTo(this, type = it.type.substitute(substitutionMap))
+    }
+}
+
+context (BirTreeContext)
+fun BirFunction.copyValueParametersFrom(from: BirFunction) {
+    copyValueParametersFrom(from, makeTypeParameterSubstitutionMap(from, this))
+}
+
+context (BirTreeContext)
+fun BirTypeParametersContainer.copyTypeParameters(
+    srcTypeParameters: Collection<BirTypeParameter>,
+    origin: IrDeclarationOrigin? = null,
+    parameterMap: Map<BirTypeParameter, BirTypeParameter>? = null
+): List<BirTypeParameter> {
+    val oldToNewParameterMap = parameterMap.orEmpty().toMutableMap()
+    // Any type parameter can figure in a boundary type for any other parameter.
+    // Therefore, we first copy the parameters themselves, then set up their supertypes.
+    val newTypeParameters = srcTypeParameters.memoryOptimizedMapIndexed { i, sourceParameter ->
+        sourceParameter.copyWithoutSuperTypes(origin ?: sourceParameter.origin).also {
+            oldToNewParameterMap[sourceParameter] = it
+        }
+    }
+    typeParameters += newTypeParameters
+    srcTypeParameters.zip(newTypeParameters).forEach { (srcParameter, dstParameter) ->
+        dstParameter.copySuperTypesFrom(srcParameter, oldToNewParameterMap)
+    }
+    return newTypeParameters
+}
+
+context (BirTreeContext)
+fun BirTypeParametersContainer.copyTypeParametersFrom(
+    source: BirTypeParametersContainer,
+    origin: IrDeclarationOrigin? = null,
+    parameterMap: Map<BirTypeParameter, BirTypeParameter>? = null
+) = copyTypeParameters(source.typeParameters, origin, parameterMap)
+
+private fun BirTypeParameter.copySuperTypesFrom(source: BirTypeParameter, srcToDstParameterMap: Map<BirTypeParameter, BirTypeParameter>) {
+    val target = this
+    val sourceParent = source.parent as BirTypeParametersContainer
+    val targetParent = target.parent as BirTypeParametersContainer
+    target.superTypes = source.superTypes.memoryOptimizedMap {
+        it.remapTypeParameters(sourceParent, targetParent, srcToDstParameterMap)
+    }
+}
+
+@OptIn(ObsoleteDescriptorBasedAPI::class)
+fun BirTypeParameter.copyWithoutSuperTypes(
+    origin: IrDeclarationOrigin = this.origin
+): BirTypeParameter = BirTypeParameterImpl(
+    sourceSpan = sourceSpan,
+    origin = origin,
+    name = name,
+    variance = variance,
+    isReified = isReified,
+    annotations = emptyList(),
+    _descriptor = null,
+    superTypes = emptyList(),
+)
+
+/**
+ * Perform a substitution of type parameters occurring in [this]. In order of
+ * precedence, parameter `P` is substituted with...
+ *
+ *   1) `T`, if `srcToDstParameterMap.get(P) == T`
+ *   2) `T`, if `source.typeParameters[i] == P` and
+ *      `target.typeParameters[i] == T`
+ *   3) `P`
+ *
+ *  If [srcToDstParameterMap] is total on the domain of type parameters in
+ *  [this], this effectively performs a substitution according to that map.
+ */
+fun BirType.remapTypeParameters(
+    source: BirTypeParametersContainer,
+    target: BirTypeParametersContainer,
+    srcToDstParameterMap: Map<BirTypeParameter, BirTypeParameter>? = null
+): BirType = when (this) {
+    is BirSimpleType -> {
+        when (val classifier = classifier) {
+            is BirTypeParameter -> {
+                val newClassifier = srcToDstParameterMap?.get(classifier)
+                    ?: if (classifier.parent == source)
+                        target.typeParameters.getElementAtIndex(classifier.getIndex())
+                    else
+                        classifier
+                BirSimpleTypeImpl(newClassifier.asElement, nullability, arguments, annotations)
+            }
+            is BirClass -> BirSimpleTypeImpl(
+                classifier.asElement,
+                nullability,
+                arguments.memoryOptimizedMap {
+                    when (it) {
+                        is BirTypeProjection -> makeTypeProjection(
+                            it.type.remapTypeParameters(source, target, srcToDstParameterMap),
+                            it.variance
+                        )
+                        is BirStarProjection -> it
+                    }
+                },
+                annotations
+            )
+            else -> this
+        }
+    }
+    else -> this
+}
+

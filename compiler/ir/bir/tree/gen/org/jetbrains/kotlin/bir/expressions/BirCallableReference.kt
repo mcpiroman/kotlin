@@ -15,4 +15,6 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.callableReference]
  */
-abstract class BirCallableReference<S : BirSymbol> : BirMemberAccessExpression<S>()
+abstract class BirCallableReference<S : BirSymbol> : BirMemberAccessExpression<S>() {
+    companion object
+}

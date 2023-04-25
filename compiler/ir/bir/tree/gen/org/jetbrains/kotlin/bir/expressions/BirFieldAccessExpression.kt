@@ -27,4 +27,6 @@ abstract class BirFieldAccessExpression : BirDeclarationReference() {
     abstract var receiver: BirExpression?
 
     abstract var origin: IrStatementOrigin?
+
+    companion object
 }

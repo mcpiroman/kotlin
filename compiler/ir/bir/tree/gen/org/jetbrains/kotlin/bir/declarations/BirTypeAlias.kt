@@ -29,4 +29,6 @@ abstract class BirTypeAlias : BirElementBase(), BirDeclaration, BirDeclarationWi
     abstract var isActual: Boolean
 
     abstract var expandedType: BirType
+
+    companion object
 }

@@ -25,4 +25,6 @@ abstract class BirModuleFragment : BirElementBase(), BirElement {
     abstract val name: Name
 
     abstract val files: BirChildElementList<BirFile>
+
+    companion object
 }

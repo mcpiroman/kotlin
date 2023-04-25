@@ -17,4 +17,6 @@ import org.jetbrains.kotlin.bir.BirChildElementList
  */
 abstract class BirStringConcatenation : BirExpression() {
     abstract val arguments: BirChildElementList<BirExpression>
+
+    companion object
 }

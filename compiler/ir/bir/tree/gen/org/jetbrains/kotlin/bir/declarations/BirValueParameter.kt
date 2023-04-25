@@ -36,4 +36,6 @@ abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSym
 
     context(BirTreeContext)
     abstract var defaultValue: BirExpressionBody?
+
+    companion object
 }

@@ -14,8 +14,6 @@ import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.expressions.impl.*
 import org.jetbrains.kotlin.bir.types.BirSimpleType
 import org.jetbrains.kotlin.bir.types.BirUninitializedType
-import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
-import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
@@ -23,7 +21,6 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.declarations.impl.IrFunctionWithLateBindingImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrPropertyWithLateBindingImpl
 import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.types.IrSimpleType
 
 @ObsoleteDescriptorBasedAPI
 class Ir2BirConverter : Ir2BirConverterBase() {
@@ -158,16 +155,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         moveChildElementList(ir.declarations, bir.declarations)
         bir.annotations = mapIrElementList<BirConstructorCall>(ir.annotations)
         bir.superTypes = ir.superTypes.map { convertType(it) }
-        bir.valueClassRepresentation = when (val valueClassRepresentation = ir.valueClassRepresentation) {
-            null -> null
-            is InlineClassRepresentation<IrSimpleType> -> InlineClassRepresentation<BirSimpleType>(
-                valueClassRepresentation.underlyingPropertyName,
-                convertType(valueClassRepresentation.underlyingType) as BirSimpleType
-            )
-            is MultiFieldValueClassRepresentation<IrSimpleType> -> MultiFieldValueClassRepresentation<BirSimpleType>(
-                valueClassRepresentation.underlyingPropertyNamesToTypes.map { (name, type) -> name to convertType(type) as BirSimpleType }
-            )
-        }
+        bir.valueClassRepresentation = ir.valueClassRepresentation?.mapUnderlyingType { convertType(it) as BirSimpleType }
         return bir
     }
 

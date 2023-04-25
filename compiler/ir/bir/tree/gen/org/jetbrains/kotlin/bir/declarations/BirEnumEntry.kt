@@ -32,4 +32,6 @@ abstract class BirEnumEntry : BirElementBase(), BirDeclaration, BirDeclarationWi
 
     context(BirTreeContext)
     abstract var correspondingClass: BirClass?
+
+    companion object
 }

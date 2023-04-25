@@ -18,4 +18,6 @@ import org.jetbrains.kotlin.bir.BirTreeContext
 abstract class BirSetValue : BirValueAccessExpression() {
     context(BirTreeContext)
     abstract var value: BirExpression
+
+    companion object
 }

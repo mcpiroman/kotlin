@@ -23,4 +23,6 @@ abstract class BirFile : BirElementBase(), BirPackageFragment, BirAnnotationCont
     abstract var module: BirModuleFragment
 
     abstract var fileEntry: IrFileEntry
+
+    companion object
 }

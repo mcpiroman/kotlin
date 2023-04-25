@@ -20,4 +20,6 @@ abstract class BirWhen : BirExpression() {
     abstract var origin: IrStatementOrigin?
 
     abstract val branches: BirChildElementList<BirBranch>
+
+    companion object
 }

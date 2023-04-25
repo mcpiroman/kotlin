@@ -22,4 +22,6 @@ abstract class BirFunctionExpression : BirExpression() {
 
     context(BirTreeContext)
     abstract var function: BirSimpleFunction
+
+    companion object
 }

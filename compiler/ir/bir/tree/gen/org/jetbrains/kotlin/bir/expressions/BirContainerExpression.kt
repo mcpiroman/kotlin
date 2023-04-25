@@ -21,4 +21,6 @@ abstract class BirContainerExpression : BirExpression(), BirStatementContainer {
     abstract var origin: IrStatementOrigin?
 
     abstract override val statements: BirChildElementList<BirStatement>
+
+    companion object
 }

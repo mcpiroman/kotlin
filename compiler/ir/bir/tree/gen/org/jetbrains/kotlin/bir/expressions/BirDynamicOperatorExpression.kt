@@ -24,4 +24,6 @@ abstract class BirDynamicOperatorExpression : BirDynamicExpression() {
     abstract var receiver: BirExpression
 
     abstract val arguments: BirChildElementList<BirExpression>
+
+    companion object
 }

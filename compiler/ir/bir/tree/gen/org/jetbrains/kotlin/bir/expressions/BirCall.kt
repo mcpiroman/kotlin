@@ -20,4 +20,6 @@ abstract class BirCall : BirFunctionAccessExpression() {
     abstract override var target: BirSimpleFunctionSymbol
 
     abstract var superQualifier: BirClassSymbol?
+
+    companion object
 }

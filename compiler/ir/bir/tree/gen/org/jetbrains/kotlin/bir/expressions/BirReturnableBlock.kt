@@ -18,4 +18,6 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.returnableBlock]
  */
 abstract class BirReturnableBlock : BirBlock(), BirReturnTarget, BirSymbolElement,
-        BirReturnableBlockSymbol
+        BirReturnableBlockSymbol {
+    companion object
+}

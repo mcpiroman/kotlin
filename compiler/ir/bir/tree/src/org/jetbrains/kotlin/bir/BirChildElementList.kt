@@ -245,15 +245,37 @@ class BirChildElementList<E : BirElement>(
         }
     }
 
+
     context (BirTreeContext)
     operator fun plusAssign(element: E) {
         add(element)
     }
 
     context (BirTreeContext)
+    operator fun plusAssign(elements: Iterable<E>) {
+        for (el in elements) add(el)
+    }
+
+    context (BirTreeContext)
+    operator fun plusAssign(elements: Sequence<E>) {
+        for (el in elements) add(el)
+    }
+
+    context (BirTreeContext)
     operator fun minusAssign(element: E) {
         remove(element)
     }
+
+    context (BirTreeContext)
+    operator fun minusAssign(elements: Iterable<E>) {
+        for (el in elements) remove(el)
+    }
+
+    context (BirTreeContext)
+    operator fun minusAssign(elements: Sequence<E>) {
+        for (el in elements) remove(el)
+    }
+
 
     override fun iterator(): Iterator<E> = ReadonlyIter(this)
 

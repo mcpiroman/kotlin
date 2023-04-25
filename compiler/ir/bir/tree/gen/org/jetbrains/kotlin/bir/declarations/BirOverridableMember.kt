@@ -20,4 +20,6 @@ import org.jetbrains.kotlin.descriptors.Modality
 abstract class BirOverridableMember : BirElementBase(), BirDeclaration,
         BirDeclarationWithName, BirDeclarationWithVisibility, BirSymbolElement {
     abstract var modality: Modality
+
+    companion object
 }

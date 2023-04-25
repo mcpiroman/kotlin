@@ -27,4 +27,6 @@ abstract class BirLoop : BirExpression(), BirElementTrackingBackReferences {
     abstract var condition: BirExpression
 
     abstract var label: String?
+
+    companion object
 }

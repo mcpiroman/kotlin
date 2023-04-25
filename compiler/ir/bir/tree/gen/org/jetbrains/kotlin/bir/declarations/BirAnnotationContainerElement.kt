@@ -18,4 +18,6 @@ import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
  */
 interface BirAnnotationContainerElement : BirElement {
     var annotations: List<BirConstructorCall>
+
+    companion object
 }

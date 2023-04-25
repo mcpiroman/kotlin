@@ -25,4 +25,6 @@ abstract class BirSuspensionPoint : BirExpression() {
 
     context(BirTreeContext)
     abstract var resumeResult: BirExpression
+
+    companion object
 }
