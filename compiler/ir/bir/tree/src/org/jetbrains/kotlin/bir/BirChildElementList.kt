@@ -195,6 +195,56 @@ class BirChildElementList<E : BirElement>(
     fun last(): E = tail as E? ?: throw NoSuchElementException("Collection is empty.")
     fun lastOrNull(): E? = tail as E?
 
+    fun indexOf(element: E): Int {
+        if (element !in this) {
+            return -1
+        }
+
+        var e = headOrNext!!
+        var index = 0
+        while (e !== element) {
+            index++
+            e = e.next!!
+        }
+        return index
+    }
+
+    fun getElementAtIndex(index: Int): E {
+        checkIndex(index)
+
+        var e = headOrNext!!
+        var i = index
+        while (i > 0) {
+            e = e.next!!
+            i--
+        }
+        return e as E
+    }
+
+    context (BirTreeContext)
+    fun setElementAtIndex(index: Int, element: E): E {
+        checkIndex(index)
+
+        var old = headOrNext!!
+        var last: BirElementBase? = null
+        var i = index
+        while (i > 0) {
+            last = old
+            old = old.next!!
+            i--
+        }
+
+        val replaced = replace(old as E, element, last)
+        check(replaced)
+        return old as E
+    }
+
+    private fun checkIndex(index: Int) {
+        if (index <= size) {
+            throw IndexOutOfBoundsException("index: $index, size: $size")
+        }
+    }
+
     context (BirTreeContext)
     operator fun plusAssign(element: E) {
         add(element)

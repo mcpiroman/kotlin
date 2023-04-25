@@ -185,3 +185,14 @@ fun BirAnnotationContainer.hasAnnotation(symbol: BirClassSymbol) =
         it.target.asElement.parentAsClass == symbol
     }
 
+fun BirValueParameter.getIndex(): Int {
+    val list = getContainingList()
+        ?: return -1
+    return list.indexOf(this)
+}
+
+fun BirTypeParameter.getIndex(): Int {
+    val list = getContainingList()
+        ?: return -1
+    return list.indexOf(this)
+}

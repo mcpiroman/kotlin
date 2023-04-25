@@ -117,7 +117,6 @@ object BirTree : AbstractTreeBuilder() {
         parent(valueDeclaration)
 
         +descriptor("ParameterDescriptor")
-        +field("index", int)
         +field("varargElementType", birTypeType, nullable = true)
         +field("isCrossinline", boolean)
         +field("isNoinline", boolean)
@@ -203,7 +202,6 @@ object BirTree : AbstractTreeBuilder() {
 
         +descriptor("TypeParameterDescriptor")
         +field("variance", type<Variance>())
-        +field("index", int)
         +field("isReified", boolean)
         +listField("superTypes", birTypeType, mutability = Var)
     }
