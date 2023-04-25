@@ -26,8 +26,6 @@ abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSym
     @ObsoleteDescriptorBasedAPI
     abstract override val _descriptor: ParameterDescriptor?
 
-    abstract var index: Int
-
     abstract var varargElementType: BirType?
 
     abstract var isCrossinline: Boolean

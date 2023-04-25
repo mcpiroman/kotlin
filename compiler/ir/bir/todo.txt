@@ -27,3 +27,6 @@ Tree mutation-while-traversing protocol
 Maybe eventually remove descriptors, but they seem necessary for now
 Reorder fields in Impl classes even more
 Try to reduce symbol hierarchy - esp. for removed by-private-symbol references
+Don't store list as element's parent, use list id instead
+    - Store the list id in a few bits in its size field
+    - Generate function to get list by id

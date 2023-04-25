@@ -31,6 +31,9 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             is BirChildElementList<*> -> rawParent.parent
         }
 
+    internal fun getContainingList(): BirChildElementList<*>? =
+        rawParent as? BirChildElementList<*>
+
     internal var attachedToTree: Boolean
         get() = hasFlag(FLAG_ATTACHED_TO_TREE)
         set(value) = setFlag(FLAG_ATTACHED_TO_TREE, value)

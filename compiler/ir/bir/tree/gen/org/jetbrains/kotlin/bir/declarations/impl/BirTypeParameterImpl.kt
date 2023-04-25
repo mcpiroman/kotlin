@@ -26,7 +26,6 @@ class BirTypeParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     override var origin: IrDeclarationOrigin,
     override var name: Name,
     override var variance: Variance,
-    override var index: Int,
     override var isReified: Boolean,
     override var superTypes: List<BirType>,
 ) : BirTypeParameter()

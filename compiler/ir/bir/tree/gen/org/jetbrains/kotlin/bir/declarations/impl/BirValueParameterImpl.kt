@@ -33,7 +33,6 @@ class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     override var name: Name,
     override var type: BirType,
     override val isAssignable: Boolean,
-    override var index: Int,
     override var varargElementType: BirType?,
     override var isCrossinline: Boolean,
     override var isNoinline: Boolean,

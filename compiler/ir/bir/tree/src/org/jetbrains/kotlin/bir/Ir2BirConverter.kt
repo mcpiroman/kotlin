@@ -110,7 +110,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         val bir = BirValueParameterImpl(
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
             _descriptor = mapDescriptor(ir.descriptor),
-            index = ir.index,
             varargElementType = null,
             isCrossinline = ir.isCrossinline,
             isNoinline = ir.isNoinline,
@@ -193,7 +192,6 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             sourceSpan = SourceSpan(ir.startOffset, ir.endOffset),
             _descriptor = mapDescriptor(ir.descriptor),
             variance = ir.variance,
-            index = ir.index,
             isReified = ir.isReified,
             superTypes = emptyList(),
             origin = ir.origin,

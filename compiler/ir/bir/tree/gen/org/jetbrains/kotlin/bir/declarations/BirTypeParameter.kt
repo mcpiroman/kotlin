@@ -28,8 +28,6 @@ abstract class BirTypeParameter : BirElementBase(), BirDeclaration, BirDeclarati
 
     abstract var variance: Variance
 
-    abstract var index: Int
-
     abstract var isReified: Boolean
 
     abstract var superTypes: List<BirType>
