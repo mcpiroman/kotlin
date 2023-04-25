@@ -8,8 +8,12 @@ package org.jetbrains.kotlin.bir.symbols
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
+import org.jetbrains.kotlin.ir.util.IdSignature
 
 interface BirSymbolElement : BirLLPossiblyElementSymbol, BirElement {
+    override val signature: IdSignature?
+        get() = null
+
     /*@Deprecated("Meaningless for BirPossiblyElementSymbol", level = DeprecationLevel.ERROR)
     override val isBound: Boolean
         get() = true

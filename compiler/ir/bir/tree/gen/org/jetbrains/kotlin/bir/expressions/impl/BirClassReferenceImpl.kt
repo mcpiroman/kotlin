@@ -14,13 +14,13 @@ import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirClassReference
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 class BirClassReferenceImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     target: BirClassifierSymbol,
-    override var classType: IrType,
+    override var classType: BirType,
 ) : BirClassReference() {
     override var attributeOwnerId: BirAttributeContainer = this
 

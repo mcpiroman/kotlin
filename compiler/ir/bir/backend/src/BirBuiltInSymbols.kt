@@ -1,10 +1,11 @@
+import org.jetbrains.kotlin.bir.BirBuiltIns
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.Ir2BirConverter
 import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 /*
@@ -105,7 +106,7 @@ abstract class BirBuiltInSymbols constructor(
 
     open val setWithoutBoundCheckName: Name? = null
 
-    open val arraysContentEquals: Map<IrType, BirSimpleFunction>? = null
+    open val arraysContentEquals: Map<BirType, BirSimpleFunction>? = null
 
 
     protected fun findClass(name: Name, vararg packageNameSegments: String = arrayOf("kotlin")): BirClass? {

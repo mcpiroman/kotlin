@@ -9,7 +9,7 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 /**
  * A leafB IR tree element.
@@ -19,5 +19,5 @@ import org.jetbrains.kotlin.ir.types.IrType
 abstract class BirClassReference : BirDeclarationReference() {
     abstract override var target: BirClassifierSymbol
 
-    abstract var classType: IrType
+    abstract var classType: BirType
 }

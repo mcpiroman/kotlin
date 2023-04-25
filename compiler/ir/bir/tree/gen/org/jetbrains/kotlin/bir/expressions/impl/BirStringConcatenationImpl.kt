@@ -16,11 +16,11 @@ import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirStringConcatenation
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 class BirStringConcatenationImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
 ) : BirStringConcatenation() {
     override var attributeOwnerId: BirAttributeContainer = this
 

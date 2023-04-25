@@ -10,7 +10,7 @@ package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 /**
  * A leafB IR tree element.
@@ -22,5 +22,5 @@ abstract class BirConstantObject : BirConstantValue() {
 
     abstract val valueArguments: BirChildElementList<BirConstantValue>
 
-    abstract val typeArguments: List<IrType>
+    abstract val typeArguments: List<BirType>
 }

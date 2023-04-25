@@ -20,11 +20,11 @@ import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
@@ -36,7 +36,7 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
     override var visibility: DescriptorVisibility,
     override var name: Name,
     override var isExternal: Boolean,
-    override var type: IrType,
+    override var type: BirType,
     override var isFinal: Boolean,
     override var isStatic: Boolean,
     initializer: BirExpressionBody?,

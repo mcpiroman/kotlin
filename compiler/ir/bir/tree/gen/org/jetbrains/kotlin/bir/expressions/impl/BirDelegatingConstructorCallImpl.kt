@@ -21,17 +21,17 @@ import org.jetbrains.kotlin.bir.symbols.BirConstructorSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 
 class BirDelegatingConstructorCallImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     target: BirConstructorSymbol,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override val typeArguments: Array<IrType?>,
+    override val typeArguments: Array<BirType?>,
     override var contextReceiversCount: Int,
 ) : BirDelegatingConstructorCall() {
     override var attributeOwnerId: BirAttributeContainer = this

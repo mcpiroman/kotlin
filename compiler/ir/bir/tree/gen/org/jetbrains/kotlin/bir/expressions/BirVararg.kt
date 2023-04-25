@@ -9,7 +9,7 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 /**
  * A leafB IR tree element.
@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.ir.types.IrType
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.vararg]
  */
 abstract class BirVararg : BirExpression() {
-    abstract var varargElementType: IrType
+    abstract var varargElementType: BirType
 
     abstract val elements: BirChildElementList<BirVarargElement>
 }

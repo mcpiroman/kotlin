@@ -3,15 +3,16 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
+import org.jetbrains.kotlin.bir.BirBuiltIns
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.Ir2BirConverter
+import org.jetbrains.kotlin.bir.types.BirTypeSystemContext
+import org.jetbrains.kotlin.bir.types.BirTypeSystemContextImpl
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
-import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
 import org.jetbrains.kotlin.ir.util.SymbolTable
 import org.jetbrains.kotlin.name.FqName
 
@@ -23,7 +24,7 @@ import org.jetbrains.kotlin.name.FqName
 interface BirBackendContext {
     val builtIns: KotlinBuiltIns
     val birBuiltIns: BirBuiltIns
-    val typeSystem: IrTypeSystemContext
+    val typeSystem: BirTypeSystemContext
     val internalPackageFqn: FqName
 
     val configuration: CompilerConfiguration
@@ -36,10 +37,14 @@ class WasmBirContext(
     symbolTable: SymbolTable,
     module: ModuleDescriptor,
     override val configuration: CompilerConfiguration,
+    converter: Ir2BirConverter
 ) : BirTreeContext(), BirBackendContext {
-    private val converter = Ir2BirConverter()
-    override val birBuiltIns: BirBuiltIns = BirBuiltIns(this, irBuiltIns, converter)
+    override val birBuiltIns: BirBuiltIns = BirBuiltIns(irBuiltIns, converter)
     val wasmSymbols = BirWasmSymbols(birBuiltIns, symbolTable, this, converter, module)
     override val internalPackageFqn = FqName("kotlin.wasm")
-    override val typeSystem: IrTypeSystemContext = IrTypeSystemContextImpl(irBuiltIns)
+    override val typeSystem: BirTypeSystemContext = BirTypeSystemContextImpl(birBuiltIns, this)
+
+    init {
+        converter.finalizeTreeConversion(this)
+    }
 }

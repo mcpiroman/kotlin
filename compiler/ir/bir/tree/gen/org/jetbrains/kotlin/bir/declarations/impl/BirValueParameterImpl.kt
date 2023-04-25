@@ -18,10 +18,10 @@ import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
@@ -31,10 +31,10 @@ class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     override val _descriptor: ParameterDescriptor?,
     override var origin: IrDeclarationOrigin,
     override var name: Name,
-    override var type: IrType,
+    override var type: BirType,
     override val isAssignable: Boolean,
     override var index: Int,
-    override var varargElementType: IrType?,
+    override var varargElementType: BirType?,
     override var isCrossinline: Boolean,
     override var isNoinline: Boolean,
     override var isHidden: Boolean,

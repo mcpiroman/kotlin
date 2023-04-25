@@ -16,9 +16,9 @@ import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirScriptSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A leafB IR tree element.
@@ -33,7 +33,7 @@ abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithN
     context(BirTreeContext)
     abstract var thisReceiver: BirValueParameter?
 
-    abstract var baseClass: IrType?
+    abstract var baseClass: BirType?
 
     abstract var explicitCallParameters: BirChildElementList<BirVariable>
 

@@ -13,13 +13,13 @@ import org.jetbrains.kotlin.bir.expressions.BirBody
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSimpleFunctionSymbol
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 interface BirSimpleFunctionBuilder {
@@ -56,7 +56,7 @@ private class BirSimpleFunctionBuilderImpl() :
     lateinit var valueParameters: List<BirValueParameter>
     var contextReceiverParametersCount: Int = 0
     var body: BirBody? = null
-    lateinit var returnType: IrType
+    lateinit var returnType: BirType
     var isExternal: Boolean = false
     var isExpect: Boolean = false
     var isInline: Boolean = false

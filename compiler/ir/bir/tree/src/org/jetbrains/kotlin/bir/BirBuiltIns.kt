@@ -3,11 +3,11 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirTreeContext
-import org.jetbrains.kotlin.bir.Ir2BirConverter
+package org.jetbrains.kotlin.bir
+
 import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.builtins.UnsignedType
 import org.jetbrains.kotlin.config.LanguageVersionSettings
@@ -16,50 +16,44 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 import java.util.concurrent.ConcurrentHashMap
 
-/*
- * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
- * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
- */
-
+context(BirTreeContext)
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 class BirBuiltIns(
-    private val birTreeContext: BirTreeContext,
     private val irBuiltIns: IrBuiltIns,
     private val converter: Ir2BirConverter,
 ) {
     val languageVersionSettings: LanguageVersionSettings = irBuiltIns.languageVersionSettings
 
-    val anyType: IrType = irBuiltIns.anyType
+    val anyType: BirType = converter.convertType(irBuiltIns.anyType)
     val anyClass: BirClass = mapSymbolOwner(irBuiltIns.anyClass)
-    val anyNType: IrType = irBuiltIns.anyNType
-    val booleanType: IrType = irBuiltIns.booleanType
+    val anyNType: BirType = converter.convertType(irBuiltIns.anyNType)
+    val booleanType: BirType = converter.convertType(irBuiltIns.booleanType)
     val booleanClass: BirClass = mapSymbolOwner(irBuiltIns.booleanClass)
-    val charType: IrType = irBuiltIns.charType
+    val charType: BirType = converter.convertType(irBuiltIns.charType)
     val charClass: BirClass = mapSymbolOwner(irBuiltIns.charClass)
-    val numberType: IrType = irBuiltIns.numberType
+    val numberType: BirType = converter.convertType(irBuiltIns.numberType)
     val numberClass: BirClass = mapSymbolOwner(irBuiltIns.numberClass)
-    val byteType: IrType = irBuiltIns.byteType
+    val byteType: BirType = converter.convertType(irBuiltIns.byteType)
     val byteClass: BirClass = mapSymbolOwner(irBuiltIns.byteClass)
-    val shortType: IrType = irBuiltIns.shortType
+    val shortType: BirType = converter.convertType(irBuiltIns.shortType)
     val shortClass: BirClass = mapSymbolOwner(irBuiltIns.shortClass)
-    val intType: IrType = irBuiltIns.intType
+    val intType: BirType = converter.convertType(irBuiltIns.intType)
     val intClass: BirClass = mapSymbolOwner(irBuiltIns.intClass)
-    val longType: IrType = irBuiltIns.longType
+    val longType: BirType = converter.convertType(irBuiltIns.longType)
     val longClass: BirClass = mapSymbolOwner(irBuiltIns.longClass)
-    val floatType: IrType = irBuiltIns.floatType
+    val floatType: BirType = converter.convertType(irBuiltIns.floatType)
     val floatClass: BirClass = mapSymbolOwner(irBuiltIns.floatClass)
-    val doubleType: IrType = irBuiltIns.doubleType
+    val doubleType: BirType = converter.convertType(irBuiltIns.doubleType)
     val doubleClass: BirClass = mapSymbolOwner(irBuiltIns.doubleClass)
-    val nothingType: IrType = irBuiltIns.nothingType
+    val nothingType: BirType = converter.convertType(irBuiltIns.nothingType)
     val nothingClass: BirClass = mapSymbolOwner(irBuiltIns.nothingClass)
-    val nothingNType: IrType = irBuiltIns.nothingNType
-    val unitType: IrType = irBuiltIns.unitType
+    val nothingNType: BirType = converter.convertType(irBuiltIns.nothingNType)
+    val unitType: BirType = converter.convertType(irBuiltIns.unitType)
     val unitClass: BirClass = mapSymbolOwner(irBuiltIns.unitClass)
-    val stringType: IrType = irBuiltIns.stringType
+    val stringType: BirType = converter.convertType(irBuiltIns.stringType)
     val stringClass: BirClass = mapSymbolOwner(irBuiltIns.stringClass)
     val charSequenceClass: BirClass = mapSymbolOwner(irBuiltIns.charSequenceClass)
 
@@ -82,7 +76,7 @@ class BirBuiltIns(
     val mutableListIteratorClass: BirClass = mapSymbolOwner(irBuiltIns.mutableListIteratorClass)
 
     val comparableClass: BirClass = mapSymbolOwner(irBuiltIns.comparableClass)
-    val throwableType: IrType = irBuiltIns.throwableType
+    val throwableType: BirType = converter.convertType(irBuiltIns.throwableType)
     val throwableClass: BirClass = mapSymbolOwner(irBuiltIns.throwableClass)
     val kCallableClass: BirClass = mapSymbolOwner(irBuiltIns.kCallableClass)
     val kPropertyClass: BirClass = mapSymbolOwner(irBuiltIns.kPropertyClass)
@@ -95,12 +89,12 @@ class BirBuiltIns(
     val kMutableProperty2Class: BirClass = mapSymbolOwner(irBuiltIns.kMutableProperty2Class)
     val functionClass: BirClass = mapSymbolOwner(irBuiltIns.functionClass)
     val kFunctionClass: BirClass = mapSymbolOwner(irBuiltIns.kFunctionClass)
-    val annotationType: IrType = irBuiltIns.annotationType
+    val annotationType: BirType = converter.convertType(irBuiltIns.annotationType)
     val annotationClass: BirClass = mapSymbolOwner(irBuiltIns.annotationClass)
 
-    val primitiveIrTypes: List<IrType> = irBuiltIns.primitiveIrTypes
-    val primitiveIrTypesWithComparisons: List<IrType> = irBuiltIns.primitiveIrTypesWithComparisons
-    val primitiveFloatingPointIrTypes: List<IrType> = irBuiltIns.primitiveFloatingPointIrTypes
+    val primitiveBirTypes: List<BirType> = irBuiltIns.primitiveIrTypes.map { converter.convertType(it) }
+    val primitiveBirTypesWithComparisons: List<BirType> = irBuiltIns.primitiveIrTypesWithComparisons.map { converter.convertType(it) }
+    val primitiveFloatingPointBirTypes: List<BirType> = irBuiltIns.primitiveFloatingPointIrTypes.map { converter.convertType(it) }
 
     val byteArray: BirClass = mapSymbolOwner(irBuiltIns.byteArray)
     val charArray: BirClass = mapSymbolOwner(irBuiltIns.charArray)
@@ -115,12 +109,15 @@ class BirBuiltIns(
         irBuiltIns.primitiveArraysToPrimitiveTypes.mapKeys { mapSymbolOwner(it.key) }
     val primitiveTypesToPrimitiveArrays: Map<PrimitiveType, BirClass> =
         irBuiltIns.primitiveTypesToPrimitiveArrays.mapValues { mapSymbolOwner(it.value) }
-    val primitiveArrayElementTypes: Map<BirClass, IrType?> = irBuiltIns.primitiveArrayElementTypes.mapKeys { mapSymbolOwner(it.key) }
-    val primitiveArrayForType: Map<IrType?, BirClass> = irBuiltIns.primitiveArrayForType.mapValues { mapSymbolOwner(it.value) }
+    val primitiveArrayElementTypes: Map<BirClass, BirType?> = irBuiltIns.primitiveArrayElementTypes.entries
+        .associate { entry -> mapSymbolOwner<_, BirClass>(entry.key) to entry.value?.let { converter.convertType(it) } }
+    val primitiveArrayForType: Map<BirType?, BirClass> = irBuiltIns.primitiveArrayForType.entries
+        .associate { entry -> entry.key?.let { converter.convertType(it) } to mapSymbolOwner<_, BirClass>(entry.value) }
 
     val unsignedTypesToUnsignedArrays: Map<UnsignedType, BirClass> =
         irBuiltIns.unsignedTypesToUnsignedArrays.mapValues { mapSymbolOwner(it.value) }
-    val unsignedArraysElementTypes: Map<BirClass, IrType?> = irBuiltIns.unsignedArraysElementTypes.mapKeys { mapSymbolOwner(it.key) }
+    val unsignedArraysElementTypes: Map<BirClass, BirType?> = irBuiltIns.unsignedArraysElementTypes.entries
+        .associate { entry -> mapSymbolOwner<_, BirClass>(entry.key) to entry.value?.let { converter.convertType(it) } }
 
     val lessFunByOperandType: Map<BirClass, BirSimpleFunction> = irBuiltIns.lessFunByOperandType.entries
         .associate { (key, value) -> mapSymbolOwner<_, BirClass>(key) to mapSymbolOwner(value) }
@@ -185,7 +182,7 @@ class BirBuiltIns(
         return converter.mapSymbolToOwner(symbol.owner, symbol)
     }*/
     private fun <Ir : IrElement, Bir : BirElement> mapElement(element: Ir): Bir {
-        return converter.convertIrTree(birTreeContext, element) as Bir
+        return converter.mapIrElement(element) as Bir
     }
 
     private fun <IrS : IrSymbol, Bir : BirElement> mapSymbolOwner(symbol: IrS): Bir {

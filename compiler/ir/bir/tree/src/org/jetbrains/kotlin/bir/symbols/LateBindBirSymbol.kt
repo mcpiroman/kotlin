@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirReturnableBlock
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.ir.util.IdSignature
 
 abstract class LateBindBirSymbol<E : BirElement>(
     val irSymbol: IrSymbol
@@ -30,10 +31,10 @@ abstract class LateBindBirSymbol<E : BirElement>(
      final override var privateSignature: IdSignature?
          get() = error("Not bound")
          set(value) = error("Not bound")
+ */
 
      final override val signature: IdSignature
          get() = error("Not bound")
- */
 
     class FileSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirFile>(irSymbol), BirFileSymbol
     class ExternalPackageFragmentSymbol(irSymbol: IrSymbol) :

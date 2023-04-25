@@ -11,9 +11,9 @@ package org.jetbrains.kotlin.bir.declarations
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirTypeParameterSymbol
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.types.Variance
 
 /**
@@ -32,5 +32,5 @@ abstract class BirTypeParameter : BirElementBase(), BirDeclaration, BirDeclarati
 
     abstract var isReified: Boolean
 
-    abstract var superTypes: List<IrType>
+    abstract var superTypes: List<BirType>
 }
