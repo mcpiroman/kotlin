@@ -20,4 +20,6 @@ abstract class BirClassReference : BirDeclarationReference() {
     abstract override var target: BirClassifierSymbol
 
     abstract var classType: BirType
+
+    companion object
 }

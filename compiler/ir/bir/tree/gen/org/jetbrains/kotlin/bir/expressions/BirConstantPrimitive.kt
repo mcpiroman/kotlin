@@ -18,4 +18,6 @@ import org.jetbrains.kotlin.bir.BirTreeContext
 abstract class BirConstantPrimitive : BirConstantValue() {
     context(BirTreeContext)
     abstract var value: BirConst<*>
+
+    companion object
 }

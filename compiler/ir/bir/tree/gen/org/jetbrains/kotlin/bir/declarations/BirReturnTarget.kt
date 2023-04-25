@@ -22,4 +22,6 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 interface BirReturnTarget : BirElement, BirSymbolElement, BirReturnTargetSymbol {
     @ObsoleteDescriptorBasedAPI
     override val _descriptor: FunctionDescriptor?
+
+    companion object
 }

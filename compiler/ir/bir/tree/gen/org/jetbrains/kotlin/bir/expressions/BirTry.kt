@@ -24,4 +24,6 @@ abstract class BirTry : BirExpression() {
 
     context(BirTreeContext)
     abstract var finallyExpression: BirExpression?
+
+    companion object
 }

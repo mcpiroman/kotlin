@@ -19,4 +19,6 @@ abstract class BirInlinedFunctionBlock : BirBlock() {
     abstract var inlineCall: BirFunctionAccessExpression
 
     abstract var inlinedElement: BirElement
+
+    companion object
 }

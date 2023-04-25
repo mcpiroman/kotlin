@@ -48,4 +48,6 @@ interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
 
     context(BirTreeContext)
     var body: BirBody?
+
+    companion object
 }

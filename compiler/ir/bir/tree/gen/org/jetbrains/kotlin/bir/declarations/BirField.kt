@@ -40,4 +40,6 @@ abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVi
     abstract var initializer: BirExpressionBody?
 
     abstract var correspondingProperty: BirPropertySymbol?
+
+    companion object
 }

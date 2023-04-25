@@ -64,7 +64,7 @@ fun printElements(generationPath: File, model: Model) = sequence {
                 }.build())
             }
 
-            //addType(TypeSpec.companionObjectBuilder().build())
+            addType(TypeSpec.companionObjectBuilder().build())
 
             generateElementKDoc(element)
         }.build()

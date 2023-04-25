@@ -25,4 +25,6 @@ abstract class BirPropertyReference : BirCallableReference<BirPropertySymbol>() 
     abstract var getter: BirSimpleFunctionSymbol?
 
     abstract var setter: BirSimpleFunctionSymbol?
+
+    companion object
 }

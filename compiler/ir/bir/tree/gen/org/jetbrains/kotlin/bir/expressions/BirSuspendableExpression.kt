@@ -21,4 +21,6 @@ abstract class BirSuspendableExpression : BirExpression() {
 
     context(BirTreeContext)
     abstract var result: BirExpression
+
+    companion object
 }

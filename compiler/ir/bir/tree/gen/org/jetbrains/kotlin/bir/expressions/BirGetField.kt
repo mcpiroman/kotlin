@@ -13,4 +13,6 @@ package org.jetbrains.kotlin.bir.expressions
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.getField]
  */
-abstract class BirGetField : BirFieldAccessExpression()
+abstract class BirGetField : BirFieldAccessExpression() {
+    companion object
+}

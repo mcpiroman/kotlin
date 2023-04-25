@@ -16,4 +16,6 @@ package org.jetbrains.kotlin.bir.declarations
  */
 abstract class BirPropertyWithLateBinding : BirProperty() {
     abstract val isElementBound: Boolean
+
+    companion object
 }

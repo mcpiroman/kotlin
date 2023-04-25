@@ -30,4 +30,6 @@ abstract class BirAnonymousInitializer : BirElementBase(), BirDeclaration, BirSy
 
     context(BirTreeContext)
     abstract var body: BirBlockBody
+
+    companion object
 }

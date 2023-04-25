@@ -31,4 +31,6 @@ abstract class BirTypeParameter : BirElementBase(), BirDeclaration, BirDeclarati
     abstract var isReified: Boolean
 
     abstract var superTypes: List<BirType>
+
+    companion object
 }

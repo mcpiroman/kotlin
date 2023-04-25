@@ -69,4 +69,3 @@ abstract class LateBindBirSymbol<E : BirElement>(
 
     class TypeAliasSymbol(irSymbol: IrSymbol) : LateBindBirSymbol<BirTypeAlias>(irSymbol), BirTypeAliasSymbol
 }
-

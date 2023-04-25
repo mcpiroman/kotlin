@@ -17,4 +17,6 @@ import org.jetbrains.kotlin.bir.BirChildElementList
  */
 abstract class BirConstantArray : BirConstantValue() {
     abstract val elements: BirChildElementList<BirConstantValue>
+
+    companion object
 }

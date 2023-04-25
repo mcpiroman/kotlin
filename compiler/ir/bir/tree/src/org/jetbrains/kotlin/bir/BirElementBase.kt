@@ -21,6 +21,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     override var next: BirElementBase? = null
     internal var firstChildPtr: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
+    private var level: UShort = 0u
     private var flags: Byte = 0
     private var registeredBackRefs: Byte = 0
 
@@ -51,6 +52,33 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
     private fun setFlag(flag: Byte, value: Boolean) {
         flags = if (value) flags or flag else flags and flag.inv()
+    }
+
+    fun isAncestorOf(other: BirElementBase): Boolean {
+        if (attachedToTree != other.attachedToTree) {
+            return false
+        }
+
+        val distance = other.level - level
+        if (distance < 0u || (distance == 0u && level != UShort.MAX_VALUE)) {
+            return false
+        }
+
+        var n = other
+        repeat(distance.toInt()) {
+            n = n.parent ?: return false
+            if (n === this) return true
+        }
+
+        return false
+    }
+
+    internal fun updateLevel() {
+        val parent = parent
+        level = if (parent != null) {
+            val parentLevel = parent.level
+            if (parentLevel == UShort.MAX_VALUE) UShort.MAX_VALUE else (parentLevel + 1u).toUShort()
+        } else 0u
     }
 
     internal open fun getFirstChild(): BirElement? = null
@@ -358,8 +386,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
 
     companion object {
-        private const val FLAG_ATTACHED_TO_TREE: Byte = 1
-        private const val FLAG_HAS_CHILDREN: Byte = 2
-        private const val FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR: Byte = 4
+        private const val FLAG_ATTACHED_TO_TREE: Byte = (1 shl 0).toByte()
+        private const val FLAG_HAS_CHILDREN: Byte = (1 shl 1).toByte()
+        private const val FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR: Byte = (1 shl 2).toByte()
     }
 }

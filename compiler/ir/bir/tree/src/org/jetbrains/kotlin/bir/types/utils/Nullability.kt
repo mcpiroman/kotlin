@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.bir.types.BirDynamicType
 import org.jetbrains.kotlin.bir.types.BirErrorType
 import org.jetbrains.kotlin.bir.types.BirSimpleType
 import org.jetbrains.kotlin.bir.types.BirType
-import org.jetbrains.kotlin.bir.types.impl.buildSimpleType
 import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
 import org.jetbrains.kotlin.types.DefinitelyNotNullType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -54,7 +53,6 @@ fun BirType.mergeNullability(other: BirType) = when (other) {
     else -> this
 }
 
-// todo: property?
 fun BirType.isNullable(): Boolean =
     when (this) {
         is BirSimpleType -> when (val classifier = classifier) {

@@ -26,4 +26,6 @@ abstract class BirLocalDelegatedPropertyReference :
     abstract var getter: BirSimpleFunctionSymbol
 
     abstract var setter: BirSimpleFunctionSymbol?
+
+    companion object
 }

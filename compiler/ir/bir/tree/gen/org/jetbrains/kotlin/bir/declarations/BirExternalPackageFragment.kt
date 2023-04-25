@@ -21,4 +21,6 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 abstract class BirExternalPackageFragment : BirElementBase(), BirPackageFragment,
         BirSymbolElement, BirExternalPackageFragmentSymbol {
     abstract val containerSource: DeserializedContainerSource?
+
+    companion object
 }

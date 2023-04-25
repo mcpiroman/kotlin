@@ -13,4 +13,6 @@ package org.jetbrains.kotlin.bir.expressions
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.noExpression]
  */
-abstract class BirNoExpression : BirExpression()
+abstract class BirNoExpression : BirExpression() {
+    companion object
+}

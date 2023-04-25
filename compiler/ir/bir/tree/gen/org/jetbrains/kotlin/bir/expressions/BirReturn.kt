@@ -21,4 +21,6 @@ abstract class BirReturn : BirExpression() {
     abstract var value: BirExpression
 
     abstract var returnTarget: BirReturnTargetSymbol
+
+    companion object
 }

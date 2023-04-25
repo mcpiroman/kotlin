@@ -40,4 +40,6 @@ abstract class BirLocalDelegatedProperty : BirElementBase(), BirDeclaration,
 
     context(BirTreeContext)
     abstract var setter: BirSimpleFunction?
+
+    companion object
 }

@@ -19,4 +19,6 @@ import org.jetbrains.kotlin.bir.BirTreeContext
 abstract class BirSpreadElement : BirElementBase(), BirVarargElement {
     context(BirTreeContext)
     abstract var expression: BirExpression
+
+    companion object
 }

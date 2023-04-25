@@ -6,8 +6,8 @@
 package org.jetbrains.kotlin.bir.types
 
 import org.jetbrains.kotlin.bir.types.impl.BirCapturedType
-import org.jetbrains.kotlin.bir.types.impl.buildTypeProjection
-import org.jetbrains.kotlin.bir.types.impl.toBuilder
+import org.jetbrains.kotlin.bir.types.utils.buildTypeProjection
+import org.jetbrains.kotlin.bir.types.utils.toBuilder
 import org.jetbrains.kotlin.ir.types.IdSignatureValues
 import org.jetbrains.kotlin.types.Variance
 

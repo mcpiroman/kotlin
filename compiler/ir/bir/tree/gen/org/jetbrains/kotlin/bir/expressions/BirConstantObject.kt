@@ -23,4 +23,6 @@ abstract class BirConstantObject : BirConstantValue() {
     abstract val valueArguments: BirChildElementList<BirConstantValue>
 
     abstract val typeArguments: List<BirType>
+
+    companion object
 }

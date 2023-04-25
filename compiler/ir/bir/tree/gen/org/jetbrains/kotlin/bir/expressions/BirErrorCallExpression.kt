@@ -21,4 +21,6 @@ abstract class BirErrorCallExpression : BirErrorExpression() {
     abstract var explicitReceiver: BirExpression?
 
     abstract val arguments: BirChildElementList<BirExpression>
+
+    companion object
 }

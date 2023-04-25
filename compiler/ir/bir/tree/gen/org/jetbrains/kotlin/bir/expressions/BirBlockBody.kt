@@ -13,4 +13,6 @@ package org.jetbrains.kotlin.bir.expressions
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.blockBody]
  */
-abstract class BirBlockBody : BirBody(), BirStatementContainer
+abstract class BirBlockBody : BirBody(), BirStatementContainer {
+    companion object
+}

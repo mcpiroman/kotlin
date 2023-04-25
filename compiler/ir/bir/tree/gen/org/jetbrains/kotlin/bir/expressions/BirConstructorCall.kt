@@ -22,4 +22,6 @@ abstract class BirConstructorCall : BirFunctionAccessExpression() {
     abstract var source: SourceElement
 
     abstract var constructorTypeArgumentsCount: Int
+
+    companion object
 }

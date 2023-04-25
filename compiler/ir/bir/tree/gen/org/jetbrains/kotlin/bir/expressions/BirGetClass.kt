@@ -18,4 +18,6 @@ import org.jetbrains.kotlin.bir.BirTreeContext
 abstract class BirGetClass : BirExpression() {
     context(BirTreeContext)
     abstract var argument: BirExpression
+
+    companion object
 }

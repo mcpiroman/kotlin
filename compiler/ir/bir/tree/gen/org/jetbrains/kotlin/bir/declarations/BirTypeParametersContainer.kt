@@ -17,4 +17,6 @@ import org.jetbrains.kotlin.bir.BirChildElementList
  */
 interface BirTypeParametersContainer : BirDeclaration {
     var typeParameters: BirChildElementList<BirTypeParameter>
+
+    companion object
 }

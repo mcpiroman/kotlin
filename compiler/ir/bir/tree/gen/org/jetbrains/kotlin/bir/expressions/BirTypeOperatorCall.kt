@@ -24,4 +24,6 @@ abstract class BirTypeOperatorCall : BirExpression() {
     abstract var argument: BirExpression
 
     abstract var typeOperand: BirType
+
+    companion object
 }

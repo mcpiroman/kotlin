@@ -53,4 +53,6 @@ abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithN
     abstract var targetClass: BirClassSymbol?
 
     abstract var constructor: BirConstructor?
+
+    companion object
 }

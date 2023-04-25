@@ -33,4 +33,6 @@ abstract class BirMemberAccessExpression<S : BirSymbol> : BirDeclarationReferenc
     abstract val valueArguments: BirChildElementList<BirExpression>
 
     abstract val typeArguments: Array<BirType?>
+
+    companion object
 }

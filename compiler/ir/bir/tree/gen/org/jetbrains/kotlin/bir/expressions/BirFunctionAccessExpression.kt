@@ -17,4 +17,6 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
  */
 abstract class BirFunctionAccessExpression : BirMemberAccessExpression<BirFunctionSymbol>() {
     abstract var contextReceiversCount: Int
+
+    companion object
 }

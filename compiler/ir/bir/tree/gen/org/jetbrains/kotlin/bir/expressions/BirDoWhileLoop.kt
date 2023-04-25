@@ -13,4 +13,6 @@ package org.jetbrains.kotlin.bir.expressions
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.doWhileLoop]
  */
-abstract class BirDoWhileLoop : BirLoop()
+abstract class BirDoWhileLoop : BirLoop() {
+    companion object
+}

@@ -20,4 +20,6 @@ abstract class BirDynamicMemberExpression : BirDynamicExpression() {
 
     context(BirTreeContext)
     abstract var receiver: BirExpression
+
+    companion object
 }

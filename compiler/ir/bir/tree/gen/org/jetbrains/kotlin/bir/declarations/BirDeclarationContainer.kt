@@ -18,4 +18,6 @@ import org.jetbrains.kotlin.bir.BirElement
  */
 interface BirDeclarationContainer : BirElement {
     val declarations: BirChildElementList<BirDeclaration>
+
+    companion object
 }
