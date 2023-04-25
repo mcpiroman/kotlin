@@ -14,9 +14,9 @@ import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirBody
 import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A non-leafB IR tree element.
@@ -34,7 +34,7 @@ interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
 
     var isExpect: Boolean
 
-    var returnType: IrType
+    var returnType: BirType
 
     context(BirTreeContext)
     var dispatchReceiverParameter: BirValueParameter?

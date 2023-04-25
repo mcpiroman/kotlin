@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.descriptors.*
@@ -10,7 +11,6 @@ import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.SymbolTable
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
  */
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-class BirWasmSymbols constructor(
+class BirWasmSymbols(
     birBuiltIns: BirBuiltIns,
     private val symbolTable: SymbolTable,
     birTreeContext: BirTreeContext,
@@ -129,7 +129,7 @@ class BirWasmSymbols constructor(
         birBuiltIns.doubleType to getInternalFunction("consumeDoubleIntoVoid")
     )
 
-    fun findVoidConsumer(type: IrType): BirSimpleFunction =
+    fun findVoidConsumer(type: BirType): BirSimpleFunction =
         consumePrimitiveIntoVoid[type] ?: consumeAnyIntoVoid
 
     val equalityFunctions = mapOf(
@@ -370,7 +370,7 @@ class BirWasmSymbols constructor(
     val coroutineContextProperty: BirProperty = getProperty(coroutinePackage.memberScope, COROUTINE_CONTEXT_NAME)
     override val coroutineContextGetter = with(birTreeContext) { coroutineContextProperty.getter!! }
 
-    fun getKFunctionType(type: IrType, list: List<IrType>): IrType {
+    fun getKFunctionType(type: BirType, list: List<BirType>): BirType {
         return TODO() //birBuiltIns.functionN(list.size).typeWith(list + type)
     }
 
@@ -420,7 +420,9 @@ class BirWasmSymbols constructor(
 
 
     private fun <Ir : IrElement, Bir : BirElement> mapElement(element: Ir): Bir {
-        return converter.convertIrTree(birTreeContext, element) as Bir
+        with(birTreeContext) {
+            return converter.mapIrElement(element) as Bir
+        }
     }
 
     private fun <IrS : IrSymbol, Bir : BirElement> mapSymbolOwner(symbol: IrS): Bir {

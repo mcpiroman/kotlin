@@ -17,12 +17,12 @@ import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.expressions.BirFunctionExpression
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 
 class BirFunctionExpressionImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     override var origin: IrStatementOrigin,
     function: BirSimpleFunction,
 ) : BirFunctionExpression() {

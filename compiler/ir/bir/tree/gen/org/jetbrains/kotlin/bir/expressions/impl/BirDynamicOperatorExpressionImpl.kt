@@ -18,12 +18,12 @@ import org.jetbrains.kotlin.bir.expressions.BirDynamicOperatorExpression
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrDynamicOperator
-import org.jetbrains.kotlin.ir.types.IrType
 
 class BirDynamicOperatorExpressionImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     override var operator: IrDynamicOperator,
     receiver: BirExpression,
 ) : BirDynamicOperatorExpression() {

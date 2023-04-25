@@ -22,6 +22,8 @@ import org.jetbrains.kotlin.bir.declarations.BirValueParameter
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirSimpleType
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
@@ -30,8 +32,6 @@ import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.ValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
@@ -52,9 +52,9 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isExpect: Boolean,
     override var isFun: Boolean,
     override val source: SourceElement,
-    override var superTypes: List<IrType>,
+    override var superTypes: List<BirType>,
     thisReceiver: BirValueParameter?,
-    override var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?,
+    override var valueClassRepresentation: ValueClassRepresentation<BirSimpleType>?,
 ) : BirClass() {
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()

@@ -16,12 +16,12 @@ import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirBlock
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 
 class BirBlockImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     override var origin: IrStatementOrigin?,
 ) : BirBlock() {
     override var attributeOwnerId: BirAttributeContainer = this

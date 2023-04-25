@@ -10,10 +10,13 @@ import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirReturnableBlock
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.types.model.TypeConstructorMarker
 import org.jetbrains.kotlin.types.model.TypeParameterMarker
 
-interface BirSymbol
+interface BirSymbol {
+    val signature: IdSignature?
+}
 
 class BirIrSymbolWrapper(
     val original: IrSymbol
@@ -27,8 +30,11 @@ interface BirSymbolWithTypedDescriptor<out D : DeclarationDescriptor> : BirSymbo
 interface BirLLPossiblyElementSymbol : BirSymbol
 interface BirPossiblyElementSymbol<out E : BirElement> : BirLLPossiblyElementSymbol
 
-inline val <reified E : BirElement> BirPossiblyElementSymbol<E>.asElement: E?
+inline val <reified E : BirElement> BirPossiblyElementSymbol<E>.maybeAsElement: E?
     get() = this as? E
+
+inline val <reified E : BirElement> BirPossiblyElementSymbol<E>.asElement: E
+    get() = this as E
 
 
 interface BirPackageFragmentSymbol : BirSymbol {

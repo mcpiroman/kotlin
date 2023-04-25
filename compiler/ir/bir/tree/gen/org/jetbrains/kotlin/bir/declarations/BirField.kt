@@ -15,9 +15,9 @@ import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A leafB IR tree element.
@@ -30,7 +30,7 @@ abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVi
     @ObsoleteDescriptorBasedAPI
     abstract override val _descriptor: PropertyDescriptor?
 
-    abstract var type: IrType
+    abstract var type: BirType
 
     abstract var isFinal: Boolean
 

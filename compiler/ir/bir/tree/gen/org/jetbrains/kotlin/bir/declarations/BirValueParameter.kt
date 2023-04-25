@@ -12,9 +12,9 @@ import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirValueParameterSymbol
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A leafB IR tree element.
@@ -28,7 +28,7 @@ abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSym
 
     abstract var index: Int
 
-    abstract var varargElementType: IrType?
+    abstract var varargElementType: BirType?
 
     abstract var isCrossinline: Boolean
 

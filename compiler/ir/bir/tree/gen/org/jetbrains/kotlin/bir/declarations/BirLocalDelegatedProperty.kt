@@ -13,9 +13,9 @@ import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirLocalDelegatedPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.VariableDescriptorWithAccessors
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A leafB IR tree element.
@@ -28,7 +28,7 @@ abstract class BirLocalDelegatedProperty : BirElementBase(), BirDeclaration,
     @ObsoleteDescriptorBasedAPI
     abstract override val _descriptor: VariableDescriptorWithAccessors?
 
-    abstract var type: IrType
+    abstract var type: BirType
 
     abstract var isVar: Boolean
 

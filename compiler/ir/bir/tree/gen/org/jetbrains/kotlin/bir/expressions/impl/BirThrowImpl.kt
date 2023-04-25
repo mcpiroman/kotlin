@@ -17,11 +17,11 @@ import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirThrow
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 class BirThrowImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     value: BirExpression,
 ) : BirThrow() {
     override var attributeOwnerId: BirAttributeContainer = this

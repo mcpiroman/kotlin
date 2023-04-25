@@ -12,9 +12,9 @@ import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirValueSymbol
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ValueDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A non-leafB IR tree element.
@@ -26,7 +26,7 @@ abstract class BirValueDeclaration : BirElementBase(), BirDeclarationWithName,
     @ObsoleteDescriptorBasedAPI
     abstract override val _descriptor: ValueDescriptor?
 
-    abstract var type: IrType
+    abstract var type: BirType
 
     abstract val isAssignable: Boolean
 }

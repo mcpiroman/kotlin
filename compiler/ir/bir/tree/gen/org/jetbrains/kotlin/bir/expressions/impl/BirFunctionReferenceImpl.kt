@@ -21,17 +21,17 @@ import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 
 class BirFunctionReferenceImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     target: BirFunctionSymbol,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override val typeArguments: Array<IrType?>,
+    override val typeArguments: Array<BirType?>,
     override var reflectionTarget: BirFunctionSymbol?,
 ) : BirFunctionReference() {
     override var attributeOwnerId: BirAttributeContainer = this

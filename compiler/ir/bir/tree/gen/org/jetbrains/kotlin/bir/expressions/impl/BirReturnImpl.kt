@@ -19,11 +19,11 @@ import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 class BirReturnImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     value: BirExpression,
     override var returnTarget: BirReturnTargetSymbol,
 ) : BirReturn() {

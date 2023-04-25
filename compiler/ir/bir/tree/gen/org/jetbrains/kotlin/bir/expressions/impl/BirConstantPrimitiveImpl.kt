@@ -17,11 +17,11 @@ import org.jetbrains.kotlin.bir.expressions.BirConst
 import org.jetbrains.kotlin.bir.expressions.BirConstantPrimitive
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 class BirConstantPrimitiveImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     value: BirConst<*>,
 ) : BirConstantPrimitive() {
     override var attributeOwnerId: BirAttributeContainer = this

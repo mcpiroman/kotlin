@@ -21,11 +21,11 @@ import org.jetbrains.kotlin.bir.expressions.BirBody
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
@@ -39,7 +39,7 @@ class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
     override var isExternal: Boolean,
     override var isInline: Boolean,
     override var isExpect: Boolean,
-    override var returnType: IrType,
+    override var returnType: BirType,
     dispatchReceiverParameter: BirValueParameter?,
     extensionReceiverParameter: BirValueParameter?,
     override var contextReceiverParametersCount: Int,

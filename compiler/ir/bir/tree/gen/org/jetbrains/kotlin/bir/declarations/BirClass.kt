@@ -13,14 +13,14 @@ import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
+import org.jetbrains.kotlin.bir.types.BirSimpleType
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.ValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A leafB IR tree element.
@@ -52,10 +52,10 @@ abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVi
 
     abstract val source: SourceElement
 
-    abstract var superTypes: List<IrType>
+    abstract var superTypes: List<BirType>
 
     context(BirTreeContext)
     abstract var thisReceiver: BirValueParameter?
 
-    abstract var valueClassRepresentation: ValueClassRepresentation<IrSimpleType>?
+    abstract var valueClassRepresentation: ValueClassRepresentation<BirSimpleType>?
 }

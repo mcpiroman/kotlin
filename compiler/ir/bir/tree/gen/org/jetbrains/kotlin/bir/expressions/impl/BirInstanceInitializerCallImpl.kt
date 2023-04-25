@@ -13,11 +13,11 @@ import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirInstanceInitializerCall
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 class BirInstanceInitializerCallImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     override var `class`: BirClassSymbol,
 ) : BirInstanceInitializerCall() {
     override var attributeOwnerId: BirAttributeContainer = this

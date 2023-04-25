@@ -25,10 +25,10 @@ import org.jetbrains.kotlin.bir.symbols.BirScriptSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
@@ -39,7 +39,7 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
     override var origin: IrDeclarationOrigin,
     override var name: Name,
     thisReceiver: BirValueParameter?,
-    override var baseClass: IrType?,
+    override var baseClass: BirType?,
     override var providedProperties: List<BirPropertySymbol>,
     override var resultProperty: BirPropertySymbol?,
     earlierScriptsParameter: BirValueParameter?,

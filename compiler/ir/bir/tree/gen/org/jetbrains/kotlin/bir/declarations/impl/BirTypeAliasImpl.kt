@@ -16,11 +16,11 @@ import org.jetbrains.kotlin.bir.declarations.BirTypeAlias
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.name.Name
 
 class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
@@ -32,7 +32,7 @@ class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
     override var name: Name,
     override var visibility: DescriptorVisibility,
     override var isActual: Boolean,
-    override var expandedType: IrType,
+    override var expandedType: BirType,
 ) : BirTypeAlias() {
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this)

@@ -13,11 +13,11 @@ import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirBreak
 import org.jetbrains.kotlin.bir.expressions.BirLoop
-import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.bir.types.BirType
 
 class BirBreakImpl(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     loop: BirLoop,
     override var label: String?,
 ) : BirBreak() {

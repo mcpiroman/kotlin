@@ -16,14 +16,14 @@ import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirReturnableBlock
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 
 class BirReturnableBlockImpl @ObsoleteDescriptorBasedAPI constructor(
     override val sourceSpan: SourceSpan,
-    override var type: IrType,
+    override var type: BirType,
     override var origin: IrStatementOrigin?,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: FunctionDescriptor?,

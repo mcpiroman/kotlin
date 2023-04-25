@@ -11,8 +11,8 @@ package org.jetbrains.kotlin.bir.expressions
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A non-leafB IR tree element.
@@ -32,5 +32,5 @@ abstract class BirMemberAccessExpression<S : BirSymbol> : BirDeclarationReferenc
 
     abstract val valueArguments: BirChildElementList<BirExpression>
 
-    abstract val typeArguments: Array<IrType?>
+    abstract val typeArguments: Array<BirType?>
 }

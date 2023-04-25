@@ -11,9 +11,9 @@ package org.jetbrains.kotlin.bir.declarations
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirTypeAliasSymbol
+import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.types.IrType
 
 /**
  * A leafB IR tree element.
@@ -28,5 +28,5 @@ abstract class BirTypeAlias : BirElementBase(), BirDeclaration, BirDeclarationWi
 
     abstract var isActual: Boolean
 
-    abstract var expandedType: IrType
+    abstract var expandedType: BirType
 }
