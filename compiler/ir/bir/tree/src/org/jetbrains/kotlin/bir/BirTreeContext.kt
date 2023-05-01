@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.bir
 
 open class BirTreeContext {
+    private var totalElements = 0
     private val elementsByClass = hashMapOf<Class<*>, ElementOfClassList>()
     private var currentElementsOfClassIterator: ElementOfClassListIterator<*>? = null
     private var currentElementsOfClassIterationIsOdd = false
@@ -30,6 +31,7 @@ open class BirTreeContext {
         }
 
         element.registerTrackedBackReferences(null)
+        totalElements++
     }
 
     internal fun elementDetached(element: BirElementBase, prev: BirElementBase?) {
@@ -65,6 +67,7 @@ open class BirTreeContext {
             val list = elementsByClass.getValue(klass)
             list.remove(element)
         }
+        totalElements--
     }
 
     private fun BirElementBase.traverseTreeFast(block: (element: BirElementBase, prev: BirElementBase?) -> Unit) {
@@ -101,6 +104,7 @@ open class BirTreeContext {
         currentElementsOfClassIterationIsOdd = !currentElementsOfClassIterationIsOdd
         val iter = ElementOfClassListIterator<E>(list, currentElementsOfClassIterationIsOdd)
         currentElementsOfClassIterator = iter
+        list.currentIterator = iter
         return iter
     }
 
@@ -111,6 +115,7 @@ open class BirTreeContext {
             private set
         var size = 0
             private set
+        var currentIterator: ElementOfClassListIterator<*>? = null
 
         fun add(element: BirElementBase) {
             var array = array
@@ -133,7 +138,7 @@ open class BirTreeContext {
                     if (i != lastIdx) {
                         val last = array[lastIdx]!!
                         array[i] = last
-                        currentElementsOfClassIterator?.let {
+                        currentIterator?.let {
                             if (it.mainListIdx > i) {
                                 it.addAuxElementsToVisit(last)
                             }

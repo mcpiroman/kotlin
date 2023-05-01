@@ -9,9 +9,8 @@ import com.squareup.kotlinpoet.KModifier
 import org.jetbrains.kotlin.bir.generator.config.AbstractTreeBuilder
 import org.jetbrains.kotlin.bir.generator.config.ElementConfig
 import org.jetbrains.kotlin.bir.generator.config.ElementConfig.Category.*
-import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig.Mutability.*
-import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig.Mutability.Array
 import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig.Mutability.List
+import org.jetbrains.kotlin.bir.generator.config.ListFieldConfig.Mutability.Var
 import org.jetbrains.kotlin.bir.generator.config.SimpleFieldConfig
 import org.jetbrains.kotlin.bir.generator.util.*
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -458,8 +457,8 @@ object BirTree : AbstractTreeBuilder() {
         +field("extensionReceiver", expression, nullable = true, isChild = true)
         +field("target", s, mutable = false) // ref: possibly here but maybe only at sub-elements
         +field("origin", statementOriginType, nullable = true)
-        +listField("valueArguments", expression, mutability = Array, isChild = true)
-        +listField("typeArguments", birTypeType.copy(nullable = true), mutability = Array)
+        +listField("valueArguments", expression, mutability = Var, isChild = true)
+        +listField("typeArguments", birTypeType.copy(nullable = true), mutability = Var)
     }
     val functionAccessExpression: ElementConfig by element(Expression) {
         parent(memberAccessExpression.withArgs("S" to SymbolTypes.function))

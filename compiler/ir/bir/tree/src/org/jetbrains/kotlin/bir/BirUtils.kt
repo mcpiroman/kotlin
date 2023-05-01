@@ -371,7 +371,7 @@ fun BirType.remapTypeParameters(
             is BirTypeParameter -> {
                 val newClassifier = srcToDstParameterMap?.get(classifier)
                     ?: if (classifier.parent == source)
-                        target.typeParameters.getElementAtIndex(classifier.getIndex())
+                        target.typeParameters.elementAt(classifier.getIndex())
                     else
                         classifier
                 BirSimpleTypeImpl(newClassifier.asElement, nullability, arguments, annotations)

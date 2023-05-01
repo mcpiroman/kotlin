@@ -74,6 +74,10 @@ open class BirTreeDeepCopier(
         }
     }
 
+    protected fun BirElementBase.copyAuxData(from: BirElementBase) {
+        tmpCopyAuxData(from)
+    }
+
     protected fun BirAttributeContainer.copyAttributes(other: BirAttributeContainer) {
         attributeOwnerId = other.attributeOwnerId
         //originalBeforeInline = other.originalBeforeInline
@@ -225,6 +229,7 @@ open class BirTreeDeepCopier(
         new.defaultValue = old.defaultValue?.let { copyElement(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.varargElementType = old.varargElementType?.let { remapType(it) }
+        new.copyAuxData(old)
     }
 
     open fun copyClass(old: BirClass): BirClass = doCopyElement(old, classes, {
@@ -257,6 +262,7 @@ open class BirTreeDeepCopier(
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.superTypes = old.superTypes.memoryOptimizedMap { remapType(it) }
         new.valueClassRepresentation = old.valueClassRepresentation?.mapUnderlyingType { remapType(it) as BirSimpleType }
+        new.copyAuxData(old)
     }
 
     open fun copyAnonymousInitializer(old: BirAnonymousInitializer): BirAnonymousInitializer {
@@ -269,6 +275,7 @@ open class BirTreeDeepCopier(
             body = copyElement(old.body),
         )
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.copyAuxData(old)
         return new
     }
 
@@ -286,6 +293,7 @@ open class BirTreeDeepCopier(
     }) { new ->
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.superTypes = old.superTypes.memoryOptimizedMap { remapType(it) }
+        new.copyAuxData(old)
     }
 
     open fun copyConstructor(old: BirConstructor): BirConstructor = doCopyElement(old, constructors, {
@@ -314,6 +322,7 @@ open class BirTreeDeepCopier(
         new.typeParameters.copyElements(old.typeParameters)
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.returnType = remapType(old.returnType)
+        new.copyAuxData(old)
     }
 
     open fun copyEnumEntry(old: BirEnumEntry): BirEnumEntry = doCopyElement(old, enumEntries, {
@@ -330,6 +339,7 @@ open class BirTreeDeepCopier(
         new.initializerExpression = old.initializerExpression?.let { copyElement(it) }
         new.correspondingClass = old.correspondingClass?.let { copyElement(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.copyAuxData(old)
     }
 
     open fun copyErrorDeclaration(old: BirErrorDeclaration): BirErrorDeclaration {
@@ -340,6 +350,7 @@ open class BirTreeDeepCopier(
             origin = old.origin,
         )
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.copyAuxData(old)
         return new
     }
 
@@ -380,6 +391,7 @@ open class BirTreeDeepCopier(
         new.overriddenSymbols = old.overriddenSymbols.memoryOptimizedMap { remapSymbol(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.returnType = remapType(old.returnType)
+        new.copyAuxData(old)
         return new
     }
 
@@ -411,6 +423,7 @@ open class BirTreeDeepCopier(
         new.backingField = old.backingField?.let { copyElement(it) }
         new.overriddenSymbols = old.overriddenSymbols.memoryOptimizedMap { remapSymbol(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.copyAuxData(old)
         return new
     }
 
@@ -434,6 +447,7 @@ open class BirTreeDeepCopier(
         new.correspondingProperty = old.correspondingProperty?.let { remapSymbol(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
     }
 
     open fun copyLocalDelegatedProperty(old: BirLocalDelegatedProperty): BirLocalDelegatedProperty =
@@ -454,6 +468,7 @@ open class BirTreeDeepCopier(
             new.setter = old.setter?.let { copyElement(it) }
             new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
             new.type = remapType(old.type)
+            new.copyAuxData(old)
         }
 
     open fun copyModuleFragment(old: BirModuleFragment): BirModuleFragment {
@@ -463,6 +478,7 @@ open class BirTreeDeepCopier(
             name = old.name,
         )
         new.files.copyElements(old.files)
+        new.copyAuxData(old)
         return new
     }
 
@@ -494,6 +510,7 @@ open class BirTreeDeepCopier(
         new.setter = old.setter?.let { copyElement(it) }
         new.overriddenSymbols = old.overriddenSymbols.memoryOptimizedMap { remapSymbol(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.copyAuxData(old)
     }
 
     open fun copyScript(old: BirScript): BirScript = doCopyElement(old, scripts, {
@@ -522,6 +539,7 @@ open class BirTreeDeepCopier(
         new.statements.copyElements(old.statements)
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.baseClass = old.baseClass?.let { remapType(it) }
+        new.copyAuxData(old)
     }
 
     open fun copySimpleFunction(old: BirSimpleFunction): BirSimpleFunction = doCopyElement(old, functions, {
@@ -560,6 +578,7 @@ open class BirTreeDeepCopier(
         new.correspondingProperty = old.correspondingProperty?.let { remapSymbol(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.returnType = remapType(old.returnType)
+        new.copyAuxData(old)
     }
 
     open fun copyTypeAlias(old: BirTypeAlias): BirTypeAlias = doCopyElement(old, typeAliases, {
@@ -577,6 +596,7 @@ open class BirTreeDeepCopier(
         new.typeParameters.copyElements(old.typeParameters)
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.expandedType = remapType(old.expandedType)
+        new.copyAuxData(old)
     }
 
     open fun copyVariable(old: BirVariable): BirVariable = doCopyElement(old, variables, {
@@ -597,6 +617,7 @@ open class BirTreeDeepCopier(
         new.initializer = old.initializer?.let { copyElement(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
     }
 
     open fun copyExternalPackageFragment(old: BirExternalPackageFragment): BirExternalPackageFragment =
@@ -609,6 +630,7 @@ open class BirTreeDeepCopier(
             )
         }) { new ->
             new.declarations.copyElements(old.declarations)
+            new.copyAuxData(old)
         }
 
     open fun copyFile(old: BirFile): BirFile = doCopyElement(old, files, {
@@ -623,6 +645,7 @@ open class BirTreeDeepCopier(
     }) { new ->
         new.declarations.copyElements(old.declarations)
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.copyAuxData(old)
     }
 
     open fun copyExpressionBody(old: BirExpressionBody): BirExpressionBody {
@@ -630,6 +653,7 @@ open class BirTreeDeepCopier(
             sourceSpan = old.sourceSpan,
             expression = copyElement(old.expression),
         )
+        new.copyAuxData(old)
         return new
     }
 
@@ -638,6 +662,7 @@ open class BirTreeDeepCopier(
             sourceSpan = old.sourceSpan,
         )
         new.statements.copyElements(old.statements)
+        new.copyAuxData(old)
         return new
     }
 
@@ -649,7 +674,7 @@ open class BirTreeDeepCopier(
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = old.origin,
-            typeArguments = arrayOfNulls(old.typeArguments.size),
+            typeArguments = emptyList(),
             contextReceiversCount = old.contextReceiversCount,
             source = old.source,
             constructorTypeArgumentsCount = old.constructorTypeArgumentsCount,
@@ -658,8 +683,9 @@ open class BirTreeDeepCopier(
         new.dispatchReceiver = old.dispatchReceiver?.let { copyElement(it) }
         new.extensionReceiver = old.extensionReceiver?.let { copyElement(it) }
         new.valueArguments.copyElements(old.valueArguments)
-        old.typeArguments.forEachIndexed { i, it -> new.typeArguments[i] = it?.let { remapType(it) } }
+        new.typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -671,6 +697,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -682,6 +709,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -693,6 +721,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -705,6 +734,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.statements.copyElements(old.statements)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -717,6 +747,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.statements.copyElements(old.statements)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -731,6 +762,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.statements.copyElements(old.statements)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
     }
 
     open fun copyInlinedFunctionBlock(old: BirInlinedFunctionBlock): BirInlinedFunctionBlock {
@@ -744,6 +776,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.statements.copyElements(old.statements)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -752,6 +785,7 @@ open class BirTreeDeepCopier(
             sourceSpan = old.sourceSpan,
             kind = old.kind,
         )
+        new.copyAuxData(old)
         return new
     }
 
@@ -764,6 +798,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -776,6 +811,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -787,7 +823,7 @@ open class BirTreeDeepCopier(
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = old.origin,
-            typeArguments = arrayOfNulls(old.typeArguments.size),
+            typeArguments = emptyList(),
             contextReceiversCount = old.contextReceiversCount,
             superQualifier = null,
         )
@@ -796,8 +832,9 @@ open class BirTreeDeepCopier(
         new.dispatchReceiver = old.dispatchReceiver?.let { copyElement(it) }
         new.extensionReceiver = old.extensionReceiver?.let { copyElement(it) }
         new.valueArguments.copyElements(old.valueArguments)
-        old.typeArguments.forEachIndexed { i, it -> new.typeArguments[i] = it?.let { remapType(it) } }
+        new.typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -809,7 +846,7 @@ open class BirTreeDeepCopier(
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = old.origin,
-            typeArguments = arrayOfNulls(old.typeArguments.size),
+            typeArguments = emptyList(),
             reflectionTarget = null,
         )
         new.copyAttributes(old)
@@ -817,8 +854,9 @@ open class BirTreeDeepCopier(
         new.dispatchReceiver = old.dispatchReceiver?.let { copyElement(it) }
         new.extensionReceiver = old.extensionReceiver?.let { copyElement(it) }
         new.valueArguments.copyElements(old.valueArguments)
-        old.typeArguments.forEachIndexed { i, it -> new.typeArguments[i] = it?.let { remapType(it) } }
+        new.typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -830,7 +868,7 @@ open class BirTreeDeepCopier(
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = old.origin,
-            typeArguments = arrayOfNulls(old.typeArguments.size),
+            typeArguments = emptyList(),
             field = null,
             getter = null,
             setter = null,
@@ -842,8 +880,9 @@ open class BirTreeDeepCopier(
         new.dispatchReceiver = old.dispatchReceiver?.let { copyElement(it) }
         new.extensionReceiver = old.extensionReceiver?.let { copyElement(it) }
         new.valueArguments.copyElements(old.valueArguments)
-        old.typeArguments.forEachIndexed { i, it -> new.typeArguments[i] = it?.let { remapType(it) } }
+        new.typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -855,7 +894,7 @@ open class BirTreeDeepCopier(
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = old.origin,
-            typeArguments = arrayOfNulls(old.typeArguments.size),
+            typeArguments = emptyList(),
             delegate = remapElement(old.delegate),
             getter = remapSymbol(old.getter),
             setter = null,
@@ -865,8 +904,9 @@ open class BirTreeDeepCopier(
         new.dispatchReceiver = old.dispatchReceiver?.let { copyElement(it) }
         new.extensionReceiver = old.extensionReceiver?.let { copyElement(it) }
         new.valueArguments.copyElements(old.valueArguments)
-        old.typeArguments.forEachIndexed { i, it -> new.typeArguments[i] = it?.let { remapType(it) } }
+        new.typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -880,6 +920,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.type = remapType(old.type)
         new.classType = remapType(old.classType)
+        new.copyAuxData(old)
         return new
     }
 
@@ -892,6 +933,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -903,6 +945,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -916,6 +959,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.valueArguments.copyElements(old.valueArguments)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -927,6 +971,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.elements.copyElements(old.elements)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -938,15 +983,16 @@ open class BirTreeDeepCopier(
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = old.origin,
-            typeArguments = arrayOfNulls(old.typeArguments.size),
+            typeArguments = emptyList(),
             contextReceiversCount = old.contextReceiversCount,
         )
         new.copyAttributes(old)
         new.dispatchReceiver = old.dispatchReceiver?.let { copyElement(it) }
         new.extensionReceiver = old.extensionReceiver?.let { copyElement(it) }
         new.valueArguments.copyElements(old.valueArguments)
-        old.typeArguments.forEachIndexed { i, it -> new.typeArguments[i] = it?.let { remapType(it) } }
+        new.typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -960,6 +1006,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.arguments.copyElements(old.arguments)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -972,6 +1019,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -983,15 +1031,16 @@ open class BirTreeDeepCopier(
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = old.origin,
-            typeArguments = arrayOfNulls(old.typeArguments.size),
+            typeArguments = emptyList(),
             contextReceiversCount = old.contextReceiversCount,
         )
         new.copyAttributes(old)
         new.dispatchReceiver = old.dispatchReceiver?.let { copyElement(it) }
         new.extensionReceiver = old.extensionReceiver?.let { copyElement(it) }
         new.valueArguments.copyElements(old.valueArguments)
-        old.typeArguments.forEachIndexed { i, it -> new.typeArguments[i] = it?.let { remapType(it) } }
+        new.typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1006,6 +1055,7 @@ open class BirTreeDeepCopier(
         new.explicitReceiver = old.explicitReceiver?.let { copyElement(it) }
         new.arguments.copyElements(old.arguments)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1022,6 +1072,7 @@ open class BirTreeDeepCopier(
         new.superQualifier = old.superQualifier?.let { remapSymbol(it) }
         new.receiver = old.receiver?.let { copyElement(it) }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1039,6 +1090,7 @@ open class BirTreeDeepCopier(
         new.superQualifier = old.superQualifier?.let { remapSymbol(it) }
         new.receiver = old.receiver?.let { copyElement(it) }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1051,6 +1103,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1062,6 +1115,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1074,6 +1128,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1089,6 +1144,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.body = old.body?.let { copyElement(it) }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1104,6 +1160,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.body = old.body?.let { copyElement(it) }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1116,6 +1173,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1127,6 +1185,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.arguments.copyElements(old.arguments)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1140,6 +1199,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1152,6 +1212,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1163,6 +1224,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1177,6 +1239,7 @@ open class BirTreeDeepCopier(
         new.catches.copyElements(old.catches)
         new.finallyExpression = old.finallyExpression?.let { copyElement(it) }
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1186,6 +1249,7 @@ open class BirTreeDeepCopier(
             catchParameter = copyElement(old.catchParameter),
             result = copyElement(old.result),
         )
+        new.copyAuxData(old)
         return new
     }
 
@@ -1200,6 +1264,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.type = remapType(old.type)
         new.typeOperand = remapType(old.typeOperand)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1212,6 +1277,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1225,6 +1291,7 @@ open class BirTreeDeepCopier(
         )
         new.copyAttributes(old)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1238,6 +1305,7 @@ open class BirTreeDeepCopier(
         new.elements.copyElements(old.elements)
         new.type = remapType(old.type)
         new.varargElementType = remapType(old.varargElementType)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1246,6 +1314,7 @@ open class BirTreeDeepCopier(
             sourceSpan = old.sourceSpan,
             expression = copyElement(old.expression),
         )
+        new.copyAuxData(old)
         return new
     }
 
@@ -1258,6 +1327,7 @@ open class BirTreeDeepCopier(
         new.copyAttributes(old)
         new.branches.copyElements(old.branches)
         new.type = remapType(old.type)
+        new.copyAuxData(old)
         return new
     }
 
@@ -1267,6 +1337,7 @@ open class BirTreeDeepCopier(
             condition = copyElement(old.condition),
             result = copyElement(old.result),
         )
+        new.copyAuxData(old)
         return new
     }
 
@@ -1276,6 +1347,7 @@ open class BirTreeDeepCopier(
             condition = copyElement(old.condition),
             result = copyElement(old.result),
         )
+        new.copyAuxData(old)
         return new
     }
 }

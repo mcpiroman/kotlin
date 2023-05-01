@@ -3,43 +3,38 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package phases
+package org.jetbrains.kotlin.bir.phases
 
-import BirLoweringPhase
-import WasmBirContext
-import org.jetbrains.kotlin.bir.SourceSpan
+import org.jetbrains.kotlin.bir.*
 import org.jetbrains.kotlin.bir.builders.build
+import org.jetbrains.kotlin.bir.builders.setCall
 import org.jetbrains.kotlin.bir.builders.string
-import org.jetbrains.kotlin.bir.copyTo
-import org.jetbrains.kotlin.bir.copyTypeParametersFrom
+import org.jetbrains.kotlin.bir.declarations.BirDeclarationContainer
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
+import org.jetbrains.kotlin.bir.declarations.BirProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
+import org.jetbrains.kotlin.bir.declarations.impl.BirPropertyImpl
 import org.jetbrains.kotlin.bir.declarations.impl.BirSimpleFunctionImpl
 import org.jetbrains.kotlin.bir.expressions.*
-import org.jetbrains.kotlin.bir.traversal.traverseStackBased
+import org.jetbrains.kotlin.bir.expressions.impl.BirGetValueImpl
+import org.jetbrains.kotlin.bir.expressions.impl.BirReturnImpl
 import org.jetbrains.kotlin.bir.types.BirType
-import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.name.Name
 
 context(WasmBirContext)
 class BirJsCodeCallsLowering : BirLoweringPhase() {
     override fun invoke(module: BirModuleFragment) {
-        module.traverseStackBased { element ->
-            element.recurse()
-            if (element is BirSimpleFunction) {
-                visitFunction(element)
-            }
-        }
-
         getElementsOfClass(BirSimpleFunctionImpl::class.java).forEach { function ->
             visitFunction(function)
+        }
+
+        getElementsOfClass(BirPropertyImpl::class.java).forEach { property ->
+            visitProperty(property)
         }
     }
 
     private fun visitFunction(function: BirSimpleFunction) {
-        val body = function.body ?: return
-        check(body is BirBlockBody)  // Should be lowered to block body
+        val body = function.body as? BirBlockBody ?: return
         val statement = body.statements.singleOrNull() ?: return
 
         val isSingleExpressionJsCode: Boolean
@@ -76,25 +71,50 @@ class BirJsCodeCallsLowering : BirLoweringPhase() {
             )
             externalFun.copyTypeParametersFrom(function)
             externalFun.valueParameters += function.valueParameters.map { it.copyTo(externalFun, defaultValue = null) }
-            /*function.body = context.createIrBuilder(function.symbol).irBlockBody {
-                val call = irCall(externalFun.symbol)
-                function.valueParameters.forEachIndexed { index, parameter ->
-                    call.putValueArgument(index, irGet(parameter))
+
+            function.body = BirBlockBody.build {
+                val call = BirCall.build {
+                    setCall(externalFun)
+                    valueArguments += function.valueParameters.map {
+                        BirGetValueImpl(SourceSpan.UNDEFINED, it.type, it, null)
+                    }
+                    typeArguments = function.typeParameters.map { it.defaultType }
                 }
-                function.typeParameters.forEachIndexed { index, typeParameter ->
-                    call.putTypeArgument(index, typeParameter.defaultType)
-                }
-                +irReturn(call)
+                statements += BirReturnImpl(SourceSpan.UNDEFINED, externalFun.returnType, call, function)
             }
-            return listOf(function, externalFun)*/
+
+            (function.parent as BirDeclarationContainer).declarations += externalFun
+        } else {
+            function.annotations += BirConstructorCall.build {
+                setCall(wasmSymbols.jsFunConstructor)
+                typeArguments = emptyList()
+                valueArguments += BirConst.string(SourceSpan.UNDEFINED, birBuiltIns.stringType, jsFunCode)
+            }
+            function.body = null
         }
+    }
+
+    private fun visitProperty(property: BirProperty) {
+        val field = property.backingField ?: return
+        val initializer = field.initializer ?: return
+        val jsCode = initializer.expression.getJsCode() ?: return
+        val externalFun = createExternalJsFunction(
+            property.name,
+            "_js_code",
+            field.type,
+            jsCode = "() => ($jsCode)",
+        )
+        initializer.expression = BirCall.build {
+            setCall(externalFun)
+        }
+        (property.parent as BirDeclarationContainer).declarations += externalFun
     }
 
     private fun BirExpression.getJsCode(): String? {
         val call = this as? BirCall ?: return null
         if (call.target != wasmSymbols.jsCode) return null
         @Suppress("UNCHECKED_CAST")
-        return (call.valueArguments.first() as IrConst<String>).value
+        return (call.valueArguments.first() as BirConst<String>).value
     }
 }
 

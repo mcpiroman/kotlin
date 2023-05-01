@@ -220,7 +220,7 @@ fun BirCall.Companion.build(init: BirCallImpl.() -> Unit) =
         dispatchReceiver = null,
         extensionReceiver = null,
         origin = null,
-        typeArguments = emptyArray(),
+        typeArguments = emptyList(),
         contextReceiversCount = 0,
         superQualifier = null,
     ).apply(init)
@@ -235,7 +235,7 @@ fun BirConstructorCall.Companion.build(init: BirConstructorCallImpl.() -> Unit) 
         extensionReceiver = null,
         origin = null,
         source = SourceElement.NO_SOURCE,
-        typeArguments = emptyArray(),
+        typeArguments = emptyList(),
         constructorTypeArgumentsCount = 0,
         contextReceiversCount = 0,
     ).apply(init)

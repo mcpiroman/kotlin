@@ -33,7 +33,7 @@ class BirPropertyReferenceImpl(
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override val typeArguments: Array<BirType?>,
+    override var typeArguments: List<BirType?>,
     field: BirFieldSymbol?,
     override var getter: BirSimpleFunctionSymbol?,
     override var setter: BirSimpleFunctionSymbol?,
@@ -66,7 +66,7 @@ class BirPropertyReferenceImpl(
             _extensionReceiver = value
         }
 
-    override val valueArguments: BirChildElementList<BirExpression> =
+    override var valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this)
 
     override var field: BirFieldSymbol? = field

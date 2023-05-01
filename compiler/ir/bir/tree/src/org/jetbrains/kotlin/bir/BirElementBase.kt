@@ -388,6 +388,11 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         auxStorage!![token.key.index] = value
     }
 
+    // to be replaced by fine-grained control of which data to copy
+    internal fun tmpCopyAuxData(from: BirElementBase) {
+        auxStorage = from.auxStorage?.copyOf()
+    }
+
 
     companion object {
         private const val FLAG_ATTACHED_TO_TREE: Byte = (1 shl 0).toByte()
