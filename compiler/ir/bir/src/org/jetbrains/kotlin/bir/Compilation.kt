@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.bir
 import org.jetbrains.kotlin.backend.common.linkage.issues.checkNoUnboundSymbols
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.phases.BirJsCodeCallsLowering
+import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.backend.js.IrModuleInfo
 import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator

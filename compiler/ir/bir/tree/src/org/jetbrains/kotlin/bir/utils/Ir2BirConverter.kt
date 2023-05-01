@@ -6,8 +6,11 @@
 // This file was generated automatically. See compiler/ir/ir.tree/tree-generator/ReadMe.md.
 // DO NOT MODIFY IT MANUALLY.
 
-package org.jetbrains.kotlin.bir
+package org.jetbrains.kotlin.bir.utils
 
+import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.declarations.impl.*
 import org.jetbrains.kotlin.bir.expressions.*

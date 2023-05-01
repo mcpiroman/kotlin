@@ -3,20 +3,23 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir
+package org.jetbrains.kotlin.bir.utils
 
+import org.jetbrains.kotlin.bir.BirAnnotationContainer
+import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.declarations.impl.BirTypeParameterImpl
 import org.jetbrains.kotlin.bir.declarations.impl.BirValueParameterImpl
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
+import org.jetbrains.kotlin.bir.render
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirTypeParameterSymbol
 import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.symbols.maybeAsElement
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.bir.types.utils.substitute
-import org.jetbrains.kotlin.bir.utils.deepCopy
 import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI

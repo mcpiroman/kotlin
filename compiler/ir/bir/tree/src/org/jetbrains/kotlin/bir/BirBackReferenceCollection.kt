@@ -5,6 +5,9 @@
 
 package org.jetbrains.kotlin.bir
 
+import org.jetbrains.kotlin.bir.utils.EmptyIterator
+import org.jetbrains.kotlin.bir.utils.SingleElementIterator
+
 @JvmInline
 value class BirBackReferenceCollection internal constructor(private val owner: BirElementTrackingBackReferences) :
     Iterable<BirElementBase> {

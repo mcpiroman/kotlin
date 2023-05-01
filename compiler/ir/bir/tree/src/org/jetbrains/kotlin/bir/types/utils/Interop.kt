@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlin.bir.types.utils
 
-import org.jetbrains.kotlin.bir.*
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
@@ -13,6 +13,10 @@ import org.jetbrains.kotlin.bir.declarations.BirTypeParametersContainer
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.bir.types.impl.BirTypeBase
+import org.jetbrains.kotlin.bir.utils.fqNameWhenAvailable
+import org.jetbrains.kotlin.bir.utils.isAnonymousObject
+import org.jetbrains.kotlin.bir.utils.isPropertyAccessor
+import org.jetbrains.kotlin.bir.utils.isStatic
 import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.types.KotlinType
