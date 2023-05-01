@@ -596,7 +596,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = ir.origin,
-            typeArguments = arrayOfNulls(ir.typeArguments.size),
+            typeArguments = emptyList(),
             type = BirUninitializedType,
         )
         registerNewElement(ir, bir)
@@ -604,7 +604,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
-        ir.typeArguments.forEachIndexed { i, it -> bir.typeArguments[i] = it?.let { convertType(it) } }
+        bir.typeArguments = ir.typeArguments.map { it?.let { convertType(it) } }
         bir.type = convertType(ir.type)
         return bir
     }
@@ -755,7 +755,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = ir.origin,
-            typeArguments = arrayOfNulls(ir.typeArguments.size),
+            typeArguments = emptyList(),
             type = BirUninitializedType,
         )
         registerNewElement(ir, bir)
@@ -764,7 +764,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
-        ir.typeArguments.forEachIndexed { i, it -> bir.typeArguments[i] = it?.let { convertType(it) } }
+        bir.typeArguments = ir.typeArguments.map { it?.let { convertType(it) } }
         bir.type = convertType(ir.type)
         return bir
     }
@@ -778,7 +778,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = ir.origin,
-            typeArguments = arrayOfNulls(ir.typeArguments.size),
+            typeArguments = emptyList(),
             type = BirUninitializedType,
         )
         registerNewElement(ir, bir)
@@ -787,7 +787,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
-        ir.typeArguments.forEachIndexed { i, it -> bir.typeArguments[i] = it?.let { convertType(it) } }
+        bir.typeArguments = ir.typeArguments.map { it?.let { convertType(it) } }
         bir.type = convertType(ir.type)
         return bir
     }
@@ -803,7 +803,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = ir.origin,
-            typeArguments = arrayOfNulls(ir.typeArguments.size),
+            typeArguments = emptyList(),
             type = BirUninitializedType,
         )
         registerNewElement(ir, bir)
@@ -814,7 +814,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
-        ir.typeArguments.forEachIndexed { i, it -> bir.typeArguments[i] = it?.let { convertType(it) } }
+        bir.typeArguments = ir.typeArguments.map { it?.let { convertType(it) } }
         bir.type = convertType(ir.type)
         return bir
     }
@@ -831,7 +831,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = ir.origin,
-            typeArguments = arrayOfNulls(ir.typeArguments.size),
+            typeArguments = emptyList(),
             type = BirUninitializedType,
         )
         registerNewElement(ir, bir)
@@ -840,7 +840,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
-        ir.typeArguments.forEachIndexed { i, it -> bir.typeArguments[i] = it?.let { convertType(it) } }
+        bir.typeArguments = ir.typeArguments.map { it?.let { convertType(it) } }
         bir.type = convertType(ir.type)
         return bir
     }
@@ -925,7 +925,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = ir.origin,
-            typeArguments = arrayOfNulls(ir.typeArguments.size),
+            typeArguments = emptyList(),
             type = BirUninitializedType,
         )
         registerNewElement(ir, bir)
@@ -933,7 +933,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
-        ir.typeArguments.forEachIndexed { i, it -> bir.typeArguments[i] = it?.let { convertType(it) } }
+        bir.typeArguments = ir.typeArguments.map { it?.let { convertType(it) } }
         bir.type = convertType(ir.type)
         return bir
     }
@@ -978,7 +978,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
             dispatchReceiver = null,
             extensionReceiver = null,
             origin = ir.origin,
-            typeArguments = arrayOfNulls(ir.typeArguments.size),
+            typeArguments = emptyList(),
             type = BirUninitializedType,
         )
         registerNewElement(ir, bir)
@@ -986,7 +986,7 @@ class Ir2BirConverter : Ir2BirConverterBase() {
         bir.dispatchReceiver = mapIrElement(ir.dispatchReceiver) as BirExpression?
         bir.extensionReceiver = mapIrElement(ir.extensionReceiver) as BirExpression?
         moveIrMemberAccessExpressionValueArguments(ir, bir)
-        ir.typeArguments.forEachIndexed { i, it -> bir.typeArguments[i] = it?.let { convertType(it) } }
+        bir.typeArguments = ir.typeArguments.map { it?.let { convertType(it) } }
         bir.type = convertType(ir.type)
         return bir
     }

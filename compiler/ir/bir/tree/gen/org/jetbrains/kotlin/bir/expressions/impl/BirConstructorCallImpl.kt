@@ -32,7 +32,7 @@ class BirConstructorCallImpl(
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override val typeArguments: Array<BirType?>,
+    override var typeArguments: List<BirType?>,
     override var contextReceiversCount: Int,
     override var source: SourceElement,
     override var constructorTypeArgumentsCount: Int,
@@ -65,7 +65,7 @@ class BirConstructorCallImpl(
             _extensionReceiver = value
         }
 
-    override val valueArguments: BirChildElementList<BirExpression> =
+    override var valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this)
     init {
         initChildField(_dispatchReceiver, null)

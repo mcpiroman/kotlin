@@ -31,7 +31,7 @@ class BirEnumConstructorCallImpl(
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
     override var origin: IrStatementOrigin?,
-    override val typeArguments: Array<BirType?>,
+    override var typeArguments: List<BirType?>,
     override var contextReceiversCount: Int,
 ) : BirEnumConstructorCall() {
     override var attributeOwnerId: BirAttributeContainer = this
@@ -62,7 +62,7 @@ class BirEnumConstructorCallImpl(
             _extensionReceiver = value
         }
 
-    override val valueArguments: BirChildElementList<BirExpression> =
+    override var valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this)
     init {
         initChildField(_dispatchReceiver, null)

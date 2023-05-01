@@ -134,6 +134,29 @@ class BirChildElementList<E : BirElement>(
         return true
     }
 
+    context (BirTreeContext)
+    fun clear() {
+        val tail = tail
+            ?: return
+
+        var prev: BirElementBase? = null
+        var element = headOrNext!!
+        while (true) {
+            element.rawParent = null
+            element.next = null
+            parent.childAttached(element, prev)
+
+            if (element === tail) break
+
+            prev = element
+            element = element.next!!
+        }
+
+        headOrNext = tail.next
+        this.tail = null
+        size = 0
+    }
+
     private fun findPreviousNode(tail: BirElementBase, element: E, hintPreviousElement: BirElementBase?): BirElementBase? {
         var previous: BirElementBase? = null
         if (hintPreviousElement?.next === element) {
@@ -155,12 +178,6 @@ class BirChildElementList<E : BirElement>(
         }
 
         return previous
-    }
-
-    fun clear() {
-        headOrNext = tail?.next
-        tail = null
-        size = 0
     }
 
     override val next: BirElementBase?
@@ -195,6 +212,8 @@ class BirChildElementList<E : BirElement>(
     fun last(): E = tail as E? ?: throw NoSuchElementException("Collection is empty.")
     fun lastOrNull(): E? = tail as E?
 
+    fun singleOrNull(): E? = if (size == 1) tail as E else null
+
     fun indexOf(element: E): Int {
         if (element !in this) {
             return -1
@@ -209,7 +228,7 @@ class BirChildElementList<E : BirElement>(
         return index
     }
 
-    fun getElementAtIndex(index: Int): E {
+    fun elementAt(index: Int): E {
         checkIndex(index)
 
         var e = headOrNext!!
@@ -222,7 +241,7 @@ class BirChildElementList<E : BirElement>(
     }
 
     context (BirTreeContext)
-    fun setElementAtIndex(index: Int, element: E): E {
+    fun setElementAt(index: Int, element: E): E {
         checkIndex(index)
 
         var old = headOrNext!!

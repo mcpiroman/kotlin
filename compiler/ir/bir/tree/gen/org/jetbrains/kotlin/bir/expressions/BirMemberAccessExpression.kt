@@ -30,9 +30,9 @@ abstract class BirMemberAccessExpression<S : BirSymbol> : BirDeclarationReferenc
 
     abstract var origin: IrStatementOrigin?
 
-    abstract val valueArguments: BirChildElementList<BirExpression>
+    abstract var valueArguments: BirChildElementList<BirExpression>
 
-    abstract val typeArguments: Array<BirType?>
+    abstract var typeArguments: List<BirType?>
 
     companion object
 }
