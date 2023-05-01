@@ -7,12 +7,12 @@ package org.jetbrains.kotlin.bir.types.utils
 
 import org.jetbrains.kotlin.bir.BirBuiltIns
 import org.jetbrains.kotlin.bir.BirTreeContext
-import org.jetbrains.kotlin.bir.fqNameWhenAvailable
 import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.types.BirSimpleType
 import org.jetbrains.kotlin.bir.types.BirStarProjection
 import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.bir.types.BirTypeProjection
+import org.jetbrains.kotlin.bir.utils.fqNameWhenAvailable
 import org.jetbrains.kotlin.builtins.StandardNames
 
 val BirType.isBoxedArray: Boolean

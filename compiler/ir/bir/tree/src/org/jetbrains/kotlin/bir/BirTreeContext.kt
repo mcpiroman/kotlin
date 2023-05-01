@@ -5,10 +5,12 @@
 
 package org.jetbrains.kotlin.bir
 
+import org.jetbrains.kotlin.bir.declarations.BirDeclaration
+
 open class BirTreeContext {
     private var totalElements = 0
     private val elementsByClass = hashMapOf<Class<*>, ElementOfClassList>()
-    private var currentElementsOfClassIterator: ElementOfClassListIterator<*>? = null
+    private var currentElementsOfClassIterator: ElementsOfClassListIterator<*>? = null
     private var currentElementsOfClassIterationIsOdd = false
 
     internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {
@@ -63,8 +65,7 @@ open class BirTreeContext {
             //  but rather scan the list for removed elements / detached elements.
             //  Maybe also formalize and leverage the invariant that sub-elements must appear latter than their
             //  ancestor (so start scanning from the index of the root one).
-            val klass = element.javaClass
-            val list = elementsByClass.getValue(klass)
+            val list = getElementsOfClassList(element.javaClass)
             list.remove(element)
         }
         totalElements--
@@ -84,38 +85,78 @@ open class BirTreeContext {
     }
 
 
-    private fun addElementToClassCache(element: BirElementBase) {
-        val klass = element.javaClass
-        val list = elementsByClass[klass] ?: ElementOfClassList(klass).also {
-            elementsByClass[klass] = it
-        }
-        list.add(element)
+    private fun checkCacheElementByClass(element: BirElementBase): Boolean {
+        return element is BirDeclaration
     }
 
-    fun <E : BirElementBase> getElementsOfClass(klass: Class<E>): Iterator<E> {
+    private fun addElementToClassCache(element: BirElementBase) {
+        if (checkCacheElementByClass(element)) {
+            val list = getElementsOfClassList(element.javaClass)
+            list.add(element)
+        }
+    }
+
+    private fun getElementsOfClassList(elementClass: Class<*>): ElementOfClassList {
+        elementsByClass[elementClass]?.let {
+            return it
+        }
+
+        val list = ElementOfClassList(elementClass)
+
+        val ancestorElements = mutableSetOf<ElementOfClassList>()
+        fun visitParents(clazz: Class<*>) {
+            if (clazz !== elementClass) {
+                if (!BirElement::class.java.isAssignableFrom(clazz)) {
+                    return
+                }
+
+                val ancestor = getElementsOfClassList(clazz)
+                if (ancestorElements.add(ancestor)) {
+                    ancestor.leafClasses += list
+                } else {
+                    return
+                }
+            }
+
+            clazz.superclass?.let {
+                visitParents(it)
+            }
+            clazz.interfaces.forEach {
+                visitParents(it)
+            }
+        }
+        visitParents(elementClass)
+
+        elementsByClass[elementClass] = list
+        return list
+    }
+
+    inline fun <reified E : BirElement> getElementsOfClass(): Iterator<E> = getElementsOfClass(E::class.java)
+
+    fun <E : BirElement> getElementsOfClass(elementClass: Class<E>): Iterator<E> {
         currentElementsOfClassIterator?.let {
             it.cancelled = true
             currentElementsOfClassIterator = null
         }
 
-        val list = elementsByClass[klass]
-            ?: return EmptyIterator as Iterator<E>
+        val list = getElementsOfClassList(elementClass)
+            ?: error("Class ${elementClass.simpleName} has not been registered")
 
         currentElementsOfClassIterationIsOdd = !currentElementsOfClassIterationIsOdd
-        val iter = ElementOfClassListIterator<E>(list, currentElementsOfClassIterationIsOdd)
+        val iter = ElementsOfClassListIterator<E>(ArrayList(list.leafClasses), currentElementsOfClassIterationIsOdd)
         currentElementsOfClassIterator = iter
-        list.currentIterator = iter
         return iter
     }
 
     private inner class ElementOfClassList(
-        val klass: Class<*>
+        val elementClass: Class<*>,
     ) {
+        val leafClasses = mutableListOf<ElementOfClassList>()
         var array = arrayOfNulls<BirElementBase>(0)
             private set
         var size = 0
             private set
-        var currentIterator: ElementOfClassListIterator<*>? = null
+        var currentIterator: ElementsOfConcreteClassListIterator<*>? = null
 
         fun add(element: BirElementBase) {
             var array = array
@@ -153,11 +194,54 @@ open class BirTreeContext {
         }
     }
 
-    private class ElementOfClassListIterator<E : BirElementBase>(
+    private class ElementsOfClassListIterator<E : BirElement>(
+        private val concreteClassLists: List<ElementOfClassList>,
+        private val isOddIteration: Boolean,
+    ) : Iterator<E> {
+        internal var cancelled = false
+        val listsIterator = concreteClassLists.iterator()
+        var listIterator: ElementsOfConcreteClassListIterator<BirElementBase>? = null
+
+        override fun next(): E {
+            if (!ensureItemIterator())
+                throw NoSuchElementException()
+            return listIterator!!.next() as E
+        }
+
+        override fun hasNext(): Boolean {
+            return ensureItemIterator()
+        }
+
+        private fun ensureItemIterator(): Boolean {
+            checkCancelled()
+            if (listIterator?.hasNext() == false)
+                listIterator = null
+
+            while (listIterator == null) {
+                if (!listsIterator.hasNext()) {
+                    return false
+                } else {
+                    val list = listsIterator.next()
+                    val nextClassIterator = ElementsOfConcreteClassListIterator<BirElementBase>(list, isOddIteration)
+                    if (nextClassIterator.hasNext()) {
+                        listIterator = nextClassIterator
+                        list.currentIterator = nextClassIterator
+                        return true
+                    }
+                }
+            }
+            return true
+        }
+
+        private fun checkCancelled() {
+            check(!cancelled) { "Iterator is stale - new iteration over elements of given class has begun" }
+        }
+    }
+
+    private class ElementsOfConcreteClassListIterator<E : BirElementBase>(
         private val list: ElementOfClassList,
         private val isOddIteration: Boolean,
     ) : AbstractIterator<E>() {
-        internal var cancelled = false
         internal var mainListIdx = 0
             private set
         private var nextSecondary: BirElementBase? = null
@@ -247,10 +331,6 @@ open class BirTreeContext {
                 return next as E
             }
         }*/
-
-        private fun checkCancelled() {
-            check(!cancelled) { "Iterator is stale - new iteration over elements of given class has begun" }
-        }
 
         private fun BirElementBase.availableInCurrentIteration(): Boolean {
             return attachedInOddByClassIteration != isOddIteration

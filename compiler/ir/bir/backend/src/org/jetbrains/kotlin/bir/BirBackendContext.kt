@@ -10,6 +10,7 @@ package org.jetbrains.kotlin.bir/*
 
 import org.jetbrains.kotlin.bir.types.BirTypeSystemContext
 import org.jetbrains.kotlin.bir.types.BirTypeSystemContextImpl
+import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor

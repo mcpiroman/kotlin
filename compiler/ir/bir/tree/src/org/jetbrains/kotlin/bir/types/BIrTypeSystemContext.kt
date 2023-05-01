@@ -5,13 +5,17 @@
 
 package org.jetbrains.kotlin.bir.types
 
-import org.jetbrains.kotlin.bir.*
+import org.jetbrains.kotlin.bir.BirAnnotationContainer
+import org.jetbrains.kotlin.bir.BirBuiltIns
+import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirConst
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.impl.BirCapturedType
 import org.jetbrains.kotlin.bir.types.utils.*
+import org.jetbrains.kotlin.bir.utils.*
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.descriptors.ClassKind

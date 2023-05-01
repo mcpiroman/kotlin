@@ -13,22 +13,23 @@ import org.jetbrains.kotlin.bir.declarations.BirDeclarationContainer
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.declarations.BirProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
-import org.jetbrains.kotlin.bir.declarations.impl.BirPropertyImpl
-import org.jetbrains.kotlin.bir.declarations.impl.BirSimpleFunctionImpl
 import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.expressions.impl.BirGetValueImpl
 import org.jetbrains.kotlin.bir.expressions.impl.BirReturnImpl
 import org.jetbrains.kotlin.bir.types.BirType
+import org.jetbrains.kotlin.bir.utils.copyTo
+import org.jetbrains.kotlin.bir.utils.copyTypeParametersFrom
+import org.jetbrains.kotlin.bir.utils.defaultType
 import org.jetbrains.kotlin.name.Name
 
 context(WasmBirContext)
 class BirJsCodeCallsLowering : BirLoweringPhase() {
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass(BirSimpleFunctionImpl::class.java).forEach { function ->
+        getElementsOfClass<BirSimpleFunction>().forEach { function ->
             visitFunction(function)
         }
 
-        getElementsOfClass(BirPropertyImpl::class.java).forEach { property ->
+        getElementsOfClass<BirProperty>().forEach { property ->
             visitProperty(property)
         }
     }

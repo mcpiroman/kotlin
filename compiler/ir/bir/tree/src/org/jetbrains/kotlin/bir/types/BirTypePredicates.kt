@@ -6,9 +6,9 @@
 package org.jetbrains.kotlin.bir.types
 
 import org.jetbrains.kotlin.bir.declarations.BirClass
-import org.jetbrains.kotlin.bir.hasEqualFqName
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
+import org.jetbrains.kotlin.bir.utils.hasEqualFqName
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe

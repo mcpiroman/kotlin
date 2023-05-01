@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.bir
 import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.types.BirType
+import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.name.Name
