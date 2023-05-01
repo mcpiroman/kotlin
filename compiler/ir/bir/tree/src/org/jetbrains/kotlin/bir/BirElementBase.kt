@@ -47,6 +47,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         get() = hasFlag(FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR)
         set(value) = setFlag(FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR, value)
 
+    internal var attachedInOddByClassIteration: Boolean
+        get() = hasFlag(FLAG_ATTACHED_IN_ODD_BY_CLASS_ITERATION)
+        set(value) = setFlag(FLAG_ATTACHED_IN_ODD_BY_CLASS_ITERATION, value)
+
     private fun hasFlag(flag: Byte): Boolean =
         (flags and flag).toInt() != 0
 
@@ -389,5 +393,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         private const val FLAG_ATTACHED_TO_TREE: Byte = (1 shl 0).toByte()
         private const val FLAG_HAS_CHILDREN: Byte = (1 shl 1).toByte()
         private const val FLAG_IN_BY_CLASS_CACHE_VIA_NEXT_PTR: Byte = (1 shl 2).toByte()
+        private const val FLAG_ATTACHED_IN_ODD_BY_CLASS_ITERATION: Byte = (1 shl 3).toByte()
     }
 }

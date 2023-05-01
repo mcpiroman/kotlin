@@ -7,6 +7,8 @@ package org.jetbrains.kotlin.bir
 
 open class BirTreeContext {
     private val elementsByClass = hashMapOf<Class<*>, ElementOfClassList>()
+    private var currentElementsOfClassIterator: ElementOfClassListIterator<*>? = null
+    private var currentElementsOfClassIterationIsOdd = false
 
     internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {
         attachElement(element, prev)
@@ -18,6 +20,7 @@ open class BirTreeContext {
     private fun attachElement(element: BirElementBase, prev: BirElementBase?) {
         assert(prev == null || prev.next === element)
         element.attachedToTree = true
+        element.attachedInOddByClassIteration = currentElementsOfClassIterationIsOdd
         element.updateLevel()
 
         if (prev != null && prev.javaClass == element.javaClass) {
@@ -87,12 +90,21 @@ open class BirTreeContext {
     }
 
     fun <E : BirElementBase> getElementsOfClass(klass: Class<E>): Iterator<E> {
+        currentElementsOfClassIterator?.let {
+            it.cancelled = true
+            currentElementsOfClassIterator = null
+        }
+
         val list = elementsByClass[klass]
             ?: return EmptyIterator as Iterator<E>
-        return ElementOfClassListIterator<E>(list)
+
+        currentElementsOfClassIterationIsOdd = !currentElementsOfClassIterationIsOdd
+        val iter = ElementOfClassListIterator<E>(list, currentElementsOfClassIterationIsOdd)
+        currentElementsOfClassIterator = iter
+        return iter
     }
 
-    private class ElementOfClassList(
+    private inner class ElementOfClassList(
         val klass: Class<*>
     ) {
         var array = arrayOfNulls<BirElementBase>(0)
@@ -119,7 +131,13 @@ open class BirTreeContext {
                 if (array[i] === element) {
                     val lastIdx = size - 1
                     if (i != lastIdx) {
-                        array[i] = array[lastIdx]
+                        val last = array[lastIdx]!!
+                        array[i] = last
+                        currentElementsOfClassIterator?.let {
+                            if (it.mainListIdx > i) {
+                                it.addAuxElementsToVisit(last)
+                            }
+                        }
                     }
                     array[lastIdx] = null
                     this.size = size - 1
@@ -131,24 +149,111 @@ open class BirTreeContext {
     }
 
     private class ElementOfClassListIterator<E : BirElementBase>(
-        private val list: ElementOfClassList
-    ) : Iterator<E> {
-        private var mainListIdx = 0
+        private val list: ElementOfClassList,
+        private val isOddIteration: Boolean,
+    ) : AbstractIterator<E>() {
+        internal var cancelled = false
+        internal var mainListIdx = 0
+            private set
         private var nextSecondary: BirElementBase? = null
+        private var auxElementsToVisit: MutableList<BirElementBase>? = null
 
-        override fun hasNext(): Boolean {
-            return mainListIdx < list.size || nextSecondary != null
+        override fun computeNext() {
+            auxElementsToVisit?.let { list ->
+                while (true) {
+                    val element = list.lastOrNull() ?: break
+                    if (element.attachedToTree) {
+                        setNext(element as E)
+                        return
+                    } else {
+                        list.removeLast()
+                    }
+                }
+            }
+
+            while (true) {
+                var nextSecondary = nextSecondary
+                while (nextSecondary != null && nextSecondary.inByClassCacheViaNextPtr) {
+                    if (nextSecondary.availableInCurrentIteration()) {
+                        setNext(nextSecondary as E)
+                        this.nextSecondary = nextSecondary.next
+                        return
+                    }
+                    nextSecondary = nextSecondary.next
+                }
+
+                val idx = mainListIdx
+                if (idx < list.size) {
+                    mainListIdx++
+                    val element = list.array[idx]!!
+                    this.nextSecondary = element.next
+                    if (element.availableInCurrentIteration()) {
+                        setNext(element as E)
+                        return
+                    }
+                } else {
+                    done()
+                    return
+                }
+            }
+        }
+
+        /*override fun hasNext(): Boolean {
+            checkCancelled()
+
+            if (mainListIdx < list.size) {
+                return true
+            }
+
+            if (nextSecondary?.inByClassCacheViaNextPtr == true) {
+                return true
+            } else {
+                nextSecondary = null
+            }
+
+            auxElementsToVisit?.let { list ->
+                while (true) {
+                    val element = list.lastOrNull() ?: break
+                    if (element.attachedToTree) {
+                        return true
+                    } else {
+                        list.removeLast()
+                    }
+                }
+            }
+
+            return false
         }
 
         override fun next(): E {
+            checkCancelled()
+
             val nextSecondary = nextSecondary
             if (nextSecondary != null) {
-                this.nextSecondary = nextSecondary.next?.takeIf { it.inByClassCacheViaNextPtr }
+                this.nextSecondary = nextSecondary.next
                 return nextSecondary as E
             } else {
+                auxElementsToVisit?.removeLastOrNull()?.let {
+                    return it as E
+                }
+
                 val next = list.array[mainListIdx++]!!
-                this.nextSecondary = next.next?.takeIf { it.inByClassCacheViaNextPtr }
+                this.nextSecondary = next.next
                 return next as E
+            }
+        }*/
+
+        private fun checkCancelled() {
+            check(!cancelled) { "Iterator is stale - new iteration over elements of given class has begun" }
+        }
+
+        private fun BirElementBase.availableInCurrentIteration(): Boolean {
+            return attachedInOddByClassIteration != isOddIteration
+        }
+
+        internal fun addAuxElementsToVisit(element: BirElementBase) {
+            auxElementsToVisit?.apply { add(element) } ?: run {
+                auxElementsToVisit = mutableListOf(element)
             }
         }
     }
