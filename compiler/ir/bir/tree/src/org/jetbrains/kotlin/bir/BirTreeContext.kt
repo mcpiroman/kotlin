@@ -13,6 +13,7 @@ open class BirTreeContext {
     private val elementsByClass = hashMapOf<Class<*>, ElementOfClassList>()
     private var currentElementsOfClassIterator: ElementsOfClassListIterator<*>? = null
     private var currentElementsOfClassIterationIsOdd = false
+    private val elementsAddedDuringCurrentElementsOfClassIteration = ArrayList<BirElementBase>(1024)
 
     internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {
         attachElement(element, prev)
@@ -24,13 +25,19 @@ open class BirTreeContext {
     private fun attachElement(element: BirElementBase, prev: BirElementBase?) {
         assert(prev == null || prev.next === element)
         element.attachedToTree = true
-        element.attachedInOddByClassIteration = currentElementsOfClassIterationIsOdd
         element.updateLevel()
 
-        if (prev != null && prev.javaClass == element.javaClass) {
-            prev.nextElementIsOptimizedFromClassCache = true
-        } else {
-            addElementToClassCache(element)
+        if (checkCacheElementByClass(element)) {
+            if (prev != null && prev.javaClass == element.javaClass) {
+                prev.nextElementIsOptimizedFromClassCache = true
+            } else {
+                addElementToClassCache(element)
+            }
+
+            if (currentElementsOfClassIterator != null) {
+                element.attachedDuringByClassIteration = true
+                elementsAddedDuringCurrentElementsOfClassIteration += element
+            }
         }
 
         element.registerTrackedBackReferences(null)
@@ -54,7 +61,9 @@ open class BirTreeContext {
                     prev.nextElementIsOptimizedFromClassCache = true
                 } else {
                     assert(!prev.nextElementIsOptimizedFromClassCache)
-                    addElementToClassCache(prevNext)
+                    if (checkCacheElementByClass(prevNext)) {
+                        addElementToClassCache(prevNext)
+                    }
                 }
             }
         }
@@ -63,6 +72,7 @@ open class BirTreeContext {
     private fun detachElement(element: BirElementBase, prev: BirElementBase?) {
         element.attachedToTree = false
         element.updateLevel()
+        element.attachedDuringByClassIteration = false
 
         if (prev?.nextElementIsOptimizedFromClassCache == true) {
             prev.nextElementIsOptimizedFromClassCache = false
@@ -97,10 +107,8 @@ open class BirTreeContext {
     }
 
     private fun addElementToClassCache(element: BirElementBase) {
-        if (checkCacheElementByClass(element)) {
-            val list = getElementsOfClassList(element.javaClass)
-            list.add(element)
-        }
+        val list = getElementsOfClassList(element.javaClass)
+        list.add(element)
     }
 
     private fun getElementsOfClassList(elementClass: Class<*>): ElementOfClassList {
@@ -141,16 +149,21 @@ open class BirTreeContext {
     inline fun <reified E : BirElement> getElementsOfClass(): Iterator<E> = getElementsOfClass(E::class.java)
 
     fun <E : BirElement> getElementsOfClass(elementClass: Class<E>): Iterator<E> {
-        currentElementsOfClassIterator?.let {
-            it.cancelled = true
+        currentElementsOfClassIterator?.let { iterator ->
+            iterator.cancelled = true
             currentElementsOfClassIterator = null
+
+            elementsAddedDuringCurrentElementsOfClassIteration.forEach {
+                it.attachedDuringByClassIteration = false
+            }
+            elementsAddedDuringCurrentElementsOfClassIteration.clear()
         }
 
         val list = getElementsOfClassList(elementClass)
             ?: error("Class ${elementClass.simpleName} has not been registered")
 
         currentElementsOfClassIterationIsOdd = !currentElementsOfClassIterationIsOdd
-        val iter = ElementsOfClassListIterator<E>(ArrayList(list.leafClasses), currentElementsOfClassIterationIsOdd)
+        val iter = ElementsOfClassListIterator<E>(ArrayList(list.leafClasses))
         currentElementsOfClassIterator = iter
         return iter
     }
@@ -203,7 +216,6 @@ open class BirTreeContext {
 
     private class ElementsOfClassListIterator<E : BirElement>(
         private val concreteClassLists: List<ElementOfClassList>,
-        private val isOddIteration: Boolean,
     ) : Iterator<E> {
         internal var cancelled = false
         val listsIterator = concreteClassLists.iterator()
@@ -222,7 +234,7 @@ open class BirTreeContext {
             while (listIterator == null) {
                 if (listsIterator.hasNext()) {
                     val list = listsIterator.next()
-                    val nextClassIterator = ElementsOfConcreteClassListIterator<BirElementBase>(list, isOddIteration)
+                    val nextClassIterator = ElementsOfConcreteClassListIterator<BirElementBase>(list)
                     if (nextClassIterator.hasNext()) {
                         listIterator = nextClassIterator
                         list.currentIterator = nextClassIterator
@@ -242,7 +254,6 @@ open class BirTreeContext {
 
     private class ElementsOfConcreteClassListIterator<E : BirElementBase>(
         private val list: ElementOfClassList,
-        private val isOddIteration: Boolean,
     ) : AbstractIterator<E>() {
         internal var mainListIdx = 0
             private set
@@ -335,7 +346,7 @@ open class BirTreeContext {
         }*/
 
         private fun BirElementBase.availableInCurrentIteration(): Boolean {
-            return attachedInOddByClassIteration != isOddIteration
+            return !attachedDuringByClassIteration
         }
 
         internal fun addAuxElementsToVisit(element: BirElementBase) {

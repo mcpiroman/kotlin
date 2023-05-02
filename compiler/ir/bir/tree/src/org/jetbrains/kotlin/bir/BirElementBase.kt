@@ -47,9 +47,9 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         get() = hasFlag(FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE)
         set(value) = setFlag(FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE, value)
 
-    internal var attachedInOddByClassIteration: Boolean
-        get() = hasFlag(FLAG_ATTACHED_IN_ODD_BY_CLASS_ITERATION)
-        set(value) = setFlag(FLAG_ATTACHED_IN_ODD_BY_CLASS_ITERATION, value)
+    internal var attachedDuringByClassIteration: Boolean
+        get() = hasFlag(FLAG_ATTACHED_DURING_BY_CLASS_ITERATION)
+        set(value) = setFlag(FLAG_ATTACHED_DURING_BY_CLASS_ITERATION, value)
 
     private fun hasFlag(flag: Byte): Boolean =
         (flags and flag).toInt() != 0
@@ -398,6 +398,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         private const val FLAG_ATTACHED_TO_TREE: Byte = (1 shl 0).toByte()
         private const val FLAG_HAS_CHILDREN: Byte = (1 shl 1).toByte()
         private const val FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE: Byte = (1 shl 2).toByte()
-        private const val FLAG_ATTACHED_IN_ODD_BY_CLASS_ITERATION: Byte = (1 shl 3).toByte()
+        private const val FLAG_ATTACHED_DURING_BY_CLASS_ITERATION: Byte = (1 shl 3).toByte()
     }
 }
