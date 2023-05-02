@@ -9,18 +9,9 @@ abstract class BirTreeTraverseScope {
     internal var current: BirElementBase? = null
     internal var lastVisited: BirElementBase? = null
 
-    context(BirTreeContext)
-    fun replaceCurrent(new: BirElement?) {
-        val current = current!!
-        val owner = current.rawParent
-        if (owner is BirChildElementList<*>) {
-            owner as BirChildElementList<BirElement>
-            current.replaceInsideList(owner, new, lastVisited)
-        } else {
-            current.replace(new)
-        }
-    }
+    context (BirTreeContext)
+    open fun BirElement.replace(new: BirElement?) = replace(new, lastVisited)
 
-    context(BirTreeContext)
-    fun removeCurrent() = replaceCurrent(null)
+    context (BirTreeContext)
+    fun BirElement.remove() = replace(null)
 }

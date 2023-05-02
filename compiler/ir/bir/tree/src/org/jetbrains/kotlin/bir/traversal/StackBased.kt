@@ -5,9 +5,7 @@
 
 package org.jetbrains.kotlin.bir.traversal
 
-import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeTraverseScope
+import org.jetbrains.kotlin.bir.*
 
 class BirTreeStackBasedTraverseScope(
     private val block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit,
@@ -17,13 +15,21 @@ class BirTreeStackBasedTraverseScope(
 
         if (!hasChildren) return
 
-        var nextChild = getFirstChild() as BirElementBase?
-        while (nextChild != null) {
-            lastVisited = current
-            current = nextChild
-            block(this@BirTreeStackBasedTraverseScope, nextChild)
-            nextChild = nextChild.next
+        current = getFirstChild() as BirElementBase?
+        while (true) {
+            val next = current ?: break
+            lastVisited = next
+            current = next.next
+            block(this@BirTreeStackBasedTraverseScope, next)
         }
+    }
+
+    context(BirTreeContext)
+    override fun BirElement.replace(new: BirElement?) {
+        if (this@replace === current) {
+            current = this@replace.next
+        }
+        replace(new, lastVisited)
     }
 }
 
@@ -48,12 +54,13 @@ class BirTreeStackBasedTraverseScopeWithInnerPtr(
 ) : BirTreeTraverseScope() {
     fun BirElement.recurse() {
         this as BirElementBase
-        var nextChild = firstChildPtr
-        while (nextChild != null) {
-            lastVisited = current
-            current = nextChild
-            block(this@BirTreeStackBasedTraverseScopeWithInnerPtr, nextChild)
-            nextChild = nextChild.next
+
+        current = firstChildPtr
+        while (true) {
+            val next = current ?: break
+            lastVisited = next
+            current = next.next
+            block(this@BirTreeStackBasedTraverseScopeWithInnerPtr, next)
         }
     }
 }

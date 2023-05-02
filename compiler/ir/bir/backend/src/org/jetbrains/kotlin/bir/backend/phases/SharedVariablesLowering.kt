@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.bir.backend.phases
 
+import org.jetbrains.kotlin.bir.BirTreeTraverseScope
 import org.jetbrains.kotlin.bir.backend.BirLoweringPhase
 import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirDeclaration
@@ -61,10 +62,10 @@ class SharedVariablesLowering : BirLoweringPhase() {
         }
     }
 
+    context(BirTreeTraverseScope)
     private fun rewriteSharedVariable(variable: BirVariable) {
         val newVariable = sharedVariablesManager.declareSharedVariable(variable)
         val newDeclaration = sharedVariablesManager.defineSharedValue(variable, newVariable)
-        // todo: use traversal context for replace
         variable.replace(newVariable)
 
         variable.referencedBy.forEach { ref ->
