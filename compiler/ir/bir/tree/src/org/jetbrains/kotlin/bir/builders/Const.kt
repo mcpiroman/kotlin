@@ -15,8 +15,6 @@ import org.jetbrains.kotlin.bir.types.utils.makeNullable
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
 
-// todo: default `type` parameter to the birBuiltIns.booleanType/birBuiltIns.intType etc.
-
 fun BirConst.Companion.constNull(sourceSpan: SourceSpan, type: BirType): BirConstImpl<Nothing?> =
     BirConstImpl(sourceSpan, type, IrConstKind.Null, null)
 

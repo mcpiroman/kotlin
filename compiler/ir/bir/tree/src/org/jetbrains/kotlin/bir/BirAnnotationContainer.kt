@@ -7,8 +7,6 @@ package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 
-
-// tmp
 interface BirAnnotationContainer {
     val annotations: List<BirConstructorCall>
 }

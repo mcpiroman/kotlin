@@ -13,7 +13,7 @@ sealed interface BirElementOrList {
 
 interface BirElement : BirElementOrList {
     val parent: BirElement?
-    val sourceSpan: SourceSpan
+    var sourceSpan: SourceSpan
 }
 
 operator fun <E : BirElement, T> E.get(token: BirElementAuxStorageToken<E, T>): T? {

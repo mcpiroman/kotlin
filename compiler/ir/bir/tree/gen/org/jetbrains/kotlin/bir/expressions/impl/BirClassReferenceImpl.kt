@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirClassReferenceImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     target: BirClassifierSymbol,
     override var classType: BirType,

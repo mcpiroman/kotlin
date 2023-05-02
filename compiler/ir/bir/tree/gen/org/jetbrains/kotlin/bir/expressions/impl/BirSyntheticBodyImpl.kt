@@ -13,6 +13,6 @@ import org.jetbrains.kotlin.bir.expressions.BirSyntheticBody
 import org.jetbrains.kotlin.ir.expressions.IrSyntheticBodyKind
 
 class BirSyntheticBodyImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var kind: IrSyntheticBodyKind,
 ) : BirSyntheticBody()

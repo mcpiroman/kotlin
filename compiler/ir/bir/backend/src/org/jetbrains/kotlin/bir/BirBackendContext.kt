@@ -8,6 +8,8 @@ package org.jetbrains.kotlin.bir/*
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
+import org.jetbrains.kotlin.bir.declarations.BirPackageFragment
+import org.jetbrains.kotlin.bir.declarations.impl.BirExternalPackageFragmentImpl
 import org.jetbrains.kotlin.bir.types.BirTypeSystemContext
 import org.jetbrains.kotlin.bir.types.BirTypeSystemContextImpl
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
@@ -24,13 +26,13 @@ import org.jetbrains.kotlin.name.FqName
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-interface BirBackendContext {
-    val builtIns: KotlinBuiltIns
-    val birBuiltIns: BirBuiltIns
-    val typeSystem: BirTypeSystemContext
-    val internalPackageFqn: FqName
+abstract class BirBackendContext : BirTreeContext() {
+    abstract val builtIns: KotlinBuiltIns
+    abstract val birBuiltIns: BirBuiltIns
+    abstract val typeSystem: BirTypeSystemContext
+    abstract val internalPackageFqn: FqName
 
-    val configuration: CompilerConfiguration
+    abstract val configuration: CompilerConfiguration
 }
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -41,11 +43,23 @@ class WasmBirContext(
     module: ModuleDescriptor,
     override val configuration: CompilerConfiguration,
     converter: Ir2BirConverter
-) : BirTreeContext(), BirBackendContext {
+) : BirBackendContext() {
     override val birBuiltIns: BirBuiltIns = BirBuiltIns(irBuiltIns, converter)
     val wasmSymbols = BirWasmSymbols(birBuiltIns, symbolTable, this, converter, module)
     override val internalPackageFqn = FqName("kotlin.wasm")
     override val typeSystem: BirTypeSystemContext = BirTypeSystemContextImpl(birBuiltIns, this)
+
+    // Place to store declarations excluded from code generation
+    private val excludedDeclarations = mutableMapOf<FqName, BirPackageFragment>()
+
+    fun getExcludedPackageFragment(fqName: FqName): BirPackageFragment = excludedDeclarations.getOrPut(fqName) {
+        BirExternalPackageFragmentImpl(
+            SourceSpan.UNDEFINED,
+            null,
+            fqName,
+            null
+        )
+    }
 
     init {
         converter.finalizeTreeConversion(this)

@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
 
 class BirConstImpl<T>(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     override var kind: IrConstKind<T>,
     override var value: T,

@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: ClassDescriptor?,

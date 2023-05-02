@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.declarations.BirDeclaration
+import org.jetbrains.kotlin.bir.expressions.BirCall
 
 open class BirTreeContext {
     private var totalElements = 0
@@ -86,7 +87,8 @@ open class BirTreeContext {
 
 
     private fun checkCacheElementByClass(element: BirElementBase): Boolean {
-        return element is BirDeclaration
+        return element is BirDeclaration ||
+                element is BirCall
     }
 
     private fun addElementToClassCache(element: BirElementBase) {
@@ -203,24 +205,17 @@ open class BirTreeContext {
         var listIterator: ElementsOfConcreteClassListIterator<BirElementBase>? = null
 
         override fun next(): E {
-            if (!ensureItemIterator())
-                throw NoSuchElementException()
             return listIterator!!.next() as E
         }
 
         override fun hasNext(): Boolean {
-            return ensureItemIterator()
-        }
-
-        private fun ensureItemIterator(): Boolean {
             checkCancelled()
-            if (listIterator?.hasNext() == false)
-                listIterator = null
+            if (listIterator?.hasNext() == true)
+                return true
 
+            listIterator = null
             while (listIterator == null) {
-                if (!listsIterator.hasNext()) {
-                    return false
-                } else {
+                if (listsIterator.hasNext()) {
                     val list = listsIterator.next()
                     val nextClassIterator = ElementsOfConcreteClassListIterator<BirElementBase>(list, isOddIteration)
                     if (nextClassIterator.hasNext()) {
@@ -228,9 +223,11 @@ open class BirTreeContext {
                         list.currentIterator = nextClassIterator
                         return true
                     }
+                } else {
+                    return false
                 }
             }
-            return true
+            return false
         }
 
         private fun checkCancelled() {

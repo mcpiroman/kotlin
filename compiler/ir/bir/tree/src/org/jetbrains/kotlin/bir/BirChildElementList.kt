@@ -339,7 +339,11 @@ class BirChildElementList<E : BirElement>(
         }
 
         override fun remove() {
-            list.remove(current as E, last)
+            val toRemove = current!!
+            if (toRemove !== tail) {
+                this.current = toRemove.next!!
+            }
+            list.remove(toRemove as E, last)
         }
     }
 }

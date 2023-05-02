@@ -15,11 +15,9 @@ import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.getPublicSignature
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.isMarkedNullable
-
 
 fun BirType.isPrimitiveType(nullable: Boolean = false): Boolean =
-    nullable == this.isMarkedNullable() && getPrimitiveType() != null
+    nullable == isMarkedNullable() && getPrimitiveType() != null
 
 fun BirType.isNullablePrimitiveType(): Boolean = isPrimitiveType(true)
 
@@ -27,7 +25,7 @@ fun BirType.getPrimitiveType(): PrimitiveType? =
     getPrimitiveOrUnsignedType(idSignatureToPrimitiveType, shortNameToPrimitiveType)
 
 fun BirType.isUnsignedType(nullable: Boolean = false): Boolean =
-    nullable == this.isMarkedNullable() && getUnsignedType() != null
+    nullable == isMarkedNullable() && getUnsignedType() != null
 
 fun BirType.getUnsignedType(): UnsignedType? =
     getPrimitiveOrUnsignedType(idSignatureToUnsignedType, shortNameToUnsignedType)

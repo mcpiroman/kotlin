@@ -11,7 +11,24 @@ import org.jetbrains.kotlin.bir.utils.SingleElementIterator
 @JvmInline
 value class BirBackReferenceCollection internal constructor(private val owner: BirElementTrackingBackReferences) :
     Iterable<BirElementBase> {
-    override fun iterator(): Iterator<BirElementBase> = owner._referencedBy.iterator(owner as BirElementBase)
+    override fun iterator(): Iterator<BirElementBase> {
+        // Collect into a list to avoid problems with changes-while-iterating.
+        // It may be possible but hard but desirable to make it live, so that
+        // deletions are reflected.
+
+        val backingCollection = owner._referencedBy
+        val iterator = backingCollection.iterator(owner as BirElementBase)
+        val maxSize = backingCollection.estimateMaxSize()
+        if (maxSize == 0) {
+            return EmptyIterator as Iterator<BirElementBase>
+        }
+
+        val list = ArrayList<BirElementBase>(maxSize)
+        iterator.forEach {
+            list.add(it)
+        }
+        return list.iterator()
+    }
 }
 
 @JvmInline
@@ -124,6 +141,14 @@ value class BirBackReferenceCollectionArrayStyleImpl(
             is BirElementBase -> SingleElementIterator(elementsOrSingle) // fixme: compacting version
             else -> CompactingIter(owner, elementsOrSingle as Array<BirElementBase?>)
         }
+
+    internal fun estimateMaxSize(): Int {
+        return when (val elementsOrSingle = elementsOrSingle) {
+            null -> 0
+            is Array<*> -> elementsOrSingle.size
+            else -> 1
+        }
+    }
 
     companion object {
         private const val RESIZE_GRADUALITY = 4 // Must be at least 2, preferably power of 2

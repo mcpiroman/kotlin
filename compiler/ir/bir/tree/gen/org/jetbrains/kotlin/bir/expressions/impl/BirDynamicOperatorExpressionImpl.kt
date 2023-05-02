@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrDynamicOperator
 
 class BirDynamicOperatorExpressionImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     override var operator: IrDynamicOperator,
     receiver: BirExpression,

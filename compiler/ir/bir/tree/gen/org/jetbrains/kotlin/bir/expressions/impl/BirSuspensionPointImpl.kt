@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirSuspensionPointImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     suspensionPointIdParameter: BirVariable,
     result: BirExpression,
