@@ -3,9 +3,10 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir
+package org.jetbrains.kotlin.bir.backend.wasm
 
 import org.jetbrains.kotlin.bir.*
+import org.jetbrains.kotlin.bir.backend.BirBuiltInSymbols
 import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction

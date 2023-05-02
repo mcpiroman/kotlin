@@ -3,9 +3,11 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir.phases.wasm
+package org.jetbrains.kotlin.bir.backend.phases.wasm
 
 import org.jetbrains.kotlin.bir.*
+import org.jetbrains.kotlin.bir.backend.BirLoweringPhase
+import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.builders.build
 import org.jetbrains.kotlin.bir.builders.setCall
 import org.jetbrains.kotlin.bir.builders.string
@@ -22,7 +24,7 @@ import org.jetbrains.kotlin.bir.utils.copyTypeParametersFrom
 import org.jetbrains.kotlin.bir.utils.defaultType
 import org.jetbrains.kotlin.name.Name
 
-context(WasmBirContext)
+context(org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext)
 class BirJsCodeCallsLowering : BirLoweringPhase() {
     override fun invoke(module: BirModuleFragment) {
         getElementsOfClass<BirSimpleFunction>().forEach { function ->

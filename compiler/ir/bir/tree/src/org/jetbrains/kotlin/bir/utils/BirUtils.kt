@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.render
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.*
+import org.jetbrains.kotlin.bir.types.utils.isNullable
 import org.jetbrains.kotlin.bir.types.utils.substitute
 import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
@@ -415,3 +416,6 @@ val BirDeclaration.isTopLevel: Boolean
         val parentClass = parent as? BirClass
         return parentClass?.isFileClass == true && parentClass.parent is BirPackageFragment
     }
+
+fun BirValueParameter.isInlineParameter(type: BirType = this.type) =
+    !isNoinline && !type.isNullable() && (type.isFunction() || type.isSuspendFunction())

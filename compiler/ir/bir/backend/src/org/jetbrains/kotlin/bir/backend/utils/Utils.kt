@@ -3,9 +3,9 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir.utils
+package org.jetbrains.kotlin.bir.backend.utils
 
-import org.jetbrains.kotlin.bir.BirBackendContext
+import org.jetbrains.kotlin.bir.backend.BirBackendContext
 import org.jetbrains.kotlin.bir.expressions.BirCall
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
