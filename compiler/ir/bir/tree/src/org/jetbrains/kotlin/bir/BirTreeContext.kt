@@ -28,7 +28,7 @@ open class BirTreeContext {
         element.updateLevel()
 
         if (prev != null && prev.javaClass == element.javaClass) {
-            element.inByClassCacheViaNextPtr = true
+            prev.nextElementIsOptimizedFromClassCache = true
         } else {
             addElementToClassCache(element)
         }
@@ -38,7 +38,8 @@ open class BirTreeContext {
     }
 
     internal fun elementDetached(element: BirElementBase, prev: BirElementBase?) {
-        assert(!(prev != null && element.inByClassCacheViaNextPtr))
+        assert(!(prev != null && prev.nextElementIsOptimizedFromClassCache))
+        val prevNextElementIsOptimizedFromClassCache = prev?.nextElementIsOptimizedFromClassCache == true
 
         detachElement(element, prev)
         element.traverseTreeFast { descendantElement, descendantPrev ->
@@ -48,9 +49,13 @@ open class BirTreeContext {
         if (prev != null) {
             val prevNext = prev.next
             assert(prevNext !== element) { "prev should have already reassigned next" }
-            if (prevNext != null && prevNext.inByClassCacheViaNextPtr && prev.javaClass != prevNext.javaClass) {
-                prevNext.inByClassCacheViaNextPtr = false
-                addElementToClassCache(prevNext)
+            if (prevNext != null && prevNextElementIsOptimizedFromClassCache) {
+                if (prevNext.javaClass == prev.javaClass) {
+                    prev.nextElementIsOptimizedFromClassCache = true
+                } else {
+                    assert(!prev.nextElementIsOptimizedFromClassCache)
+                    addElementToClassCache(prevNext)
+                }
             }
         }
     }
@@ -59,8 +64,8 @@ open class BirTreeContext {
         element.attachedToTree = false
         element.updateLevel()
 
-        if (element.inByClassCacheViaNextPtr) {
-            element.inByClassCacheViaNextPtr = false
+        if (prev?.nextElementIsOptimizedFromClassCache == true) {
+            prev.nextElementIsOptimizedFromClassCache = false
         } else {
             // TODO: when detaching a bigger subtree, maybe don't find and remove each element individually
             //  but rather scan the list for removed elements / detached elements.
@@ -259,20 +264,20 @@ open class BirTreeContext {
 
             while (true) {
                 var nextSecondary = nextSecondary
-                while (nextSecondary != null && nextSecondary.inByClassCacheViaNextPtr) {
+                while (nextSecondary != null && nextSecondary.nextElementIsOptimizedFromClassCache) {
+                    nextSecondary = nextSecondary.next!!
                     if (nextSecondary.availableInCurrentIteration()) {
+                        this.nextSecondary = nextSecondary
                         setNext(nextSecondary as E)
-                        this.nextSecondary = nextSecondary.next
                         return
                     }
-                    nextSecondary = nextSecondary.next
                 }
 
                 val idx = mainListIdx
                 if (idx < list.size) {
                     mainListIdx++
                     val element = list.array[idx]!!
-                    this.nextSecondary = element.next
+                    this.nextSecondary = element
                     if (element.availableInCurrentIteration()) {
                         setNext(element as E)
                         return
