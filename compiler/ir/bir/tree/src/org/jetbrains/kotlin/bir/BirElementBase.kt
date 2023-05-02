@@ -88,7 +88,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal open fun getFirstChild(): BirElement? = null
     internal open fun getChildren(children: Array<BirElementOrList?>): Int = 0
     override fun acceptChildren(visitor: BirElementVisitor) = Unit
-    protected open fun replaceChildProperty(old: BirElement, new: BirElement?) = Unit
+    internal open fun replaceChildProperty(old: BirElement, new: BirElement?) = Unit
     internal open fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) = Unit
     internal open fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) = Unit
 
@@ -101,37 +101,19 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     }
 
     context (BirTreeContext)
-    fun replace(new: BirElement?) {
-        val owner = rawParent
-        require(owner != null) { "Element is not bound to a tree - its parent is null" }
-        when (owner) {
-            is BirElementBase -> {
-                owner.replaceChildProperty(this, new)
-            }
-            is BirChildElementList<*> -> {
-                owner as BirChildElementList<BirElement>
-                replaceInsideList(owner, new, null)
-            }
-        }
-    }
-
-    context (BirTreeContext)
     internal fun replaceInsideList(
         list: BirChildElementList<BirElement>,
         new: BirElement?,
-        hintPreviousElementBase: BirElementBase?,
+        hintPreviousElement: BirElementBase?,
     ) {
         val success = if (new == null) {
-            list.remove(this)
+            list.remove(this, hintPreviousElement)
         } else {
-            list.replace(this, new)
+            list.replace(this, new, hintPreviousElement)
         }
 
         if (!success) list.parent.throwChildForReplacementNotFound(this)
     }
-
-    context (BirTreeContext)
-    fun remove() = replace(null)
 
     fun nextNonChild(): BirElementBase? {
         next?.let { return it }
@@ -401,3 +383,22 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         private const val FLAG_ATTACHED_DURING_BY_CLASS_ITERATION: Byte = (1 shl 3).toByte()
     }
 }
+
+context (BirTreeContext)
+fun BirElement.replace(new: BirElement?, hintPreviousElement: BirElementBase? = null) {
+    this as BirElementBase
+    val owner = rawParent
+    require(owner != null) { "Element is not bound to a tree - its parent is null" }
+    when (owner) {
+        is BirElementBase -> {
+            owner.replaceChildProperty(this, new)
+        }
+        is BirChildElementList<*> -> {
+            owner as BirChildElementList<BirElement>
+            replaceInsideList(owner, new, hintPreviousElement)
+        }
+    }
+}
+
+context (BirTreeContext)
+fun BirElement.remove(hintPreviousElement: BirElementBase? = null) = replace(null, hintPreviousElement)
