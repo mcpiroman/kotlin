@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.name.Name
 
 class BirModuleFragmentImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override val _descriptor: ModuleDescriptor?,
     override val name: Name,
 ) : BirModuleFragment() {

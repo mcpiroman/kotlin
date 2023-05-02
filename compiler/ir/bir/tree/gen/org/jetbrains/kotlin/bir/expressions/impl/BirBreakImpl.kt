@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.bir.expressions.BirLoop
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirBreakImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     loop: BirLoop,
     override var label: String?,

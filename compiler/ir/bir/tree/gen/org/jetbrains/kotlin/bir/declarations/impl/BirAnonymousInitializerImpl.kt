@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 
 class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: ClassDescriptor?,

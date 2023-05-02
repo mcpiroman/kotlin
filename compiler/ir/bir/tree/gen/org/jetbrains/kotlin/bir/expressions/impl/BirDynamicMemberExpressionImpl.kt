@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirDynamicMemberExpressionImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     override var memberName: String,
     receiver: BirExpression,

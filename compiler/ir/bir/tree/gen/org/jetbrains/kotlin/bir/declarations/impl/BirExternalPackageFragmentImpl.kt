@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirExternalPackageFragmentImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: PackageFragmentDescriptor?,
     override var fqName: FqName,

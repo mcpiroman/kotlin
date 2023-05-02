@@ -31,7 +31,7 @@ private abstract class MockBirClass() : BirElementBase(), MockBirDeclaration, Bi
 }
 
 private class MockBirClassImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     field2: MockBirValueParameter
 ) : MockBirClass() {
     override var _referencedBy = BirBackReferenceCollectionArrayStyleImpl()
@@ -122,7 +122,7 @@ private class MockBirClassImpl(
 }
 
 private class MockBirConstructor(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
 ) : BirElementBase() {
     var target: MockBirClass? = null
         set(value) {

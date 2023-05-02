@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirExpressionBodyImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     expression: BirExpression,
 ) : BirExpressionBody() {
     private var _expression: BirExpression = expression

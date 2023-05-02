@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 class BirReturnableBlockImpl @ObsoleteDescriptorBasedAPI constructor(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     override var origin: IrStatementOrigin?,
     @property:ObsoleteDescriptorBasedAPI

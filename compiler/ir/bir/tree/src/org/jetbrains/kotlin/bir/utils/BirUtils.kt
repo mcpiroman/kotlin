@@ -14,16 +14,14 @@ import org.jetbrains.kotlin.bir.declarations.impl.BirValueParameterImpl
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.render
-import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
-import org.jetbrains.kotlin.bir.symbols.BirTypeParameterSymbol
-import org.jetbrains.kotlin.bir.symbols.asElement
-import org.jetbrains.kotlin.bir.symbols.maybeAsElement
+import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.bir.types.utils.substitute
 import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.symbols.impl.IrClassPublicSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
@@ -167,11 +165,18 @@ val BirClass.packageFqName: FqName?
     get() = signature?.packageFqName() ?: ancestors().firstNotNullOfOrNull { (it as? BirPackageFragment)?.fqName }
 
 fun BirDeclarationWithName.hasEqualFqName(fqName: FqName): Boolean =
-    hasEqualFqName(fqName) || name == fqName.shortName() && when (val parent = parent) {
+    (this as BirSymbol).hasEqualFqName(fqName) || name == fqName.shortName() && when (val parent = parent) {
         is BirPackageFragment -> parent.fqName == fqName.parent()
         is BirDeclarationWithName -> parent.hasEqualFqName(fqName.parent())
         else -> false
     }
+
+fun BirSymbol.hasEqualFqName(fqName: FqName): Boolean {
+    val original = (this as? BirIrSymbolWrapper)?.original
+    return original is IrClassPublicSymbolImpl && with(signature as? IdSignature.CommonSignature ?: return false) {
+        FqName("$packageFqName.$declarationFqName") == fqName
+    }
+}
 
 @Suppress("RecursivePropertyAccessor")
 val BirDeclarationWithName.fqNameWhenAvailable: FqName?
@@ -399,3 +404,14 @@ fun BirType.remapTypeParameters(
     else -> this
 }
 
+val BirDeclaration.isFileClass: Boolean
+    get() = origin == IrDeclarationOrigin.FILE_CLASS ||
+            origin == IrDeclarationOrigin.SYNTHETIC_FILE_CLASS ||
+            origin == IrDeclarationOrigin.JVM_MULTIFILE_CLASS
+
+val BirDeclaration.isTopLevel: Boolean
+    get() {
+        if (parent is BirPackageFragment) return true
+        val parentClass = parent as? BirClass
+        return parentClass?.isFileClass == true && parentClass.parent is BirPackageFragment
+    }

@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirReturnImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     value: BirExpression,
     override var returnTarget: BirReturnTargetSymbol,

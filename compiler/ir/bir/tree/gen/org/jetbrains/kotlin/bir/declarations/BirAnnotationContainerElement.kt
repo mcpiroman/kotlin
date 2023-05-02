@@ -8,6 +8,7 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
+import org.jetbrains.kotlin.bir.BirAnnotationContainer
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 
@@ -16,8 +17,8 @@ import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.annotationContainerElement]
  */
-interface BirAnnotationContainerElement : BirElement {
-    var annotations: List<BirConstructorCall>
+interface BirAnnotationContainerElement : BirElement, BirAnnotationContainer {
+    override var annotations: List<BirConstructorCall>
 
     companion object
 }

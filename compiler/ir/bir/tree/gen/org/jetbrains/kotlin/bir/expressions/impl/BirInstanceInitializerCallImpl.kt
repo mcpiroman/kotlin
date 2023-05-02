@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirInstanceInitializerCallImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     override var `class`: BirClassSymbol,
 ) : BirInstanceInitializerCall() {

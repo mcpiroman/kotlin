@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirStringConcatenationImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
 ) : BirStringConcatenation() {
     override var attributeOwnerId: BirAttributeContainer = this

@@ -36,7 +36,7 @@ object BirTree : AbstractTreeBuilder() {
     )
 
     override val rootElement: ElementConfig by element(Other, name = "element") {
-        +field("sourceSpan", type(Packages.tree, "SourceSpan"), mutable = false) {
+        +field("sourceSpan", type(Packages.tree, "SourceSpan")) {
             kdoc = """
             The span of source code of the syntax node from which this BIR node was generated,
             in number of characters from the start the source file. If there is no source information for this BIR node,
@@ -174,7 +174,13 @@ object BirTree : AbstractTreeBuilder() {
 
     // Equivalent of IrMutableAnnotationContainer which is not an IR element (but could be)
     val annotationContainerElement: ElementConfig by element(Declaration) {
-        +listField("annotations", constructorCall, mutability = Var) // shouldn't those be child elements? rather not ref
+        parent(type(Packages.tree, "BirAnnotationContainer"))
+
+        +listField("annotations", constructorCall, mutability = Var) { // shouldn't those be child elements? rather not ref
+            generationCallback = {
+                addModifiers(KModifier.OVERRIDE)
+            }
+        }
     }
     val anonymousInitializer: ElementConfig by element(Declaration) {
         symbol = SymbolTypes.anonymousInitializer

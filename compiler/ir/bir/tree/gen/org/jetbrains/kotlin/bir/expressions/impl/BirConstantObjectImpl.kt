@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirConstantObjectImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     constructor: BirConstructorSymbol,
     override val typeArguments: List<BirType>,

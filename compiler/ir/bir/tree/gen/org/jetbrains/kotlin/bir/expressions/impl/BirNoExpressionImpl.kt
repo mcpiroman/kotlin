@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.bir.expressions.BirNoExpression
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirNoExpressionImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
 ) : BirNoExpression() {
     override var attributeOwnerId: BirAttributeContainer = this

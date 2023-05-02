@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 class BirConstructorCallImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     override var type: BirType,
     target: BirConstructorSymbol,
     dispatchReceiver: BirExpression?,

@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirElseBranchImpl(
-    override val sourceSpan: SourceSpan,
+    override var sourceSpan: SourceSpan,
     condition: BirExpression,
     result: BirExpression,
 ) : BirElseBranch() {
