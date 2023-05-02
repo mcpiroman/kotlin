@@ -3,10 +3,10 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir.utils
+package org.jetbrains.kotlin.bir.backend.utils
 
-import org.jetbrains.kotlin.bir.BirBackendContext
 import org.jetbrains.kotlin.bir.SourceSpan
+import org.jetbrains.kotlin.bir.backend.BirBackendContext
 import org.jetbrains.kotlin.bir.expressions.BirConst
 import org.jetbrains.kotlin.bir.expressions.impl.BirConstImpl
 import org.jetbrains.kotlin.bir.types.BirType

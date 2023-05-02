@@ -6,12 +6,16 @@
 package org.jetbrains.kotlin.bir.types
 
 import org.jetbrains.kotlin.bir.declarations.BirClass
+import org.jetbrains.kotlin.bir.declarations.BirDeclarationWithName
+import org.jetbrains.kotlin.bir.declarations.BirPackageFragment
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
+import org.jetbrains.kotlin.bir.types.utils.classifierOrNull
 import org.jetbrains.kotlin.bir.utils.hasEqualFqName
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.isMarkedNullable
 
 // The contents of irTypePredicates.kt is to be replaced by some de-duplicated code.
@@ -41,3 +45,23 @@ fun BirType.isClassType(signature: IdSignature.CommonSignature, nullable: Boolea
 private fun BirClass.hasFqNameEqualToSignature(signature: IdSignature.CommonSignature): Boolean =
     name.asString() == signature.shortName &&
             hasEqualFqName(FqName("${signature.packageFqName}.${signature.declarationFqName}"))
+
+val kotlinPackageFqn = FqName.fromSegments(listOf("kotlin"))
+private val kotlinReflectionPackageFqn = kotlinPackageFqn.child(Name.identifier("reflect"))
+private val kotlinCoroutinesPackageFqn = kotlinPackageFqn.child(Name.identifier("coroutines"))
+
+fun BirType.isFunctionMarker(): Boolean = classifierOrNull?.isClassWithName("Function", kotlinPackageFqn) == true
+fun BirType.isFunction(): Boolean = classifierOrNull?.isClassWithNamePrefix("Function", kotlinPackageFqn) == true
+fun BirType.isKFunction(): Boolean = classifierOrNull?.isClassWithNamePrefix("KFunction", kotlinReflectionPackageFqn) == true
+fun BirType.isSuspendFunction(): Boolean = classifierOrNull?.isClassWithNamePrefix("SuspendFunction", kotlinCoroutinesPackageFqn) == true
+fun BirType.isKSuspendFunction(): Boolean = classifierOrNull?.isClassWithNamePrefix("KSuspendFunction", kotlinReflectionPackageFqn) == true
+
+private fun BirClassifierSymbol.isClassWithName(name: String, packageFqName: FqName): Boolean {
+    if (this !is BirDeclarationWithName) return false
+    return name == this.name.asString() && (parent as? BirPackageFragment)?.fqName == packageFqName
+}
+
+private fun BirClassifierSymbol.isClassWithNamePrefix(prefix: String, packageFqName: FqName): Boolean {
+    if (this !is BirDeclarationWithName) return false
+    return this.name.asString().startsWith(prefix) && (parent as? BirPackageFragment)?.fqName == packageFqName
+}

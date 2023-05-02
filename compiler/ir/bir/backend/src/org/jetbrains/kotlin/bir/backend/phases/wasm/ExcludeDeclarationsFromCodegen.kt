@@ -3,10 +3,10 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir.phases.wasm
+package org.jetbrains.kotlin.bir.backend.phases.wasm
 
-import org.jetbrains.kotlin.bir.BirLoweringPhase
-import org.jetbrains.kotlin.bir.WasmBirContext
+import org.jetbrains.kotlin.bir.backend.BirLoweringPhase
+import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.utils.hasAnnotation
 import org.jetbrains.kotlin.name.FqName

@@ -3,15 +3,15 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir.phases.wasm
+package org.jetbrains.kotlin.bir.backend.phases
 
-import org.jetbrains.kotlin.bir.BirLoweringPhase
-import org.jetbrains.kotlin.bir.WasmBirContext
-import org.jetbrains.kotlin.bir.builders.addIfThenElse
-import org.jetbrains.kotlin.bir.builders.build
-import org.jetbrains.kotlin.bir.builders.constNull
-import org.jetbrains.kotlin.bir.builders.setCall
-import org.jetbrains.kotlin.bir.builders.setTemporary
+import org.jetbrains.kotlin.bir.backend.BirLoweringPhase
+import org.jetbrains.kotlin.bir.backend.utils.constTrue
+import org.jetbrains.kotlin.bir.backend.utils.setEquals
+import org.jetbrains.kotlin.bir.backend.utils.setNot
+import org.jetbrains.kotlin.bir.backend.utils.string
+import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
+import org.jetbrains.kotlin.bir.builders.*
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.expressions.impl.*

@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.expressions.impl.*
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.BirUninitializedType
+import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.SourceElement
@@ -52,6 +53,30 @@ fun BirConstructor.Companion.build(init: BirConstructorImpl.() -> Unit): BirCons
         isInline = false,
         isExpect = false,
         isPrimary = false,
+    ).apply(init)
+
+@OptIn(ObsoleteDescriptorBasedAPI::class)
+fun BirClass.Companion.build(init: BirClassImpl.() -> Unit): BirClassImpl =
+    BirClassImpl(
+        sourceSpan = SourceSpan.UNDEFINED,
+        name = UninitializedName,
+        _descriptor = null,
+        origin = IrDeclarationOrigin.DEFINED,
+        source = SourceElement.NO_SOURCE,
+        annotations = emptyList(),
+        kind = ClassKind.CLASS,
+        visibility = DescriptorVisibilities.PUBLIC,
+        modality = Modality.FINAL,
+        superTypes = emptyList(),
+        thisReceiver = null,
+        isExternal = false,
+        isExpect = false,
+        isCompanion = false,
+        isData = false,
+        isFun = false,
+        isInner = false,
+        isValue = false,
+        valueClassRepresentation = null,
     ).apply(init)
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)

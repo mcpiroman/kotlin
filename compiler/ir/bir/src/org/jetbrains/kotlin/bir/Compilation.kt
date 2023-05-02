@@ -6,10 +6,12 @@
 package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.backend.common.linkage.issues.checkNoUnboundSymbols
+import org.jetbrains.kotlin.bir.backend.phases.LateinitLowering
+import org.jetbrains.kotlin.bir.backend.phases.SharedVariablesLowering
+import org.jetbrains.kotlin.bir.backend.phases.wasm.BirJsCodeCallsLowering
+import org.jetbrains.kotlin.bir.backend.phases.wasm.ExcludeDeclarationsFromCodegen
+import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
-import org.jetbrains.kotlin.bir.phases.wasm.BirJsCodeCallsLowering
-import org.jetbrains.kotlin.bir.phases.wasm.ExcludeDeclarationsFromCodegen
-import org.jetbrains.kotlin.bir.phases.wasm.LateinitLowering
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.backend.js.IrModuleInfo
@@ -47,6 +49,7 @@ fun runBirCompilation(backendContext: WasmBirContext, moduleInfo: IrModuleInfo, 
     }.also {
         println("ir->bir in: ${it.first}ms")
     }.second
+    backendContext.setModuleFragment(birModule)
 
     for (phase in phases) {
         val phaseObj = phase(backendContext)
@@ -62,4 +65,5 @@ private val phases = listOf(
     ::BirJsCodeCallsLowering,
     ::ExcludeDeclarationsFromCodegen,
     ::LateinitLowering,
+    ::SharedVariablesLowering,
 )
