@@ -27,12 +27,13 @@ import org.jetbrains.kotlin.name.Name
 context(WasmBirContext)
 class BirJsCodeCallsLowering : BirLoweringPhase() {
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirSimpleFunction>().forEach { function ->
-            visitFunction(function)
-        }
-
-        getElementsOfClass<BirProperty>().forEach { property ->
-            visitProperty(property)
+        for (file in module.files) {
+            for (declaration in file.declarations) {
+                when (declaration) {
+                    is BirSimpleFunction -> visitFunction(declaration)
+                    is BirProperty -> visitProperty(declaration)
+                }
+            }
         }
     }
 

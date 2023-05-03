@@ -19,11 +19,15 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     //var originalIrElement: IrElement? = null
     internal var rawParent: BirElementBaseOrList? = null
     override var next: BirElementBase? = null
-    internal var firstChildPtr: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
     private var level: UShort = 0u
     private var flags: Byte = 0
     private var registeredBackRefs: Byte = 0
+
+    //internal var firstChildPtr: BirElementBase? = null
+    internal var firstChildPtr: BirElementBase?
+        set(value) {}
+        get() = getFirstChild() as BirElementBase?
 
     final override val parent: BirElementBase?
         get() = when (val rawParent = rawParent) {

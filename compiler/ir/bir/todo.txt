@@ -19,10 +19,8 @@ Reshape BIR tree
 By class element cache (getAllElementsOfType)
     Try to use contextual properties
         Not blocked by but nice to have https://youtrack.jetbrains.com/issue/KT-58151/Allow-specifying-context-receivers-on-individual-property-accessors
-    Select only some classes to be tracked
     Collapse classes into groups (e.g. collect all BirFieldAccess'es at once)
     Maybe allow custom categorisation, not only by class
-    Save space by re-using next pointer to element of same class
 Tree mutation-while-traversing protocol
 Maybe eventually remove descriptors, but they seem necessary for now
 Reorder fields in Impl classes even more
