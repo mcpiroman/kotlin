@@ -12,7 +12,7 @@ dependencies {
     api(project(":compiler:ir.backend.common"))
     api(project(":compiler:ir.tree"))
     implementation(project(":compiler:util"))
-    implementation(project(":compiler:ir.serialization.js"))
+    api(project(":compiler:ir.serialization.js"))
     runtimeOnly(project(":compiler:cli-common"))
 
     implementation(project(":compiler:backend.wasm"))
