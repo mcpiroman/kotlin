@@ -49,6 +49,7 @@ open class BirTreeDeepCopier(
     protected val variables by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirVariable>() }
     protected val localDelegatedProperties by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirLocalDelegatedProperty>() }
     protected val typeAliases by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirTypeAlias>() }
+    protected val loops by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirLoop>() }
 
     protected fun <E : BirElement> createElementMap(): MutableMap<E, E> = IdentityHashMap<E, E>()
 
@@ -56,12 +57,17 @@ open class BirTreeDeepCopier(
         return copy()
     }
 
-    protected fun <E : BirElement> doCopyElement(old: E, map: MutableMap<E, E>, copy: () -> E, lateInitialize: (E) -> Unit): E {
+    protected fun <ME : BirElement, SE : ME> doCopyElement(
+        old: SE,
+        map: MutableMap<ME, ME>,
+        copy: () -> SE,
+        lateInitialize: (SE) -> Unit
+    ): SE {
         var copied = false
         val new = map.computeIfAbsent(old) {
             copied = true
             copy()
-        }
+        } as SE
         if (copied) {
             lateInitialize(new)
         }
@@ -1119,8 +1125,7 @@ open class BirTreeDeepCopier(
         return new
     }
 
-    open fun copyInstanceInitializerCall(old: BirInstanceInitializerCall):
-            BirInstanceInitializerCall {
+    open fun copyInstanceInitializerCall(old: BirInstanceInitializerCall): BirInstanceInitializerCall {
         val new = BirInstanceInitializerCallImpl(
             sourceSpan = old.sourceSpan,
             type = BirUninitializedType,
@@ -1132,24 +1137,26 @@ open class BirTreeDeepCopier(
         return new
     }
 
-    open fun copyWhileLoop(old: BirWhileLoop): BirWhileLoop {
-        val new = BirWhileLoopImpl(
+    open fun copyWhileLoop(old: BirWhileLoop): BirWhileLoop = doCopyElement(old, loops, {
+        BirWhileLoopImpl(
             sourceSpan = old.sourceSpan,
             type = BirUninitializedType,
             origin = old.origin,
             body = null,
+            // nb: this may be a problem if there is a ref to the loop from within the condition (language seems to not allow that however).
+            //  In such case the simples solution is to do what IR does right now - make condition property lateinit.
             condition = copyElement(old.condition),
             label = old.label,
         )
+    }) { new ->
         new.copyAttributes(old)
         new.body = old.body?.let { copyElement(it) }
         new.type = remapType(old.type)
         new.copyAuxData(old)
-        return new
     }
 
-    open fun copyDoWhileLoop(old: BirDoWhileLoop): BirDoWhileLoop {
-        val new = BirDoWhileLoopImpl(
+    open fun copyDoWhileLoop(old: BirDoWhileLoop): BirDoWhileLoop = doCopyElement(old, loops, {
+        BirDoWhileLoopImpl(
             sourceSpan = old.sourceSpan,
             type = BirUninitializedType,
             origin = old.origin,
@@ -1157,11 +1164,11 @@ open class BirTreeDeepCopier(
             condition = copyElement(old.condition),
             label = old.label,
         )
+    }) { new ->
         new.copyAttributes(old)
         new.body = old.body?.let { copyElement(it) }
         new.type = remapType(old.type)
         new.copyAuxData(old)
-        return new
     }
 
     open fun copyReturn(old: BirReturn): BirReturn {
