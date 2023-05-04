@@ -5,7 +5,9 @@
 
 package org.jetbrains.kotlin.bir.traversal
 
-import org.jetbrains.kotlin.bir.*
+import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.BirTreeTraverseScope
 
 class BirTreeStackBasedTraverseScope(
     private val block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit,
@@ -15,21 +17,13 @@ class BirTreeStackBasedTraverseScope(
 
         if (!hasChildren) return
 
-        current = getFirstChild() as BirElementBase?
-        while (true) {
-            val next = current ?: break
-            lastVisited = next
-            current = next.next
-            block(this@BirTreeStackBasedTraverseScope, next)
+        var nextChild = getFirstChild() as BirElementBase?
+        while (nextChild != null) {
+            val current = nextChild
+            nextChild = nextChild.next
+            block(this@BirTreeStackBasedTraverseScope, current)
+            lastVisited = current
         }
-    }
-
-    context(BirTreeContext)
-    override fun BirElement.replace(new: BirElement?) {
-        if (this@replace === current) {
-            current = this@replace.next
-        }
-        replace(new, lastVisited)
     }
 }
 
@@ -40,7 +34,6 @@ fun BirElement.traverseStackBased(includeSelf: Boolean = true, block: BirTreeSta
 
     val scope = BirTreeStackBasedTraverseScope(block)
     if (includeSelf) {
-        scope.current = this
         block(scope, this)
     } else {
         with(scope) {
@@ -54,13 +47,12 @@ class BirTreeStackBasedTraverseScopeWithInnerPtr(
 ) : BirTreeTraverseScope() {
     fun BirElement.recurse() {
         this as BirElementBase
-
-        current = firstChildPtr
-        while (true) {
-            val next = current ?: break
-            lastVisited = next
-            current = next.next
-            block(this@BirTreeStackBasedTraverseScopeWithInnerPtr, next)
+        var nextChild = firstChildPtr
+        while (nextChild != null) {
+            val current = nextChild
+            nextChild = nextChild.next
+            block(this@BirTreeStackBasedTraverseScopeWithInnerPtr, current)
+            lastVisited = current
         }
     }
 }
@@ -75,7 +67,6 @@ fun BirElement.traverseStackBasedWithInnerPtr(
 
     val scope = BirTreeStackBasedTraverseScopeWithInnerPtr(block)
     if (includeSelf) {
-        scope.current = this
         block(scope, this)
     } else {
         with(scope) {

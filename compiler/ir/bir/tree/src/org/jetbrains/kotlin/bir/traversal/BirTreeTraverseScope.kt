@@ -6,11 +6,10 @@
 package org.jetbrains.kotlin.bir
 
 abstract class BirTreeTraverseScope {
-    internal var current: BirElementBase? = null
-    internal var lastVisited: BirElementBase? = null
+    internal var lastVisited: BirElement? = null
 
     context (BirTreeContext)
-    open fun BirElement.replace(new: BirElement?) = replace(new, lastVisited)
+    open fun BirElement.replace(new: BirElement?) = replace(new, lastVisited as BirElementBase?)
 
     context (BirTreeContext)
     fun BirElement.remove() = replace(null)
