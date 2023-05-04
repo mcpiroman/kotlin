@@ -6,14 +6,12 @@
 package org.jetbrains.kotlin.bir.traversal
 
 import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirTreeTraverseScope
 
 abstract class BirElementVisitor : BirTreeTraverseScope() {
     abstract fun visitElement(element: BirElement)
 
     internal fun doVisit(element: BirElement) {
-        current = element as BirElementBase
         visitElement(element)
         lastVisited = element
     }

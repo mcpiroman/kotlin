@@ -24,7 +24,6 @@ fun BirElement.traverseParentBased(includeSelf: Boolean = true, block: BirTreePa
 
     traversal@ while (true) {
         val current = next ?: break
-        scope.current = current
         val result = block(scope, current)
         scope.lastVisited = current
 
@@ -70,7 +69,6 @@ fun BirElement.traverseParentBasedWithInnerPtr(
 
     traversal@ while (true) {
         val current = next ?: break
-        scope.current = current
         val result = block(scope, current)
         scope.lastVisited = current
 
