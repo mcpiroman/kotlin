@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
 import org.jetbrains.kotlin.bir.expressions.impl.BirNoExpressionImpl
 import org.jetbrains.kotlin.bir.symbols.BirIrSymbolWrapper
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
-import org.jetbrains.kotlin.bir.symbols.LateBindBirSymbol
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.bir.types.impl.BirCapturedType
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -24,7 +23,7 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrMemberWithContainerSource
 import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
-import org.jetbrains.kotlin.ir.symbols.*
+import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.impl.IrCapturedType
 import org.jetbrains.kotlin.ir.types.impl.IrDelegatedSimpleType
@@ -35,222 +34,144 @@ import java.util.*
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 abstract class Ir2BirConverterBase {
     var copyDescriptors = false
-    private var ir2birElementMap = IdentityHashMap<IrElement, BirElement>()
-    private val elementsWithSymbolsToLateBind = mutableListOf<Pair<IrElement, LateBindBirSymbol<*>>>()
-    private var currentlyConvertedElement: IrElement? = null
-    private var lastNewRegisteredElement: BirElement? = null
-    private var lastNewRegisteredElementSource: IrElement? = null
-    private var overrideRegisterConvertedElement = false
 
-    fun setExpectedTreeSize(size: Int) {
-        val old = ir2birElementMap
-        ir2birElementMap = IdentityHashMap<IrElement, BirElement>(size)
-        ir2birElementMap.putAll(old)
+    protected fun <Bir : BirElement, Ir : IrElement> createElementMap(expectedMaxSize: Int = 16): MutableMap<Ir, Bir> =
+        IdentityHashMap<Ir, Bir>(expectedMaxSize)
+
+    context(BirTreeContext)
+    protected abstract fun <Bir : BirElement> copyElement(old: IrElement): Bir
+
+    fun copyIrTree(treeContext: BirTreeContext, irRootElements: List<IrElement>): List<BirElement> {
+        with(treeContext) {
+            return irRootElements.map { copyElement(it) }
+        }
+    }
+
+    fun copyIrTree(treeContext: BirTreeContext, irRootElement: IrElement): BirElement =
+        copyIrTree(treeContext, listOf(irRootElement)).single()
+
+    context(BirTreeContext)
+    protected fun <Ir : IrElement, Bir : BirElement> copyNotReferencedElement(old: Ir, copy: () -> Bir): Bir {
+        return copy()
     }
 
     context(BirTreeContext)
-    protected abstract fun convertIrElement(ir: IrElement): BirElement
-
-    protected abstract fun elementRefMayAppearTwice(ir: IrElement): Boolean
-
-    fun convertIrTree(treeContext: BirTreeContext, irRootElements: List<IrElement>): List<BirElement> {
-        with(treeContext) {
-            val birRootElements = irRootElements.map { mapIrElement(it) }
-            finalizeTreeConversion(treeContext)
-            return birRootElements
+    protected fun <Ir : IrElement, ME : BirElement, SE : ME> copyReferencedElement(
+        old: Ir,
+        map: MutableMap<Ir, ME>,
+        copy: () -> SE,
+        lateInitialize: (SE) -> Unit
+    ): SE {
+        var copied = false
+        val new = map.computeIfAbsent(old) {
+            copied = true
+            copy()
+        } as SE
+        if (copied) {
+            lateInitialize(new)
         }
-    }
-
-    fun convertIrTree(treeContext: BirTreeContext, irRootElement: IrElement): BirElement =
-        convertIrTree(treeContext, listOf(irRootElement)).single()
-
-    fun finalizeTreeConversion(treeContext: BirTreeContext) {
-        with(treeContext) {
-            lateBindSymbols()
-
-            currentlyConvertedElement = null
-            lastNewRegisteredElement = null
-            lastNewRegisteredElementSource = null
-        }
-    }
-
-
-    context(BirTreeContext)
-    fun mapIrElement(ir: IrElement): BirElement {
-        // Optimization for converting reference to self if it comes directly after [registerNewElement]
-        if (ir === lastNewRegisteredElementSource) {
-            return lastNewRegisteredElement!!
-        }
-
-        val new = if (elementRefMayAppearTwice(ir)) {
-            ir2birElementMap[ir] ?: doConvertElement(ir)
-        } else {
-            assert(ir !in ir2birElementMap)
-            doConvertElement(ir)
-        }
-
         return new
     }
 
     context(BirTreeContext)
-    private fun doConvertElement(ir: IrElement): BirElement {
-        val last = currentlyConvertedElement
-        currentlyConvertedElement = ir
-
-        val bir = convertIrElement(ir) as BirElementBase
-        //bir.originalIrElement = ir
-        registerAuxStorage(bir, ir)
-
-        currentlyConvertedElement = last
-        return bir
-    }
-
-    protected fun registerNewElement(ir: IrElement, bir: BirElement) {
-        lastNewRegisteredElement = bir
-        lastNewRegisteredElementSource = ir
-
-        if (overrideRegisterConvertedElement || elementRefMayAppearTwice(ir)) {
-            ir2birElementMap[ir] = bir
-        }
-
-        if (bir is BirModuleFragment || bir is BirExternalPackageFragment) {
-            // this element is a root of BIR tree
-            (bir as BirElementBase).attachedToTree = true
-        }
-    }
+    fun <Bir : BirElement> remapElement(old: IrElement): Bir = copyElement(old)
 
     context(BirTreeContext)
-    private fun registerAuxStorage(bir: BirElementBase, ir: IrElement) {
-        if (ir is IrMetadataSourceOwner) {
-            (bir as BirMetadataSourceOwner)[GlobalBirElementAuxStorageTokens.Metadata] = ir.metadata
-        }
-
-        if (ir is IrMemberWithContainerSource) {
-            (bir as BirMemberWithContainerSource)[GlobalBirElementAuxStorageTokens.ContainerSource] = ir.containerSource
-        }
-
-        if (ir is IrAttributeContainer) {
-            (bir as BirAttributeContainer)[GlobalBirElementAuxStorageTokens.OriginalBeforeInline] =
-                mapIrElement(ir.originalBeforeInline) as BirAttributeContainer?
-        }
-
-        if (ir is IrClass) {
-            (bir as BirClass)[GlobalBirElementAuxStorageTokens.SealedSubclasses] = ir.sealedSubclasses
-        }
-    }
-
-
-    context(BirTreeContext)
-    @JvmName("mapIrElementNullable")
-    protected fun mapIrElement(ir: IrElement?): BirElement? = if (ir == null) null else mapIrElement(ir)
-
-    context(BirTreeContext)
-    protected fun <Bir : BirElement> mapIrElementList(list: List<IrElement>): MutableList<Bir> {
-        @Suppress("UNCHECKED_CAST")
-        return list.mapTo(ArrayList(list.size)) { mapIrElement(it) } as MutableList<Bir>
-    }
-
-    context(BirTreeContext)
-    protected fun <Ir : IrElement, Bir : BirElement> moveChildElementList(from: List<Ir>, to: BirChildElementList<Bir>) {
-        for (ir in from) {
-            @Suppress("UNCHECKED_CAST")
-            val bir = mapIrElement(ir) as Bir
-            to += bir
-        }
-    }
-
-    context(BirTreeContext)
-    protected fun moveIrMemberAccessExpressionValueArguments(ir: IrMemberAccessExpression<*>, bir: BirMemberAccessExpression<*>) {
-        for (i in 0 until ir.valueArgumentsCount) {
-            val arg = ir.getValueArgument(i)
-            if (arg != null) {
-                bir.valueArguments += mapIrElement(arg) as BirExpression
-            } else {
-                bir.valueArguments += BirNoExpressionImpl(SourceSpan.UNDEFINED, BirUninitializedType)
-            }
-        }
-    }
-
-    protected val IrMemberAccessExpression<*>.typeArguments: Array<IrType?>
-        get() = Array(typeArgumentsCount) { getTypeArgument(it) }
-
-
-    context(BirTreeContext)
-    protected fun <IrS : IrSymbol, BirS : BirSymbol> mapSymbol(ir: IrElement, symbol: IrS, allowLateBind: Boolean = true): BirS {
-        if (symbol.isBound) {
-            ir2birElementMap[symbol.owner]?.let {
-                return it as BirS
-            }
-
-            if (allowLateBind) {
-                val birSymbol = when (symbol) {
-                    is IrFileSymbol -> LateBindBirSymbol.FileSymbol(symbol)
-                    is IrExternalPackageFragmentSymbol -> LateBindBirSymbol.ExternalPackageFragmentSymbol(symbol)
-                    is IrAnonymousInitializerSymbol -> LateBindBirSymbol.AnonymousInitializerSymbol(symbol)
-                    is IrEnumEntrySymbol -> LateBindBirSymbol.EnumEntrySymbol(symbol)
-                    is IrFieldSymbol -> LateBindBirSymbol.FieldSymbol(symbol)
-                    is IrClassSymbol -> LateBindBirSymbol.ClassSymbol(symbol)
-                    is IrScriptSymbol -> LateBindBirSymbol.ScriptSymbol(symbol)
-                    is IrTypeParameterSymbol -> LateBindBirSymbol.TypeParameterSymbol(symbol)
-                    is IrValueParameterSymbol -> LateBindBirSymbol.ValueParameterSymbol(symbol)
-                    is IrVariableSymbol -> LateBindBirSymbol.VariableSymbol(symbol)
-                    is IrConstructorSymbol -> LateBindBirSymbol.ConstructorSymbol(symbol)
-                    is IrSimpleFunctionSymbol -> LateBindBirSymbol.SimpleFunctionSymbol(symbol)
-                    is IrReturnableBlockSymbol -> LateBindBirSymbol.ReturnableBlockSymbol(symbol)
-                    is IrPropertySymbol -> LateBindBirSymbol.PropertySymbol(symbol)
-                    is IrLocalDelegatedPropertySymbol -> LateBindBirSymbol.LocalDelegatedPropertySymbol(symbol)
-                    is IrTypeAliasSymbol -> LateBindBirSymbol.TypeAliasSymbol(symbol)
-                    else -> error(symbol)
-                }
-                elementsWithSymbolsToLateBind += ir to birSymbol
-                return birSymbol as BirS
-            } else {
-                overrideRegisterConvertedElement = true
-                val birElement = doConvertElement(ir) as BirS
-                overrideRegisterConvertedElement = false
-                return birElement
-            }
+    fun <IrS : IrSymbol, BirS : BirSymbol> remapSymbol(old: IrS): BirS {
+        return if (old.isBound) {
+            remapElement(old.owner) as BirS
         } else {
-            return BirIrSymbolWrapper(symbol) as BirS
+            BirIrSymbolWrapper(old) as BirS
         }
     }
+
+    context(BirTreeContext)
+    protected fun BirAttributeContainer.copyAttributes(old: IrAttributeContainer) {
+        val owner = old.attributeOwnerId
+        attributeOwnerId = if (owner === old) this
+        else remapElement(owner) as BirAttributeContainer
+    }
+
+    context(BirTreeContext)
+    protected fun BirElement.copyAuxData(from: IrElement) {
+        this as BirElementBase
+        if (from is IrMetadataSourceOwner) {
+            (this as BirMetadataSourceOwner)[GlobalBirElementAuxStorageTokens.Metadata] = from.metadata
+        }
+
+        if (from is IrMemberWithContainerSource) {
+            (this as BirMemberWithContainerSource)[GlobalBirElementAuxStorageTokens.ContainerSource] = from.containerSource
+        }
+
+        if (from is IrAttributeContainer) {
+            (this as BirAttributeContainer)[GlobalBirElementAuxStorageTokens.OriginalBeforeInline] =
+                from.originalBeforeInline?.let { remapElement(it) as BirAttributeContainer }
+        }
+
+        if (from is IrClass) {
+            (this as BirClass)[GlobalBirElementAuxStorageTokens.SealedSubclasses] = from.sealedSubclasses
+        }
+    }
+
+    context(BirTreeContext)
+    protected fun <Ir : IrElement, Bir : BirElement> BirChildElementList<Bir>.copyElements(from: List<Ir>) {
+        for (ir in from) {
+            val bir = copyElement<Bir>(ir)
+            this += bir
+        }
+    }
+
+    context(BirTreeContext)
+    protected fun BirMemberAccessExpression<*>.copyIrMemberAccessExpressionValueArguments(from: IrMemberAccessExpression<*>) {
+        for (i in 0 until from.valueArgumentsCount) {
+            val arg = from.getValueArgument(i)
+            if (arg != null) {
+                valueArguments += copyElement(arg) as BirExpression
+            } else {
+                valueArguments += BirNoExpressionImpl(SourceSpan.UNDEFINED, BirUninitializedType)
+            }
+        }
+    }
+
+    protected val IrMemberAccessExpression<*>.typeArguments: List<IrType?>
+        get() = List(typeArgumentsCount) { getTypeArgument(it) }
 
     protected fun <D : DeclarationDescriptor> mapDescriptor(descriptor: D): D? {
         return if (copyDescriptors) descriptor else null
     }
 
     context(BirTreeContext)
-    fun convertType(irType: IrType): BirType = when (irType) {
+    fun remapType(irType: IrType): BirType = when (irType) {
         // for IrDelegatedSimpleType, this egaerly initializes a lazy IrAnnotationType
         is IrSimpleTypeImpl, is IrDelegatedSimpleType -> BirSimpleTypeImpl(
             (irType as IrSimpleType).kotlinType,
-            mapSymbol(irType.classifier.owner, irType.classifier, false),
+            remapSymbol(irType.classifier),
             irType.nullability,
-            irType.arguments.map { convertTypeArgument(it) as BirTypeArgument },
-            irType.annotations.map { mapIrElement(it) as BirConstructorCall },
+            irType.arguments.map { remapTypeArgument(it) },
+            irType.annotations.map { remapElement(it) as BirConstructorCall },
             irType.abbreviation?.let { abbreviation ->
                 BirTypeAbbreviation(
-                    mapSymbol(abbreviation.typeAlias.owner, abbreviation.typeAlias, false),
+                    remapSymbol(abbreviation.typeAlias),
                     abbreviation.hasQuestionMark,
-                    abbreviation.arguments.map { convertTypeArgument(it) as BirTypeArgument },
-                    abbreviation.annotations.map { mapIrElement(it) as BirConstructorCall },
+                    abbreviation.arguments.map { remapTypeArgument(it) },
+                    abbreviation.annotations.map { remapElement(it) as BirConstructorCall },
                 )
             },
         )
         is IrCapturedType -> BirCapturedType(
             irType.captureStatus,
-            irType.lowerType?.let { convertType(it) },
-            convertTypeArgument(irType.constructor.argument),
-            mapIrElement(irType.constructor.typeParameter) as BirTypeParameter,
+            irType.lowerType?.let { remapType(it) },
+            remapTypeArgument(irType.constructor.argument),
+            remapElement(irType.constructor.typeParameter) as BirTypeParameter,
         )
         is IrDynamicType -> BirDynamicType(
             irType.kotlinType,
-            irType.annotations.map { mapIrElement(it) as BirConstructorCall },
+            irType.annotations.map { remapElement(it) as BirConstructorCall },
             irType.variance,
         )
         is IrErrorType -> BirErrorType(
             irType.kotlinType,
-            irType.annotations.map { mapIrElement(it) as BirConstructorCall },
+            irType.annotations.map { remapElement(it) as BirConstructorCall },
             irType.variance,
             irType.isMarkedNullable,
         )
@@ -258,33 +179,17 @@ abstract class Ir2BirConverterBase {
     }
 
     context(BirTreeContext)
-    fun convertTypeArgument(irTypeArgument: IrTypeArgument): BirTypeArgument = when (irTypeArgument) {
+    fun remapTypeArgument(irTypeArgument: IrTypeArgument): BirTypeArgument = when (irTypeArgument) {
         is IrStarProjection -> BirStarProjection
-        is IrTypeProjectionImpl -> BirTypeProjectionImpl(convertType(irTypeArgument.type), irTypeArgument.variance)
-        is IrType -> convertType(irTypeArgument) as BirTypeArgument
+        is IrTypeProjectionImpl -> BirTypeProjectionImpl(remapType(irTypeArgument.type), irTypeArgument.variance)
+        is IrType -> remapType(irTypeArgument) as BirTypeArgument
         else -> error(irTypeArgument)
     }
-
-    context(BirTreeContext)
-    private fun lateBindSymbols() {
-        while (true) {
-            // new elements may appear in [mapIrElement] call
-            val (irElement, lateBindBirSymbol) = elementsWithSymbolsToLateBind.removeLastOrNull()
-                ?: break
-
-            val containerElement = ir2birElementMap.getValue(irElement) as BirElementBase
-            // Apparently the symbol owner element may be in IrExternalPackageFragment, and such
-            // fragments are not directly linked to the tree (thus not visited).
-            val birElementBehindSymbol = mapIrElement(lateBindBirSymbol.irSymbol.owner)
-            containerElement.replaceSymbolProperty(lateBindBirSymbol, birElementBehindSymbol as BirSymbol)
-        }
-    }
-
 
     companion object {
         fun IrElement.convertToBir(treeContext: BirTreeContext): BirElement {
             val converter = Ir2BirConverter()
-            return converter.convertIrTree(treeContext, listOf(this)).single()
+            return converter.copyIrTree(treeContext, listOf(this)).single()
         }
     }
 }

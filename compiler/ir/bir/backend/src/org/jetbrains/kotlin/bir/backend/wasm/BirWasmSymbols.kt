@@ -367,7 +367,7 @@ class BirWasmSymbols(
     override val continuationClass = getClass(coroutinePackage.memberScope, CONTINUATION_NAME)
 
     override val coroutineSuspendedGetter =
-        mapSymbolOwner<_, BirSimpleFunction>(
+        remapSymbolOwner<_, BirSimpleFunction>(
             symbolTable.referenceSimpleFunction(
                 coroutineIntrinsicsPackage.memberScope.getContributedVariables(
                     COROUTINE_SUSPENDED_NAME,
@@ -397,7 +397,7 @@ class BirWasmSymbols(
     private fun getClass(memberScope: MemberScope, name: Name): BirClass {
         val descriptor = findClass(memberScope, name)
         val ir = symbolTable.referenceClass(descriptor)
-        return mapSymbolOwner(ir)
+        return remapSymbolOwner(ir)
     }
 
     private fun getClass(fqName: FqName): BirClass = getClass(module.getPackage(fqName.parent()).memberScope, fqName.shortName())
@@ -413,7 +413,7 @@ class BirWasmSymbols(
         if (descriptor.isEmpty())
             return null
         val ir = symbolTable.referenceSimpleFunction(descriptor.single())
-        return mapSymbolOwner(ir)
+        return remapSymbolOwner(ir)
     }
 
     private fun getInternalFunction(name: String) = getFunction(wasmInternalPackage, name)
@@ -424,18 +424,18 @@ class BirWasmSymbols(
     private fun getProperty(memberScope: MemberScope, name: Name): BirProperty {
         val descriptor = findProperty(memberScope, name).single()
         val ir = symbolTable.referenceProperty(descriptor)
-        return mapSymbolOwner(ir)
+        return remapSymbolOwner(ir)
     }
 
 
-    private fun <Ir : IrElement, Bir : BirElement> mapElement(element: Ir): Bir {
+    private fun <Ir : IrElement, Bir : BirElement> remapElement(element: Ir): Bir {
         with(birTreeContext) {
-            return converter.mapIrElement(element) as Bir
+            return converter.remapElement(element)
         }
     }
 
-    private fun <IrS : IrSymbol, Bir : BirElement> mapSymbolOwner(symbol: IrS): Bir {
-        return mapElement(symbol.owner)
+    private fun <IrS : IrSymbol, Bir : BirElement> remapSymbolOwner(symbol: IrS): Bir {
+        return remapElement(symbol.owner)
     }
 
     companion object {

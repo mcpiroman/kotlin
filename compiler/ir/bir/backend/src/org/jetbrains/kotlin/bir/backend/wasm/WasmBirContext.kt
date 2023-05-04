@@ -51,10 +51,6 @@ class WasmBirContext(
         )
     }
 
-    init {
-        converter.finalizeTreeConversion(this)
-    }
-
     fun setModuleFragment(birModuleFragment: BirModuleFragment) {
         this.birModuleFragment = birModuleFragment
         sharedVariablesManager = WasmSharedVariablesManager(internalPackageFragment)
