@@ -48,10 +48,9 @@ open class CompilationBenchmark {
         @Setup(Level.Invocation)
         @OptIn(ObsoleteDescriptorBasedAPI::class)
         fun prepareCompilation(masterData: MasterData) {
-            val converter = Ir2BirConverter()
+            val converter = Ir2BirConverter(400000)
             backendContext = createBirBackendContext(masterData.srcModule, masterData.configuration, converter)
-            converter.setExpectedTreeSize(400000)
-            birModule = converter.convertIrTree(backendContext, masterData.srcModule.allDependencies).first() as BirModuleFragment
+            birModule = converter.copyIrTree(backendContext, masterData.srcModule.allDependencies).first() as BirModuleFragment
             backendContext.setModuleFragment(birModule)
         }
     }
