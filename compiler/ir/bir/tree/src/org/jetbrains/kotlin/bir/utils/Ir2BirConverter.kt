@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.declarations.impl.IrFunctionWithLateBindingImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrPropertyWithLateBindingImpl
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.symbols.impl.DescriptorlessExternalPackageFragmentSymbol
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
 
 @ObsoleteDescriptorBasedAPI
@@ -138,6 +139,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
     }) { new ->
         new.defaultValue = old.defaultValue?.let { copyElement(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.type = remapType(old.type)
         new.varargElementType = old.varargElementType?.let { remapType(it) }
         new.copyAuxData(old)
     }
@@ -551,9 +553,9 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         copyReferencedElement(old, externalPackageFragments, {
             BirExternalPackageFragmentImpl(
                 sourceSpan = SourceSpan(old.startOffset, old.endOffset),
-                _descriptor = mapDescriptor(old.packageFragmentDescriptor),
+                _descriptor = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else mapDescriptor(old.packageFragmentDescriptor),
                 fqName = old.fqName,
-                containerSource = old.containerSource,
+                containerSource = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else old.containerSource,
             )
         }) { new ->
             new.attachedToTree = true
@@ -568,7 +570,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             _descriptor = mapDescriptor(old.packageFragmentDescriptor),
             fqName = old.fqName,
             annotations = emptyList(),
-            module = remapElement(old.module),
             fileEntry = old.fileEntry,
         )
     }) { new ->

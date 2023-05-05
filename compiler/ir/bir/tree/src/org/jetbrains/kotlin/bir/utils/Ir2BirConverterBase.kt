@@ -18,10 +18,7 @@ import org.jetbrains.kotlin.bir.types.impl.BirCapturedType
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.declarations.IrAttributeContainer
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrMemberWithContainerSource
-import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
+import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.types.*
@@ -34,6 +31,9 @@ import java.util.*
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 abstract class Ir2BirConverterBase {
     var copyDescriptors = false
+    private val collectedBirElementsWithoutParent = mutableListOf<BirElement>()
+    private val collectedIrElementsWithoutParent = mutableListOf<IrElement>()
+    private var isInsideNestedElementCopy = false
 
     protected fun <Bir : BirElement, Ir : IrElement> createElementMap(expectedMaxSize: Int = 16): MutableMap<Ir, Bir> =
         IdentityHashMap<Ir, Bir>(expectedMaxSize)
@@ -52,7 +52,7 @@ abstract class Ir2BirConverterBase {
 
     context(BirTreeContext)
     protected fun <Ir : IrElement, Bir : BirElement> copyNotReferencedElement(old: Ir, copy: () -> Bir): Bir {
-        return copy()
+        return doCopyElement(old, copy)
     }
 
     context(BirTreeContext)
@@ -62,14 +62,58 @@ abstract class Ir2BirConverterBase {
         copy: () -> SE,
         lateInitialize: (SE) -> Unit
     ): SE {
-        var copied = false
-        val new = map.computeIfAbsent(old) {
-            copied = true
-            copy()
-        } as SE
-        if (copied) {
-            lateInitialize(new)
+        map[old]?.let {
+            return it as SE
         }
+
+        return doCopyElement(old) {
+            val new = copy()
+            map[old] = new
+            lateInitialize(new)
+            new
+        }
+    }
+
+    context(BirTreeContext)
+    private fun <Ir : IrElement, Bir : BirElement> doCopyElement(old: Ir, copy: () -> Bir): Bir {
+        val wasNested = isInsideNestedElementCopy
+        isInsideNestedElementCopy = true
+        val lastCollectedElementsWithoutParent = collectedBirElementsWithoutParent.size
+        val new = copy()
+
+        if (wasNested) {
+            for (i in collectedBirElementsWithoutParent.lastIndex downTo lastCollectedElementsWithoutParent) {
+                val bir = collectedBirElementsWithoutParent[i]
+                if (bir.parent != null) {
+                    collectedBirElementsWithoutParent.removeAt(i)
+                    collectedIrElementsWithoutParent.removeAt(i)
+                }
+            }
+        }
+
+        if (new.parent == null) {
+            if (old is IrDeclaration && old !is IrModuleFragment && old !is IrExternalPackageFragment || old is IrFile) {
+                collectedBirElementsWithoutParent += new
+                collectedIrElementsWithoutParent += old
+            }
+        }
+
+        if (!wasNested) {
+            while (true) {
+                val bir = collectedBirElementsWithoutParent.removeLastOrNull() ?: break
+                val ir = collectedIrElementsWithoutParent.removeLast()
+                if (bir.parent == null) {
+                    if (ir is IrDeclaration) {
+                        remapElement<BirElement>(ir.parent)
+                    } else if (ir is IrFile) {
+                        remapElement<BirModuleFragment>(ir.module)
+                    }
+                }
+            }
+        }
+
+        isInsideNestedElementCopy = wasNested
+
         return new
     }
 
@@ -109,7 +153,7 @@ abstract class Ir2BirConverterBase {
         }
 
         if (from is IrClass) {
-            (this as BirClass)[GlobalBirElementAuxStorageTokens.SealedSubclasses] = from.sealedSubclasses
+            (this as BirClass)[GlobalBirElementAuxStorageTokens.SealedSubclasses] = from.sealedSubclasses.map { remapSymbol(it) }
         }
     }
 
