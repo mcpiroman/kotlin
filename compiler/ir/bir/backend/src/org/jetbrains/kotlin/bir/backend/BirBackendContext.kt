@@ -6,13 +6,13 @@
 package org.jetbrains.kotlin.bir.backend
 
 import org.jetbrains.kotlin.bir.BirBuiltIns
-import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.GeneralBirTreeContext
 import org.jetbrains.kotlin.bir.types.BirTypeSystemContext
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.name.FqName
 
-abstract class BirBackendContext : BirTreeContext() {
+abstract class BirBackendContext : GeneralBirTreeContext() {
     abstract val builtIns: KotlinBuiltIns
     abstract val birBuiltIns: BirBuiltIns
     abstract val typeSystem: BirTypeSystemContext

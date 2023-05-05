@@ -78,4 +78,14 @@ class BirSuspensionPointImpl(
         this._result.accept(visitor)
         this._resumeResult.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._suspensionPointIdParameter === old -> this._suspensionPointIdParameter = new as
+                BirVariable
+           this._result === old -> this._result = new as BirExpression
+           this._resumeResult === old -> this._resumeResult = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

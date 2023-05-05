@@ -59,4 +59,12 @@ class BirCatchImpl(
         this._catchParameter.accept(visitor)
         this._result.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._catchParameter === old -> this._catchParameter = new as BirVariable
+           this._result === old -> this._result = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

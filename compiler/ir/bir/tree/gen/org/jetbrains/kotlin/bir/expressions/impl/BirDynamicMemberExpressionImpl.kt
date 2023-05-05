@@ -50,4 +50,11 @@ class BirDynamicMemberExpressionImpl(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this._receiver.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._receiver === old -> this._receiver = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

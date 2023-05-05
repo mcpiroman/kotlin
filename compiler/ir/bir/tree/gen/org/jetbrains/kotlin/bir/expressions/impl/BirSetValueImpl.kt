@@ -61,6 +61,13 @@ class BirSetValueImpl(
         this._value.accept(visitor)
     }
 
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._value === old -> this._value = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
+
     override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {
         registerTrackedBackReferenceTo(target, 0, unregisterFrom)
     }

@@ -15,7 +15,6 @@ import org.jetbrains.kotlin.bir.builders.*
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.expressions.impl.*
-import org.jetbrains.kotlin.bir.render
 import org.jetbrains.kotlin.bir.replace
 import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.asElement
@@ -24,6 +23,7 @@ import org.jetbrains.kotlin.bir.types.utils.isPrimitiveType
 import org.jetbrains.kotlin.bir.types.utils.makeNullable
 import org.jetbrains.kotlin.bir.utils.*
 import org.jetbrains.kotlin.builtins.StandardNames
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 context(WasmBirContext)
@@ -35,7 +35,6 @@ class LateinitLowering : BirLoweringPhase() {
                     it.type = it.type.makeNullable()
                 }
                 transformLateinitPropertyGetter(property.getter!!, property.backingField!!)
-                property.isLateinit = false
             }
         }
 
@@ -66,6 +65,7 @@ class LateinitLowering : BirLoweringPhase() {
         getter.body = BirBlockBody.build {
             val resultVar = BirVariable.build {
                 setTemporary()
+                this.type = backingField.type
                 initializer = BirGetFieldImpl(
                     getter.sourceSpan,
                     backingField.type,
@@ -78,7 +78,7 @@ class LateinitLowering : BirLoweringPhase() {
                 )
             }
             statements += resultVar
-            val throwIfNull = BirWhenImpl(getter.sourceSpan, birBuiltIns.nothingNType, null)
+            val throwIfNull = BirWhenImpl(getter.sourceSpan, birBuiltIns.nothingType, null)
             throwIfNull.addIfThenElse(
                 {
                     BirBranchImpl(
@@ -91,13 +91,14 @@ class LateinitLowering : BirLoweringPhase() {
                                     setEquals(
                                         BirGetValueImpl(getter.sourceSpan, resultVar.type, resultVar, null),
                                         BirConst.constNull(getter.sourceSpan, birBuiltIns.nothingNType),
+                                        origin = IrStatementOrigin.EXCLEQ
                                     )
                                 }
                             )
                         },
                         BirReturnImpl(
                             getter.sourceSpan,
-                            getter.returnType,
+                            birBuiltIns.nothingType,
                             BirGetValueImpl(getter.sourceSpan, resultVar.type, resultVar, null),
                             getter
                         )

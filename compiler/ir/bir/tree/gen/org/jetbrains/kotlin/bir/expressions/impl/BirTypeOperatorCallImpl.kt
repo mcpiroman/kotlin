@@ -52,4 +52,11 @@ class BirTypeOperatorCallImpl(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this._argument.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._argument === old -> this._argument = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

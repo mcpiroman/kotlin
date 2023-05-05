@@ -73,6 +73,7 @@ object BirTree : AbstractTreeBuilder() {
 
         +field("name", type<Name>())
     }
+    val declarationHost: ElementConfig by element(Declaration)
     val possiblyExternalDeclaration: ElementConfig by element(Declaration) {
         parent(declarationWithName)
 
@@ -192,10 +193,13 @@ object BirTree : AbstractTreeBuilder() {
         +field("body", blockBody, isChild = true)
     }
     val declarationContainer: ElementConfig by element(Declaration) {
+        parent(declarationHost)
+
         +listField("declarations", declaration, mutability = List, isChild = true)
     }
     val typeParametersContainer: ElementConfig by element(Declaration) {
         parent(declaration)
+        parent(declarationHost)
 
         +listField("typeParameters", typeParameter, mutability = Var, isChild = true)
     }
@@ -224,6 +228,7 @@ object BirTree : AbstractTreeBuilder() {
 
         parent(declaration)
         parent(declarationWithVisibility)
+        parent(declarationHost)
         parent(possiblyExternalDeclaration)
         parent(typeParametersContainer)
         parent(returnTarget)
@@ -278,6 +283,7 @@ object BirTree : AbstractTreeBuilder() {
 
         parent(declaration)
         parent(declarationWithVisibility)
+        parent(declarationHost)
         parent(possiblyExternalDeclaration)
         parent(metadataSourceOwner)
 
@@ -339,6 +345,7 @@ object BirTree : AbstractTreeBuilder() {
 
         parent(declaration)
         parent(declarationWithName)
+        parent(declarationHost)
         parent(statementContainer)
         parent(metadataSourceOwner)
 
@@ -423,7 +430,6 @@ object BirTree : AbstractTreeBuilder() {
         parent(annotationContainerElement)
         parent(metadataSourceOwner)
 
-        +field("module", moduleFragment) // todo: maybe remove and make a extension property that searches parents?
         +field("fileEntry", type("org.jetbrains.kotlin.ir", "IrFileEntry"))
     }
 

@@ -233,6 +233,7 @@ open class BirTreeDeepCopier(
     }) { new ->
         new.defaultValue = old.defaultValue?.let { copyElement(it) }
         new.annotations = old.annotations.memoryOptimizedMap { copyElement(it) }
+        new.type = remapType(old.type)
         new.varargElementType = old.varargElementType?.let { remapType(it) }
         new.copyAuxData(old)
     }
@@ -643,7 +644,6 @@ open class BirTreeDeepCopier(
             _descriptor = old._descriptor,
             fqName = old.fqName,
             annotations = emptyList(),
-            module = remapElement(old.module),
             fileEntry = old.fileEntry,
         )
     }) { new ->

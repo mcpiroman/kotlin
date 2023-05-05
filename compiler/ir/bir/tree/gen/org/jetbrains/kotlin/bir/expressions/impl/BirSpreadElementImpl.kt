@@ -44,4 +44,11 @@ class BirSpreadElementImpl(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this._expression.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._expression === old -> this._expression = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

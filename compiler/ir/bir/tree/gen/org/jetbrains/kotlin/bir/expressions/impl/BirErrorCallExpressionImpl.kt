@@ -55,4 +55,11 @@ class BirErrorCallExpressionImpl(
         this._explicitReceiver?.accept(visitor)
         this.arguments.acceptChildren(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._explicitReceiver === old -> this._explicitReceiver = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

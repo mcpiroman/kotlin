@@ -26,7 +26,8 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.script]
  */
 abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithName,
-        BirStatementContainer, BirMetadataSourceOwner, BirSymbolElement, BirScriptSymbol {
+        BirDeclarationHost, BirStatementContainer, BirMetadataSourceOwner, BirSymbolElement,
+        BirScriptSymbol {
     @ObsoleteDescriptorBasedAPI
     abstract override val _descriptor: ScriptDescriptor?
 

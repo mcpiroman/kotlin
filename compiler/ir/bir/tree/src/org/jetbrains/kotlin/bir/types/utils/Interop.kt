@@ -13,10 +13,8 @@ import org.jetbrains.kotlin.bir.declarations.BirTypeParametersContainer
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.bir.types.impl.BirTypeBase
-import org.jetbrains.kotlin.bir.utils.fqNameWhenAvailable
-import org.jetbrains.kotlin.bir.utils.isAnonymousObject
-import org.jetbrains.kotlin.bir.utils.isPropertyAccessor
-import org.jetbrains.kotlin.bir.utils.isStatic
+import org.jetbrains.kotlin.bir.utils.*
+import org.jetbrains.kotlin.bir.utils.defaultType
 import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.types.KotlinType
@@ -76,7 +74,6 @@ fun BirClassifierSymbol.createType(arguments: List<BirTypeArgument>): BirSimpleT
 fun BirClassifierSymbol.createTypeWithParameters(parameters: List<BirTypeParameter>): BirSimpleType =
     createType(parameters.map { it.defaultType })
 
-context(BirTreeContext)
 val BirClassifierSymbol.defaultType: BirType
     get() = when (this) {
         is BirClass -> defaultType

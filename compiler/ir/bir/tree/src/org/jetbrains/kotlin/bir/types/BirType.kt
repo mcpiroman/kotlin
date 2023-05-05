@@ -10,8 +10,6 @@ import org.jetbrains.kotlin.types.model.KotlinTypeMarker
 
 abstract class BirType : KotlinTypeMarker, BirAnnotationContainer {
 
-    open fun render() = toString()
-
     /**
      * @return true if this type is equal to [other] symbolically. Note that this is NOT EQUIVALENT to the full type checking algorithm
      * used in the compiler frontend. For example, this method will return `false` on the types `List<*>` and `List<Any?>`,

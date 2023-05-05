@@ -49,6 +49,12 @@ class BirConstantObjectImpl(
         this.valueArguments.acceptChildren(visitor)
     }
 
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
+
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
         if(this.constructor === old) this.constructor = new as BirConstructorSymbol
     }

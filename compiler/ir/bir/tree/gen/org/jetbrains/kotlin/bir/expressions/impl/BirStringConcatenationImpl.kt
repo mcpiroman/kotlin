@@ -36,4 +36,10 @@ class BirStringConcatenationImpl(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.arguments.acceptChildren(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

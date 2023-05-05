@@ -7,10 +7,8 @@ package org.jetbrains.kotlin.bir.generator.print
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import org.jetbrains.kotlin.bir.generator.Packages
-import org.jetbrains.kotlin.bir.generator.elementBaseType
+import org.jetbrains.kotlin.bir.generator.*
 import org.jetbrains.kotlin.bir.generator.model.*
-import org.jetbrains.kotlin.bir.generator.treeContext
 import org.jetbrains.kotlin.bir.generator.util.ClassRef
 import org.jetbrains.kotlin.bir.generator.util.PositionTypeParameterRef
 import org.jetbrains.kotlin.bir.generator.util.TypeRef
@@ -174,6 +172,28 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         }
                         .build()
                 )
+
+                addFunction(
+                    FunSpec
+                        .builder("replaceChildProperty")
+                        .addModifiers(KModifier.OVERRIDE)
+                        .addParameter("old", rootElement.toPoet())
+                        .addParameter("new", rootElement.toPoet().copy(nullable = true))
+                        .apply {
+                            addCode("when {\n")
+                            allChildren.forEach { field ->
+                                if (field is SingleField) {
+                                    addCode(
+                                        "   this.%N === old -> this.%N = new as %T\n",
+                                        field.backingFieldName, field.backingFieldName, field.type.toPoet()
+                                    )
+                                }
+                            }
+                            addCode("   else -> throwChildForReplacementNotFound(old)\n")
+                            addCode("}\n")
+                        }
+                        .build()
+                )
             }
 
             val symbolFields = allFields.mapNotNull { field ->
@@ -192,8 +212,8 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                     FunSpec
                         .builder("replaceSymbolProperty")
                         .addModifiers(KModifier.OVERRIDE)
-                        .addParameter("old", org.jetbrains.kotlin.bir.generator.symbolType.toPoet())
-                        .addParameter("new", org.jetbrains.kotlin.bir.generator.symbolType.toPoet())
+                        .addParameter("old", symbolType.toPoet())
+                        .addParameter("new", symbolType.toPoet())
                         .apply {
                             symbolFields.forEach { (field, symbolType) ->
                                 when (field) {

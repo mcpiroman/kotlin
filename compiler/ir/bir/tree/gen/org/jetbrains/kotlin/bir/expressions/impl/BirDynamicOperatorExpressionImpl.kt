@@ -56,4 +56,11 @@ class BirDynamicOperatorExpressionImpl(
         this._receiver.accept(visitor)
         this.arguments.acceptChildren(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._receiver === old -> this._receiver = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

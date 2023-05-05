@@ -87,6 +87,14 @@ class BirCallImpl(
         this.valueArguments.acceptChildren(visitor)
     }
 
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._dispatchReceiver === old -> this._dispatchReceiver = new as BirExpression
+           this._extensionReceiver === old -> this._extensionReceiver = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
+
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
         if(this.target === old) this.target = new as BirSimpleFunctionSymbol
         if(this.superQualifier === old) this.superQualifier = new as BirClassSymbol

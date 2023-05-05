@@ -105,6 +105,15 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
         this._earlierScriptsParameter?.accept(visitor)
     }
 
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._thisReceiver === old -> this._thisReceiver = new as BirValueParameter
+           this._earlierScriptsParameter === old -> this._earlierScriptsParameter = new as
+                BirValueParameter
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
+
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {
         this.providedProperties = this.providedProperties.map { if(it === old) new as
                 BirPropertySymbol else it }

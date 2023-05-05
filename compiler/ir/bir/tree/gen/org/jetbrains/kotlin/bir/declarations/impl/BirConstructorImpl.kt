@@ -111,4 +111,15 @@ class BirConstructorImpl @ObsoleteDescriptorBasedAPI constructor(
         this.valueParameters.acceptChildren(visitor)
         this._body?.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._dispatchReceiverParameter === old -> this._dispatchReceiverParameter = new as
+                BirValueParameter
+           this._extensionReceiverParameter === old -> this._extensionReceiverParameter = new as
+                BirValueParameter
+           this._body === old -> this._body = new as BirBody
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

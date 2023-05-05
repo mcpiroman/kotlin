@@ -6,13 +6,13 @@
 package org.jetbrains.kotlin.bir.types
 
 import org.jetbrains.kotlin.bir.BirBuiltIns
-import org.jetbrains.kotlin.bir.render
 import org.jetbrains.kotlin.bir.symbols.BirTypeParameterSymbol
 import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.types.impl.BirCapturedType
 import org.jetbrains.kotlin.bir.types.utils.buildSimpleType
 import org.jetbrains.kotlin.bir.types.utils.makeNullable
 import org.jetbrains.kotlin.bir.types.utils.toBuilder
+import org.jetbrains.kotlin.bir.utils.render
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.isMarkedNullable
 import org.jetbrains.kotlin.types.model.TypeSubstitutorMarker

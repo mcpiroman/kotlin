@@ -69,4 +69,12 @@ class BirTryImpl(
         this.catches.acceptChildren(visitor)
         this._finallyExpression?.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._tryResult === old -> this._tryResult = new as BirExpression
+           this._finallyExpression === old -> this._finallyExpression = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

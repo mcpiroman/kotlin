@@ -64,4 +64,11 @@ class BirVariableImpl @ObsoleteDescriptorBasedAPI constructor(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this._initializer?.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._initializer === old -> this._initializer = new as BirExpression
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

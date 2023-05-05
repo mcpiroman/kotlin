@@ -8,14 +8,24 @@ package org.jetbrains.kotlin.bir
 import org.jetbrains.kotlin.bir.declarations.BirDeclaration
 import org.jetbrains.kotlin.bir.expressions.BirCall
 
-open class BirTreeContext {
+abstract class BirTreeContext {
+    internal abstract fun elementAttached(element: BirElementBase, prev: BirElementBase?)
+    internal abstract fun elementDetached(element: BirElementBase, prev: BirElementBase?)
+}
+
+object DummyBirTreeContext : BirTreeContext() {
+    override fun elementAttached(element: BirElementBase, prev: BirElementBase?) {}
+    override fun elementDetached(element: BirElementBase, prev: BirElementBase?) {}
+}
+
+open class GeneralBirTreeContext : BirTreeContext() {
     private var totalElements = 0
     private val elementsByClass = hashMapOf<Class<*>, ElementOfClassList>()
     private var currentElementsOfClassIterator: ElementsOfClassListIterator<*>? = null
     private var currentElementsOfClassIterationIsOdd = false
     private val elementsAddedDuringCurrentElementsOfClassIteration = ArrayList<BirElementBase>(1024)
 
-    internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {
+    override internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {
         attachElement(element, prev)
         element.traverseTreeFast { descendantElement, descendantPrev ->
             attachElement(descendantElement, descendantPrev)
@@ -44,7 +54,7 @@ open class BirTreeContext {
         totalElements++
     }
 
-    internal fun elementDetached(element: BirElementBase, prev: BirElementBase?) {
+    override fun elementDetached(element: BirElementBase, prev: BirElementBase?) {
         assert(!(prev != null && prev.nextElementIsOptimizedFromClassCache))
         val prevNextElementIsOptimizedFromClassCache = prev?.nextElementIsOptimizedFromClassCache == true
 

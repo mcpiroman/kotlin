@@ -9,7 +9,7 @@ import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.GeneralBirTreeContext
 import org.jetbrains.kotlin.bir.prepareIr
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverterBase.Companion.convertToBir
 import org.jetbrains.kotlin.ir.IrElement
@@ -26,6 +26,6 @@ abstract class IterationBenchmarkBase {
         val srcIr =
             prepareIr("../../../../libraries/stdlib/wasm/build/libs/kotlin-stdlib-wasm-wasm-1.9.255-SNAPSHOT.klib").moduleInfo.module
         irRoot = srcIr.deepCopyWithSymbols()
-        birRoot = srcIr.convertToBir(BirTreeContext())
+        birRoot = srcIr.convertToBir(GeneralBirTreeContext())
     }
 }

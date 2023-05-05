@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.bir.utils.defaultType
 import org.jetbrains.kotlin.name.Name
 
 context(WasmBirContext)
-class BirJsCodeCallsLowering : BirLoweringPhase() {
+class JsCodeCallsLowering : BirLoweringPhase() {
     override fun invoke(module: BirModuleFragment) {
         for (file in module.files) {
             for (declaration in file.declarations) {
@@ -84,7 +84,7 @@ class BirJsCodeCallsLowering : BirLoweringPhase() {
                     }
                     typeArguments = function.typeParameters.map { it.defaultType }
                 }
-                statements += BirReturnImpl(SourceSpan.UNDEFINED, externalFun.returnType, call, function)
+                statements += BirReturnImpl(SourceSpan.UNDEFINED, birBuiltIns.nothingType, call, function)
             }
 
             (function.parent as BirDeclarationContainer).declarations += externalFun
