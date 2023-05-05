@@ -1,5 +1,5 @@
 Properly handle external (not BirElement) symbols
-Properly handle IrExternalPackageFragment, which is not directly attached to the IR tree - maybe also add externalPackages child to BirModuleFragment
+Maybe add externalPackages (child) property to BirModuleFragment
 Back references
     Decide on arrays vs. linked lists - measure perf, esp. removing element
     Protocol for (sub)tree attach/detach
