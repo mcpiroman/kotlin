@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirDeclaration
 import org.jetbrains.kotlin.bir.declarations.BirFile
-import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
@@ -28,7 +27,6 @@ class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
     override val _descriptor: PackageFragmentDescriptor?,
     override var fqName: FqName,
     override var annotations: List<BirConstructorCall>,
-    override var module: BirModuleFragment,
     override var fileEntry: IrFileEntry,
 ) : BirFile() {
     override val declarations: BirChildElementList<BirDeclaration> =
@@ -43,5 +41,11 @@ class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
 
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.declarations.acceptChildren(visitor)
+    }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           else -> throwChildForReplacementNotFound(old)
+        }
     }
 }

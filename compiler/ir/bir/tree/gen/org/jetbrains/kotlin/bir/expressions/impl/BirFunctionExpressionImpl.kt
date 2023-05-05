@@ -51,4 +51,11 @@ class BirFunctionExpressionImpl(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this._function.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._function === old -> this._function = new as BirSimpleFunction
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

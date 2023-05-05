@@ -38,4 +38,10 @@ class BirBlockImpl(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.statements.acceptChildren(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

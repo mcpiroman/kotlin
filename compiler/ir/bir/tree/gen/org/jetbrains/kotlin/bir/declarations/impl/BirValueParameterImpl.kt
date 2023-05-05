@@ -65,4 +65,11 @@ class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this._defaultValue?.accept(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           this._defaultValue === old -> this._defaultValue = new as BirExpressionBody
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

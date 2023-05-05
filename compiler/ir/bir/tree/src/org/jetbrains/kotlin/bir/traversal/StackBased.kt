@@ -42,6 +42,47 @@ fun BirElement.traverseStackBased(includeSelf: Boolean = true, block: BirTreeSta
     }
 }
 
+class BirTreeStackBasedTraverseScopeWithData<D>(
+    private val block: BirTreeStackBasedTraverseScopeWithData<D>.(node: BirElement, data: D) -> Unit,
+) : BirTreeTraverseScope() {
+    fun BirElement.apply(data: D) {
+        block(this@BirTreeStackBasedTraverseScopeWithData, this, data)
+    }
+
+    fun BirElement.recurse(data: D) {
+        this as BirElementBase
+
+        if (!hasChildren) return
+
+        var nextChild = getFirstChild() as BirElementBase?
+        while (nextChild != null) {
+            val current = nextChild
+            nextChild = nextChild.next
+            block(this@BirTreeStackBasedTraverseScopeWithData, current, data)
+            lastVisited = current
+        }
+    }
+}
+
+fun <D> BirElement.traverseStackBased(
+    data: D,
+    includeSelf: Boolean = true,
+    block: BirTreeStackBasedTraverseScopeWithData<D>.(node: BirElement, data: D) -> Unit
+) {
+    this as BirElementBase
+
+    if (!includeSelf && !hasChildren) return
+
+    val scope = BirTreeStackBasedTraverseScopeWithData<D>(block)
+    if (includeSelf) {
+        block(scope, this, data)
+    } else {
+        with(scope) {
+            recurse(data)
+        }
+    }
+}
+
 class BirTreeStackBasedTraverseScopeWithInnerPtr(
     private val block: BirTreeStackBasedTraverseScopeWithInnerPtr.(node: BirElement) -> Unit,
 ) : BirTreeTraverseScope() {

@@ -15,8 +15,6 @@ import org.jetbrains.kotlin.types.model.TypeArgumentMarker
  * An argument for a generic parameter. Can be either [BirTypeProjection], or [BirStarProjection].
  */
 sealed interface BirTypeArgument : TypeArgumentMarker {
-    fun render() = toString()
-
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 }

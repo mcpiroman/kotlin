@@ -67,7 +67,6 @@ class WasmBirContext(
             _descriptor = internalPackageFragmentDescriptor,
             fqName = internalPackageFragmentDescriptor.fqName,
             annotations = emptyList(),
-            module = birModuleFragment,
             fileEntry = object : IrFileEntry {
                 override val name = "<implicitDeclarations>"
                 override val maxOffset = UNDEFINED_OFFSET

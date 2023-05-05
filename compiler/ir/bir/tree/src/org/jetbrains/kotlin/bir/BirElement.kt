@@ -23,5 +23,3 @@ operator fun <E : BirElement, T> E.get(token: BirElementAuxStorageToken<E, T>): 
 operator fun <E : BirElement, T> E.set(token: BirElementAuxStorageToken<E, T>, value: T?) {
     (this as BirElementBase).setAuxData(token, value)
 }
-
-fun BirElement.render(): String = toString()

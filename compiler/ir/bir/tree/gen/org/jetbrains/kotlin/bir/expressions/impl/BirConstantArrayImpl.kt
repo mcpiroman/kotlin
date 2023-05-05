@@ -36,4 +36,10 @@ class BirConstantArrayImpl(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.elements.acceptChildren(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

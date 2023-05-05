@@ -9,14 +9,13 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirChildElementList
-import org.jetbrains.kotlin.bir.BirElement
 
 /**
  * A non-leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.declarationContainer]
  */
-interface BirDeclarationContainer : BirElement {
+interface BirDeclarationContainer : BirDeclarationHost {
     val declarations: BirChildElementList<BirDeclaration>
 
     companion object

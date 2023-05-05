@@ -47,4 +47,10 @@ class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.typeParameters.acceptChildren(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

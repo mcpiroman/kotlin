@@ -28,7 +28,7 @@ class BirChildElementList<E : BirElement>(
     context (BirTreeContext)
     fun add(element: E): Boolean {
         element as BirElementBase
-        element.checkCanBoundToTree()
+        element.checkCanBeAttachedAsChild(parent)
 
         val tail = tail
         val prev: BirElementBase?
@@ -72,7 +72,7 @@ class BirChildElementList<E : BirElement>(
         old as BirElementBase
 
         new as BirElementBase
-        new.checkCanBoundToTree()
+        new.checkCanBeAttachedAsChild(parent)
 
         val tail = tail!!
         val prevInList = findPreviousNode(tail, old, hintPreviousElement)
@@ -259,7 +259,7 @@ class BirChildElementList<E : BirElement>(
     }
 
     private fun checkIndex(index: Int) {
-        if (index <= size) {
+        if (index >= size) {
             throw IndexOutOfBoundsException("index: $index, size: $size")
         }
     }
@@ -323,6 +323,7 @@ class BirChildElementList<E : BirElement>(
         private val tail = list.tail
         private var last: BirElementBase? = null
         private var current: BirElementBase? = null
+        private var currentIsNext = false
 
         override fun hasNext() = current !== tail // this also works when list is empty
 
@@ -341,7 +342,7 @@ class BirChildElementList<E : BirElement>(
         override fun remove() {
             val toRemove = current!!
             if (toRemove !== tail) {
-                this.current = toRemove.next!!
+                this.current = last
             }
             list.remove(toRemove as E, last)
         }

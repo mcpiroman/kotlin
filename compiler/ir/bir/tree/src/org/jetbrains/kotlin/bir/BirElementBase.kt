@@ -92,7 +92,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal open fun getFirstChild(): BirElement? = null
     internal open fun getChildren(children: Array<BirElementOrList?>): Int = 0
     override fun acceptChildren(visitor: BirElementVisitor) = Unit
-    internal open fun replaceChildProperty(old: BirElement, new: BirElement?) = Unit
+    internal open fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        throwChildForReplacementNotFound(old)
+    }
+
     internal open fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) = Unit
     internal open fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) = Unit
 
@@ -100,8 +103,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         throw IllegalStateException("The child property $old not found in its parent $this")
     }
 
-    internal fun checkCanBoundToTree() {
-        require(rawParent == null) { "Element $this is already bound to the tree as a child of $parent." }
+    internal fun checkCanBeAttachedAsChild(newParent: BirElement) {
+        require(rawParent == null) { "Cannot attach element $this as a child of $newParent as it is already a child of $parent." }
     }
 
     context (BirTreeContext)
@@ -202,7 +205,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         prevNext: BirElementBase?,
     ): BirElementBase? {
         if (new != null) {
-            new.checkCanBoundToTree()
+            new.checkCanBeAttachedAsChild(this)
             new.rawParent = this
             new.next = next
         }

@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.bir.utils
 
 import org.jetbrains.kotlin.bir.declarations.*
-import org.jetbrains.kotlin.bir.render
 import org.jetbrains.kotlin.bir.symbols.BirPossiblyElementSymbol
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality

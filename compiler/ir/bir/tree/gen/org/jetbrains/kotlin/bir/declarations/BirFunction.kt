@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.function]
  */
-interface BirFunction : BirDeclaration, BirDeclarationWithVisibility,
+interface BirFunction : BirDeclaration, BirDeclarationWithVisibility, BirDeclarationHost,
         BirPossiblyExternalDeclaration, BirTypeParametersContainer, BirReturnTarget,
         BirMemberWithContainerSource, BirMetadataSourceOwner, BirSymbolElement, BirFunctionSymbol,
         BirElementTrackingBackReferences {

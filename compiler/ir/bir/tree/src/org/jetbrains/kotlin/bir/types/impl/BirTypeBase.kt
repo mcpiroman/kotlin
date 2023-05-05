@@ -12,8 +12,6 @@ import org.jetbrains.kotlin.types.KotlinType
 
 abstract class BirTypeBase(val kotlinType: KotlinType?) : BirType(), BirTypeProjection {
     override val type: BirType get() = this
-
-    override fun render(): String = super<BirType>.render()
 }
 
 class ReturnTypeIsNotInitializedException(function: BirFunction) : IllegalStateException(

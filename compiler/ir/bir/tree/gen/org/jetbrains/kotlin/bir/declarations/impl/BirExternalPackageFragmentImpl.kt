@@ -40,4 +40,10 @@ class BirExternalPackageFragmentImpl @ObsoleteDescriptorBasedAPI constructor(
     override fun acceptChildren(visitor: BirElementVisitor) {
         this.declarations.acceptChildren(visitor)
     }
+
+    override fun replaceChildProperty(old: BirElement, new: BirElement?) {
+        when {
+           else -> throwChildForReplacementNotFound(old)
+        }
+    }
 }

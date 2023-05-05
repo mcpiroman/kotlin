@@ -70,11 +70,11 @@ open class CompilationBenchmark {
 
     @Benchmark
     fun compileBir(data: BirData) {
-        runBirCompilation(data.backendContext, data.birModule, false)
+        runBirCompilation(data.backendContext, data.birModule, false, null)
     }
 
     @Benchmark
     fun compileIr(data: IrData) {
-        data.irPhasesCompilationSetup.runCorrespondingIrPhases(false)
+        data.irPhasesCompilationSetup.runCorrespondingIrPhases(false, null)
     }
 }

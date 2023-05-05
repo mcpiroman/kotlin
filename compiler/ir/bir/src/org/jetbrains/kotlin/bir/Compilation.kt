@@ -14,19 +14,39 @@ import org.jetbrains.kotlin.backend.wasm.WasmBackendContext
 import org.jetbrains.kotlin.backend.wasm.wasmPhases
 import org.jetbrains.kotlin.bir.backend.phases.LateinitLowering
 import org.jetbrains.kotlin.bir.backend.phases.SharedVariablesLowering
-import org.jetbrains.kotlin.bir.backend.phases.wasm.BirJsCodeCallsLowering
 import org.jetbrains.kotlin.bir.backend.phases.wasm.ExcludeDeclarationsFromCodegen
+import org.jetbrains.kotlin.bir.backend.phases.wasm.JsCodeCallsLowering
 import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
+import org.jetbrains.kotlin.bir.utils.dump
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.backend.js.IrModuleInfo
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.util.DumpIrTreeOptions
 import org.jetbrains.kotlin.ir.util.ExternalDependenciesGenerator
+import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.psi2ir.descriptors.IrBuiltInsOverDescriptors
 import org.jetbrains.kotlin.utils.addToStdlib.measureTimeMillisWithResult
+import java.io.File
+
+private val birPhases = listOf(
+    ::JsCodeCallsLowering,
+    ::ExcludeDeclarationsFromCodegen,
+    ::LateinitLowering,
+    ::SharedVariablesLowering,
+)
+
+private val correspondingIrPhaseNames = setOf(
+    "JsCodeCallsLowering",
+    "ExcludeDeclarationsFromCodegen",
+    "LateinitNullableFields",
+    "LateinitDeclarations",
+    "LateinitUsage",
+    "SharedVariablesLowering"
+)
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 fun createBirBackendContext(moduleInfo: IrModuleInfo, configuration: CompilerConfiguration, converter: Ir2BirConverter) =
@@ -63,31 +83,30 @@ fun prepareIrForCompilationCommon(moduleInfo: IrModuleInfo) {
             markExportedDeclarations(context, file, exportedDeclarations)*/
 }
 
-fun runBirCompilation(backendContext: WasmBirContext, birModule: BirModuleFragment, showTime: Boolean) {
+fun runBirCompilation(
+    backendContext: WasmBirContext,
+    birModule: BirModuleFragment,
+    showTime: Boolean,
+    irDumpDir: File?,
+    printAfterPhases: Set<String>? = null
+) {
+    irDumpDir?.let {
+        dumpBirTree(it, "initial", birModule)
+    }
+
     for (phase in birPhases) {
         val phaseObj = phase(backendContext)
+        val phaseName = phaseObj.javaClass.simpleName
         maybeShowPhaseTime(showTime) {
             phaseObj(birModule)
-            phaseObj.javaClass.simpleName
+            phaseName
+        }
+        if (irDumpDir != null && printAfterPhases?.contains(phaseName) != false) {
+            dumpBirTree(irDumpDir, phaseName, birModule)
         }
     }
 }
 
-private val birPhases = listOf(
-    ::BirJsCodeCallsLowering,
-    ::ExcludeDeclarationsFromCodegen,
-    ::LateinitLowering,
-    ::SharedVariablesLowering,
-)
-
-private val correspondingIrPhaseNames = setOf(
-    "JsCodeCallsLowering",
-    "ExcludeDeclarationsFromCodegen",
-    "LateinitNullableFields",
-    "LateinitDeclarations",
-    "LateinitUsage",
-    "SharedVariablesLowering"
-)
 private val correspondingIrPhases = wasmPhases.toPhaseMap()
     .filterValues { it.name in correspondingIrPhaseNames }.values.map { it as AbstractNamedCompilerPhase<WasmBackendContext, Any?, Any?> }
 
@@ -110,17 +129,24 @@ class IrPhasesCompilationSetup(
     val allModules: List<IrModuleFragment>,
     val context: WasmBackendContext,
     val phaseConfig: PhaseConfig,
-)
+) {
+    val phaseState = PhaserState<Any?>()
+}
 
-fun IrPhasesCompilationSetup.runCorrespondingIrPhases(showTime: Boolean) {
+fun IrPhasesCompilationSetup.runCorrespondingIrPhases(showTime: Boolean, irDumpDir: File?) {
     //val topPhase = correspondingIrPhases.reduce { acc, new -> (acc then new) }
     //topPhase.invokeToplevel(phaseConfig, context, allModules)
+    irDumpDir?.let {
+        dumpIrTree(it, "initial", allModules)
+    }
 
-    val phaseState = PhaserState<Any?>()
     for (phase in correspondingIrPhases) {
         maybeShowPhaseTime(showTime) {
             phase.invoke(phaseConfig, phaseState, context, allModules)
             phase.name
+        }
+        if (irDumpDir != null) {
+            dumpIrTree(irDumpDir, phase.name, allModules)
         }
     }
 }
@@ -135,4 +161,24 @@ private fun maybeShowPhaseTime(showTime: Boolean, block: () -> String) {
     } else {
         block()
     }
+}
+
+private fun dumpBirTree(
+    irDumpDir: File,
+    phaseName: String,
+    birModule: BirModuleFragment
+) {
+    val path = irDumpDir.resolve("bir/${phaseName}.ir.txt")
+    path.parentFile.mkdirs()
+    path.writeText(birModule.dump(stableOrder = true))
+}
+
+private fun dumpIrTree(
+    irDumpDir: File,
+    phaseName: String,
+    allModules: List<IrModuleFragment>,
+) {
+    val path = irDumpDir.resolve("ir/${phaseName}.ir.txt")
+    path.parentFile.mkdirs()
+    path.writeText(allModules.first().dump(DumpIrTreeOptions(stableOrder = true)))
 }

@@ -8,15 +8,13 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
-import org.jetbrains.kotlin.bir.BirChildElementList
+import org.jetbrains.kotlin.bir.BirElement
 
 /**
  * A non-leafB IR tree element.
  *
- * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.typeParametersContainer]
+ * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.declarationHost]
  */
-interface BirTypeParametersContainer : BirDeclaration, BirDeclarationHost {
-    var typeParameters: BirChildElementList<BirTypeParameter>
-
+interface BirDeclarationHost : BirElement {
     companion object
 }

@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.bir.expressions.BirSetValue
 import org.jetbrains.kotlin.bir.expressions.impl.*
 import org.jetbrains.kotlin.bir.types.BirSimpleTypeImpl
 import org.jetbrains.kotlin.bir.types.BirType
+import org.jetbrains.kotlin.bir.types.BirUninitializedType
 import org.jetbrains.kotlin.bir.types.utils.defaultType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.SourceElement
@@ -33,16 +34,16 @@ context(WasmBirContext)
 class WasmSharedVariablesManager(
     val implicitDeclarationsFile: BirPackageFragment
 ) : SharedVariablesManager {
-    override fun declareSharedVariable(originalDeclaration: BirVariable): BirVariable {
-        val initializer = originalDeclaration.initializer ?: BirConst.constNull(
-            originalDeclaration.sourceSpan,
-            birBuiltIns.nothingNType
-        )
+    override fun transformSharedVariable(variable: BirVariable) {
+        val initializer = variable.initializer
+            ?: BirConst.constNull(variable.sourceSpan, birBuiltIns.nothingNType)
+        variable.initializer = null
 
+        val constructor = closureBoxConstructorDeclaration
         val call = BirConstructorCallImpl(
             sourceSpan = initializer.sourceSpan,
             type = closureBoxType,
-            target = closureBoxConstructorDeclaration,
+            target = constructor,
             constructorTypeArgumentsCount = closureBoxConstructorDeclaration.typeParameters.size,
             dispatchReceiver = null,
             extensionReceiver = null,
@@ -54,19 +55,17 @@ class WasmSharedVariablesManager(
             valueArguments += initializer
         }
 
-        return BirVariable.build {
-            sourceSpan = originalDeclaration.sourceSpan
-            origin = originalDeclaration.origin
-            name = originalDeclaration.name
-            type = call.type
-            this.initializer = call
-        }
+        variable.type = call.type
+        variable.initializer = call
+        variable.isVar = false
+        variable.isConst = false
+        variable.isLateinit = false
     }
 
     override fun defineSharedValue(originalDeclaration: BirVariable, sharedVariableDeclaration: BirVariable): BirStatement =
         sharedVariableDeclaration
 
-    override fun getSharedValue(sharedVariable: BirValueDeclaration, originalGet: BirGetValue): BirExpression {
+    override fun transformGetSharedValue(sharedVariable: BirValueDeclaration, originalGet: BirGetValue): BirExpression {
         val getField = BirGetFieldImpl(
             originalGet.sourceSpan,
             closureBoxFieldDeclaration.type,
@@ -90,7 +89,7 @@ class WasmSharedVariablesManager(
         )
     }
 
-    override fun setSharedValue(sharedVariable: BirValueDeclaration, originalSet: BirSetValue): BirExpression {
+    override fun transformSetSharedValue(sharedVariable: BirValueDeclaration, originalSet: BirSetValue): BirExpression {
         return BirSetFieldImpl(
             originalSet.sourceSpan,
             originalSet.type,
@@ -103,7 +102,7 @@ class WasmSharedVariablesManager(
                 originalSet.origin,
             ),
             originalSet.origin,
-            originalSet.value,
+            originalSet.value.also { originalSet.value = BirNoExpressionImpl(SourceSpan.UNDEFINED, BirUninitializedType) },
         )
     }
 

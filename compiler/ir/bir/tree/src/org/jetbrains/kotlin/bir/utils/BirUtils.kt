@@ -8,12 +8,12 @@ package org.jetbrains.kotlin.bir.utils
 import org.jetbrains.kotlin.bir.BirAnnotationContainer
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.DummyBirTreeContext
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.declarations.impl.BirTypeParameterImpl
 import org.jetbrains.kotlin.bir.declarations.impl.BirValueParameterImpl
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
-import org.jetbrains.kotlin.bir.render
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.bir.types.utils.isNullable
@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.symbols.impl.IrClassPublicSymbolImpl
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
@@ -31,6 +30,7 @@ import org.jetbrains.kotlin.name.SpecialNames
 import org.jetbrains.kotlin.utils.filterIsInstanceAnd
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
 import org.jetbrains.kotlin.utils.memoryOptimizedMapIndexed
+import java.io.File
 
 internal class BirElementAncestorsIterator(
     initial: BirElement?
@@ -141,9 +141,8 @@ inline fun <reified T : BirDeclaration> BirDeclarationContainer.findDeclaration(
     declarations.find { it is T && predicate(it) } as? T
 
 
-context(BirTreeContext)
 val BirClass.defaultType: BirSimpleType
-    get() = this.thisReceiver!!.type as BirSimpleType
+    get() = with(DummyBirTreeContext) { thisReceiver!!.type as BirSimpleType }
 
 val BirTypeParameter.defaultType: BirType
     get() = BirSimpleTypeImpl(
@@ -165,34 +164,48 @@ fun BirConstructorCall.isAnnotationWithEqualFqName(fqName: FqName): Boolean =
 val BirClass.packageFqName: FqName?
     get() = signature?.packageFqName() ?: ancestors().firstNotNullOfOrNull { (it as? BirPackageFragment)?.fqName }
 
-fun BirDeclarationWithName.hasEqualFqName(fqName: FqName): Boolean =
-    (this as BirSymbol).hasEqualFqName(fqName) || name == fqName.shortName() && when (val parent = parent) {
-        is BirPackageFragment -> parent.fqName == fqName.parent()
-        is BirDeclarationWithName -> parent.hasEqualFqName(fqName.parent())
-        else -> false
+fun BirDeclarationWithName.hasEqualFqName(fqName: FqName): Boolean {
+    if ((this as BirSymbol).hasEqualFqName(fqName)) {
+        return true
+    }
+    if (name != fqName.shortName()) {
+        return false
     }
 
+    ancestors().forEach {
+        when (it) {
+            is BirPackageFragment -> return it.fqName == fqName.parent()
+            is BirDeclarationWithName -> return it.hasEqualFqName(fqName.parent())
+        }
+    }
+
+    return false
+}
+
 fun BirSymbol.hasEqualFqName(fqName: FqName): Boolean {
-    val original = (this as? BirIrSymbolWrapper)?.original
-    return original is IrClassPublicSymbolImpl && with(signature as? IdSignature.CommonSignature ?: return false) {
+    return /*todo: is public && */ with(signature as? IdSignature.CommonSignature ?: return false) {
         FqName("$packageFqName.$declarationFqName") == fqName
     }
 }
 
 @Suppress("RecursivePropertyAccessor")
 val BirDeclarationWithName.fqNameWhenAvailable: FqName?
-    get() = when (val parent = parent) {
-        is BirDeclarationWithName -> parent.fqNameWhenAvailable?.child(name)
-        is BirPackageFragment -> parent.fqName.child(name)
-        else -> null
+    get() = ancestors().firstNotNullOfOrNull {
+        when (it) {
+            is BirDeclarationWithName -> it.fqNameWhenAvailable?.child(name)
+            is BirPackageFragment -> it.fqName.child(name)
+            else -> null
+        }
     }
 
 @Suppress("RecursivePropertyAccessor")
 val BirClass.classId: ClassId?
-    get() = when (val parent = this.parent) {
-        is BirClass -> parent.classId?.createNestedClassId(this.name)
-        is BirPackageFragment -> ClassId.topLevel(parent.fqName.child(this.name))
-        else -> null
+    get() = ancestors().firstNotNullOfOrNull {
+        when (it) {
+            is BirClass -> it.classId?.createNestedClassId(this.name)
+            is BirPackageFragment -> ClassId.topLevel(it.fqName.child(this.name))
+            else -> null
+        }
     }
 
 
@@ -419,3 +432,9 @@ val BirDeclaration.isTopLevel: Boolean
 
 fun BirValueParameter.isInlineParameter(type: BirType = this.type) =
     !isNoinline && !type.isNullable() && (type.isFunction() || type.isSuspendFunction())
+
+val BirConstructorCall.classTypeArgumentsCount: Int
+    get() = typeArguments.size - constructorTypeArgumentsCount
+
+val BirFile.path: String get() = fileEntry.name
+val BirFile.name: String get() = File(path).name
