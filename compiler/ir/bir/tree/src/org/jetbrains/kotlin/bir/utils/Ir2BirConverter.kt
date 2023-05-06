@@ -125,7 +125,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirValueParameterImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             name = old.name,
             type = BirUninitializedType,
@@ -149,7 +149,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirClassImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             visibility = old.visibility,
             name = old.name,
@@ -183,7 +183,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         val new = BirAnonymousInitializerImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = old.annotations.memoryOptimizedMap { copyElement(it) },
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             isStatic = old.isStatic,
             body = copyElement(old.body),
@@ -197,7 +197,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirTypeParameterImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             name = old.name,
             variance = old.variance,
@@ -215,7 +215,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirConstructorImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             visibility = old.visibility,
             name = old.name,
@@ -245,7 +245,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirEnumEntryImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             name = old.name,
             initializerExpression = null,
@@ -263,7 +263,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         val new = BirErrorDeclarationImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = old.annotations.memoryOptimizedMap { copyElement(it) },
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
         )
         new.copyAuxData(old)
@@ -276,7 +276,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             BirFunctionWithLateBindingImpl(
                 sourceSpan = SourceSpan(old.startOffset, old.endOffset),
                 annotations = emptyList(),
-                _descriptor = mapDescriptor(old.descriptor),
+                _descriptor = mapDescriptor { old.descriptor },
                 origin = old.origin,
                 visibility = old.visibility,
                 name = old.name,
@@ -318,7 +318,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             BirPropertyWithLateBindingImpl(
                 sourceSpan = SourceSpan(old.startOffset, old.endOffset),
                 annotations = emptyList(),
-                _descriptor = mapDescriptor(old.descriptor),
+                _descriptor = mapDescriptor { old.descriptor },
                 origin = old.origin,
                 name = old.name,
                 isExternal = old.isExternal,
@@ -351,7 +351,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirFieldImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             visibility = old.visibility,
             name = old.name,
@@ -376,7 +376,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             BirLocalDelegatedPropertyImpl(
                 sourceSpan = SourceSpan(old.startOffset, old.endOffset),
                 annotations = emptyList(),
-                _descriptor = mapDescriptor(old.descriptor),
+                _descriptor = mapDescriptor { old.descriptor },
                 origin = old.origin,
                 name = old.name,
                 type = BirUninitializedType,
@@ -396,7 +396,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
     private fun copyModuleFragment(old: IrModuleFragment): BirModuleFragment = copyReferencedElement(old, modules, {
         BirModuleFragmentImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             name = old.name,
         )
     }) { new ->
@@ -410,7 +410,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirPropertyImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             name = old.name,
             isExternal = old.isExternal,
@@ -442,7 +442,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirScriptImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor as ScriptDescriptor),
+            _descriptor = mapDescriptor { old.descriptor as ScriptDescriptor },
             origin = old.origin,
             name = old.name,
             thisReceiver = null,
@@ -472,7 +472,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirSimpleFunctionImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             visibility = old.visibility,
             name = old.name,
@@ -512,7 +512,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirTypeAliasImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             name = old.name,
             visibility = old.visibility,
@@ -531,7 +531,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirVariableImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             annotations = emptyList(),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             origin = old.origin,
             name = old.name,
             type = BirUninitializedType,
@@ -553,7 +553,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         copyReferencedElement(old, externalPackageFragments, {
             BirExternalPackageFragmentImpl(
                 sourceSpan = SourceSpan(old.startOffset, old.endOffset),
-                _descriptor = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else mapDescriptor(old.packageFragmentDescriptor),
+                _descriptor = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else mapDescriptor { old.packageFragmentDescriptor },
                 fqName = old.fqName,
                 containerSource = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else old.containerSource,
             )
@@ -567,7 +567,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
     private fun copyFile(old: IrFile): BirFile = copyReferencedElement(old, files, {
         BirFileImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
-            _descriptor = mapDescriptor(old.packageFragmentDescriptor),
+            _descriptor = mapDescriptor { old.packageFragmentDescriptor },
             fqName = old.fqName,
             annotations = emptyList(),
             fileEntry = old.fileEntry,
@@ -684,7 +684,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
     private fun copyReturnableBlock(old: IrReturnableBlock): BirReturnableBlock = copyReferencedElement(old, returnableBlocks, {
         BirReturnableBlockImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
-            _descriptor = mapDescriptor(old.descriptor),
+            _descriptor = mapDescriptor { old.descriptor },
             type = remapType(old.type),
             origin = old.origin,
         )
