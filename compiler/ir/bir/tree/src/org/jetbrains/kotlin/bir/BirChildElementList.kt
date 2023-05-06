@@ -27,27 +27,56 @@ class BirChildElementList<E : BirElement>(
 
     context (BirTreeContext)
     fun add(element: E): Boolean {
+        return addInternal(element, tail)
+    }
+
+    context (BirTreeContext)
+    fun add(index: Int, element: E): Boolean {
+        if (index < 0 || index > size)
+            throw IndexOutOfBoundsException("index: $index, size: $size")
+
+        val prev = findPrevElementForInsert(index)
+        return addInternal(element, prev)
+    }
+
+    private fun findPrevElementForInsert(index: Int): BirElementBase? {
+        var prev: BirElementBase? = null
+        if (isNotEmpty()) {
+            prev = headOrNext
+            var i = index - 1
+            while (i > 0) {
+                prev = prev?.next
+                i--
+            }
+        }
+        return prev
+    }
+
+    context (BirTreeContext)
+    private fun addInternal(element: E, prev: BirElementBase?): Boolean {
         element as BirElementBase
         element.checkCanBeAttachedAsChild(parent)
 
-        val tail = tail
-        val prev: BirElementBase?
-        if (tail == null) {
+        val newPrev: BirElementBase?
+        if (prev == null) {
             element.next = headOrNext
             this.headOrNext = element
 
-            prev = setupNewHeadElement(element)
+            newPrev = setupNewHeadElement(element)
         } else {
-            prev = tail
-            element.next = prev.next
-            prev.next = element
+            newPrev = prev
+            element.next = newPrev.next
+            newPrev.next = element
         }
 
-        this.tail = element
+        if (prev === tail) {
+            tail = element
+        }
+
         element.rawParent = this
         size++
 
-        parent.childAttached(element, prev)
+        parent.childAttached(element, newPrev)
         return true
     }
 
@@ -55,6 +84,16 @@ class BirChildElementList<E : BirElement>(
     fun addAll(elements: Collection<E>): Boolean {
         elements.forEach {
             add(it)
+        }
+        return true
+    }
+
+    context (BirTreeContext)
+    fun addAll(index: Int, elements: Collection<E>): Boolean {
+        var prev = findPrevElementForInsert(index)
+        elements.forEach {
+            addInternal(it, prev)
+            prev = it as BirElementBase
         }
         return true
     }
@@ -299,7 +338,7 @@ class BirChildElementList<E : BirElement>(
     override fun iterator(): Iterator<E> = ReadonlyIter(this)
 
     context (BirTreeContext)
-    fun mutableIterator(): MutableIterator<E> = MutableIter(this)
+    fun mutableIterator(): kotlin.collections.MutableIterator<E> = MutableIterator(this)
 
     private class ReadonlyIter<E : BirElement>(
         list: BirChildElementList<E>,
@@ -317,13 +356,12 @@ class BirChildElementList<E : BirElement>(
     }
 
     context (BirTreeContext)
-    private class MutableIter<E : BirElement>(
+    class MutableIterator<E : BirElement>(
         private val list: BirChildElementList<E>,
-    ) : MutableIterator<E> {
+    ) : kotlin.collections.MutableIterator<E> {
         private val tail = list.tail
         private var last: BirElementBase? = null
         private var current: BirElementBase? = null
-        private var currentIsNext = false
 
         override fun hasNext() = current !== tail // this also works when list is empty
 
@@ -345,6 +383,14 @@ class BirChildElementList<E : BirElement>(
                 this.current = last
             }
             list.remove(toRemove as E, last)
+        }
+
+        fun replace(new: E) {
+            val toReplace = current!!
+            if (toReplace !== tail) {
+                this.current = new as BirElementBase
+            }
+            list.replace(toReplace as E, new, last)
         }
     }
 }

@@ -87,16 +87,18 @@ open class GeneralBirTreeContext : BirTreeContext() {
         element.attachedToTree = false
         element.updateLevel()
         element.attachedDuringByClassIteration = false
+        element.nextElementIsOptimizedFromClassCache = false
 
-        if (prev?.nextElementIsOptimizedFromClassCache == true) {
+        if (prev != null) {
             prev.nextElementIsOptimizedFromClassCache = false
-        } else {
-            // Don't egerly remove element from class cache as it is too slow.
-            //  But, when detaching a bigger subtree, maybe we can not find and remove each element individually
-            //  but rather scan the list for removed elements / detached elements.
-            //  Maybe also formalize and leverage the invariant that sub-elements must appear later than their
-            //  ancestor (so start scanning from the index of the root one).
         }
+
+        // Don't eagerly remove element from class cache as it is too slow.
+        //  But, when detaching a bigger subtree, maybe we can not find and remove each element individually
+        //  but rather scan the list for removed elements / detached elements.
+        //  Maybe also formalize and leverage the invariant that sub-elements must appear later than their
+        //  ancestor (so start scanning from the index of the root one).
+
         totalElements--
     }
 

@@ -54,9 +54,10 @@ class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
         this._body.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._body === old -> this._body = new as BirBlockBody
+           this._body === old -> this.body = new as BirBlockBody
            else -> throwChildForReplacementNotFound(old)
         }
     }

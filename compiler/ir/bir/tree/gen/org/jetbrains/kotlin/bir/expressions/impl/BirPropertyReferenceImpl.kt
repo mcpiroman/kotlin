@@ -95,10 +95,11 @@ class BirPropertyReferenceImpl(
         this.valueArguments.acceptChildren(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._dispatchReceiver === old -> this._dispatchReceiver = new as BirExpression
-           this._extensionReceiver === old -> this._extensionReceiver = new as BirExpression
+           this._dispatchReceiver === old -> this.dispatchReceiver = new as BirExpression
+           this._extensionReceiver === old -> this.extensionReceiver = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
     }

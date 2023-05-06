@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.bir.declarations.BirDeclarationHost
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.declarations.BirVariable
 import org.jetbrains.kotlin.bir.expressions.*
-import org.jetbrains.kotlin.bir.replace
+import org.jetbrains.kotlin.bir.replaceWith
 import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.traversal.traverseStackBased
 import org.jetbrains.kotlin.bir.utils.ancestors
@@ -59,9 +59,9 @@ class SharedVariablesLowering : BirLoweringPhase() {
                                             }
                                         }
                                     }
-                                    if (element !is BirBody) element.recurse()
+                                    if (element !is BirBody) element.walkIntoChildren()
                                 }
-                            } else body.recurse()
+                            } else body.walkIntoChildren()
                         }
                     }
                 }
@@ -133,10 +133,10 @@ class SharedVariablesLowering : BirLoweringPhase() {
 
         variable.referencedBy.forEach { ref ->
             if (ref is BirGetValue && ref.target == variable) {
-                ref.replace(sharedVariablesManager.transformGetSharedValue(variable, ref))
+                ref.replaceWith(sharedVariablesManager.transformGetSharedValue(variable, ref))
             }
             if (ref is BirSetValue && ref.target == variable) {
-                ref.replace(sharedVariablesManager.transformSetSharedValue(variable, ref))
+                ref.replaceWith(sharedVariablesManager.transformSetSharedValue(variable, ref))
             }
         }
     }

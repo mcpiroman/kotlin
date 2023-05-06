@@ -11,6 +11,7 @@ package org.jetbrains.kotlin.bir.declarations.impl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
+import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirDeclaration
 import org.jetbrains.kotlin.bir.declarations.BirExternalPackageFragment
@@ -41,6 +42,7 @@ class BirExternalPackageFragmentImpl @ObsoleteDescriptorBasedAPI constructor(
         this.declarations.acceptChildren(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            else -> throwChildForReplacementNotFound(old)

@@ -69,9 +69,10 @@ class BirFieldImpl @ObsoleteDescriptorBasedAPI constructor(
         this._initializer?.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._initializer === old -> this._initializer = new as BirExpressionBody
+           this._initializer === old -> this.initializer = new as BirExpressionBody
            else -> throwChildForReplacementNotFound(old)
         }
     }

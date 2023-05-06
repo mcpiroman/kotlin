@@ -7,12 +7,15 @@ package org.jetbrains.kotlin.bir.traversal
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeTraverseScope
 
 class BirTreeStackBasedTraverseScope(
     private val block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit,
 ) : BirTreeTraverseScope() {
-    fun BirElement.recurse() {
+    fun BirElement.walkInto() {
+        block(this)
+    }
+
+    fun BirElement.walkIntoChildren() {
         this as BirElementBase
 
         if (!hasChildren) return
@@ -20,7 +23,7 @@ class BirTreeStackBasedTraverseScope(
         var nextChild = getFirstChild() as BirElementBase?
         while (nextChild != null) {
             val current = nextChild
-            nextChild = nextChild.next
+            nextChild = current.next
             block(this@BirTreeStackBasedTraverseScope, current)
             lastVisited = current
         }
@@ -37,7 +40,7 @@ fun BirElement.traverseStackBased(includeSelf: Boolean = true, block: BirTreeSta
         block(scope, this)
     } else {
         with(scope) {
-            recurse()
+            walkIntoChildren()
         }
     }
 }
@@ -49,7 +52,7 @@ class BirTreeStackBasedTraverseScopeWithData<D>(
         block(this@BirTreeStackBasedTraverseScopeWithData, this, data)
     }
 
-    fun BirElement.recurse(data: D) {
+    fun BirElement.walkIntoChildren(data: D) {
         this as BirElementBase
 
         if (!hasChildren) return
@@ -78,7 +81,7 @@ fun <D> BirElement.traverseStackBased(
         block(scope, this, data)
     } else {
         with(scope) {
-            recurse(data)
+            walkIntoChildren(data)
         }
     }
 }
@@ -86,7 +89,7 @@ fun <D> BirElement.traverseStackBased(
 class BirTreeStackBasedTraverseScopeWithInnerPtr(
     private val block: BirTreeStackBasedTraverseScopeWithInnerPtr.(node: BirElement) -> Unit,
 ) : BirTreeTraverseScope() {
-    fun BirElement.recurse() {
+    fun BirElement.walkIntoChildren() {
         this as BirElementBase
         var nextChild = firstChildPtr
         while (nextChild != null) {
@@ -111,7 +114,7 @@ fun BirElement.traverseStackBasedWithInnerPtr(
         block(scope, this)
     } else {
         with(scope) {
-            recurse()
+            walkIntoChildren()
         }
     }
 }

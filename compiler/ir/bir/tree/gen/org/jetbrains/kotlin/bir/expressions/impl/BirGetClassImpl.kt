@@ -50,9 +50,10 @@ class BirGetClassImpl(
         this._argument.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._argument === old -> this._argument = new as BirExpression
+           this._argument === old -> this.argument = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
     }

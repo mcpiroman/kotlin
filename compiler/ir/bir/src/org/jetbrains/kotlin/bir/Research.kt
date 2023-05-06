@@ -22,7 +22,7 @@ fun measureElementDistribution(birTree: BirElement) {
         if ((element as BirElementBase).next?.javaClass == cls)
             metric.withNextSameType++
 
-        element.recurse()
+        element.walkIntoChildren()
     }
     println(elementsByClass.values.joinToString("\n") { "${it.className} ${it.total} ${it.withNextSameType}" })
 }

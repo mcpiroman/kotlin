@@ -128,7 +128,7 @@ class DumpBirTreeVisitor(
             if (element is BirAnnotationContainer) {
                 dumpAnnotations(element)
             }
-            element.recurse("")
+            element.walkIntoChildren("")
         }
     }
 
@@ -419,7 +419,7 @@ class DumpBirTreeVisitor(
     context(BirTreeStackBasedTraverseScopeWithData<String>)
     private fun visitTypeOperator(expression: BirTypeOperatorCall, data: String) {
         expression.dumpLabeledElementWith(data) {
-            expression.recurse("")
+            expression.walkIntoChildren("")
         }
     }
 

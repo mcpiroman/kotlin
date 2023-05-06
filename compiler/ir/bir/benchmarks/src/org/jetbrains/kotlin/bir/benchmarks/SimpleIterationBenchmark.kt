@@ -41,7 +41,7 @@ open class SimpleIterationBenchmark : IterationBenchmarkBase() {
         var i = 0
         birRoot.traverseStackBased {
             i++
-            it.recurse()
+            it.walkIntoChildren()
         }
         return i
     }

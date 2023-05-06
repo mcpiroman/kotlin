@@ -96,6 +96,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal open fun getFirstChild(): BirElement? = null
     internal open fun getChildren(children: Array<BirElementOrList?>): Int = 0
     override fun acceptChildren(visitor: BirElementVisitor) = Unit
+    context (BirTreeContext)
     internal open fun replaceChildProperty(old: BirElement, new: BirElement?) {
         throwChildForReplacementNotFound(old)
     }

@@ -50,9 +50,10 @@ class BirConstantPrimitiveImpl(
         this._value.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._value === old -> this._value = new as BirConst<*>
+           this._value === old -> this.value = new as BirConst<*>
            else -> throwChildForReplacementNotFound(old)
         }
     }

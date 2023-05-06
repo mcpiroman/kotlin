@@ -45,9 +45,10 @@ class BirExpressionBodyImpl(
         this._expression.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._expression === old -> this._expression = new as BirExpression
+           this._expression === old -> this.expression = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
     }

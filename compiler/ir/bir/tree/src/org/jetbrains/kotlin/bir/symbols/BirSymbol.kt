@@ -82,7 +82,7 @@ interface BirReturnTargetSymbol : BirSymbol {
     override val descriptor: FunctionDescriptor*/
 }
 
-interface BirFunctionSymbol : BirReturnTargetSymbol
+interface BirFunctionSymbol : BirReturnTargetSymbol //todo: , BirPossiblyElementSymbol<BirFunction>
 
 interface BirConstructorSymbol : BirFunctionSymbol, BirSymbolWithTypedDescriptor<ClassConstructorDescriptor>,
     BirPossiblyElementSymbol<BirConstructor>

@@ -50,7 +50,7 @@ private class BirIterator(val root: BirElement) {
                 head.children.add(child)
                 val oldHead = head
                 head = child
-                element.recurse()
+                element.walkIntoChildren()
                 head = oldHead
             }
         }
