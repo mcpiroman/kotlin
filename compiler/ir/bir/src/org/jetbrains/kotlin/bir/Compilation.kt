@@ -12,8 +12,7 @@ import org.jetbrains.kotlin.backend.common.phaser.PhaserState
 import org.jetbrains.kotlin.backend.common.phaser.toPhaseMap
 import org.jetbrains.kotlin.backend.wasm.WasmBackendContext
 import org.jetbrains.kotlin.backend.wasm.wasmPhases
-import org.jetbrains.kotlin.bir.backend.phases.LateinitLowering
-import org.jetbrains.kotlin.bir.backend.phases.SharedVariablesLowering
+import org.jetbrains.kotlin.bir.backend.phases.*
 import org.jetbrains.kotlin.bir.backend.phases.wasm.ExcludeDeclarationsFromCodegen
 import org.jetbrains.kotlin.bir.backend.phases.wasm.JsCodeCallsLowering
 import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
@@ -37,6 +36,9 @@ private val birPhases = listOf(
     ::ExcludeDeclarationsFromCodegen,
     ::LateinitLowering,
     ::SharedVariablesLowering,
+    ::LocalClassesInInlineLambdasLowering,
+    ::LocalClassesInInlineFunctionsLowering,
+    ::LocalClassesExtractionFromInlineFunctionsLowering,
 )
 
 private val correspondingIrPhaseNames = setOf(
@@ -45,7 +47,10 @@ private val correspondingIrPhaseNames = setOf(
     "LateinitNullableFields",
     "LateinitDeclarations",
     "LateinitUsage",
-    "SharedVariablesLowering"
+    "SharedVariablesLowering",
+    "LocalClassesInInlineLambdasPhase",
+    "LocalClassesInInlineFunctionsPhase",
+    "localClassesExtractionFromInlineFunctionsPhase"
 )
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -168,7 +173,7 @@ private fun dumpBirTree(
     phaseName: String,
     birModule: BirModuleFragment
 ) {
-    val path = irDumpDir.resolve("bir/${phaseName}.ir.txt")
+    val path = irDumpDir.resolve("bir/${phaseName}.bir.txt")
     path.parentFile.mkdirs()
     path.writeText(birModule.dump(stableOrder = true))
 }
