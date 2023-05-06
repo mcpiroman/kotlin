@@ -47,6 +47,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         get() = hasFlag(FLAG_HAS_CHILDREN)
         set(value) = setFlag(FLAG_HAS_CHILDREN, value)
 
+    internal var isInClassCache: Boolean
+        get() = hasFlag(FLAG_IS_IN_CLASS_CACHE)
+        set(value) = setFlag(FLAG_IS_IN_CLASS_CACHE, value)
+
     internal var nextElementIsOptimizedFromClassCache: Boolean
         get() = hasFlag(FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE)
         set(value) = setFlag(FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE, value)
@@ -386,13 +390,14 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     companion object {
         private const val FLAG_ATTACHED_TO_TREE: Byte = (1 shl 0).toByte()
         private const val FLAG_HAS_CHILDREN: Byte = (1 shl 1).toByte()
-        private const val FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE: Byte = (1 shl 2).toByte()
-        private const val FLAG_ATTACHED_DURING_BY_CLASS_ITERATION: Byte = (1 shl 3).toByte()
+        private const val FLAG_IS_IN_CLASS_CACHE: Byte = (1 shl 2).toByte()
+        private const val FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE: Byte = (1 shl 3).toByte()
+        private const val FLAG_ATTACHED_DURING_BY_CLASS_ITERATION: Byte = (1 shl 4).toByte()
     }
 }
 
 context (BirTreeContext)
-fun BirElement.replace(new: BirElement?, hintPreviousElement: BirElementBase? = null) {
+fun BirElement.replaceWith(new: BirElement?, hintPreviousElement: BirElementBase? = null) {
     this as BirElementBase
     val owner = rawParent
     require(owner != null) { "Element is not bound to a tree - its parent is null" }
@@ -408,4 +413,4 @@ fun BirElement.replace(new: BirElement?, hintPreviousElement: BirElementBase? = 
 }
 
 context (BirTreeContext)
-fun BirElement.remove(hintPreviousElement: BirElementBase? = null) = replace(null, hintPreviousElement)
+fun BirElement.remove(hintPreviousElement: BirElementBase? = null) = replaceWith(null, hintPreviousElement)

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.declarations.BirDeclaration
+import org.jetbrains.kotlin.bir.expressions.BirBody
 import org.jetbrains.kotlin.bir.expressions.BirCall
 
 abstract class BirTreeContext {
@@ -38,10 +39,12 @@ open class GeneralBirTreeContext : BirTreeContext() {
         element.updateLevel()
 
         if (checkCacheElementByClass(element)) {
-            if (prev != null && prev.javaClass == element.javaClass) {
-                prev.nextElementIsOptimizedFromClassCache = true
-            } else {
-                addElementToClassCache(element)
+            if (!element.isInClassCache) {
+                if (prev != null && prev.javaClass == element.javaClass) {
+                    prev.nextElementIsOptimizedFromClassCache = true
+                } else {
+                    addElementToClassCache(element)
+                }
             }
 
             if (currentElementsOfClassIterator != null) {
@@ -67,6 +70,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
             val prevNext = prev.next
             assert(prevNext !== element) { "prev should have already reassigned next" }
             if (prevNext != null && prevNextElementIsOptimizedFromClassCache) {
+                assert(!prevNext.isInClassCache)
                 if (prevNext.javaClass == prev.javaClass) {
                     prev.nextElementIsOptimizedFromClassCache = true
                 } else {
@@ -87,12 +91,11 @@ open class GeneralBirTreeContext : BirTreeContext() {
         if (prev?.nextElementIsOptimizedFromClassCache == true) {
             prev.nextElementIsOptimizedFromClassCache = false
         } else {
-            // TODO: when detaching a bigger subtree, maybe don't find and remove each element individually
+            // Don't egerly remove element from class cache as it is too slow.
+            //  But, when detaching a bigger subtree, maybe we can not find and remove each element individually
             //  but rather scan the list for removed elements / detached elements.
-            //  Maybe also formalize and leverage the invariant that sub-elements must appear latter than their
+            //  Maybe also formalize and leverage the invariant that sub-elements must appear later than their
             //  ancestor (so start scanning from the index of the root one).
-            val list = getElementsOfClassList(element.javaClass)
-            list.remove(element)
         }
         totalElements--
     }
@@ -112,13 +115,15 @@ open class GeneralBirTreeContext : BirTreeContext() {
 
 
     private fun checkCacheElementByClass(element: BirElementBase): Boolean {
-        return element is BirDeclaration ||
-                element is BirCall
+        return element is BirDeclaration
+                || element is BirCall
+                || element is BirBody
     }
 
     private fun addElementToClassCache(element: BirElementBase) {
         val list = getElementsOfClassList(element.javaClass)
         list.add(element)
+        element.isInClassCache = true
     }
 
     private fun getElementsOfClassList(elementClass: Class<*>): ElementOfClassList {
@@ -160,13 +165,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
 
     fun <E : BirElement> getElementsOfClass(elementClass: Class<E>): Iterator<E> {
         currentElementsOfClassIterator?.let { iterator ->
-            iterator.cancelled = true
-            currentElementsOfClassIterator = null
-
-            elementsAddedDuringCurrentElementsOfClassIteration.forEach {
-                it.attachedDuringByClassIteration = false
-            }
-            elementsAddedDuringCurrentElementsOfClassIteration.clear()
+            cancelElementsOfClassIterator(iterator)
         }
 
         val list = getElementsOfClassList(elementClass)
@@ -178,6 +177,16 @@ open class GeneralBirTreeContext : BirTreeContext() {
         return iter
     }
 
+    private fun cancelElementsOfClassIterator(iterator: ElementsOfClassListIterator<*>) {
+        iterator.cancelled = true
+        currentElementsOfClassIterator = null
+
+        elementsAddedDuringCurrentElementsOfClassIteration.forEach {
+            it.attachedDuringByClassIteration = false
+        }
+        elementsAddedDuringCurrentElementsOfClassIteration.clear()
+    }
+
     private inner class ElementOfClassList(
         val elementClass: Class<*>,
     ) {
@@ -185,7 +194,6 @@ open class GeneralBirTreeContext : BirTreeContext() {
         var array = arrayOfNulls<BirElementBase>(0)
             private set
         var size = 0
-            private set
         var currentIterator: ElementsOfConcreteClassListIterator<*>? = null
 
         fun add(element: BirElementBase) {
@@ -202,29 +210,35 @@ open class GeneralBirTreeContext : BirTreeContext() {
         fun remove(element: BirElementBase) {
             val array = array
             val size = size
-            var i = 0
-            while (i < size) {
-                if (array[i] === element) {
-                    val lastIdx = size - 1
-                    if (i != lastIdx) {
-                        val last = array[lastIdx]!!
-                        array[i] = last
-                        currentIterator?.let {
-                            if (it.mainListIdx > i) {
-                                it.addAuxElementsToVisit(last)
-                            }
+            val idx = run {
+                var i = 0
+                while (i < size) {
+                    if (array[i] === element) {
+                        return@run i
+                    }
+                    i++
+                }
+                -1
+            }
+
+            if (idx != -1) {
+                val lastIdx = size - 1
+                if (idx != lastIdx) {
+                    val last = array[lastIdx]!!
+                    array[idx] = last
+                    currentIterator?.let {
+                        if (it.mainListIdx > idx) {
+                            it.addAuxElementsToVisit(last)
                         }
                     }
-                    array[lastIdx] = null
-                    this.size = size - 1
-                    return
                 }
-                i++
+                array[lastIdx] = null
+                this.size = size - 1
             }
         }
     }
 
-    private class ElementsOfClassListIterator<E : BirElement>(
+    private inner class ElementsOfClassListIterator<E : BirElement>(
         private val concreteClassLists: List<ElementOfClassList>,
     ) : Iterator<E> {
         internal var cancelled = false
@@ -251,9 +265,14 @@ open class GeneralBirTreeContext : BirTreeContext() {
                         return true
                     }
                 } else {
-                    return false
+                    break
                 }
             }
+
+            if (currentElementsOfClassIterator === this) {
+                cancelElementsOfClassIterator(this)
+            }
+
             return false
         }
 
@@ -264,96 +283,71 @@ open class GeneralBirTreeContext : BirTreeContext() {
 
     private class ElementsOfConcreteClassListIterator<E : BirElementBase>(
         private val list: ElementOfClassList,
-    ) : AbstractIterator<E>() {
+    ) : Iterator<E> {
         internal var mainListIdx = 0
             private set
         private var nextSecondary: BirElementBase? = null
         private var auxElementsToVisit: MutableList<BirElementBase>? = null
+            set(value) = TODO("Currently unused")
+        private var next: BirElementBase? = null
 
-        override fun computeNext() {
-            auxElementsToVisit?.let { list ->
-                while (true) {
-                    val element = list.lastOrNull() ?: break
-                    if (element.attachedToTree) {
-                        setNext(element as E)
-                        return
-                    } else {
-                        list.removeLast()
-                    }
-                }
-            }
+        override fun hasNext(): Boolean {
+            if (next != null) return true
+            val n = computeNext()
+            next = n
+            return n != null
+        }
 
+        override fun next(): E {
+            val n = next
+                ?: computeNext()
+                ?: throw NoSuchElementException()
+            next = null
+            return n as E
+        }
+
+        private fun computeNext(): BirElementBase? {
+            val array = list.array
             while (true) {
                 var nextSecondary = nextSecondary
                 while (nextSecondary != null && nextSecondary.nextElementIsOptimizedFromClassCache) {
                     nextSecondary = nextSecondary.next!!
                     if (nextSecondary.availableInCurrentIteration()) {
                         this.nextSecondary = nextSecondary
-                        setNext(nextSecondary as E)
-                        return
+                        return nextSecondary
                     }
                 }
 
                 val idx = mainListIdx
-                if (idx < list.size) {
+                var element: BirElementBase? = null
+                while (idx < list.size) {
+                    element = array[idx]!!
+                    if (element.attachedToTree) {
+                        break
+                    } else {
+                        val lastIdx = list.size - 1
+                        if (idx < lastIdx) {
+                            array[idx] = array[lastIdx]
+                        }
+                        array[lastIdx] = null
+
+                        list.size--
+                        element.isInClassCache = false
+                        element = null
+                    }
+                }
+
+                if (element != null) {
                     mainListIdx++
-                    val element = list.array[idx]!!
                     this.nextSecondary = element
                     if (element.availableInCurrentIteration()) {
-                        setNext(element as E)
-                        return
+                        return element
                     }
                 } else {
-                    done()
-                    return
+                    return null
                 }
             }
         }
-
-        /*override fun hasNext(): Boolean {
-            checkCancelled()
-
-            if (mainListIdx < list.size) {
-                return true
-            }
-
-            if (nextSecondary?.inByClassCacheViaNextPtr == true) {
-                return true
-            } else {
-                nextSecondary = null
-            }
-
-            auxElementsToVisit?.let { list ->
-                while (true) {
-                    val element = list.lastOrNull() ?: break
-                    if (element.attachedToTree) {
-                        return true
-                    } else {
-                        list.removeLast()
-                    }
-                }
-            }
-
-            return false
-        }
-
-        override fun next(): E {
-            checkCancelled()
-
-            val nextSecondary = nextSecondary
-            if (nextSecondary != null) {
-                this.nextSecondary = nextSecondary.next
-                return nextSecondary as E
-            } else {
-                auxElementsToVisit?.removeLastOrNull()?.let {
-                    return it as E
-                }
-
-                val next = list.array[mainListIdx++]!!
-                this.nextSecondary = next.next
-                return next as E
-            }
-        }*/
 
         private fun BirElementBase.availableInCurrentIteration(): Boolean {
             return !attachedDuringByClassIteration
