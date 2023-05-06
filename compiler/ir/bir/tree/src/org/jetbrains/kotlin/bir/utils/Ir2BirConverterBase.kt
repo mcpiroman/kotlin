@@ -180,8 +180,8 @@ abstract class Ir2BirConverterBase {
     protected val IrMemberAccessExpression<*>.typeArguments: List<IrType?>
         get() = List(typeArgumentsCount) { getTypeArgument(it) }
 
-    protected fun <D : DeclarationDescriptor> mapDescriptor(descriptor: D): D? {
-        return if (copyDescriptors) descriptor else null
+    protected fun <D : DeclarationDescriptor> mapDescriptor(readDescriptor: () -> D): D? {
+        return if (copyDescriptors) readDescriptor() else null
     }
 
     context(BirTreeContext)
