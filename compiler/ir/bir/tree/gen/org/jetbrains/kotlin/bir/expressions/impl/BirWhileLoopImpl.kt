@@ -71,10 +71,11 @@ class BirWhileLoopImpl(
         this._condition.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._body === old -> this._body = new as BirExpression
-           this._condition === old -> this._condition = new as BirExpression
+           this._body === old -> this.body = new as BirExpression
+           this._condition === old -> this.condition = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
     }

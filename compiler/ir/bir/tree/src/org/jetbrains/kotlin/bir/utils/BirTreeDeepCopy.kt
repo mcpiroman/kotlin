@@ -104,6 +104,7 @@ open class BirTreeDeepCopier(
         }
     }
 
+    // perf: when remaped symbols/elements are the same, return the same type instance
     fun remapType(old: BirType): BirType = when (old) {
         is BirSimpleType -> BirSimpleTypeImpl(
             old.kotlinType,

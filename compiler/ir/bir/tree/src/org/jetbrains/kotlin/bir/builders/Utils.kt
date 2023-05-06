@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.bir.builders
 
 import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.declarations.BirConstructor
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.declarations.BirVariable
@@ -32,4 +33,28 @@ context(BirTreeContext)
 fun BirWhen.addIfThenElse(`if`: () -> BirBranch, `else`: () -> BirElseBranch) {
     branches.add(`if`())
     branches.add(`else`())
+}
+
+
+fun BirAttributeContainer.copyAttributes(other: BirAttributeContainer) {
+    attributeOwnerId = other.attributeOwnerId
+    //originalBeforeInline = other.originalBeforeInline
+}
+
+fun BirSimpleFunction.copyFlagsFrom(from: BirSimpleFunction) {
+    isInline = from.isInline
+    isInfix = from.isInfix
+    isExpect = from.isExpect
+    isSuspend = from.isSuspend
+    isOperator = from.isOperator
+    isTailrec = from.isTailrec
+    isFakeOverride = from.isFakeOverride
+    isExternal = from.isExternal
+}
+
+fun BirConstructor.copyFlagsFrom(from: BirConstructor) {
+    isInline = from.isInline
+    isExpect = from.isExpect
+    isExternal = from.isExternal
+    isPrimary = from.isPrimary
 }

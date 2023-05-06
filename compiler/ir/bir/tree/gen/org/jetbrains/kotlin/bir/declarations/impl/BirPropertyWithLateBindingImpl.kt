@@ -106,11 +106,12 @@ class BirPropertyWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
         this._setter?.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._backingField === old -> this._backingField = new as BirField
-           this._getter === old -> this._getter = new as BirSimpleFunction
-           this._setter === old -> this._setter = new as BirSimpleFunction
+           this._backingField === old -> this.backingField = new as BirField
+           this._getter === old -> this.getter = new as BirSimpleFunction
+           this._setter === old -> this.setter = new as BirSimpleFunction
            else -> throwChildForReplacementNotFound(old)
         }
     }

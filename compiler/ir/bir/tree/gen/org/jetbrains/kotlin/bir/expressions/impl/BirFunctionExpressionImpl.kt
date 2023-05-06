@@ -52,9 +52,10 @@ class BirFunctionExpressionImpl(
         this._function.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._function === old -> this._function = new as BirSimpleFunction
+           this._function === old -> this.function = new as BirSimpleFunction
            else -> throwChildForReplacementNotFound(old)
         }
     }

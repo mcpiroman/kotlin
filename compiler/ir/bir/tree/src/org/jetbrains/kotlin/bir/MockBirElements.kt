@@ -111,11 +111,12 @@ private class MockBirClassImpl(
         (lastChild as BirElementBase).next = list.next
     }*/
 
+    context (BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-            old === _field1 -> _field1 = new as MockBirValueParameter?
-            old === _field2 -> _field2 = new as MockBirValueParameter
-            old === _field3 -> _field3 = new as MockBirTypeParameter?
+            old === _field1 -> field1 = new as MockBirValueParameter?
+            old === _field2 -> field2 = new as MockBirValueParameter
+            old === _field3 -> field3 = new as MockBirTypeParameter?
             else -> throwChildForReplacementNotFound(old)
         }
     }

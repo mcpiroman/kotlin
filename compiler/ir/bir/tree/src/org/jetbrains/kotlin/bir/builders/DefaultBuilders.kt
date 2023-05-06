@@ -274,6 +274,8 @@ fun BirConst.Companion.build(init: BirConstImpl<Any?>.() -> Unit) =
         value = null,
     ).apply(init)
 
+fun BirNoExpression() = BirNoExpressionImpl(SourceSpan.UNDEFINED, BirUninitializedType)
+
 private val UninitializedName = Name.identifier("UNNAMED")
 
 private abstract class UninitializedBirSymbol<E : BirElement>() : BirPossiblyElementSymbol<E> {

@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.bir.traversal
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeTraverseScope
 
 class BirTreeParentBasedTraverseScope(
     private val block: BirTreeParentBasedTraverseScope.(node: BirElement) -> NextWalkStep,

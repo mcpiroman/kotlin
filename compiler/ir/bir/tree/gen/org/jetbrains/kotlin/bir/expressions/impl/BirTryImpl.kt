@@ -70,10 +70,11 @@ class BirTryImpl(
         this._finallyExpression?.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._tryResult === old -> this._tryResult = new as BirExpression
-           this._finallyExpression === old -> this._finallyExpression = new as BirExpression
+           this._tryResult === old -> this.tryResult = new as BirExpression
+           this._finallyExpression === old -> this.finallyExpression = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
     }

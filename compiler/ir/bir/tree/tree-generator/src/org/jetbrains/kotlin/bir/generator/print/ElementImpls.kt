@@ -179,13 +179,14 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter("old", rootElement.toPoet())
                         .addParameter("new", rootElement.toPoet().copy(nullable = true))
+                        .contextReceivers(treeContext.toPoet())
                         .apply {
                             addCode("when {\n")
                             allChildren.forEach { field ->
                                 if (field is SingleField) {
                                     addCode(
                                         "   this.%N === old -> this.%N = new as %T\n",
-                                        field.backingFieldName, field.backingFieldName, field.type.toPoet()
+                                        field.backingFieldName, field.name, field.type.toPoet()
                                     )
                                 }
                             }

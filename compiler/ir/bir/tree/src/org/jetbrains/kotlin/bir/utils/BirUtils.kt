@@ -5,23 +5,21 @@
 
 package org.jetbrains.kotlin.bir.utils
 
-import org.jetbrains.kotlin.bir.BirAnnotationContainer
-import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirTreeContext
-import org.jetbrains.kotlin.bir.DummyBirTreeContext
+import org.jetbrains.kotlin.bir.*
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.declarations.impl.BirTypeParameterImpl
 import org.jetbrains.kotlin.bir.declarations.impl.BirValueParameterImpl
-import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
-import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
+import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.bir.types.utils.isNullable
 import org.jetbrains.kotlin.bir.types.utils.substitute
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
@@ -438,3 +436,38 @@ val BirConstructorCall.classTypeArgumentsCount: Int
 
 val BirFile.path: String get() = fileEntry.name
 val BirFile.name: String get() = File(path).name
+
+
+fun BirExpression.isAdaptedFunctionReference() =
+    this is BirBlock && this.origin == IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE
+
+val BirDeclaration.isLocal: Boolean
+    get() {
+        return ancestors().any {
+            it is BirDeclarationWithVisibility && it.visibility == DescriptorVisibilities.LOCAL
+                    || it is BirDeclaration && it.isAnonymousObject
+                    || it is BirScript
+                    || it is BirClass && it.origin == IrDeclarationOrigin.SCRIPT_CLASS
+        }
+    }
+
+fun BirInlinedFunctionBlock.isFunctionInlining(): Boolean {
+    return this.inlinedElement is BirFunction
+}
+
+fun BirInlinedFunctionBlock.isLambdaInlining(): Boolean {
+    return !isFunctionInlining()
+}
+
+fun BirStatement.isPartialLinkageRuntimeError(): Boolean {
+    return when (this) {
+        is BirCall -> origin == IrStatementOrigin.PARTIAL_LINKAGE_RUNTIME_ERROR //|| symbol == builtIns.linkageErrorSymbol
+        is BirContainerExpression -> origin == IrStatementOrigin.PARTIAL_LINKAGE_RUNTIME_ERROR || statements.any { it.isPartialLinkageRuntimeError() }
+        else -> false
+    }
+}
+
+fun BirAttributeContainer.copyAttributes(other: BirAttributeContainer) {
+    attributeOwnerId = other.attributeOwnerId
+    //originalBeforeInline = other.originalBeforeInline
+}

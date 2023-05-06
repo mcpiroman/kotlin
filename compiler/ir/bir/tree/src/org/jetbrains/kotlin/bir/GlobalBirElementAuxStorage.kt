@@ -5,10 +5,7 @@
 
 package org.jetbrains.kotlin.bir
 
-import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
-import org.jetbrains.kotlin.bir.declarations.BirClass
-import org.jetbrains.kotlin.bir.declarations.BirMemberWithContainerSource
-import org.jetbrains.kotlin.bir.declarations.BirMetadataSourceOwner
+import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.ir.declarations.MetadataSource
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
@@ -18,6 +15,7 @@ object GlobalBirElementAuxStorage {
     val ContainerSource = BirElementAuxStorageKey<BirMemberWithContainerSource, DeserializedContainerSource?>()
     val SealedSubclasses = BirElementAuxStorageKey<BirClass, List<BirClassSymbol>>() // Seems only used in JVM
     val OriginalBeforeInline = BirElementAuxStorageKey<BirAttributeContainer, BirAttributeContainer?>() // Seems only used inside lowering
+    val CapturedConstructor = BirElementAuxStorageKey<BirConstructor, BirConstructor>()
 }
 
 object GlobalBirElementAuxStorageTokens {
@@ -27,4 +25,5 @@ object GlobalBirElementAuxStorageTokens {
     val ContainerSource = manager.registerToken(GlobalBirElementAuxStorage.ContainerSource)
     val SealedSubclasses = manager.registerToken(GlobalBirElementAuxStorage.SealedSubclasses)
     val OriginalBeforeInline = manager.registerToken(GlobalBirElementAuxStorage.OriginalBeforeInline)
+    val CapturedConstructor = manager.registerToken(GlobalBirElementAuxStorage.CapturedConstructor)
 }

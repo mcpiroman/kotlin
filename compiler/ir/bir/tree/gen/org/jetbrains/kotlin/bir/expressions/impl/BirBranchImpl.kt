@@ -59,10 +59,11 @@ class BirBranchImpl(
         this._result.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._condition === old -> this._condition = new as BirExpression
-           this._result === old -> this._result = new as BirExpression
+           this._condition === old -> this.condition = new as BirExpression
+           this._result === old -> this.result = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
     }

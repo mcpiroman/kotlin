@@ -64,9 +64,10 @@ class BirGetFieldImpl(
         this._receiver?.accept(visitor)
     }
 
+    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
-           this._receiver === old -> this._receiver = new as BirExpression
+           this._receiver === old -> this.receiver = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
     }
