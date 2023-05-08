@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.types.model.TypeSubstitutorMarker
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
 
 
-abstract class AbstractBirTypeSubstitutor(private val irBuiltIns: BirBuiltIns) : TypeSubstitutorMarker {
+abstract class AbstractBirTypeSubstitutor(private val birBuiltIns: BirBuiltIns) : TypeSubstitutorMarker {
 
     private fun BirType.typeParameterConstructor(): BirTypeParameterSymbol? {
         return if (this is BirSimpleType) classifier as? BirTypeParameterSymbol
@@ -35,7 +35,7 @@ abstract class AbstractBirTypeSubstitutor(private val irBuiltIns: BirBuiltIns) :
 
         return type.typeParameterConstructor()?.let {
             when (val typeArgument = getSubstitutionArgument(it)) {
-                is BirStarProjection -> irBuiltIns.anyNType // TODO upper bound for T
+                is BirStarProjection -> birBuiltIns.anyNType // TODO upper bound for T
                 is BirTypeProjection -> typeArgument.type.run { if (type.isMarkedNullable()) makeNullable() else this }
             }
         } ?: substituteType(type)

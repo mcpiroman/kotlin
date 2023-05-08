@@ -29,6 +29,12 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 context(WasmBirContext)
 class LateinitLowering : BirLoweringPhase() {
     override fun invoke(module: BirModuleFragment) {
+        transformLateinitProperties()
+        transformLateinitVariables()
+        transformIsLateinitInitialized()
+    }
+
+    private fun transformLateinitProperties() {
         getElementsOfClass<BirProperty>().forEach { property ->
             if (property.isLateinit && !property.isFakeOverride) {
                 property.backingField!!.let {
@@ -37,7 +43,9 @@ class LateinitLowering : BirLoweringPhase() {
                 transformLateinitPropertyGetter(property.getter!!, property.backingField!!)
             }
         }
+    }
 
+    private fun transformLateinitVariables() {
         getElementsOfClass<BirVariable>().forEach { variable ->
             if (variable.isLateinit) {
                 variable.type = variable.type.makeNullable()
@@ -51,7 +59,9 @@ class LateinitLowering : BirLoweringPhase() {
                 variable.isLateinit = false
             }
         }
+    }
 
+    private fun transformIsLateinitInitialized() {
         getElementsOfClass<BirCall>().forEach { call ->
             if (isLateinitIsInitializedPropertyGetter(call.target)) {
                 transformCallToLateinitIsInitializedPropertyGetter(call)
@@ -165,7 +175,6 @@ class LateinitLowering : BirLoweringPhase() {
             val property = it.getter?.asElement?.resolveFakeOverride()?.correspondingProperty?.asElement
             require(property?.isLateinit == true) { "isInitialized invoked on non-lateinit property ${property?.render()}" }
             val backingField = property?.backingField ?: error("Lateinit property is supposed to have a backing field")
-            // This is not the right scope symbol, but we don't use it anyway.
             BirCall.build {
                 sourceSpan = it.sourceSpan
                 setNot(
