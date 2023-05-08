@@ -32,7 +32,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
         element.traverseTreeFast { descendantElement, descendantPrev ->
             attachElement(descendantElement, descendantPrev)
         }
-    }
+}
 
     private fun attachElement(element: BirElementBase, prev: BirElementBase?) {
         assert(prev == null || prev.next === element)

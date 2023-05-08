@@ -25,5 +25,5 @@ fun BirCall.setNot(arg: BirExpression, origin: IrStatementOrigin = IrStatementOr
     target = birBuiltIns.booleanNotSymbol
     type = birBuiltIns.booleanType
     this.origin = origin
-    valueArguments += arg
+    dispatchReceiver = arg
 }

@@ -130,6 +130,7 @@ class WasmSharedVariablesManager(
         val declaration = BirClass.build {
             origin = JsLoweredDeclarationOrigin.JS_CLOSURE_BOX_CLASS_DECLARATION
             name = Name.identifier(boxTypeName)
+            visibility = DescriptorVisibilities.PUBLIC
         }
 
         // TODO: substitute
@@ -148,8 +149,8 @@ class WasmSharedVariablesManager(
         return BirField.build {
             origin = IrDeclarationOrigin.FIELD_FOR_OUTER_THIS
             name = fieldName
-            type = birBuiltIns.anyNType
             visibility = DescriptorVisibilities.PUBLIC
+            type = birBuiltIns.anyNType
         }.also {
             closureBoxClassDeclaration.declarations += it
         }
@@ -159,7 +160,9 @@ class WasmSharedVariablesManager(
         val declaration = BirConstructor.build {
             origin = JsLoweredDeclarationOrigin.JS_CLOSURE_BOX_CLASS_DECLARATION
             name = SpecialNames.INIT
+            visibility = DescriptorVisibilities.PUBLIC
             returnType = closureBoxClassDeclaration.defaultType
+            isPrimary = true
         }
 
         val parameterDeclaration = createClosureBoxConstructorParameterDeclaration()
