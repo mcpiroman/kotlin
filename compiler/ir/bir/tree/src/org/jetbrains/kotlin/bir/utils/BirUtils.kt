@@ -12,8 +12,10 @@ import org.jetbrains.kotlin.bir.declarations.impl.BirValueParameterImpl
 import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.symbols.*
 import org.jetbrains.kotlin.bir.types.*
+import org.jetbrains.kotlin.bir.types.utils.defaultType
 import org.jetbrains.kotlin.bir.types.utils.isNullable
 import org.jetbrains.kotlin.bir.types.utils.substitute
+import org.jetbrains.kotlin.bir.types.utils.typeOrNull
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
@@ -25,6 +27,7 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.SpecialNames
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.filterIsInstanceAnd
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
 import org.jetbrains.kotlin.utils.memoryOptimizedMapIndexed
@@ -471,3 +474,53 @@ fun BirAttributeContainer.copyAttributes(other: BirAttributeContainer) {
     attributeOwnerId = other.attributeOwnerId
     //originalBeforeInline = other.originalBeforeInline
 }
+
+val BirFunction.allTypeParameters: Collection<BirTypeParameter>
+    get() = if (this is BirConstructor)
+        parentAsClass.typeParameters + typeParameters
+    else
+        typeParameters
+
+
+fun BirMemberAccessExpression<*>.getTypeSubstitutionMap(function: BirFunction): Map<BirTypeParameterSymbol, BirType> =
+    with(DummyBirTreeContext) {
+        val typeParameters = function.allTypeParameters
+
+        val superQualifier = (this as? BirCall)?.superQualifier
+
+        val receiverType =
+            if (superQualifier != null) superQualifier.defaultType as? BirSimpleType
+            else dispatchReceiver?.type as? BirSimpleType
+
+        val dispatchReceiverTypeArguments = receiverType?.arguments ?: emptyList()
+
+        if (typeParameters.isEmpty() && dispatchReceiverTypeArguments.isEmpty()) {
+            return emptyMap()
+        }
+
+        val result = mutableMapOf<BirTypeParameterSymbol, BirType>()
+        if (dispatchReceiverTypeArguments.isNotEmpty()) {
+            val parentTypeParameters =
+                if (function is BirConstructor) {
+                    val constructedClass = function.parentAsClass
+                    if (!constructedClass.isInner && dispatchReceiver != null) {
+                        throw AssertionError("Non-inner class constructor reference with dispatch receiver:\n${this@getTypeSubstitutionMap.render()}")
+                    }
+                    extractTypeParameters(constructedClass.parent as BirClass)
+                } else {
+                    extractTypeParameters(function.ancestors().firstIsInstance<BirClass>())
+                }
+            for ((index, typeParam) in parentTypeParameters.withIndex()) {
+                dispatchReceiverTypeArguments[index].typeOrNull?.let {
+                    result[typeParam] = it
+                }
+            }
+        }
+        return (typeParameters zip typeArguments.requireNoNulls()).toMap() + result
+    }
+
+val BirFunctionReference.typeSubstitutionMap: Map<BirTypeParameterSymbol, BirType>
+    get() = getTypeSubstitutionMap(target as BirFunction)
+
+val BirFunctionAccessExpression.typeSubstitutionMap: Map<BirTypeParameterSymbol, BirType>
+    get() = getTypeSubstitutionMap(target as BirFunction)

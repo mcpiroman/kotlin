@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.backend.wasm.wasmPhases
 import org.jetbrains.kotlin.bir.backend.phases.*
 import org.jetbrains.kotlin.bir.backend.phases.wasm.ExcludeDeclarationsFromCodegen
 import org.jetbrains.kotlin.bir.backend.phases.wasm.JsCodeCallsLowering
+import org.jetbrains.kotlin.bir.backend.phases.wasm.WrapInlineDeclarationsWithReifiedTypeParametersLowering
 import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
@@ -39,6 +40,7 @@ private val birPhases = listOf(
     ::LocalClassesInInlineLambdasLowering,
     ::LocalClassesInInlineFunctionsLowering,
     ::LocalClassesExtractionFromInlineFunctionsLowering,
+    ::WrapInlineDeclarationsWithReifiedTypeParametersLowering,
 )
 
 private val correspondingIrPhaseNames = setOf(
@@ -50,7 +52,8 @@ private val correspondingIrPhaseNames = setOf(
     "SharedVariablesLowering",
     "LocalClassesInInlineLambdasPhase",
     "LocalClassesInInlineFunctionsPhase",
-    "localClassesExtractionFromInlineFunctionsPhase"
+    "localClassesExtractionFromInlineFunctionsPhase",
+    "WrapInlineDeclarationsWithReifiedTypeParametersPhase"
 )
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -138,7 +141,7 @@ class IrPhasesCompilationSetup(
     val phaseState = PhaserState<Any?>()
 }
 
-fun IrPhasesCompilationSetup.runCorrespondingIrPhases(showTime: Boolean, irDumpDir: File?) {
+fun IrPhasesCompilationSetup.runCorrespondingIrPhases(showTime: Boolean, irDumpDir: File?, printAfterPhases: Set<String>? = null) {
     //val topPhase = correspondingIrPhases.reduce { acc, new -> (acc then new) }
     //topPhase.invokeToplevel(phaseConfig, context, allModules)
     irDumpDir?.let {
@@ -150,7 +153,7 @@ fun IrPhasesCompilationSetup.runCorrespondingIrPhases(showTime: Boolean, irDumpD
             phase.invoke(phaseConfig, phaseState, context, allModules)
             phase.name
         }
-        if (irDumpDir != null) {
+        if (irDumpDir != null && printAfterPhases?.contains(phase.name) != false) {
             dumpIrTree(irDumpDir, phase.name, allModules)
         }
     }

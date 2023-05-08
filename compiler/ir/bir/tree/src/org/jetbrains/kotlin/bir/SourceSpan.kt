@@ -23,5 +23,6 @@ value class SourceSpan private constructor(
 
     companion object {
         val UNDEFINED = SourceSpan(-1)
+        val SYNTHETIC = SourceSpan(-2)
     }
 }

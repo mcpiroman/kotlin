@@ -52,4 +52,5 @@ tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
 
 application {
     mainClass.set("org.jetbrains.kotlin.bir.MainKt")
+    applicationDefaultJvmArgs = listOf("-XX:+UnlockDiagnosticVMOptions", "-XX:+DebugNonSafepoints", "-Xms4000m")
 }
