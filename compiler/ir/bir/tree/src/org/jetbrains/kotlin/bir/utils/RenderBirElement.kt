@@ -32,7 +32,7 @@ fun BirElement.render() = with(DummyBirTreeContext) {
 }
 
 context(BirTreeContext)
-class RenderBirElementVisitor(normalizeNames: Boolean = false, private val verboseErrorTypes: Boolean = true) {
+internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private val verboseErrorTypes: Boolean = true) {
     private val variableNameData = VariableNameData(normalizeNames)
 
     fun renderType(type: BirType) = type.renderTypeWithRenderer(this@RenderBirElementVisitor, verboseErrorTypes)

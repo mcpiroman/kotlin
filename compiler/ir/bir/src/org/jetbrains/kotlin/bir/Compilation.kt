@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.backend.wasm.wasmPhases
 import org.jetbrains.kotlin.bir.backend.phases.*
 import org.jetbrains.kotlin.bir.backend.phases.wasm.ExcludeDeclarationsFromCodegen
 import org.jetbrains.kotlin.bir.backend.phases.wasm.JsCodeCallsLowering
+import org.jetbrains.kotlin.bir.backend.phases.wasm.WasmFunctionInliningLowering
 import org.jetbrains.kotlin.bir.backend.phases.wasm.WrapInlineDeclarationsWithReifiedTypeParametersLowering
 import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
@@ -41,6 +42,7 @@ private val birPhases = listOf(
     ::LocalClassesInInlineFunctionsLowering,
     ::LocalClassesExtractionFromInlineFunctionsLowering,
     ::WrapInlineDeclarationsWithReifiedTypeParametersLowering,
+    ::WasmFunctionInliningLowering,
 )
 
 private val correspondingIrPhaseNames = setOf(
@@ -53,7 +55,8 @@ private val correspondingIrPhaseNames = setOf(
     "LocalClassesInInlineLambdasPhase",
     "LocalClassesInInlineFunctionsPhase",
     "localClassesExtractionFromInlineFunctionsPhase",
-    "WrapInlineDeclarationsWithReifiedTypeParametersPhase"
+    "WrapInlineDeclarationsWithReifiedTypeParametersPhase",
+    "FunctionInliningPhase",
 )
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -116,20 +119,25 @@ fun runBirCompilation(
 }
 
 private val correspondingIrPhases = wasmPhases.toPhaseMap()
-    .filterValues { it.name in correspondingIrPhaseNames }.values.map { it as AbstractNamedCompilerPhase<WasmBackendContext, Any?, Any?> }
+    .filterValues {
+        it.name != "IrModuleLowering" && it.name != "ValidateIrBeforeLowering" && it.name != "ValidateIrAfterLowering"
+                && !it.name.startsWith("BuiltInsLowering")
+    }
+    .filterValues { it.name in correspondingIrPhaseNames }
+    .values.map { it as AbstractNamedCompilerPhase<WasmBackendContext, Any?, Any?> }
 
 fun prepareCorrespondingIrPhasesCompilation(
     moduleFragment: IrModuleFragment,
     moduleInfo: IrModuleInfo,
-    configuration: CompilerConfiguration
+    configuration: CompilerConfiguration,
+    allDependencies: List<IrModuleFragment> = moduleInfo.allDependencies,
 ): IrPhasesCompilationSetup {
-    val (_, dependencyModules, irBuiltIns, symbolTable, irLinker) = moduleInfo
+    val (_, _, irBuiltIns, symbolTable, irLinker) = moduleInfo
     val moduleDescriptor = moduleFragment.descriptor
-    val allModules = dependencyModules
+    val allModules = allDependencies
     val context = WasmBackendContext(moduleDescriptor, irBuiltIns, symbolTable, moduleFragment, true, configuration)
 
     val phaseConfig = PhaseConfig(wasmPhases)
-
     return IrPhasesCompilationSetup(allModules, context, phaseConfig)
 }
 

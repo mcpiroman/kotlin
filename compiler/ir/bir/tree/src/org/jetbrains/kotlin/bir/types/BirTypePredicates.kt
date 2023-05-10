@@ -11,13 +11,14 @@ import org.jetbrains.kotlin.bir.declarations.BirPackageFragment
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
 import org.jetbrains.kotlin.bir.types.utils.classifierOrNull
+import org.jetbrains.kotlin.bir.types.utils.isMarkedNullable
 import org.jetbrains.kotlin.bir.utils.ancestors
 import org.jetbrains.kotlin.bir.utils.hasEqualFqName
+import org.jetbrains.kotlin.ir.types.IdSignatureValues
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.isMarkedNullable
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 // The contents of irTypePredicates.kt is to be replaced by some de-duplicated code.
@@ -69,3 +70,17 @@ private fun BirClassifierSymbol.isClassWithNamePrefix(prefix: String, packageFqN
     return this.name.asString().startsWith(prefix) &&
             ancestors().firstIsInstanceOrNull<BirPackageFragment>()?.fqName == packageFqName
 }
+
+
+// todo: maybe replace those with something more... direct?
+fun BirType.isUnit() = isNotNullClassType(IdSignatureValues.unit)
+fun BirType.isAny(): Boolean = isNotNullClassType(IdSignatureValues.any)
+fun BirType.isNullableAny(): Boolean = isNullableClassType(IdSignatureValues.any)
+fun BirType.isString(): Boolean = isNotNullClassType(IdSignatureValues.string)
+fun BirType.isNullableString(): Boolean = isNullableClassType(IdSignatureValues.string)
+fun BirType.isStringClassType(): Boolean = isClassType(IdSignatureValues.string)
+fun BirType.isArray(): Boolean = isNotNullClassType(IdSignatureValues.array)
+fun BirType.isNullableArray(): Boolean = isNullableClassType(IdSignatureValues.array)
+fun BirType.isCollection(): Boolean = isNotNullClassType(IdSignatureValues.collection)
+fun BirType.isNothing(): Boolean = isNotNullClassType(IdSignatureValues.nothing)
+fun BirType.isNullableNothing(): Boolean = isNullableClassType(IdSignatureValues.nothing)

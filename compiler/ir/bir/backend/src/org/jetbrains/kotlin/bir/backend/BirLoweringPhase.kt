@@ -8,7 +8,6 @@ package org.jetbrains.kotlin.bir.backend/*
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 
 /*
@@ -16,7 +15,7 @@ import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-context(WasmBirContext)
+context(BirBackendContext)
 abstract class BirLoweringPhase {
     abstract operator fun invoke(module: BirModuleFragment)
 }

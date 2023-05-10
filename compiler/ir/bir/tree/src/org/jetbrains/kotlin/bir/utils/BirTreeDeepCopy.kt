@@ -17,22 +17,21 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.types.*
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
+import org.jetbrains.kotlin.utils.mapOrTakeThisIfIdentity
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
 import java.util.*
 
 context (BirTreeContext)
 fun <E : BirElement> E.deepCopy(
-    copier: BirTreeDeepCopier = BirTreeDeepCopier(this)
+    copier: BirTreeDeepCopier = BirTreeDeepCopier()
 ): E {
-    return copier.copyElement(this)
+    return copier.copyTree(this)
 }
 
 context (BirTreeContext)
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-open class BirTreeDeepCopier(
-    rootElement: BirElement
-) {
-    val rootElement = rootElement as BirElementBase
+open class BirTreeDeepCopier() {
+    protected var rootElement: BirElementBase? = null
 
     protected val modules by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirModuleFragment>() }
     protected val classes by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirClass>() }
@@ -85,18 +84,18 @@ open class BirTreeDeepCopier(
 
     protected fun BirAttributeContainer.copyAttributes(other: BirAttributeContainer) {
         attributeOwnerId = other.attributeOwnerId
-        //originalBeforeInline = other.originalBeforeInline
+        //todo: originalBeforeInline = other.originalBeforeInline
     }
 
     fun <E : BirElement> remapElement(old: E): E {
         old as BirElementBase
         val rootElement = rootElement
-        return if (old === rootElement || rootElement.isAncestorOf(old))
+        return if (rootElement == null || old === rootElement || rootElement.isAncestorOf(old))
             copyElement(old)
         else old
     }
 
-    fun <S : BirSymbol> remapSymbol(old: S): S {
+    open fun <S : BirSymbol> remapSymbol(old: S): S {
         if (old is BirElementBase) {
             return remapElement(old)
         } else {
@@ -104,45 +103,72 @@ open class BirTreeDeepCopier(
         }
     }
 
-    // perf: when remaped symbols/elements are the same, return the same type instance
-    fun remapType(old: BirType): BirType = when (old) {
-        is BirSimpleType -> BirSimpleTypeImpl(
-            old.kotlinType,
-            remapSymbol(old.classifier),
-            old.nullability,
-            old.arguments.memoryOptimizedMap { remapTypeArgument(it) },
-            old.annotations.memoryOptimizedMap { remapElement(it) },
-            old.abbreviation?.let { abbreviation ->
-                remapTypeAbbreviation(abbreviation)
-            },
-        )
-        is BirDynamicType -> BirDynamicType(
-            old.kotlinType,
-            old.annotations.memoryOptimizedMap { remapElement(it) },
-            old.variance,
-        )
-        is BirErrorType -> BirErrorType(
-            old.kotlinType,
-            old.annotations.memoryOptimizedMap { remapElement(it) },
-            old.variance,
-            old.isMarkedNullable,
-        )
+    // unlike the impl at org.jetbrains.kotlin.ir.util.DeepCopyTypeRemapper,
+    //  this also remaps classes of types other than BirSimpleType
+    // todo: check what's bout `annotation` - esp. how they can be copied/reused
+    open fun remapType(old: BirType): BirType = when (old) {
+        is BirSimpleType -> remapSimpleType(old)
+        is BirDynamicType -> old
+        is BirErrorType -> old
         else -> TODO(old.toString())
     }
 
-    fun remapTypeArgument(old: BirTypeArgument): BirTypeArgument = when (old) {
-        is BirStarProjection -> BirStarProjection
-        is BirTypeProjectionImpl -> BirTypeProjectionImpl(remapType(old.type), old.variance)
+    protected open fun remapSimpleType(old: BirSimpleType): BirSimpleType {
+        val classifier = remapSymbol(old.classifier)
+        val arguments = old.arguments.mapOrTakeThisIfIdentity { remapTypeArgument(it) }
+        val abbreviation = old.abbreviation?.let { remapTypeAbbreviation(it) }
+
+        return if (classifier === old.classifier && arguments === old.arguments && abbreviation === old.abbreviation) {
+            old
+        } else {
+            BirSimpleTypeImpl(
+                old.kotlinType,
+                classifier,
+                old.nullability,
+                arguments,
+                old.annotations.memoryOptimizedMap { copyElement(it) },
+                abbreviation,
+            )
+        }
+    }
+
+    open fun remapTypeArgument(old: BirTypeArgument): BirTypeArgument = when (old) {
+        is BirStarProjection -> old
+        is BirTypeProjectionImpl -> {
+            val newType = remapType(old.type)
+            if (newType === old.type) {
+                old
+            } else {
+                BirTypeProjectionImpl(newType, old.variance)
+            }
+        }
         is BirType -> remapType(old) as BirTypeArgument
         else -> error(old)
     }
 
-    fun remapTypeAbbreviation(old: BirTypeAbbreviation) = BirTypeAbbreviation(
-        remapSymbol(old.typeAlias),
-        old.hasQuestionMark,
-        old.arguments.memoryOptimizedMap { remapTypeArgument(it) },
-        old.annotations.memoryOptimizedMap { remapElement(it) },
-    )
+    open fun remapTypeAbbreviation(old: BirTypeAbbreviation): BirTypeAbbreviation {
+        val typeAlias = remapSymbol(old.typeAlias)
+        val arguments = old.arguments.mapOrTakeThisIfIdentity { remapTypeArgument(it) }
+
+        return if (typeAlias === old.typeAlias && arguments === old.arguments) {
+            old
+        } else {
+            BirTypeAbbreviation(
+                typeAlias,
+                old.hasQuestionMark,
+                arguments,
+                old.annotations.memoryOptimizedMap { copyElement(it) },
+            )
+        }
+    }
+
+    fun <T : BirElement> copyTree(root: T): T {
+        require(rootElement == null) { "Trying to recursively copy a tree" }
+        rootElement = root as BirElementBase
+        val new = copyElement(root)
+        rootElement = null
+        return new
+    }
 
     fun <T : BirElement> copyElement(old: T): T = when (old) {
         is BirValueParameter -> copyValueParameter(old)
@@ -213,6 +239,7 @@ open class BirTreeDeepCopier(
         is BirWhen -> copyWhen(old)
         is BirElseBranch -> copyElseBranch(old)
         is BirBranch -> copyBranch(old)
+        is BirNoExpression -> copyNoExpression(old)
         else -> error(old)
     } as T
 
@@ -1277,6 +1304,15 @@ open class BirTreeDeepCopier(
             sourceSpan = old.sourceSpan,
             condition = copyElement(old.condition),
             result = copyElement(old.result),
+        )
+        new.copyAuxData(old)
+        new
+    }
+
+    open fun copyNoExpression(old: BirNoExpression): BirNoExpression = copyNotReferencedElement(old) {
+        val new = BirNoExpressionImpl(
+            sourceSpan = old.sourceSpan,
+            type = remapType(old.type),
         )
         new.copyAuxData(old)
         new

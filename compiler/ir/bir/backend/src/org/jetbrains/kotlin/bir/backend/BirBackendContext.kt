@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.bir.backend
 
 import org.jetbrains.kotlin.bir.BirBuiltIns
 import org.jetbrains.kotlin.bir.GeneralBirTreeContext
+import org.jetbrains.kotlin.bir.expressions.BirCall
 import org.jetbrains.kotlin.bir.types.BirTypeSystemContext
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.CompilerConfiguration
@@ -18,7 +19,12 @@ abstract class BirBackendContext : GeneralBirTreeContext() {
     abstract val typeSystem: BirTypeSystemContext
     abstract val internalPackageFqn: FqName
     abstract val sharedVariablesManager: SharedVariablesManager
+    abstract val builtInSymbols: BirBuiltInSymbols
 
     abstract val configuration: CompilerConfiguration
+
+    open fun isSideEffectFree(call: BirCall): Boolean {
+        return false
+    }
 }
 

@@ -6,7 +6,7 @@
 package org.jetbrains.kotlin.bir
 
 @JvmInline
-value class SourceSpan private constructor(
+value class SourceSpan constructor(
     private val packed: Long
 ) {
     constructor(start: Int, end: Int) : this(start.toLong() or (end.toLong() shl 32))

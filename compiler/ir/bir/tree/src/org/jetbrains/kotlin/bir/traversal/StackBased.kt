@@ -7,9 +7,11 @@ package org.jetbrains.kotlin.bir.traversal
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
+import org.jetbrains.kotlin.bir.BirTreeContext
 
 class BirTreeStackBasedTraverseScope(
     private val block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit,
+    internal var newRootElement: BirElement?
 ) : BirTreeTraverseScope() {
     fun BirElement.walkInto() {
         block(this)
@@ -28,14 +30,24 @@ class BirTreeStackBasedTraverseScope(
             lastVisited = current
         }
     }
+
+    context(BirTreeContext)
+    override fun BirElement.replaceWith(new: BirElement?) {
+        if (newRootElement === this) {
+            newRootElement = new
+        }
+    }
 }
 
-fun BirElement.traverseStackBased(includeSelf: Boolean = true, block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit) {
+fun BirElement.traverseStackBased(
+    includeSelf: Boolean = true,
+    block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit
+): BirElement? {
     this as BirElementBase
 
-    if (!includeSelf && !hasChildren) return
+    if (!includeSelf && !hasChildren) return this
 
-    val scope = BirTreeStackBasedTraverseScope(block)
+    val scope = BirTreeStackBasedTraverseScope(block, this)
     if (includeSelf) {
         block(scope, this)
     } else {
@@ -43,6 +55,8 @@ fun BirElement.traverseStackBased(includeSelf: Boolean = true, block: BirTreeSta
             walkIntoChildren()
         }
     }
+
+    return scope.newRootElement
 }
 
 class BirTreeStackBasedTraverseScopeWithData<D>(
