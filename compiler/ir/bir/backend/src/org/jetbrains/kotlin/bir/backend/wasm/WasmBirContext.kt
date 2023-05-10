@@ -35,7 +35,9 @@ class WasmBirContext(
 ) : BirBackendContext() {
     override val birBuiltIns: BirBuiltIns = BirBuiltIns(irBuiltIns, converter)
     val wasmSymbols = BirWasmSymbols(birBuiltIns, symbolTable, this, converter, module)
+    override val builtInSymbols get() = wasmSymbols
     override val typeSystem: BirTypeSystemContext = BirTypeSystemContextImpl(birBuiltIns, this)
+    val inlineClassSupport = JsInnerClassesSupport()
     lateinit var birModuleFragment: BirModuleFragment
         private set
 

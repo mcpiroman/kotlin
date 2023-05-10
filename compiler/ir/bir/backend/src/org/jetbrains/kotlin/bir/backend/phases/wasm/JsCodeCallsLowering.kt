@@ -19,9 +19,9 @@ import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.expressions.impl.BirGetValueImpl
 import org.jetbrains.kotlin.bir.expressions.impl.BirReturnImpl
 import org.jetbrains.kotlin.bir.types.BirType
+import org.jetbrains.kotlin.bir.types.utils.defaultType
 import org.jetbrains.kotlin.bir.utils.copyTo
 import org.jetbrains.kotlin.bir.utils.copyTypeParametersFrom
-import org.jetbrains.kotlin.bir.utils.defaultType
 import org.jetbrains.kotlin.name.Name
 
 context(WasmBirContext)

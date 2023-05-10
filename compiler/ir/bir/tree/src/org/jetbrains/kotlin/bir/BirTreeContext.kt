@@ -6,9 +6,7 @@
 package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.declarations.BirDeclaration
-import org.jetbrains.kotlin.bir.expressions.BirBody
-import org.jetbrains.kotlin.bir.expressions.BirCall
-import org.jetbrains.kotlin.bir.expressions.BirFunctionReference
+import org.jetbrains.kotlin.bir.expressions.*
 
 abstract class BirTreeContext {
     internal abstract fun elementAttached(element: BirElementBase, prev: BirElementBase?)
@@ -120,6 +118,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
     private fun checkCacheElementByClass(element: BirElementBase): Boolean {
         return element is BirDeclaration
                 || element is BirCall
+                || element is BirConstructorCall
                 || element is BirFunctionReference
                 || element is BirBody
     }

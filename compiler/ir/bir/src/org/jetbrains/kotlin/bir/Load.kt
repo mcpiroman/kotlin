@@ -8,12 +8,20 @@ package org.jetbrains.kotlin.bir
 import com.intellij.mock.MockProject
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.backend.js.IrModuleInfo
 import org.jetbrains.kotlin.ir.backend.js.MainModule
 import org.jetbrains.kotlin.ir.backend.js.ModulesStructure
 import org.jetbrains.kotlin.ir.backend.js.loadIr
+import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
+import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.impl.IrFactoryImpl
+import org.jetbrains.kotlin.ir.util.DeepCopyIrTreeWithSymbols
+import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
+import org.jetbrains.kotlin.ir.util.DeepCopyTypeRemapper
+import org.jetbrains.kotlin.ir.util.patchDeclarationParents
+import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.js.config.EcmaVersion
 import org.jetbrains.kotlin.js.config.ErrorTolerancePolicy
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
@@ -73,4 +81,24 @@ fun createCompilerConfig(
     configuration.put(JSConfigurationKeys.GENERATE_REGION_COMMENTS, true)
     configuration.put(CommonConfigurationKeys.EXPECT_ACTUAL_LINKER, false)
     return configuration
+}
+
+fun deepCopyIr(roots: List<IrModuleFragment>): List<IrModuleFragment> {
+    val symbolRemapper = DeepCopySymbolRemapper()
+    for (root in roots) {
+        root.acceptVoid(symbolRemapper)
+    }
+    val typeRemapper = DeepCopyTypeRemapper(symbolRemapper)
+    val copier = object : DeepCopyIrTreeWithSymbols(symbolRemapper, typeRemapper) {
+        override fun visitElement(element: IrElement): IrElement {
+            val new = super.visitElement(element)
+            if (new is IrMetadataSourceOwner) {
+                new.metadata = (element as IrMetadataSourceOwner).metadata
+            }
+            return new
+        }
+    }
+    return roots.map {
+        it.transform(copier, null).patchDeclarationParents(null)
+    }
 }

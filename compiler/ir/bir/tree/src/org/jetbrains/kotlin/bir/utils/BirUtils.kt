@@ -21,12 +21,13 @@ import org.jetbrains.kotlin.descriptors.InlineClassRepresentation
 import org.jetbrains.kotlin.descriptors.MultiFieldValueClassRepresentation
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.SpecialNames
+import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 import org.jetbrains.kotlin.utils.filterIsInstanceAnd
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
@@ -144,14 +145,6 @@ inline fun <reified T : BirDeclaration> BirDeclarationContainer.findDeclaration(
 
 val BirClass.defaultType: BirSimpleType
     get() = with(DummyBirTreeContext) { thisReceiver!!.type as BirSimpleType }
-
-val BirTypeParameter.defaultType: BirType
-    get() = BirSimpleTypeImpl(
-        this,
-        SimpleTypeNullability.NOT_SPECIFIED,
-        arguments = emptyList(),
-        annotations = emptyList()
-    )
 
 val BirConstructor.constructedClass
     get() = this.parent as BirClass
@@ -524,3 +517,74 @@ val BirFunctionReference.typeSubstitutionMap: Map<BirTypeParameterSymbol, BirTyp
 
 val BirFunctionAccessExpression.typeSubstitutionMap: Map<BirTypeParameterSymbol, BirType>
     get() = getTypeSubstitutionMap(target as BirFunction)
+
+private fun Boolean.toInt(): Int = if (this) 1 else 0
+
+context (BirTreeContext)
+val BirFunction.explicitParametersCount: Int
+    get() = (dispatchReceiverParameter != null).toInt() + (extensionReceiverParameter != null).toInt() + valueParameters.size
+
+context (BirTreeContext)
+val BirFunction.explicitParameters: List<BirValueParameter>
+    get() = buildList(explicitParametersCount) {
+        addIfNotNull(dispatchReceiverParameter)
+        addAll(valueParameters.take(contextReceiverParametersCount))
+        addIfNotNull(extensionReceiverParameter)
+        addAll(valueParameters.drop(contextReceiverParametersCount))
+    }
+
+context (BirTreeContext)
+val BirFunction.allParameters: List<BirValueParameter>
+    get() = if (this is BirConstructor) {
+        listOf(this.constructedClass.thisReceiver ?: error(this.render())) + explicitParameters
+    } else {
+        explicitParameters
+    }
+
+
+/**
+ * Binds the arguments explicitly represented in the IR to the parameters of the accessed function.
+ * The arguments are to be evaluated in the same order as they appear in the resulting list.
+ */
+@Suppress("UNCHECKED_CAST")
+fun BirMemberAccessExpression<*>.getArgumentsWithBir(): List<Pair<BirValueParameter, BirExpression>> {
+    return getAllArgumentsWithBir().filter { it.second != null } as List<Pair<BirValueParameter, BirExpression>>
+}
+
+/**
+ * Binds all arguments represented in the IR to the parameters of the accessed function.
+ * The arguments are to be evaluated in the same order as they appear in the resulting list.
+ */
+fun BirMemberAccessExpression<*>.getAllArgumentsWithBir(): List<Pair<BirValueParameter, BirExpression?>> {
+    val function = when (this) {
+        is BirFunctionAccessExpression -> this.target as BirFunction
+        is BirFunctionReference -> this.target as BirFunction
+        is BirPropertyReference -> {
+            assert(this.field == null) { "Field should be null to use `getArgumentsWithBir` on BirPropertyReference: ${this.dump()}}" }
+            this.getter!!.asElement
+        }
+        else -> error(this)
+    }
+
+    return getAllArgumentsWithBir(function)
+}
+
+/**
+ * Binds all arguments represented in the IR to the parameters of the explicitly given function.
+ * The arguments are to be evaluated in the same order as they appear in the resulting list.
+ */
+fun BirMemberAccessExpression<*>.getAllArgumentsWithBir(irFunction: BirFunction) = buildList {
+    with(DummyBirTreeContext) {
+        dispatchReceiver?.let { arg ->
+            irFunction.dispatchReceiverParameter?.let { parameter -> add(parameter to arg) }
+        }
+
+        extensionReceiver?.let { arg ->
+            irFunction.extensionReceiverParameter?.let { parameter -> add(parameter to arg) }
+        }
+
+        addAll(irFunction.valueParameters zip valueArguments)
+    }
+}
+
+val BirValueParameter.isVararg get() = this.varargElementType != null

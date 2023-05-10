@@ -180,18 +180,19 @@ class BirChildElementList<E : BirElement>(
 
         var prev: BirElementBase? = null
         var element = headOrNext!!
+        headOrNext = tail.next
         while (true) {
             element.rawParent = null
+            val next = element.next
             element.next = null
-            parent.childAttached(element, prev)
+            parent.childDetached(element, prev)
 
             if (element === tail) break
 
             prev = element
-            element = element.next!!
+            element = next!!
         }
 
-        headOrNext = tail.next
         this.tail = null
         size = 0
     }
@@ -335,12 +336,12 @@ class BirChildElementList<E : BirElement>(
     }
 
 
-    override fun iterator(): Iterator<E> = ReadonlyIter(this)
+    override fun iterator(): Iterator<E> = ReadonlyIterator(this)
 
     context (BirTreeContext)
     fun mutableIterator(): kotlin.collections.MutableIterator<E> = MutableIterator(this)
 
-    private class ReadonlyIter<E : BirElement>(
+    private class ReadonlyIterator<E : BirElement>(
         list: BirChildElementList<E>,
     ) : Iterator<E> {
         private val tail = list.tail
