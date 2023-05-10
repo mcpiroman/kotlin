@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
-open class SimpleIterationBenchmark : IterationBenchmarkBase() {
+open class SimpleIterationBenchmark : BenchmarkOnRealCodeBase(true) {
     @Benchmark
     fun traverseIr(): Int {
         var i = 0
