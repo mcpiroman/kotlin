@@ -17,7 +17,9 @@ import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.openjdk.jmh.infra.BenchmarkParams
 
 @State(Scope.Benchmark)
-abstract class IterationBenchmarkBase {
+abstract class BenchmarkOnRealCodeBase(
+    private val cloneIr: Boolean,
+) {
     protected lateinit var irRoot: IrElement
     protected lateinit var birRoot: BirElement
 
@@ -25,7 +27,7 @@ abstract class IterationBenchmarkBase {
     fun setup(params: BenchmarkParams) {
         val srcIr =
             prepareIr("../../../../libraries/stdlib/wasm/build/libs/kotlin-stdlib-wasm-wasm-1.9.255-SNAPSHOT.klib").moduleInfo.module
-        irRoot = srcIr.deepCopyWithSymbols()
+        irRoot = if (cloneIr) srcIr.deepCopyWithSymbols() else srcIr
         birRoot = srcIr.convertToBir(GeneralBirTreeContext())
     }
 }
