@@ -13,10 +13,7 @@ import org.jetbrains.kotlin.backend.common.phaser.toPhaseMap
 import org.jetbrains.kotlin.backend.wasm.WasmBackendContext
 import org.jetbrains.kotlin.backend.wasm.wasmPhases
 import org.jetbrains.kotlin.bir.backend.phases.*
-import org.jetbrains.kotlin.bir.backend.phases.wasm.ExcludeDeclarationsFromCodegen
-import org.jetbrains.kotlin.bir.backend.phases.wasm.JsCodeCallsLowering
-import org.jetbrains.kotlin.bir.backend.phases.wasm.WasmFunctionInliningLowering
-import org.jetbrains.kotlin.bir.backend.phases.wasm.WrapInlineDeclarationsWithReifiedTypeParametersLowering
+import org.jetbrains.kotlin.bir.backend.phases.wasm.*
 import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
@@ -101,9 +98,7 @@ fun runBirCompilation(
     irDumpDir: File?,
     printAfterPhases: Set<String>? = null
 ) {
-    irDumpDir?.let {
-        dumpBirTree(it, "initial", birModule)
-    }
+    irDumpDir?.let { dumpBirTree(it, "initial", birModule) }
 
     for (phase in birPhases) {
         val phaseObj = phase(backendContext)
@@ -152,9 +147,8 @@ class IrPhasesCompilationSetup(
 fun IrPhasesCompilationSetup.runCorrespondingIrPhases(showTime: Boolean, irDumpDir: File?, printAfterPhases: Set<String>? = null) {
     //val topPhase = correspondingIrPhases.reduce { acc, new -> (acc then new) }
     //topPhase.invokeToplevel(phaseConfig, context, allModules)
-    irDumpDir?.let {
-        dumpIrTree(it, "initial", allModules)
-    }
+
+    irDumpDir?.let { dumpIrTree(it, "initial", allModules) }
 
     for (phase in correspondingIrPhases) {
         maybeShowPhaseTime(showTime) {

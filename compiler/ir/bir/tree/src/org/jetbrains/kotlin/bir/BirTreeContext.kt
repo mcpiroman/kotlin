@@ -5,7 +5,9 @@
 
 package org.jetbrains.kotlin.bir
 
-import org.jetbrains.kotlin.bir.declarations.BirDeclaration
+import org.jetbrains.kotlin.bir.declarations.BirFunction
+import org.jetbrains.kotlin.bir.declarations.BirProperty
+import org.jetbrains.kotlin.bir.declarations.BirVariable
 import org.jetbrains.kotlin.bir.expressions.*
 
 abstract class BirTreeContext {
@@ -20,17 +22,27 @@ object DummyBirTreeContext : BirTreeContext() {
 
 open class GeneralBirTreeContext : BirTreeContext() {
     private var totalElements = 0
-    private val elementsByClass = hashMapOf<Class<*>, ElementOfClassList>()
+    private val elementsByClass = ElementsByClass()
     private var currentElementsOfClassIterator: ElementsOfClassListIterator<*>? = null
     private var currentElementsOfClassIterationIsOdd = false
     private val elementsAddedDuringCurrentElementsOfClassIteration = ArrayList<BirElementBase>(1024)
+
+    private fun checkCacheElementByClass(element: BirElementBase): Boolean {
+        return element is BirFunction
+                || element is BirProperty
+                || element is BirVariable
+                || element is BirCall
+                || element is BirConstructorCall
+                || element is BirFunctionReference
+                || element is BirBody
+    }
 
     override internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {
         attachElement(element, prev)
         element.traverseTreeFast { descendantElement, descendantPrev ->
             attachElement(descendantElement, descendantPrev)
         }
-}
+    }
 
     private fun attachElement(element: BirElementBase, prev: BirElementBase?) {
         assert(prev == null || prev.next === element)
@@ -115,14 +127,6 @@ open class GeneralBirTreeContext : BirTreeContext() {
     }
 
 
-    private fun checkCacheElementByClass(element: BirElementBase): Boolean {
-        return element is BirDeclaration
-                || element is BirCall
-                || element is BirConstructorCall
-                || element is BirFunctionReference
-                || element is BirBody
-    }
-
     private fun addElementToClassCache(element: BirElementBase) {
         val list = getElementsOfClassList(element.javaClass)
         list.add(element)
@@ -130,38 +134,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
     }
 
     private fun getElementsOfClassList(elementClass: Class<*>): ElementOfClassList {
-        elementsByClass[elementClass]?.let {
-            return it
-        }
-
-        val list = ElementOfClassList(elementClass)
-
-        val ancestorElements = mutableSetOf<ElementOfClassList>()
-        fun visitParents(clazz: Class<*>) {
-            if (clazz !== elementClass) {
-                if (!BirElement::class.java.isAssignableFrom(clazz)) {
-                    return
-                }
-
-                val ancestor = getElementsOfClassList(clazz)
-                if (ancestorElements.add(ancestor)) {
-                    ancestor.leafClasses += list
-                } else {
-                    return
-                }
-            }
-
-            clazz.superclass?.let {
-                visitParents(it)
-            }
-            clazz.interfaces.forEach {
-                visitParents(it)
-            }
-        }
-        visitParents(elementClass)
-
-        elementsByClass[elementClass] = list
-        return list
+        return elementsByClass.get(elementClass)
     }
 
     inline fun <reified E : BirElement> getElementsOfClass(): Iterator<E> = getElementsOfClass(E::class.java)
@@ -191,7 +164,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
     }
 
     private inner class ElementOfClassList(
-        val elementClass: Class<*>,
+        val elementClass: Class<*>, // todo: doesn't it create a leak wiht ClassValue?
     ) {
         val leafClasses = mutableListOf<ElementOfClassList>()
         var array = arrayOfNulls<BirElementBase>(0)
@@ -360,6 +333,38 @@ open class GeneralBirTreeContext : BirTreeContext() {
             auxElementsToVisit?.apply { add(element) } ?: run {
                 auxElementsToVisit = mutableListOf(element)
             }
+        }
+    }
+
+    private inner class ElementsByClass() : ClassValue<ElementOfClassList>() {
+        override fun computeValue(elementClass: Class<*>): ElementOfClassList {
+            val list = ElementOfClassList(elementClass)
+
+            val ancestorElements = mutableSetOf<ElementOfClassList>()
+            fun visitParents(clazz: Class<*>) {
+                if (clazz !== elementClass) {
+                    if (!BirElement::class.java.isAssignableFrom(clazz)) {
+                        return
+                    }
+
+                    val ancestor = get(clazz)
+                    if (ancestorElements.add(ancestor)) {
+                        ancestor.leafClasses += list
+                    } else {
+                        return
+                    }
+                }
+
+                clazz.superclass?.let {
+                    visitParents(it)
+                }
+                clazz.interfaces.forEach {
+                    visitParents(it)
+                }
+            }
+            visitParents(elementClass)
+
+            return list
         }
     }
 }

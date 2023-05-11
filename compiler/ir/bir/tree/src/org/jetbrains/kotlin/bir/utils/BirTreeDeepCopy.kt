@@ -5,10 +5,7 @@
 
 package org.jetbrains.kotlin.bir.utils
 
-import org.jetbrains.kotlin.bir.BirChildElementList
-import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
+import org.jetbrains.kotlin.bir.*
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.declarations.impl.*
 import org.jetbrains.kotlin.bir.expressions.*
@@ -32,7 +29,9 @@ context (BirTreeContext)
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 open class BirTreeDeepCopier() {
     protected var rootElement: BirElementBase? = null
-    private var lastDeferredInitialization: (() -> Unit)? = null
+
+    // explicit dispatch receiver to avoid capturing `this` in lambda
+    private var lastDeferredInitialization: (BirTreeDeepCopier.() -> Unit)? = null
 
     protected val modules by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirModuleFragment>() }
     protected val classes by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirClass>() }
@@ -56,32 +55,32 @@ open class BirTreeDeepCopier() {
 
 
     fun <E : BirElement> copyElement(old: E): E {
-        val new = doCopyElement(old)
+        val new = doCopyElement(old, true)
         ensureLastElementIsFinished()
         return new
     }
 
     fun <E : BirElement> copyElementPossiblyUnfinished(old: E): E {
-        return doCopyElement(old)
+        return doCopyElement(old, true)
     }
 
-    private fun deferInitialization(initialize: () -> Unit) {
+    private fun deferInitialization(initialize: BirTreeDeepCopier.() -> Unit) {
         ensureLastElementIsFinished()
         lastDeferredInitialization = initialize
     }
 
     fun ensureLastElementIsFinished() {
-        lastDeferredInitialization?.let {
+        while (true) {
+            val last = lastDeferredInitialization ?: break
             lastDeferredInitialization = null
-            it()
+            last()
         }
     }
-
-    open protected fun <E : BirElement> copyNotReferencedElement(old: E, copy: () -> E): E = copy()
 
     open protected fun <ME : BirElement, SE : ME> copyReferencedElement(
         old: SE,
         map: MutableMap<ME, ME>,
+        mustProduceNewCopy: Boolean,
         copy: () -> SE,
     ): SE {
         return map.computeIfAbsent(old) {
@@ -99,17 +98,23 @@ open class BirTreeDeepCopier() {
         tmpCopyAuxData(from)
     }
 
-    protected fun BirAttributeContainer.copyAttributes(other: BirAttributeContainer) {
+    protected open fun BirAttributeContainer.copyAttributes(other: BirAttributeContainer) {
         attributeOwnerId = other.attributeOwnerId
-        //todo: originalBeforeInline = other.originalBeforeInline
+        if (other.attributeOwnerId != other) {
+            this[GlobalBirElementAuxStorageTokens.OriginalBeforeInline] = other.attributeOwnerId
+        }
     }
 
     fun <E : BirElement> remapElement(old: E): E {
         old as BirElementBase
         val rootElement = rootElement
-        return if (rootElement == null || old === rootElement || rootElement.isAncestorOf(old))
-            copyElement(old)
-        else old
+        return if (rootElement == null || old === rootElement || rootElement.isAncestorOf(old)) {
+            val new = doCopyElement(old, false)
+            ensureLastElementIsFinished()
+            new
+        } else {
+            old
+        }
     }
 
     open fun <S : BirSymbol> remapSymbol(old: S): S {
@@ -188,26 +193,26 @@ open class BirTreeDeepCopier() {
     }
 
 
-    protected open fun <T : BirElement> doCopyElement(old: T): T = when (old) {
-        is BirValueParameter -> copyValueParameter(old)
-        is BirClass -> copyClass(old)
+    protected open fun <E : BirElement> doCopyElement(old: E, mustProduceNewCopy: Boolean): E = when (old) {
+        is BirValueParameter -> copyValueParameter(old, mustProduceNewCopy)
+        is BirClass -> copyClass(old, mustProduceNewCopy)
         is BirAnonymousInitializer -> copyAnonymousInitializer(old)
-        is BirTypeParameter -> copyTypeParameter(old)
-        is BirConstructor -> copyConstructor(old)
-        is BirEnumEntry -> copyEnumEntry(old)
+        is BirTypeParameter -> copyTypeParameter(old, mustProduceNewCopy)
+        is BirConstructor -> copyConstructor(old, mustProduceNewCopy)
+        is BirEnumEntry -> copyEnumEntry(old, mustProduceNewCopy)
         is BirErrorDeclaration -> copyErrorDeclaration(old)
-        is BirFunctionWithLateBindingImpl -> copyFunctionWithLateBinding(old)
-        is BirPropertyWithLateBindingImpl -> copyPropertyWithLateBinding(old)
-        is BirField -> copyField(old)
-        is BirLocalDelegatedProperty -> copyLocalDelegatedProperty(old)
-        is BirModuleFragment -> copyModuleFragment(old)
-        is BirProperty -> copyProperty(old)
-        is BirScript -> copyScript(old)
-        is BirSimpleFunction -> copySimpleFunction(old)
-        is BirTypeAlias -> copyTypeAlias(old)
-        is BirVariable -> copyVariable(old)
-        is BirExternalPackageFragment -> copyExternalPackageFragment(old)
-        is BirFile -> copyFile(old)
+        is BirFunctionWithLateBindingImpl -> copyFunctionWithLateBinding(old, mustProduceNewCopy)
+        is BirPropertyWithLateBindingImpl -> copyPropertyWithLateBinding(old, mustProduceNewCopy)
+        is BirField -> copyField(old, mustProduceNewCopy)
+        is BirLocalDelegatedProperty -> copyLocalDelegatedProperty(old, mustProduceNewCopy)
+        is BirModuleFragment -> copyModuleFragment(old, mustProduceNewCopy)
+        is BirProperty -> copyProperty(old, mustProduceNewCopy)
+        is BirScript -> copyScript(old, mustProduceNewCopy)
+        is BirSimpleFunction -> copySimpleFunction(old, mustProduceNewCopy)
+        is BirTypeAlias -> copyTypeAlias(old, mustProduceNewCopy)
+        is BirVariable -> copyVariable(old, mustProduceNewCopy)
+        is BirExternalPackageFragment -> copyExternalPackageFragment(old, mustProduceNewCopy)
+        is BirFile -> copyFile(old, mustProduceNewCopy)
         is BirExpressionBody -> copyExpressionBody(old)
         is BirBlockBody -> copyBlockBody(old)
         is BirConstructorCall -> copyConstructorCall(old)
@@ -215,7 +220,7 @@ open class BirTreeDeepCopier() {
         is BirGetEnumValue -> copyGetEnumValue(old)
         is BirRawFunctionReference -> copyRawFunctionReference(old)
         is BirComposite -> copyComposite(old)
-        is BirReturnableBlock -> copyReturnableBlock(old)
+        is BirReturnableBlock -> copyReturnableBlock(old, mustProduceNewCopy)
         is BirInlinedFunctionBlock -> copyInlinedFunctionBlock(old)
         is BirBlock -> copyBlock(old)
         is BirSyntheticBody -> copySyntheticBody(old)
@@ -240,8 +245,8 @@ open class BirTreeDeepCopier() {
         is BirFunctionExpression -> copyFunctionExpression(old)
         is BirGetClass -> copyGetClass(old)
         is BirInstanceInitializerCall -> copyInstanceInitializerCall(old)
-        is BirWhileLoop -> copyWhileLoop(old)
-        is BirDoWhileLoop -> copyDoWhileLoop(old)
+        is BirWhileLoop -> copyWhileLoop(old, mustProduceNewCopy)
+        is BirDoWhileLoop -> copyDoWhileLoop(old, mustProduceNewCopy)
         is BirReturn -> copyReturn(old)
         is BirStringConcatenation -> copyStringConcatenation(old)
         is BirSuspensionPoint -> copySuspensionPoint(old)
@@ -259,19 +264,20 @@ open class BirTreeDeepCopier() {
         is BirBranch -> copyBranch(old)
         is BirNoExpression -> copyNoExpression(old)
         else -> error(old)
-    } as T
+    } as E
 
-    open fun copyValueParameter(old: BirValueParameter): BirValueParameter = copyReferencedElement(old, valueParameters) {
-        val new = BirValueParameterImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            name = old.name,
-            type = BirUninitializedType,
-            isAssignable = old.isAssignable,
-            varargElementType = null,
-            isCrossinline = old.isCrossinline,
+    open fun copyValueParameter(old: BirValueParameter, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, valueParameters, mustProduceNewCopy) {
+            val new = BirValueParameterImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                name = old.name,
+                type = BirUninitializedType,
+                isAssignable = old.isAssignable,
+                varargElementType = null,
+                isCrossinline = old.isCrossinline,
             isNoinline = old.isNoinline,
             isHidden = old.isHidden,
             defaultValue = null,
@@ -286,7 +292,7 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyClass(old: BirClass): BirClass = copyReferencedElement(old, classes) {
+    open fun copyClass(old: BirClass, mustProduceNewCopy: Boolean): BirElement = copyReferencedElement(old, classes, mustProduceNewCopy) {
         val new = BirClassImpl(
             sourceSpan = old.sourceSpan,
             annotations = emptyList(),
@@ -321,7 +327,7 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyAnonymousInitializer(old: BirAnonymousInitializer): BirAnonymousInitializer = copyNotReferencedElement(old) {
+    open fun copyAnonymousInitializer(old: BirAnonymousInitializer): BirElement {
         val new = BirAnonymousInitializerImpl(
             sourceSpan = old.sourceSpan,
             annotations = emptyList(),
@@ -332,22 +338,26 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         deferInitialization {
-            new.annotations = old.annotations.memoryOptimizedMap { copyElementPossiblyUnfinished(it) }
+            new.annotations =
+                old.annotations.memoryOptimizedMap {
+                    copyElementPossiblyUnfinished(it)
+                }
         }
-        new
+        return new
     }
 
-    open fun copyTypeParameter(old: BirTypeParameter): BirTypeParameter = copyReferencedElement(old, typeParameters) {
-        val new = BirTypeParameterImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            name = old.name,
-            variance = old.variance,
-            isReified = old.isReified,
-            superTypes = emptyList(),
-        )
+    open fun copyTypeParameter(old: BirTypeParameter, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, typeParameters, mustProduceNewCopy) {
+            val new = BirTypeParameterImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                name = old.name,
+                variance = old.variance,
+                isReified = old.isReified,
+                superTypes = emptyList(),
+            )
         new.copyAuxData(old)
         deferInitialization {
             new.annotations = old.annotations.memoryOptimizedMap { copyElementPossiblyUnfinished(it) }
@@ -356,17 +366,18 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyConstructor(old: BirConstructor): BirConstructor = copyReferencedElement(old, constructors) {
-        val new = BirConstructorImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            visibility = old.visibility,
-            name = old.name,
-            isExternal = old.isExternal,
-            isInline = old.isInline,
-            isExpect = old.isExpect,
+    open fun copyConstructor(old: BirConstructor, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, constructors, mustProduceNewCopy) {
+            val new = BirConstructorImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                visibility = old.visibility,
+                name = old.name,
+                isExternal = old.isExternal,
+                isInline = old.isInline,
+                isExpect = old.isExpect,
             returnType = BirUninitializedType,
             dispatchReceiverParameter = null,
             extensionReceiverParameter = null,
@@ -387,17 +398,18 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyEnumEntry(old: BirEnumEntry): BirEnumEntry = copyReferencedElement(old, enumEntries) {
-        val new = BirEnumEntryImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            name = old.name,
-            initializerExpression = null,
-            correspondingClass = null,
-        )
-        new.copyAuxData(old)
+    open fun copyEnumEntry(old: BirEnumEntry, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, enumEntries, mustProduceNewCopy) {
+            val new = BirEnumEntryImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                name = old.name,
+                initializerExpression = null,
+                correspondingClass = null,
+            )
+            new.copyAuxData(old)
         deferInitialization {
             new.initializerExpression = old.initializerExpression?.let { copyElementPossiblyUnfinished(it) }
             new.correspondingClass = old.correspondingClass?.let { copyElementPossiblyUnfinished(it) }
@@ -406,7 +418,7 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyErrorDeclaration(old: BirErrorDeclaration): BirErrorDeclaration = copyNotReferencedElement(old) {
+    open fun copyErrorDeclaration(old: BirErrorDeclaration): BirElement {
         val new = BirErrorDeclarationImpl(
             sourceSpan = old.sourceSpan,
             annotations = emptyList(),
@@ -415,13 +427,16 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         deferInitialization {
-            new.annotations = old.annotations.memoryOptimizedMap { copyElementPossiblyUnfinished(it) }
+            new.annotations =
+                old.annotations.memoryOptimizedMap {
+                    copyElementPossiblyUnfinished(it)
+                }
         }
-        new
+        return new
     }
 
-    open fun copyFunctionWithLateBinding(old: BirFunctionWithLateBindingImpl): BirFunctionWithLateBindingImpl =
-        copyReferencedElement(old, functions) {
+    open fun copyFunctionWithLateBinding(old: BirFunctionWithLateBindingImpl, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, functions, mustProduceNewCopy) {
             val new = BirFunctionWithLateBindingImpl(
                 sourceSpan = old.sourceSpan,
                 annotations = emptyList(),
@@ -464,8 +479,8 @@ open class BirTreeDeepCopier() {
             new
         }
 
-    open fun copyPropertyWithLateBinding(old: BirPropertyWithLateBindingImpl): BirPropertyWithLateBindingImpl =
-        copyReferencedElement(old, properties) {
+    open fun copyPropertyWithLateBinding(old: BirPropertyWithLateBindingImpl, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, properties, mustProduceNewCopy) {
             val new = BirPropertyWithLateBindingImpl(
                 sourceSpan = old.sourceSpan,
                 annotations = emptyList(),
@@ -500,7 +515,7 @@ open class BirTreeDeepCopier() {
             new
         }
 
-    open fun copyField(old: BirField): BirField = copyReferencedElement(old, fields) {
+    open fun copyField(old: BirField, mustProduceNewCopy: Boolean): BirElement = copyReferencedElement(old, fields, mustProduceNewCopy) {
         val new = BirFieldImpl(
             sourceSpan = old.sourceSpan,
             annotations = emptyList(),
@@ -525,8 +540,8 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyLocalDelegatedProperty(old: BirLocalDelegatedProperty): BirLocalDelegatedProperty =
-        copyReferencedElement(old, localDelegatedProperties) {
+    open fun copyLocalDelegatedProperty(old: BirLocalDelegatedProperty, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, localDelegatedProperties, mustProduceNewCopy) {
             val new = BirLocalDelegatedPropertyImpl(
                 sourceSpan = old.sourceSpan,
                 annotations = emptyList(),
@@ -549,30 +564,32 @@ open class BirTreeDeepCopier() {
             new
         }
 
-    open fun copyModuleFragment(old: BirModuleFragment): BirModuleFragment = copyReferencedElement(old, modules) {
-        val new = BirModuleFragmentImpl(
-            sourceSpan = old.sourceSpan,
-            _descriptor = old._descriptor,
-            name = old.name,
-        )
-        new.copyAuxData(old)
-        deferInitialization {
-            new.files.copyElements(old.files)
-        }
-        new
+    open fun copyModuleFragment(old: BirModuleFragment, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, modules, mustProduceNewCopy) {
+            val new = BirModuleFragmentImpl(
+                sourceSpan = old.sourceSpan,
+                _descriptor = old._descriptor,
+                name = old.name,
+            )
+            new.copyAuxData(old)
+            deferInitialization {
+                new.files.copyElements(old.files)
+            }
+            new
     }
 
-    open fun copyProperty(old: BirProperty): BirProperty = copyReferencedElement(old, properties) {
-        val new = BirPropertyImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            name = old.name,
-            isExternal = old.isExternal,
-            visibility = old.visibility,
-            modality = old.modality,
-            isFakeOverride = old.isFakeOverride,
+    open fun copyProperty(old: BirProperty, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, properties, mustProduceNewCopy) {
+            val new = BirPropertyImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                name = old.name,
+                isExternal = old.isExternal,
+                visibility = old.visibility,
+                modality = old.modality,
+                isFakeOverride = old.isFakeOverride,
             overriddenSymbols = emptyList(),
             isVar = old.isVar,
             isConst = old.isConst,
@@ -595,7 +612,7 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyScript(old: BirScript): BirScript = copyReferencedElement(old, scripts) {
+    open fun copyScript(old: BirScript, mustProduceNewCopy: Boolean): BirElement = copyReferencedElement(old, scripts, mustProduceNewCopy) {
         val new = BirScriptImpl(
             sourceSpan = old.sourceSpan,
             annotations = emptyList(),
@@ -626,17 +643,18 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copySimpleFunction(old: BirSimpleFunction): BirSimpleFunction = copyReferencedElement(old, functions) {
-        val new = BirSimpleFunctionImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            visibility = old.visibility,
-            name = old.name,
-            isExternal = old.isExternal,
-            isInline = old.isInline,
-            isExpect = old.isExpect,
+    open fun copySimpleFunction(old: BirSimpleFunction, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, functions, mustProduceNewCopy) {
+            val new = BirSimpleFunctionImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                visibility = old.visibility,
+                name = old.name,
+                isExternal = old.isExternal,
+                isInline = old.isInline,
+                isExpect = old.isExpect,
             returnType = BirUninitializedType,
             dispatchReceiverParameter = null,
             extensionReceiverParameter = null,
@@ -667,17 +685,18 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyTypeAlias(old: BirTypeAlias): BirTypeAlias = copyReferencedElement(old, typeAliases) {
-        val new = BirTypeAliasImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            name = old.name,
-            visibility = old.visibility,
-            isActual = old.isActual,
-            expandedType = BirUninitializedType,
-        )
+    open fun copyTypeAlias(old: BirTypeAlias, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, typeAliases, mustProduceNewCopy) {
+            val new = BirTypeAliasImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                name = old.name,
+                visibility = old.visibility,
+                isActual = old.isActual,
+                expandedType = BirUninitializedType,
+            )
         new.copyAuxData(old)
         deferInitialization {
             new.typeParameters.copyElements(old.typeParameters)
@@ -687,31 +706,32 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyVariable(old: BirVariable): BirVariable = copyReferencedElement(old, variables) {
-        val new = BirVariableImpl(
-            sourceSpan = old.sourceSpan,
-            annotations = emptyList(),
-            _descriptor = old._descriptor,
-            origin = old.origin,
-            name = old.name,
-            type = BirUninitializedType,
-            isAssignable = old.isAssignable,
-            isVar = old.isVar,
-            isConst = old.isConst,
+    open fun copyVariable(old: BirVariable, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, variables, mustProduceNewCopy) {
+            val new = BirVariableImpl(
+                sourceSpan = old.sourceSpan,
+                annotations = emptyList(),
+                _descriptor = old._descriptor,
+                origin = old.origin,
+                name = old.name,
+                type = BirUninitializedType,
+                isAssignable = old.isAssignable,
+                isVar = old.isVar,
+                isConst = old.isConst,
             isLateinit = old.isLateinit,
             initializer = null,
-        )
-        new.copyAuxData(old)
-        deferInitialization {
-            new.initializer = old.initializer?.let { copyElementPossiblyUnfinished(it) }
-            new.annotations = old.annotations.memoryOptimizedMap { copyElementPossiblyUnfinished(it) }
-            new.type = remapType(old.type)
+            )
+            new.copyAuxData(old)
+            deferInitialization {
+                new.initializer = old.initializer?.let { copyElementPossiblyUnfinished(it) }
+                new.annotations = old.annotations.memoryOptimizedMap { copyElementPossiblyUnfinished(it) }
+                new.type = remapType(old.type)
+            }
+            new
         }
-        new
-    }
 
-    open fun copyExternalPackageFragment(old: BirExternalPackageFragment): BirExternalPackageFragment =
-        copyReferencedElement(old, externalPackageFragments) {
+    open fun copyExternalPackageFragment(old: BirExternalPackageFragment, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, externalPackageFragments, mustProduceNewCopy) {
             val new = BirExternalPackageFragmentImpl(
                 sourceSpan = old.sourceSpan,
                 _descriptor = old._descriptor,
@@ -726,7 +746,7 @@ open class BirTreeDeepCopier() {
             new
         }
 
-    open fun copyFile(old: BirFile): BirFile = copyReferencedElement(old, files) {
+    open fun copyFile(old: BirFile, mustProduceNewCopy: Boolean): BirElement = copyReferencedElement(old, files, mustProduceNewCopy) {
         val new = BirFileImpl(
             sourceSpan = old.sourceSpan,
             _descriptor = old._descriptor,
@@ -742,16 +762,16 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyExpressionBody(old: BirExpressionBody): BirExpressionBody = copyNotReferencedElement(old) {
+    open fun copyExpressionBody(old: BirExpressionBody): BirElement {
         val new = BirExpressionBodyImpl(
             sourceSpan = old.sourceSpan,
             expression = copyElementPossiblyUnfinished(old.expression),
         )
         new.copyAuxData(old)
-        new
+        return new
     }
 
-    open fun copyBlockBody(old: BirBlockBody): BirBlockBody = copyNotReferencedElement(old) {
+    open fun copyBlockBody(old: BirBlockBody): BirElement {
         val new = BirBlockBodyImpl(
             sourceSpan = old.sourceSpan,
         )
@@ -759,10 +779,10 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.statements.copyElements(old.statements)
         }
-        new
+        return new
     }
 
-    open fun copyConstructorCall(old: BirConstructorCall): BirConstructorCall = copyNotReferencedElement(old) {
+    open fun copyConstructorCall(old: BirConstructorCall): BirElement {
         val new = BirConstructorCallImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -778,14 +798,20 @@ open class BirTreeDeepCopier() {
         new.copyAuxData(old)
         new.copyAttributes(old)
         deferInitialization {
-            new.dispatchReceiver = old.dispatchReceiver?.let { copyElementPossiblyUnfinished(it) }
-            new.extensionReceiver = old.extensionReceiver?.let { copyElementPossiblyUnfinished(it) }
+            new.dispatchReceiver =
+                old.dispatchReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.extensionReceiver =
+                old.extensionReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
             new.valueArguments.copyElements(old.valueArguments)
         }
-        new
+        return new
     }
 
-    open fun copyGetObjectValue(old: BirGetObjectValue): BirGetObjectValue = copyNotReferencedElement(old) {
+    open fun copyGetObjectValue(old: BirGetObjectValue): BirElement {
         val new = BirGetObjectValueImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -793,10 +819,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyGetEnumValue(old: BirGetEnumValue): BirGetEnumValue = copyNotReferencedElement(old) {
+    open fun copyGetEnumValue(old: BirGetEnumValue): BirElement {
         val new = BirGetEnumValueImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -804,10 +830,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyRawFunctionReference(old: BirRawFunctionReference): BirRawFunctionReference = copyNotReferencedElement(old) {
+    open fun copyRawFunctionReference(old: BirRawFunctionReference): BirElement {
         val new = BirRawFunctionReferenceImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -815,10 +841,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyBlock(old: BirBlock): BirBlock = copyNotReferencedElement(old) {
+    open fun copyBlock(old: BirBlock): BirElement {
         val new = BirBlockImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -829,10 +855,10 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.statements.copyElements(old.statements)
         }
-        new
+        return new
     }
 
-    open fun copyComposite(old: BirComposite): BirComposite = copyNotReferencedElement(old) {
+    open fun copyComposite(old: BirComposite): BirElement {
         val new = BirCompositeImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -843,25 +869,27 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.statements.copyElements(old.statements)
         }
-        new
+        return new
     }
 
-    open fun copyReturnableBlock(old: BirReturnableBlock): BirReturnableBlock = copyReferencedElement(old, returnableBlocks) {
-        val new = BirReturnableBlockImpl(
-            sourceSpan = old.sourceSpan,
-            _descriptor = old._descriptor,
-            type = remapType(old.type),
-            origin = old.origin,
-        )
-        new.copyAuxData(old)
-        deferInitialization {
-            new.copyAttributes(old)
-            new.statements.copyElements(old.statements)
+    open fun copyReturnableBlock(old: BirReturnableBlock, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, returnableBlocks, mustProduceNewCopy) {
+            val new = BirReturnableBlockImpl(
+                sourceSpan = old.sourceSpan,
+                _descriptor = old._descriptor,
+                type = remapType(old.type),
+                origin = old.origin,
+            )
+            new.copyAuxData(old)
+            deferInitialization {
+                new.copyAttributes(old)
+                new.statements.copyElements(old.statements)
+            }
+            new
         }
-        new
-    }
 
-    open fun copyInlinedFunctionBlock(old: BirInlinedFunctionBlock): BirInlinedFunctionBlock = copyNotReferencedElement(old) {
+    open fun copyInlinedFunctionBlock(old: BirInlinedFunctionBlock): BirElement { // no remap
+        // no remap
         val new = BirInlinedFunctionBlockImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -874,19 +902,21 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.statements.copyElements(old.statements)
         }
-        new
+        // no remap
+        // no remap
+        return new
     }
 
-    open fun copySyntheticBody(old: BirSyntheticBody): BirSyntheticBody = copyNotReferencedElement(old) {
+    open fun copySyntheticBody(old: BirSyntheticBody): BirElement {
         val new = BirSyntheticBodyImpl(
             sourceSpan = old.sourceSpan,
             kind = old.kind,
         )
         new.copyAuxData(old)
-        new
+        return new
     }
 
-    open fun copyBreak(old: BirBreak): BirBreak = copyNotReferencedElement(old) {
+    open fun copyBreak(old: BirBreak): BirElement {
         val new = BirBreakImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -895,10 +925,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyContinue(old: BirContinue): BirContinue = copyNotReferencedElement(old) {
+    open fun copyContinue(old: BirContinue): BirElement {
         val new = BirContinueImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -907,10 +937,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyCall(old: BirCall): BirCall = copyNotReferencedElement(old) {
+    open fun copyCall(old: BirCall): BirElement {
         val new = BirCallImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -925,14 +955,20 @@ open class BirTreeDeepCopier() {
         new.copyAuxData(old)
         new.copyAttributes(old)
         deferInitialization {
-            new.dispatchReceiver = old.dispatchReceiver?.let { copyElementPossiblyUnfinished(it) }
-            new.extensionReceiver = old.extensionReceiver?.let { copyElementPossiblyUnfinished(it) }
+            new.dispatchReceiver =
+                old.dispatchReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.extensionReceiver =
+                old.extensionReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
             new.valueArguments.copyElements(old.valueArguments)
         }
-        new
+        return new
     }
 
-    open fun copyFunctionReference(old: BirFunctionReference): BirFunctionReference = copyNotReferencedElement(old) {
+    open fun copyFunctionReference(old: BirFunctionReference): BirElement {
         val new = BirFunctionReferenceImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -946,14 +982,20 @@ open class BirTreeDeepCopier() {
         new.copyAuxData(old)
         new.copyAttributes(old)
         deferInitialization {
-            new.dispatchReceiver = old.dispatchReceiver?.let { copyElementPossiblyUnfinished(it) }
-            new.extensionReceiver = old.extensionReceiver?.let { copyElementPossiblyUnfinished(it) }
+            new.dispatchReceiver =
+                old.dispatchReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.extensionReceiver =
+                old.extensionReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
             new.valueArguments.copyElements(old.valueArguments)
         }
-        new
+        return new
     }
 
-    open fun copyPropertyReference(old: BirPropertyReference): BirPropertyReference = copyNotReferencedElement(old) {
+    open fun copyPropertyReference(old: BirPropertyReference): BirElement {
         val new = BirPropertyReferenceImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -969,38 +1011,49 @@ open class BirTreeDeepCopier() {
         new.copyAuxData(old)
         new.copyAttributes(old)
         deferInitialization {
-            new.dispatchReceiver = old.dispatchReceiver?.let { copyElementPossiblyUnfinished(it) }
-            new.extensionReceiver = old.extensionReceiver?.let { copyElementPossiblyUnfinished(it) }
+            new.dispatchReceiver =
+                old.dispatchReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.extensionReceiver =
+                old.extensionReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
             new.valueArguments.copyElements(old.valueArguments)
         }
-        new
+        return new
     }
 
-    open fun copyLocalDelegatedPropertyReference(old: BirLocalDelegatedPropertyReference): BirLocalDelegatedPropertyReference =
-        copyNotReferencedElement(old) {
-            val new = BirLocalDelegatedPropertyReferenceImpl(
-                sourceSpan = old.sourceSpan,
-                type = remapType(old.type),
-                target = remapSymbol(old.target),
-                dispatchReceiver = null,
-                extensionReceiver = null,
-                origin = old.origin,
-                typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } },
-                delegate = remapElement(old.delegate),
-                getter = remapSymbol(old.getter),
-                setter = old.setter?.let { remapSymbol(it) },
-            )
-            new.copyAuxData(old)
-            new.copyAttributes(old)
-            deferInitialization {
-                new.dispatchReceiver = old.dispatchReceiver?.let { copyElementPossiblyUnfinished(it) }
-                new.extensionReceiver = old.extensionReceiver?.let { copyElementPossiblyUnfinished(it) }
-                new.valueArguments.copyElements(old.valueArguments)
-            }
-            new
+    open fun copyLocalDelegatedPropertyReference(old: BirLocalDelegatedPropertyReference): BirElement {
+        val new = BirLocalDelegatedPropertyReferenceImpl(
+            sourceSpan = old.sourceSpan,
+            type = remapType(old.type),
+            target = remapSymbol(old.target),
+            dispatchReceiver = null,
+            extensionReceiver = null,
+            origin = old.origin,
+            typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } },
+            delegate = remapElement(old.delegate),
+            getter = remapSymbol(old.getter),
+            setter = old.setter?.let { remapSymbol(it) },
+        )
+        new.copyAuxData(old)
+        new.copyAttributes(old)
+        deferInitialization {
+            new.dispatchReceiver =
+                old.dispatchReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.extensionReceiver =
+                old.extensionReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.valueArguments.copyElements(old.valueArguments)
         }
+        return new
+    }
 
-    open fun copyClassReference(old: BirClassReference): BirClassReference = copyNotReferencedElement(old) {
+    open fun copyClassReference(old: BirClassReference): BirElement {
         val new = BirClassReferenceImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1009,11 +1062,11 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun <T> copyConst(old: BirConst<T>): BirConst<T> = copyNotReferencedElement(old) {
-        val new = BirConstImpl<T>(
+    open fun <T> copyConst(old: BirConst<T>): BirConst<T> {
+        val new = BirConstImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
             kind = old.kind,
@@ -1021,10 +1074,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyConstantPrimitive(old: BirConstantPrimitive): BirConstantPrimitive = copyNotReferencedElement(old) {
+    open fun copyConstantPrimitive(old: BirConstantPrimitive): BirElement {
         val new = BirConstantPrimitiveImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1032,10 +1085,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyConstantObject(old: BirConstantObject): BirConstantObject = copyNotReferencedElement(old) {
+    open fun copyConstantObject(old: BirConstantObject): BirElement {
         val new = BirConstantObjectImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1047,10 +1100,10 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.valueArguments.copyElements(old.valueArguments)
         }
-        new
+        return new
     }
 
-    open fun copyConstantArray(old: BirConstantArray): BirConstantArray = copyNotReferencedElement(old) {
+    open fun copyConstantArray(old: BirConstantArray): BirElement {
         val new = BirConstantArrayImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1060,48 +1113,52 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.elements.copyElements(old.elements)
         }
-        new
+        return new
     }
 
-    open fun copyDelegatingConstructorCall(old: BirDelegatingConstructorCall): BirDelegatingConstructorCall =
-        copyNotReferencedElement(old) {
-            val new = BirDelegatingConstructorCallImpl(
-                sourceSpan = old.sourceSpan,
-                type = remapType(old.type),
-                target = remapSymbol(old.target),
-                dispatchReceiver = null,
-                extensionReceiver = null,
-                origin = old.origin,
-                typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } },
-                contextReceiversCount = old.contextReceiversCount,
-            )
-            new.copyAuxData(old)
-            new.copyAttributes(old)
-            deferInitialization {
-                new.dispatchReceiver = old.dispatchReceiver?.let { copyElementPossiblyUnfinished(it) }
-                new.extensionReceiver = old.extensionReceiver?.let { copyElementPossiblyUnfinished(it) }
-                new.valueArguments.copyElements(old.valueArguments)
-            }
-            new
+    open fun copyDelegatingConstructorCall(old: BirDelegatingConstructorCall): BirElement {
+        val new = BirDelegatingConstructorCallImpl(
+            sourceSpan = old.sourceSpan,
+            type = remapType(old.type),
+            target = remapSymbol(old.target),
+            dispatchReceiver = null,
+            extensionReceiver = null,
+            origin = old.origin,
+            typeArguments = old.typeArguments.memoryOptimizedMap { it?.let { remapType(it) } },
+            contextReceiversCount = old.contextReceiversCount,
+        )
+        new.copyAuxData(old)
+        new.copyAttributes(old)
+        deferInitialization {
+            new.dispatchReceiver =
+                old.dispatchReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.extensionReceiver =
+                old.extensionReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.valueArguments.copyElements(old.valueArguments)
         }
+        return new
+    }
 
-    open fun copyDynamicOperatorExpression(old: BirDynamicOperatorExpression): BirDynamicOperatorExpression =
-        copyNotReferencedElement(old) {
-            val new = BirDynamicOperatorExpressionImpl(
-                sourceSpan = old.sourceSpan,
-                type = remapType(old.type),
-                operator = old.operator,
-                receiver = copyElementPossiblyUnfinished(old.receiver),
-            )
-            new.copyAuxData(old)
-            new.copyAttributes(old)
-            deferInitialization {
-                new.arguments.copyElements(old.arguments)
-            }
-            new
+    open fun copyDynamicOperatorExpression(old: BirDynamicOperatorExpression): BirElement {
+        val new = BirDynamicOperatorExpressionImpl(
+            sourceSpan = old.sourceSpan,
+            type = remapType(old.type),
+            operator = old.operator,
+            receiver = copyElementPossiblyUnfinished(old.receiver),
+        )
+        new.copyAuxData(old)
+        new.copyAttributes(old)
+        deferInitialization {
+            new.arguments.copyElements(old.arguments)
         }
+        return new
+    }
 
-    open fun copyDynamicMemberExpression(old: BirDynamicMemberExpression): BirDynamicMemberExpression = copyNotReferencedElement(old) {
+    open fun copyDynamicMemberExpression(old: BirDynamicMemberExpression): BirElement {
         val new = BirDynamicMemberExpressionImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1110,10 +1167,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyEnumConstructorCall(old: BirEnumConstructorCall): BirEnumConstructorCall = copyNotReferencedElement(old) {
+    open fun copyEnumConstructorCall(old: BirEnumConstructorCall): BirElement {
         val new = BirEnumConstructorCallImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1127,14 +1184,20 @@ open class BirTreeDeepCopier() {
         new.copyAuxData(old)
         new.copyAttributes(old)
         deferInitialization {
-            new.dispatchReceiver = old.dispatchReceiver?.let { copyElementPossiblyUnfinished(it) }
-            new.extensionReceiver = old.extensionReceiver?.let { copyElementPossiblyUnfinished(it) }
+            new.dispatchReceiver =
+                old.dispatchReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
+            new.extensionReceiver =
+                old.extensionReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
             new.valueArguments.copyElements(old.valueArguments)
         }
-        new
+        return new
     }
 
-    open fun copyErrorCallExpression(old: BirErrorCallExpression): BirErrorCallExpression = copyNotReferencedElement(old) {
+    open fun copyErrorCallExpression(old: BirErrorCallExpression): BirElement {
         val new = BirErrorCallExpressionImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1145,12 +1208,15 @@ open class BirTreeDeepCopier() {
         new.copyAttributes(old)
         deferInitialization {
             new.arguments.copyElements(old.arguments)
-            new.explicitReceiver = old.explicitReceiver?.let { copyElementPossiblyUnfinished(it) }
+            new.explicitReceiver =
+                old.explicitReceiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
         }
-        new
+        return new
     }
 
-    open fun copyGetField(old: BirGetField): BirGetField = copyNotReferencedElement(old) {
+    open fun copyGetField(old: BirGetField): BirElement {
         val new = BirGetFieldImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1162,12 +1228,15 @@ open class BirTreeDeepCopier() {
         new.copyAuxData(old)
         new.copyAttributes(old)
         deferInitialization {
-            new.receiver = old.receiver?.let { copyElementPossiblyUnfinished(it) }
+            new.receiver =
+                old.receiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
         }
-        new
+        return new
     }
 
-    open fun copySetField(old: BirSetField): BirSetField = copyNotReferencedElement(old) {
+    open fun copySetField(old: BirSetField): BirElement {
         val new = BirSetFieldImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1180,12 +1249,15 @@ open class BirTreeDeepCopier() {
         new.copyAuxData(old)
         new.copyAttributes(old)
         deferInitialization {
-            new.receiver = old.receiver?.let { copyElementPossiblyUnfinished(it) }
+            new.receiver =
+                old.receiver?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
         }
-        new
+        return new
     }
 
-    open fun copyFunctionExpression(old: BirFunctionExpression): BirFunctionExpression = copyNotReferencedElement(old) {
+    open fun copyFunctionExpression(old: BirFunctionExpression): BirElement {
         val new = BirFunctionExpressionImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1194,10 +1266,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyGetClass(old: BirGetClass): BirGetClass = copyNotReferencedElement(old) {
+    open fun copyGetClass(old: BirGetClass): BirElement {
         val new = BirGetClassImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1205,10 +1277,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyInstanceInitializerCall(old: BirInstanceInitializerCall): BirInstanceInitializerCall = copyNotReferencedElement(old) {
+    open fun copyInstanceInitializerCall(old: BirInstanceInitializerCall): BirElement {
         val new = BirInstanceInitializerCallImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1216,20 +1288,21 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyWhileLoop(old: BirWhileLoop): BirWhileLoop = copyReferencedElement(old, loops) {
-        val new = BirWhileLoopImpl(
-            sourceSpan = old.sourceSpan,
-            type = remapType(old.type),
-            origin = old.origin,
-            body = null,
-            // nb: this may be a problem if there is a ref to the loop from within the condition (language seems to not allow that however).
-            //  In such case the simples solution is to do what IR does right now - make condition property lateinit.
-            condition = copyElementPossiblyUnfinished(old.condition),
-            label = old.label,
-        )
+    open fun copyWhileLoop(old: BirWhileLoop, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, loops, mustProduceNewCopy) {
+            val new = BirWhileLoopImpl(
+                sourceSpan = old.sourceSpan,
+                type = remapType(old.type),
+                origin = old.origin,
+                body = null,
+                // nb: this may be a problem if there is a ref to the loop from within the condition (language seems to not allow that however).
+                //  In such case the simples solution is to do what IR does right now - make condition property lateinit.
+                condition = copyElementPossiblyUnfinished(old.condition),
+                label = old.label,
+            )
         new.copyAuxData(old)
         deferInitialization {
             new.copyAttributes(old)
@@ -1238,24 +1311,25 @@ open class BirTreeDeepCopier() {
         new
     }
 
-    open fun copyDoWhileLoop(old: BirDoWhileLoop): BirDoWhileLoop = copyReferencedElement(old, loops) {
-        val new = BirDoWhileLoopImpl(
-            sourceSpan = old.sourceSpan,
-            type = remapType(old.type),
-            origin = old.origin,
-            body = null,
-            condition = copyElementPossiblyUnfinished(old.condition),
-            label = old.label,
-        )
-        new.copyAuxData(old)
-        deferInitialization {
+    open fun copyDoWhileLoop(old: BirDoWhileLoop, mustProduceNewCopy: Boolean): BirElement =
+        copyReferencedElement(old, loops, mustProduceNewCopy) {
+            val new = BirDoWhileLoopImpl(
+                sourceSpan = old.sourceSpan,
+                type = remapType(old.type),
+                origin = old.origin,
+                body = null,
+                condition = copyElementPossiblyUnfinished(old.condition),
+                label = old.label,
+            )
+            new.copyAuxData(old)
+            deferInitialization {
             new.copyAttributes(old)
             new.body = old.body?.let { copyElementPossiblyUnfinished(it) }
         }
         new
     }
 
-    open fun copyReturn(old: BirReturn): BirReturn = copyNotReferencedElement(old) {
+    open fun copyReturn(old: BirReturn): BirElement {
         val new = BirReturnImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1264,10 +1338,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyStringConcatenation(old: BirStringConcatenation): BirStringConcatenation = copyNotReferencedElement(old) {
+    open fun copyStringConcatenation(old: BirStringConcatenation): BirElement {
         val new = BirStringConcatenationImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1277,10 +1351,10 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.arguments.copyElements(old.arguments)
         }
-        new
+        return new
     }
 
-    open fun copySuspensionPoint(old: BirSuspensionPoint): BirSuspensionPoint = copyNotReferencedElement(old) {
+    open fun copySuspensionPoint(old: BirSuspensionPoint): BirElement {
         val new = BirSuspensionPointImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1290,10 +1364,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copySuspendableExpression(old: BirSuspendableExpression): BirSuspendableExpression = copyNotReferencedElement(old) {
+    open fun copySuspendableExpression(old: BirSuspendableExpression): BirElement {
         val new = BirSuspendableExpressionImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1302,10 +1376,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyThrow(old: BirThrow): BirThrow = copyNotReferencedElement(old) {
+    open fun copyThrow(old: BirThrow): BirElement {
         val new = BirThrowImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1313,10 +1387,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyTry(old: BirTry): BirTry = copyNotReferencedElement(old) {
+    open fun copyTry(old: BirTry): BirElement {
         val new = BirTryImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1327,22 +1401,25 @@ open class BirTreeDeepCopier() {
         new.copyAttributes(old)
         deferInitialization {
             new.catches.copyElements(old.catches)
-            new.finallyExpression = old.finallyExpression?.let { copyElementPossiblyUnfinished(it) }
+            new.finallyExpression =
+                old.finallyExpression?.let {
+                    copyElementPossiblyUnfinished(it)
+                }
         }
-        new
+        return new
     }
 
-    open fun copyCatch(old: BirCatch): BirCatch = copyNotReferencedElement(old) {
+    open fun copyCatch(old: BirCatch): BirElement {
         val new = BirCatchImpl(
             sourceSpan = old.sourceSpan,
             catchParameter = copyElementPossiblyUnfinished(old.catchParameter),
             result = copyElementPossiblyUnfinished(old.result),
         )
         new.copyAuxData(old)
-        new
+        return new
     }
 
-    open fun copyTypeOperatorCall(old: BirTypeOperatorCall): BirTypeOperatorCall = copyNotReferencedElement(old) {
+    open fun copyTypeOperatorCall(old: BirTypeOperatorCall): BirElement {
         val new = BirTypeOperatorCallImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1352,10 +1429,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyGetValue(old: BirGetValue): BirGetValue = copyNotReferencedElement(old) {
+    open fun copyGetValue(old: BirGetValue): BirElement {
         val new = BirGetValueImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1364,10 +1441,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copySetValue(old: BirSetValue): BirSetValue = copyNotReferencedElement(old) {
+    open fun copySetValue(old: BirSetValue): BirElement {
         val new = BirSetValueImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1377,10 +1454,10 @@ open class BirTreeDeepCopier() {
         )
         new.copyAuxData(old)
         new.copyAttributes(old)
-        new
+        return new
     }
 
-    open fun copyVararg(old: BirVararg): BirVararg = copyNotReferencedElement(old) {
+    open fun copyVararg(old: BirVararg): BirElement {
         val new = BirVarargImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1391,19 +1468,19 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.elements.copyElements(old.elements)
         }
-        new
+        return new
     }
 
-    open fun copySpreadElement(old: BirSpreadElement): BirSpreadElement = copyNotReferencedElement(old) {
+    open fun copySpreadElement(old: BirSpreadElement): BirElement {
         val new = BirSpreadElementImpl(
             sourceSpan = old.sourceSpan,
             expression = copyElementPossiblyUnfinished(old.expression),
         )
         new.copyAuxData(old)
-        new
+        return new
     }
 
-    open fun copyWhen(old: BirWhen): BirWhen = copyNotReferencedElement(old) {
+    open fun copyWhen(old: BirWhen): BirElement {
         val new = BirWhenImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
@@ -1414,35 +1491,35 @@ open class BirTreeDeepCopier() {
         deferInitialization {
             new.branches.copyElements(old.branches)
         }
-        new
+        return new
     }
 
-    open fun copyBranch(old: BirBranch): BirBranch = copyNotReferencedElement(old) {
+    open fun copyBranch(old: BirBranch): BirElement {
         val new = BirBranchImpl(
             sourceSpan = old.sourceSpan,
             condition = copyElementPossiblyUnfinished(old.condition),
             result = copyElementPossiblyUnfinished(old.result),
         )
         new.copyAuxData(old)
-        new
+        return new
     }
 
-    open fun copyElseBranch(old: BirElseBranch): BirElseBranch = copyNotReferencedElement(old) {
+    open fun copyElseBranch(old: BirElseBranch): BirElement {
         val new = BirElseBranchImpl(
             sourceSpan = old.sourceSpan,
             condition = copyElementPossiblyUnfinished(old.condition),
             result = copyElementPossiblyUnfinished(old.result),
         )
         new.copyAuxData(old)
-        new
+        return new
     }
 
-    open fun copyNoExpression(old: BirNoExpression): BirNoExpression = copyNotReferencedElement(old) {
+    open fun copyNoExpression(old: BirNoExpression): BirElement {
         val new = BirNoExpressionImpl(
             sourceSpan = old.sourceSpan,
             type = remapType(old.type),
         )
         new.copyAuxData(old)
-        new
+        return new
     }
 }
