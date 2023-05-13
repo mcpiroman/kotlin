@@ -10,18 +10,33 @@ import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirChildElementList<E : BirElement>(
     internal val parent: BirElementBase,
+    id: Int,
 ) : BirElementBaseOrList(), Collection<E> {
-    override var size: Int = 0
-        private set
+    init {
+        assert(id > 0)
+    }
+
+    private var sizeAndId: Int = id shl (32 - ID_BITS)
 
     // if tail == null -> next
     // if tail != null -> head
     private var headOrNext: BirElementBase? = null
     private var tail: BirElementBase? = null
 
+    override var size: Int
+        get() = sizeAndId and SIZE_MASK
+        private set(value) {
+            sizeAndId = value or (sizeAndId and ID_MASK)
+        }
+
+    internal val id: Int
+        get() = sizeAndId.toInt() shr (32 - ID_BITS)
+
     override fun isEmpty() = tail == null
 
-    override fun contains(element: E) = (element as? BirElementBase)?.rawParent === this
+    override fun contains(element: E) =
+        (element as? BirElementBase)?.parent === parent
+                && element.containingListId == id
 
     override fun containsAll(elements: Collection<E>) = elements.all { it in this }
 
@@ -73,8 +88,9 @@ class BirChildElementList<E : BirElement>(
             tail = element
         }
 
-        element.rawParent = this
-        size++
+        element.parent = parent
+        element.containingListId = id
+        sizeAndId++
 
         parent.childAttached(element, newPrev)
         return true
@@ -130,9 +146,9 @@ class BirChildElementList<E : BirElement>(
             this.tail = new
         }
 
-        new.rawParent = this
-        old.rawParent = null
-        old.next = null
+        new.parent = parent
+        new.containingListId = id
+        old.resetAttachment()
 
         parent.childDetached(old, prev)
         parent.childAttached(new, prev)
@@ -164,9 +180,8 @@ class BirChildElementList<E : BirElement>(
             this.tail = prevInList
         }
 
-        element.rawParent = null
-        element.next = null
-        size--
+        element.resetAttachment()
+        sizeAndId--
 
         parent.childDetached(element, prev)
 
@@ -182,9 +197,8 @@ class BirChildElementList<E : BirElement>(
         var element = headOrNext!!
         headOrNext = tail.next
         while (true) {
-            element.rawParent = null
             val next = element.next
-            element.next = null
+            element.resetAttachment()
             parent.childDetached(element, prev)
 
             if (element === tail) break
@@ -220,7 +234,7 @@ class BirChildElementList<E : BirElement>(
         return previous
     }
 
-    override val next: BirElementBase?
+    final override val next: BirElementBase?
         get() = tail.let {
             if (it != null) it.next else headOrNext
         }
@@ -393,5 +407,11 @@ class BirChildElementList<E : BirElement>(
             }
             list.replace(toReplace as E, new, last)
         }
+    }
+
+    companion object {
+        private const val ID_BITS = 3
+        private const val SIZE_MASK: Int = (-1 ushr (32 + ID_BITS))
+        private const val ID_MASK: Int = (-1 shl (32 - ID_BITS))
     }
 }

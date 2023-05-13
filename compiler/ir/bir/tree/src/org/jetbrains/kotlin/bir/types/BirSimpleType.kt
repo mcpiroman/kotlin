@@ -54,11 +54,13 @@ abstract class BirAbstractSimpleType(kotlinType: KotlinType?) : BirSimpleType(ko
     abstract override val annotations: List<BirConstructorCall>
     abstract override val abbreviation: BirTypeAbbreviation?
 
-    override fun equals(other: Any?): Boolean =
-        other is BirAbstractSimpleType &&
+    override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        return other is BirAbstractSimpleType &&
                 FqNameEqualityChecker.areEqual(classifier, other.classifier) &&
                 nullability == other.nullability &&
                 arguments == other.arguments
+    }
 
     override fun hashCode(): Int =
         (FqNameEqualityChecker.getHashCode(classifier) * 31 +

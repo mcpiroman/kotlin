@@ -27,7 +27,7 @@ class BirCompositeImpl(
 ) : BirComposite() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
+    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = statements.firstOrNull()
 
@@ -45,5 +45,10 @@ class BirCompositeImpl(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.statements
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

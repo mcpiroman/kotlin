@@ -682,7 +682,7 @@ private fun StringBuilder.renderAsAnnotation(
         }
     }
 
-    if (irAnnotation.valueArguments.size == 0) return
+    if (irAnnotation.valueArguments.isEmpty()) return
 
     val valueParameterNames = irAnnotation.getValueParameterNamesForDebug()
     appendIterableWith(irAnnotation.valueArguments.withIndex(), separator = ", ", prefix = "(", postfix = ")") { (idx, arg) ->

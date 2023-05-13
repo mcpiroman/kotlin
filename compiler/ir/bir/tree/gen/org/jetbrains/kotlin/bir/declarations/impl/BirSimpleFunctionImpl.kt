@@ -62,7 +62,7 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
             BirBackReferenceCollectionArrayStyleImpl()
 
     override var typeParameters: BirChildElementList<BirTypeParameter> =
-            BirChildElementList(this)
+            BirChildElementList(this, 1)
 
     private var _dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
 
@@ -86,7 +86,7 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
         }
 
     override var valueParameters: BirChildElementList<BirValueParameter> =
-            BirChildElementList(this)
+            BirChildElementList(this, 2)
 
     private var _body: BirBody? = body
 
@@ -136,6 +136,12 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
            this._body === old -> this.body = new as BirBody
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.typeParameters
+       id == 2 -> this.valueParameters
+       else -> throwChildrenListWithIdNotFound(id)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

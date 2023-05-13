@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.bir.generator.model.*
 import org.jetbrains.kotlin.bir.generator.util.ClassRef
 import org.jetbrains.kotlin.bir.generator.util.PositionTypeParameterRef
 import org.jetbrains.kotlin.bir.generator.util.TypeRef
+import org.jetbrains.kotlin.bir.generator.util.tryParameterizedBy
 import java.io.File
 
 @OptIn(ExperimentalKotlinPoetApi::class)
@@ -82,7 +83,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                             initializer(field.name)
                         }
                     } else if (field is ListField && field.isChild) {
-                        initializer("BirChildElementList(this)")
+                        initializer("BirChildElementList(this, %L)", field.idInElements[element])
                     }
 
                     if (field is SingleField && field.isChild && field.mutable) {
@@ -195,6 +196,29 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         }
                         .build()
                 )
+
+                val listFields = allChildren.filterIsInstance<ListField>()
+                if (listFields.isNotEmpty()) {
+                    addFunction(
+                        FunSpec
+                            .builder("getChildrenListById")
+                            .addModifiers(KModifier.OVERRIDE)
+                            .addParameter("id", INT)
+                            .returns(elementList.toPoet().tryParameterizedBy(STAR))
+                            .apply {
+                                addCode("return when {\n")
+                                listFields.forEach { field ->
+                                    addCode(
+                                        "   id == %L -> this.%N\n",
+                                        field.idInElements[element], field.name
+                                    )
+                                }
+                                addCode("   else -> throwChildrenListWithIdNotFound(id)\n")
+                                addCode("}\n")
+                            }
+                            .build()
+                    )
+                }
             }
 
             val symbolFields = allFields.mapNotNull { field ->

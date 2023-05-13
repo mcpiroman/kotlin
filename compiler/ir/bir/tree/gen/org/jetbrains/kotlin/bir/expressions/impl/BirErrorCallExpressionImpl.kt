@@ -38,7 +38,7 @@ class BirErrorCallExpressionImpl(
             _explicitReceiver = value
         }
 
-    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
+    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this, 1)
     init {
         initChildField(_explicitReceiver, null)
     }
@@ -62,5 +62,10 @@ class BirErrorCallExpressionImpl(
            this._explicitReceiver === old -> this.explicitReceiver = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.arguments
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

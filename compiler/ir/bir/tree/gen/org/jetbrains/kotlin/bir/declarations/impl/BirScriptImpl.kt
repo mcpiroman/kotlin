@@ -47,7 +47,7 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
     override var targetClass: BirClassSymbol?,
     override var constructor: BirConstructor?,
 ) : BirScript() {
-    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
+    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this, 1)
 
     private var _thisReceiver: BirValueParameter? = thisReceiver
 
@@ -60,13 +60,13 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
         }
 
     override var explicitCallParameters: BirChildElementList<BirVariable> =
-            BirChildElementList(this)
+            BirChildElementList(this, 2)
 
     override var implicitReceiversParameters: BirChildElementList<BirValueParameter> =
-            BirChildElementList(this)
+            BirChildElementList(this, 3)
 
     override var providedPropertiesParameters: BirChildElementList<BirValueParameter> =
-            BirChildElementList(this)
+            BirChildElementList(this, 4)
 
     private var _earlierScriptsParameter: BirValueParameter? = earlierScriptsParameter
 
@@ -113,6 +113,14 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
                 BirValueParameter
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.statements
+       id == 2 -> this.explicitCallParameters
+       id == 3 -> this.implicitReceiversParameters
+       id == 4 -> this.providedPropertiesParameters
+       else -> throwChildrenListWithIdNotFound(id)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

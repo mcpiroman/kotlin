@@ -37,7 +37,7 @@ class BirConstantObjectImpl(
         }
 
     override val valueArguments: BirChildElementList<BirConstantValue> =
-            BirChildElementList(this)
+            BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = valueArguments.firstOrNull()
 
@@ -55,6 +55,11 @@ class BirConstantObjectImpl(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.valueArguments
+       else -> throwChildrenListWithIdNotFound(id)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

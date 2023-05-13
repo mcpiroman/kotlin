@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.bir.utils
 
+import com.intellij.util.containers.HashSetInterner
 import org.jetbrains.kotlin.bir.*
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
@@ -187,45 +188,82 @@ abstract class Ir2BirConverterBase {
     context(BirTreeContext)
     fun remapType(irType: IrType): BirType = when (irType) {
         // for IrDelegatedSimpleType, this egaerly initializes a lazy IrAnnotationType
-        is IrSimpleTypeImpl, is IrDelegatedSimpleType -> BirSimpleTypeImpl(
-            (irType as IrSimpleType).kotlinType,
+        is IrSimpleTypeImpl, is IrDelegatedSimpleType -> remapSimpleType(irType as IrSimpleType)
+        is IrCapturedType -> remapCapturedType(irType)
+        is IrDynamicType -> remapDynamicType(irType)
+        is IrErrorType -> remapErrorType(irType)
+        else -> TODO(irType.toString())
+    }
+
+    private val simpleTypeIntern = HashSetInterner<BirSimpleType>()
+    private val typeAbbreviationIntern = HashSetInterner<BirTypeAbbreviation>()
+    private val dynamicTypeIntern = HashSetInterner<BirDynamicType>()
+    private val capturedTypeIntern = HashSetInterner<BirCapturedType>()
+    private val typeProjectionIntern = HashSetInterner<BirTypeProjection>()
+
+    context(BirTreeContext)
+    private fun remapSimpleType(irType: IrSimpleType): BirSimpleType {
+        val birType = BirSimpleTypeImpl(
+            irType.kotlinType,
             remapSymbol(irType.classifier),
             irType.nullability,
             irType.arguments.map { remapTypeArgument(it) },
             irType.annotations.map { remapElement(it) as BirConstructorCall },
             irType.abbreviation?.let { abbreviation ->
-                BirTypeAbbreviation(
-                    remapSymbol(abbreviation.typeAlias),
-                    abbreviation.hasQuestionMark,
-                    abbreviation.arguments.map { remapTypeArgument(it) },
-                    abbreviation.annotations.map { remapElement(it) as BirConstructorCall },
-                )
+                remapTypeAbbreviation(abbreviation)
             },
         )
-        is IrCapturedType -> BirCapturedType(
+        return simpleTypeIntern.intern(birType)
+    }
+
+    context(BirTreeContext)
+    private fun remapTypeAbbreviation(abbreviation: IrTypeAbbreviation): BirTypeAbbreviation {
+        val birType = BirTypeAbbreviation(
+            remapSymbol(abbreviation.typeAlias),
+            abbreviation.hasQuestionMark,
+            abbreviation.arguments.map { remapTypeArgument(it) },
+            abbreviation.annotations.map { remapElement(it) as BirConstructorCall },
+        )
+        return typeAbbreviationIntern.intern(birType)
+    }
+
+    context(BirTreeContext)
+    private fun remapCapturedType(irType: IrCapturedType): BirCapturedType {
+        val birType = BirCapturedType(
             irType.captureStatus,
             irType.lowerType?.let { remapType(it) },
             remapTypeArgument(irType.constructor.argument),
             remapElement(irType.constructor.typeParameter) as BirTypeParameter,
         )
-        is IrDynamicType -> BirDynamicType(
+        return capturedTypeIntern.intern(birType)
+    }
+
+    context(BirTreeContext)
+    private fun remapDynamicType(irType: IrDynamicType): BirDynamicType {
+        val birType = BirDynamicType(
             irType.kotlinType,
             irType.annotations.map { remapElement(it) as BirConstructorCall },
             irType.variance,
         )
-        is IrErrorType -> BirErrorType(
+        return dynamicTypeIntern.intern(birType)
+    }
+
+    context(BirTreeContext)
+    private fun Ir2BirConverterBase.remapErrorType(irType: IrErrorType) =
+        BirErrorType(
             irType.kotlinType,
             irType.annotations.map { remapElement(it) as BirConstructorCall },
             irType.variance,
             irType.isMarkedNullable,
         )
-        else -> TODO(irType.toString())
-    }
 
     context(BirTreeContext)
     fun remapTypeArgument(irTypeArgument: IrTypeArgument): BirTypeArgument = when (irTypeArgument) {
         is IrStarProjection -> BirStarProjection
-        is IrTypeProjectionImpl -> BirTypeProjectionImpl(remapType(irTypeArgument.type), irTypeArgument.variance)
+        is IrTypeProjectionImpl -> {
+            val birType = BirTypeProjectionImpl(remapType(irTypeArgument.type), irTypeArgument.variance)
+            typeProjectionIntern.intern(birType)
+        }
         is IrType -> remapType(irTypeArgument) as BirTypeArgument
         else -> error(irTypeArgument)
     }

@@ -63,7 +63,7 @@ class BirFunctionReferenceImpl(
         }
 
     override var valueArguments: BirChildElementList<BirExpression> =
-            BirChildElementList(this)
+            BirChildElementList(this, 1)
     init {
         initChildField(_dispatchReceiver, null)
         initChildField(_extensionReceiver, _dispatchReceiver)
@@ -92,6 +92,11 @@ class BirFunctionReferenceImpl(
            this._extensionReceiver === old -> this.extensionReceiver = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.valueArguments
+       else -> throwChildrenListWithIdNotFound(id)
     }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

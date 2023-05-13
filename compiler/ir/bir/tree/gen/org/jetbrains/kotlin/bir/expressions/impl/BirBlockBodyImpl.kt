@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 class BirBlockBodyImpl(
     override var sourceSpan: SourceSpan,
 ) : BirBlockBody() {
-    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this)
+    override val statements: BirChildElementList<BirStatement> = BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = statements.firstOrNull()
 
@@ -38,5 +38,10 @@ class BirBlockBodyImpl(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.statements
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

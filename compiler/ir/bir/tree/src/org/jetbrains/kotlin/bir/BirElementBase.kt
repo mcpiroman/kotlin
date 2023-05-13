@@ -17,10 +17,11 @@ sealed class BirElementBaseOrList : BirElementOrList {
 
 abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     //var originalIrElement: IrElement? = null
-    internal var rawParent: BirElementBaseOrList? = null
-    override var next: BirElementBase? = null
+    final override var parent: BirElementBase? = null
+        internal set
+    final override var next: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
-    private var level: UShort = 0u
+    private var levelAndContainingListId: Short = 0
     private var flags: Byte = 0
     private var registeredBackRefs: Byte = 0
 
@@ -29,15 +30,24 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         set(value) {}
         get() = getFirstChild() as BirElementBase?
 
-    final override val parent: BirElementBase?
-        get() = when (val rawParent = rawParent) {
-            null -> null
-            is BirElementBase -> rawParent
-            is BirChildElementList<*> -> rawParent.parent
+
+    private var level: Short
+        get() = levelAndContainingListId and LEVEL_MASK
+        set(value) {
+            levelAndContainingListId = value or (levelAndContainingListId and CONTAINING_LIST_ID_MASK)
         }
 
-    internal fun getContainingList(): BirChildElementList<*>? =
-        rawParent as? BirChildElementList<*>
+    internal var containingListId: Int
+        get() = levelAndContainingListId.toInt() shr (16 - CONTAINING_LIST_ID_BITS)
+        set(value) {
+            levelAndContainingListId = (levelAndContainingListId and LEVEL_MASK) or (value shl (16 - CONTAINING_LIST_ID_BITS)).toShort()
+        }
+
+    internal fun getContainingList(): BirChildElementList<*>? {
+        val containingListId = containingListId
+        return if (containingListId == 0) null
+        else parent?.getChildrenListById(containingListId)
+    }
 
     internal var attachedToTree: Boolean
         get() = hasFlag(FLAG_ATTACHED_TO_TREE)
@@ -72,7 +82,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
 
         val distance = other.level - level
-        if (distance < 0u || (distance == 0u && level != UShort.MAX_VALUE)) {
+        if (distance < 0 || (distance == 0 && level != Short.MAX_VALUE)) {
             return false
         }
 
@@ -85,16 +95,19 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         return false
     }
 
-    internal fun updateLevel() {
-        val parent = parent
+    internal fun updateLevel(parent: BirElementBase?) {
         level = if (parent != null) {
             val parentLevel = parent.level
-            if (parentLevel == UShort.MAX_VALUE) UShort.MAX_VALUE else (parentLevel + 1u).toUShort()
-        } else 0u
+            if (parentLevel == Short.MAX_VALUE) Short.MAX_VALUE else (parentLevel + 1).toShort()
+        } else 0
     }
 
     internal open fun getFirstChild(): BirElement? = null
     internal open fun getChildren(children: Array<BirElementOrList?>): Int = 0
+    internal open fun getChildrenListById(id: Int): BirChildElementList<*> {
+        throwChildrenListWithIdNotFound(id)
+    }
+
     override fun acceptChildren(visitor: BirElementVisitor) = Unit
     context (BirTreeContext)
     internal open fun replaceChildProperty(old: BirElement, new: BirElement?) {
@@ -104,12 +117,16 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal open fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) = Unit
     internal open fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) = Unit
 
-    protected fun throwChildForReplacementNotFound(old: BirElement) {
+    protected fun throwChildForReplacementNotFound(old: BirElement): Nothing {
         throw IllegalStateException("The child property $old not found in its parent $this")
     }
 
+    protected fun throwChildrenListWithIdNotFound(id: Int): Nothing {
+        throw IllegalStateException("The element $this does not have a children list with id $id")
+    }
+
     internal fun checkCanBeAttachedAsChild(newParent: BirElement) {
-        require(rawParent == null) { "Cannot attach element $this as a child of $newParent as it is already a child of $parent." }
+        require(parent == null) { "Cannot attach element $this as a child of $newParent as it is already a child of $parent." }
     }
 
     context (BirTreeContext)
@@ -145,7 +162,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
     protected fun initChildField(
         value: BirElement?,
-        prevChildOrList: BirElementOrList?
+        prevChildOrList: BirElementOrList?,
     ) {
         if (value != null) {
             value as BirElementBase
@@ -187,15 +204,12 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             new ?: old?.next
         )
 
-        if (old != null) {
-            old.rawParent = null
-            old.next = null
-        }
+        old?.resetAttachment()
 
         hasChildren = new != null || newsNext != null
 
         if (old != null) {
-            elementDetached(old, prev)
+            childDetached(old, prev)
         }
 
         if (new != null) {
@@ -211,7 +225,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     ): BirElementBase? {
         if (new != null) {
             new.checkCanBeAttachedAsChild(this)
-            new.rawParent = this
+            new.parent = this
             new.next = next
         }
 
@@ -239,7 +253,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
     internal fun setNextAfterNewChildSetSlow(
         newNext: BirElementBase?,
-        lastListBeforeTheNewElement: BirChildElementList<*>
+        lastListBeforeTheNewElement: BirChildElementList<*>,
     ): BirElementBase? {
         val children = arrayOfNulls<BirElementOrList?>(8)
         val maxChildrenCount = getChildren(children)
@@ -267,17 +281,23 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         return null
     }
 
+    internal fun resetAttachment() {
+        parent = null
+        next = null
+        containingListId = 0
+    }
+
     context (BirTreeContext)
     internal fun childAttached(element: BirElementBase, prev: BirElementBase?) {
         if (attachedToTree) {
-            elementAttached(element, prev)
+            elementAttached(element, this, prev)
         }
     }
 
     context (BirTreeContext)
     internal fun childDetached(element: BirElementBase, prev: BirElementBase?) {
         if (attachedToTree) {
-            elementDetached(element, prev)
+            elementDetached(element, this, prev)
         }
     }
 
@@ -394,22 +414,26 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         private const val FLAG_IS_IN_CLASS_CACHE: Byte = (1 shl 2).toByte()
         private const val FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE: Byte = (1 shl 3).toByte()
         private const val FLAG_ATTACHED_DURING_BY_CLASS_ITERATION: Byte = (1 shl 4).toByte()
+
+        private const val CONTAINING_LIST_ID_BITS = 3
+        private const val LEVEL_MASK: Short = (-1 ushr (16 + CONTAINING_LIST_ID_BITS)).toShort()
+        private const val CONTAINING_LIST_ID_MASK: Short = (-1 shl (16 - CONTAINING_LIST_ID_BITS)).toShort()
     }
 }
 
 context (BirTreeContext)
 fun BirElement.replaceWith(new: BirElement?, hintPreviousElement: BirElementBase? = null) {
     this as BirElementBase
-    val owner = rawParent
-    require(owner != null) { "Element is not bound to a tree - its parent is null" }
-    when (owner) {
-        is BirElementBase -> {
-            owner.replaceChildProperty(this, new)
-        }
-        is BirChildElementList<*> -> {
-            owner as BirChildElementList<BirElement>
-            replaceInsideList(owner, new, hintPreviousElement)
-        }
+
+    val parent = parent
+    require(parent != null) { "Element is not bound to a tree - its parent is null" }
+
+    val list = getContainingList()
+    if (list != null) {
+        @Suppress("UNCHECKED_CAST")
+        replaceInsideList(list as BirChildElementList<BirElement>, new, hintPreviousElement)
+    } else {
+        parent.replaceChildProperty(this, new)
     }
 }
 
