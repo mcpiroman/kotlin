@@ -31,7 +31,7 @@ class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
     override var fileEntry: IrFileEntry,
 ) : BirFile() {
     override val declarations: BirChildElementList<BirDeclaration> =
-            BirChildElementList(this)
+            BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = declarations.firstOrNull()
 
@@ -49,5 +49,10 @@ class BirFileImpl @ObsoleteDescriptorBasedAPI constructor(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.declarations
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

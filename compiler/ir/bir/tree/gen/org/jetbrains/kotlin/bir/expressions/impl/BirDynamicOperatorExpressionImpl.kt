@@ -39,7 +39,7 @@ class BirDynamicOperatorExpressionImpl(
             _receiver = value
         }
 
-    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
+    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this, 1)
     init {
         initChildField(_receiver, null)
     }
@@ -63,5 +63,10 @@ class BirDynamicOperatorExpressionImpl(
            this._receiver === old -> this.receiver = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.arguments
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

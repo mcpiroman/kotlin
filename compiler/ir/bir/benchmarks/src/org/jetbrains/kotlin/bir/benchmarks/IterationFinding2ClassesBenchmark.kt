@@ -7,56 +7,86 @@ package org.jetbrains.kotlin.bir.benchmarks
 
 import kotlinx.benchmark.Benchmark
 import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.declarations.BirVariable
+import org.jetbrains.kotlin.bir.expressions.BirFunctionAccessExpression
 import org.jetbrains.kotlin.bir.traversal.*
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
-open class SimpleIterationBenchmark : BenchmarkOnRealCodeBase(true) {
+open class IterationFinding2ClassesBenchmark : BenchmarkOnRealCodeBase(true) {
     @Benchmark
     fun traverseIr(): Int {
         var i = 0
+        var j = 0
         irRoot.acceptVoid(object : IrElementVisitorVoid {
             override fun visitElement(element: IrElement) {
-                i++
                 element.acceptChildrenVoid(this)
             }
+
+            override fun visitFunctionAccess(expression: IrFunctionAccessExpression) {
+                i++
+                super.visitFunctionAccess(expression)
+            }
+
+            override fun visitProperty(declaration: IrProperty) {
+                j++
+                super.visitProperty(declaration)
+            }
         })
-        return i
+        return i - j
     }
+
 
     @Benchmark
     fun traverseBirStackBased(): Int {
         var i = 0
+        var j = 0
         birRoot.traverseStackBased { element ->
-            i++
+            if (element is BirFunctionAccessExpression) {
+                i++
+            } else if (element is BirVariable) {
+                j++
+            }
             element.walkIntoChildren()
         }
-        return i
+        return i - j
     }
 
     @Benchmark
     fun traverseBirVisitorBased(): Int {
         var i = 0
+        var j = 0
         birRoot.accept(
             object : BirElementVisitor() {
                 override fun visitElement(element: BirElement) {
-                    i++
+                    if (element is BirFunctionAccessExpression) {
+                        i++
+                    } else if (element is BirVariable) {
+                        j++
+                    }
                     element.acceptChildren(this)
                 }
             }
         )
-        return i
+        return i - j
     }
 
     @Benchmark
     fun traverseBirParentBased(): Int {
         var i = 0
-        birRoot.traverseParentBased {
-            i++
+        var j = 0
+        birRoot.traverseParentBased { element ->
+            if (element is BirFunctionAccessExpression) {
+                i++
+            } else if (element is BirVariable) {
+                j++
+            }
             NextWalkStep.StepInto
         }
-        return i
+        return i - j
     }
 }

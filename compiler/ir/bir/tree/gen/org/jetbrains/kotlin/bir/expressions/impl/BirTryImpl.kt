@@ -39,7 +39,7 @@ class BirTryImpl(
             _tryResult = value
         }
 
-    override val catches: BirChildElementList<BirCatch> = BirChildElementList(this)
+    override val catches: BirChildElementList<BirCatch> = BirChildElementList(this, 1)
 
     private var _finallyExpression: BirExpression? = finallyExpression
 
@@ -77,5 +77,10 @@ class BirTryImpl(
            this._finallyExpression === old -> this.finallyExpression = new as BirExpression
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.catches
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

@@ -63,9 +63,9 @@ private class MockBirClassImpl(
             _field3 = value
         }
 
-    override val list1 = BirChildElementList<MockBirDeclaration>(this)
-    override val list2 = BirChildElementList<MockBirDeclaration>(this)
-    override val list3 = BirChildElementList<MockBirDeclaration>(this)
+    override val list1 = BirChildElementList<MockBirDeclaration>(this, 1)
+    override val list2 = BirChildElementList<MockBirDeclaration>(this, 2)
+    override val list3 = BirChildElementList<MockBirDeclaration>(this, 3)
 
     init {
         initChildField(_field1, null)

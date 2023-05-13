@@ -60,10 +60,10 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
             BirBackReferenceCollectionArrayStyleImpl()
 
     override var typeParameters: BirChildElementList<BirTypeParameter> =
-            BirChildElementList(this)
+            BirChildElementList(this, 1)
 
     override val declarations: BirChildElementList<BirDeclaration> =
-            BirChildElementList(this)
+            BirChildElementList(this, 2)
 
     override var attributeOwnerId: BirAttributeContainer = this
 
@@ -102,5 +102,11 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
            this._thisReceiver === old -> this.thisReceiver = new as BirValueParameter
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.typeParameters
+       id == 2 -> this.declarations
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

@@ -25,7 +25,7 @@ class BirStringConcatenationImpl(
 ) : BirStringConcatenation() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this)
+    override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = arguments.firstOrNull()
 
@@ -43,5 +43,10 @@ class BirStringConcatenationImpl(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.arguments
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

@@ -26,7 +26,8 @@ class BirVarargImpl(
 ) : BirVararg() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override val elements: BirChildElementList<BirVarargElement> = BirChildElementList(this)
+    override val elements: BirChildElementList<BirVarargElement> = BirChildElementList(this,
+            1)
 
     override fun getFirstChild(): BirElement? = elements.firstOrNull()
 
@@ -44,5 +45,10 @@ class BirVarargImpl(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.elements
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

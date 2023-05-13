@@ -36,7 +36,7 @@ class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
     override var expandedType: BirType,
 ) : BirTypeAlias() {
     override var typeParameters: BirChildElementList<BirTypeParameter> =
-            BirChildElementList(this)
+            BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = typeParameters.firstOrNull()
 
@@ -54,5 +54,10 @@ class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.typeParameters
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

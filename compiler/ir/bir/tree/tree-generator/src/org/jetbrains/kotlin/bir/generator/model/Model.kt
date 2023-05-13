@@ -117,6 +117,7 @@ class ListField(
     mutable: Boolean,
     isChild: Boolean,
 ) : Field(config, name, nullable, mutable, isChild) {
+    val idInElements = mutableMapOf<Element, Int>()
     override val type: TypeRef
         get() = listType.withArgs(elementType)
 }

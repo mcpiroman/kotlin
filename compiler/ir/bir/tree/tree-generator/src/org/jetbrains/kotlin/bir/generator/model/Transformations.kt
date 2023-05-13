@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.bir.generator.model
 import org.jetbrains.kotlin.bir.generator.Packages
 import org.jetbrains.kotlin.bir.generator.config.*
 import org.jetbrains.kotlin.bir.generator.elementBaseType
+import org.jetbrains.kotlin.bir.generator.elementList
 import org.jetbrains.kotlin.bir.generator.util.*
 import org.jetbrains.kotlin.utils.addToStdlib.castAll
 import org.jetbrains.kotlin.utils.addToStdlib.partitionIsInstance
@@ -32,7 +33,7 @@ fun config2model(config: Config): Model {
                 )
                 is ListFieldConfig -> {
                     val listType = when {
-                        fc.isChild -> org.jetbrains.kotlin.bir.generator.elementList
+                        fc.isChild -> elementList
                         fc.mutability == ListFieldConfig.Mutability.List -> type(
                             "kotlin.collections",
                             "MutableList"
@@ -244,8 +245,12 @@ private fun computeAllFields(elements: List<Element>) {
         val allFields = allFieldsMap.values.toList()
 
         element.allFields = allFields
+        var id = 1
         for (field in allFields) {
             field.passViaConstructorParameter = !(field is ListField && field.isChild) && !field.defaultToThis
+            if (field is ListField && field.isChild) {
+                field.idInElements[element] = id++
+            }
         }
     }
 }

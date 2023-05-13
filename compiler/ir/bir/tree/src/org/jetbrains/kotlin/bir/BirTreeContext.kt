@@ -8,16 +8,19 @@ package org.jetbrains.kotlin.bir
 import org.jetbrains.kotlin.bir.declarations.BirFunction
 import org.jetbrains.kotlin.bir.declarations.BirProperty
 import org.jetbrains.kotlin.bir.declarations.BirVariable
-import org.jetbrains.kotlin.bir.expressions.*
+import org.jetbrains.kotlin.bir.expressions.BirBody
+import org.jetbrains.kotlin.bir.expressions.BirCall
+import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
+import org.jetbrains.kotlin.bir.expressions.BirFunctionReference
 
 abstract class BirTreeContext {
-    internal abstract fun elementAttached(element: BirElementBase, prev: BirElementBase?)
-    internal abstract fun elementDetached(element: BirElementBase, prev: BirElementBase?)
+    internal abstract fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?)
+    internal abstract fun elementDetached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?)
 }
 
 object DummyBirTreeContext : BirTreeContext() {
-    override fun elementAttached(element: BirElementBase, prev: BirElementBase?) {}
-    override fun elementDetached(element: BirElementBase, prev: BirElementBase?) {}
+    override fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {}
+    override fun elementDetached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {}
 }
 
 open class GeneralBirTreeContext : BirTreeContext() {
@@ -37,17 +40,17 @@ open class GeneralBirTreeContext : BirTreeContext() {
                 || element is BirBody
     }
 
-    override internal fun elementAttached(element: BirElementBase, prev: BirElementBase?) {
-        attachElement(element, prev)
-        element.traverseTreeFast { descendantElement, descendantPrev ->
-            attachElement(descendantElement, descendantPrev)
+    override internal fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
+        attachElement(element, parent, prev)
+        element.traverseTreeFast { descendantElement, descendantParent, descendantPrev ->
+            attachElement(descendantElement, descendantParent, descendantPrev)
         }
     }
 
-    private fun attachElement(element: BirElementBase, prev: BirElementBase?) {
+    private fun attachElement(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         assert(prev == null || prev.next === element)
         element.attachedToTree = true
-        element.updateLevel()
+        element.updateLevel(parent)
 
         if (checkCacheElementByClass(element)) {
             if (!element.isInClassCache) {
@@ -68,13 +71,13 @@ open class GeneralBirTreeContext : BirTreeContext() {
         totalElements++
     }
 
-    override fun elementDetached(element: BirElementBase, prev: BirElementBase?) {
+    override fun elementDetached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         assert(!(prev != null && prev.nextElementIsOptimizedFromClassCache))
         val prevNextElementIsOptimizedFromClassCache = prev?.nextElementIsOptimizedFromClassCache == true
 
-        detachElement(element, prev)
-        element.traverseTreeFast { descendantElement, descendantPrev ->
-            detachElement(descendantElement, descendantPrev)
+        detachElement(element, parent, prev)
+        element.traverseTreeFast { descendantElement, descendantParent, descendantPrev ->
+            detachElement(descendantElement, descendantParent, descendantPrev)
         }
 
         if (prev != null) {
@@ -94,9 +97,9 @@ open class GeneralBirTreeContext : BirTreeContext() {
         }
     }
 
-    private fun detachElement(element: BirElementBase, prev: BirElementBase?) {
+    private fun detachElement(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         element.attachedToTree = false
-        element.updateLevel()
+        element.updateLevel(parent)
         element.attachedDuringByClassIteration = false
         element.nextElementIsOptimizedFromClassCache = false
 
@@ -113,13 +116,13 @@ open class GeneralBirTreeContext : BirTreeContext() {
         totalElements--
     }
 
-    private fun BirElementBase.traverseTreeFast(block: (element: BirElementBase, prev: BirElementBase?) -> Unit) {
+    private fun BirElementBase.traverseTreeFast(block: (element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) -> Unit) {
         if (!hasChildren) return
 
         var prev: BirElementBase? = null
         var current = getFirstChild() as BirElementBase
         while (true) {
-            block(current, prev)
+            block(current, this, prev)
             current.traverseTreeFast(block)
             prev = current
             current = current.next ?: break

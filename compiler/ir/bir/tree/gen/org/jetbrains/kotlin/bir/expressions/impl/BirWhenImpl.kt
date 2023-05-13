@@ -27,7 +27,7 @@ class BirWhenImpl(
 ) : BirWhen() {
     override var attributeOwnerId: BirAttributeContainer = this
 
-    override val branches: BirChildElementList<BirBranch> = BirChildElementList(this)
+    override val branches: BirChildElementList<BirBranch> = BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = branches.firstOrNull()
 
@@ -45,5 +45,10 @@ class BirWhenImpl(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.branches
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

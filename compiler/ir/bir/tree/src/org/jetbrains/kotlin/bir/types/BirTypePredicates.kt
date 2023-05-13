@@ -6,20 +6,17 @@
 package org.jetbrains.kotlin.bir.types
 
 import org.jetbrains.kotlin.bir.declarations.BirClass
-import org.jetbrains.kotlin.bir.declarations.BirDeclarationWithName
 import org.jetbrains.kotlin.bir.declarations.BirPackageFragment
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
 import org.jetbrains.kotlin.bir.types.utils.classifierOrNull
 import org.jetbrains.kotlin.bir.types.utils.isMarkedNullable
-import org.jetbrains.kotlin.bir.utils.ancestors
 import org.jetbrains.kotlin.bir.utils.hasEqualFqName
 import org.jetbrains.kotlin.ir.types.IdSignatureValues
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 // The contents of irTypePredicates.kt is to be replaced by some de-duplicated code.
 
@@ -60,15 +57,15 @@ fun BirType.isSuspendFunction(): Boolean = classifierOrNull?.isClassWithNamePref
 fun BirType.isKSuspendFunction(): Boolean = classifierOrNull?.isClassWithNamePrefix("KSuspendFunction", kotlinReflectionPackageFqn) == true
 
 private fun BirClassifierSymbol.isClassWithName(name: String, packageFqName: FqName): Boolean {
-    if (this !is BirDeclarationWithName) return false
-    return name == this.name.asString() &&
-            ancestors().firstIsInstanceOrNull<BirPackageFragment>()?.fqName == packageFqName
+    return this is BirClass
+            && name == this.name.asString()
+            && (parent as? BirPackageFragment)?.fqName == packageFqName
 }
 
 private fun BirClassifierSymbol.isClassWithNamePrefix(prefix: String, packageFqName: FqName): Boolean {
-    if (this !is BirDeclarationWithName) return false
-    return this.name.asString().startsWith(prefix) &&
-            ancestors().firstIsInstanceOrNull<BirPackageFragment>()?.fqName == packageFqName
+    return this is BirClass
+            && name.asString().startsWith(prefix)
+            && (parent as? BirPackageFragment)?.fqName == packageFqName
 }
 
 

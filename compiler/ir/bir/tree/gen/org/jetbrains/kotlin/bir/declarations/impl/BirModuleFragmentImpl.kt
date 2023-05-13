@@ -24,7 +24,7 @@ class BirModuleFragmentImpl(
     override val _descriptor: ModuleDescriptor?,
     override val name: Name,
 ) : BirModuleFragment() {
-    override val files: BirChildElementList<BirFile> = BirChildElementList(this)
+    override val files: BirChildElementList<BirFile> = BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = files.firstOrNull()
 
@@ -42,5 +42,10 @@ class BirModuleFragmentImpl(
         when {
            else -> throwChildForReplacementNotFound(old)
         }
+    }
+
+    override fun getChildrenListById(id: Int): BirChildElementList<*> = when {
+       id == 1 -> this.files
+       else -> throwChildrenListWithIdNotFound(id)
     }
 }

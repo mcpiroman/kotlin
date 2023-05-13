@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.mapOrTakeThisIfIdentity
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
+import java.util.*
 
 interface InlineFunctionResolver {
     fun getFunctionDeclaration(symbol: BirFunctionSymbol): BirFunction
@@ -95,19 +96,16 @@ class FunctionInliningLowering(
             var alreadyInlined = false
         }
 
-        val allCallsToInline = mutableListOf<CallToInline>()
-        val functionsWithCallsToInline = mutableMapOf<BirFunction, MutableList<CallToInline>>()
+        val functionsWithCallsToInline = mutableMapOf<BirFunction?, MutableList<CallToInline>>()
 
         fun visitFunctionCall(call: BirFunctionAccessExpression) {
             val callee = call.target as BirFunction
             if (callee.needsInlining && !isTypeOfIntrinsic(callee)) {
                 val actualCallee = inlineFunctionResolver.getFunctionDeclaration(callee)
                 val callToInline = CallToInline(call, actualCallee)
-                allCallsToInline += callToInline
 
-                call.ancestors().firstIsInstanceOrNull<BirFunction>()?.let { currentFunction ->
-                    functionsWithCallsToInline.computeIfAbsent(currentFunction) { mutableListOf() }.add(callToInline)
-                }
+                val parentFunction = call.ancestors().firstIsInstanceOrNull<BirFunction>()
+                functionsWithCallsToInline.computeIfAbsent(parentFunction) { ArrayList(1) }.add(callToInline)
             }
         }
         getElementsOfClass<BirCall>().forEach(::visitFunctionCall)
@@ -128,8 +126,10 @@ class FunctionInliningLowering(
             }
         }
 
-        for (call in allCallsToInline) {
-            tryToInline(call)
+        for (list in functionsWithCallsToInline.values) {
+            for (call in list) {
+                tryToInline(call)
+            }
         }
     }
 
@@ -146,6 +146,7 @@ class FunctionInliningLowering(
         var currentlyInlinedNewCallSite: BirReturnableBlock? = null
         var currentlyInlinedOldCallSite: BirFunctionAccessExpression? = null
         var currentlyInlinedCallee: BirFunction? = null
+        private val typeRemappingCache = IdentityHashMap<BirSimpleType, BirType?>()
 
         init {
             val typeParameters = if (callee is BirConstructor)
@@ -220,7 +221,7 @@ class FunctionInliningLowering(
         ): Pair<BirInlinedFunctionBlock, BirReturnableBlockImpl> {
             val outerInlineBlock = BirReturnableBlockImpl(
                 sourceSpan = originalCallSite.sourceSpan,
-                type = originalCallSite.type,
+                type = remapType(originalCallSite.type),
                 origin = null,
                 _descriptor = null
             )
@@ -229,7 +230,7 @@ class FunctionInliningLowering(
             // control special composite blocks that are inside `BirInlinedFunctionBlock`
             val innerInlineBlock = BirInlinedFunctionBlockImpl(
                 sourceSpan = originalCallSite.sourceSpan,
-                type = originalCallSite.type,
+                type = remapType(originalCallSite.type),
                 inlineCall = originalCallSite,
                 inlinedElement = originalInlinedElement,
                 origin = null,
@@ -456,7 +457,7 @@ class FunctionInliningLowering(
             val newVariable = BirVariable.build {
                 name = Name.identifier(currentScope.inventNameForTemporary(nameHint = callee.name.asStringStripSpecialMarkers() + "_this"))
                 sourceSpan = SourceSpan.UNDEFINED
-                type = argument.type
+                type = remapType(argument.type)
                 initializer = argument
                 origin = IrDeclarationOrigin.IR_TEMPORARY_VARIABLE
                 isVar = false
@@ -516,9 +517,10 @@ class FunctionInliningLowering(
                     ?: copy.dispatchReceiverParameter!!.type
                 copy.extensionReceiverParameter -> original.extensionReceiverParameter?.getTypeIfFromTypeParameter()
                     ?: copy.extensionReceiverParameter!!.type
-                else -> copy.valueParameters.first { it == this }.let { valueParameter ->
-                    original.valueParameters.elementAt(valueParameter.getIndex()).getTypeIfFromTypeParameter()
-                        ?: valueParameter.type
+                else -> {
+                    check(this in copy.valueParameters)
+                    original.valueParameters.elementAt(this.getIndex()).getTypeIfFromTypeParameter()
+                        ?: this.type
                 }
             }
         }
@@ -540,7 +542,8 @@ class FunctionInliningLowering(
                     val newVariable = BirVariable.build {
                         sourceSpan = if (it.isDefaultArg) expression.sourceSpan else SourceSpan.UNDEFINED
                         setTemporary(callee.name.asStringStripSpecialMarkers() + "_" + it.parameter.name.asStringStripSpecialMarkers())
-                        type = if (inlineArgumentsWithTheirOriginalTypeAndOffset) it.parameter.getOriginalType() else expression.type
+                        type =
+                            if (inlineArgumentsWithTheirOriginalTypeAndOffset) it.parameter.getOriginalType() else remapType(expression.type)
                         isVar = false
                         initializer = expression.also { expression.replaceWith(BirNoExpression()) }
                     }
@@ -579,10 +582,10 @@ class FunctionInliningLowering(
                 } else {
                     IrDeclarationOrigin.IR_TEMPORARY_VARIABLE_FOR_INLINED_PARAMETER
                 }
-                type = variableInitializer.type
+                type = remapType(variableInitializer.type)
                 initializer = BirBlockImpl(
                     if (isDefaultArg) variableInitializer.sourceSpan else SourceSpan.UNDEFINED,
-                    if (inlineArgumentsWithTheirOriginalTypeAndOffset) parameter.getOriginalType() else variableInitializer.type,
+                    if (inlineArgumentsWithTheirOriginalTypeAndOffset) parameter.getOriginalType() else remapType(variableInitializer.type),
                     InlinerExpressionLocationHint(currentScope.scopeOwnerSymbol)
                 ).apply {
                     statements.add(variableInitializer)
@@ -601,7 +604,7 @@ class FunctionInliningLowering(
             val argument = substituteMap[old.target]
             return if (argument != null) {
                 val value = argument.storedResult?.let {
-                    BirGetValueImpl(old.sourceSpan, it.type, it, null)
+                    BirGetValueImpl(old.sourceSpan, remapType(it.type), it, null)
                 } ?: copyElementPossiblyUnfinished(argument.argumentExpression)
                 value.doImplicitCastIfNeededTo(remapType(old.type)) // maybe also need to apply the custom copyTypeOperatorCall
             } else {
@@ -673,14 +676,14 @@ class FunctionInliningLowering(
             else boundReceiver?.let { remapElement(it) }
 
             val (innerInlineBlock, outerInlineBlock) = createInlinedCallStructure(invokeCall, propertyReference)
-            innerInlineBlock.statements += BirGetFieldImpl(SourceSpan.UNDEFINED, field.type, field, null, fieldReceiver, null)
+            innerInlineBlock.statements += BirGetFieldImpl(SourceSpan.UNDEFINED, remapType(field.type), field, null, fieldReceiver, null)
             return outerInlineBlock
         }
 
         private fun inlinePropertyReference(expression: BirCall, propertyReference: BirPropertyReference): BirExpression {
             val getterCall = BirCall.build {
                 sourceSpan = expression.sourceSpan
-                type = expression.type
+                type = remapType(expression.type)
                 target = propertyReference.getter!!
                 origin = INLINED_FUNCTION_REFERENCE
             }
@@ -712,7 +715,7 @@ class FunctionInliningLowering(
             val inlinedFunctionReference = inlineFunctionReference(originalCall, irFunctionReference, irFunction)
             return BirBlockImpl(
                 originalCall.sourceSpan,
-                inlinedFunctionReference.type,
+                remapType(inlinedFunctionReference.type),
                 origin = null,
             ).apply {
                 statements += irFunction
@@ -735,7 +738,7 @@ class FunctionInliningLowering(
             val unboundArgsSet = unboundFunctionParameters.toSet()
             val valueParameters = originalCall.getArgumentsWithBir().drop(1) // Skip dispatch receiver.
 
-            val superType = functionReference.type as BirSimpleType
+            val superType = remapType(functionReference.type) as BirSimpleType
             val superTypeArgumentsMap = (originalCall.target.asElement.parentAsClass.typeParameters zip superType.arguments)
                 .associate<_, BirTypeParameterSymbol, BirType> { it.first to it.second.typeOrNull!! }
 
@@ -745,7 +748,7 @@ class FunctionInliningLowering(
                     BirConstructorCall.build {
                         sourceSpan =
                             if (inlineArgumentsWithTheirOriginalTypeAndOffset) functionReference.sourceSpan else originalCall.sourceSpan
-                        type = inlinedFunction.returnType
+                        type = remapType(inlinedFunction.returnType)
                         target = inlinedFunction
                         constructorTypeArgumentsCount = classTypeParametersCount
                         origin = INLINED_FUNCTION_REFERENCE
@@ -755,7 +758,7 @@ class FunctionInliningLowering(
                     BirCall.build {
                         sourceSpan =
                             if (inlineArgumentsWithTheirOriginalTypeAndOffset) functionReference.sourceSpan else originalCall.sourceSpan
-                        type = inlinedFunction.returnType
+                        type = remapType(inlinedFunction.returnType)
                         target = inlinedFunction
                         origin = INLINED_FUNCTION_REFERENCE
                     }
@@ -784,8 +787,8 @@ class FunctionInliningLowering(
                             }
                             BirVarargImpl(
                                 originalCall.sourceSpan,
-                                parameter.type,
-                                parameter.varargElementType!!,
+                                remapType(parameter.type),
+                                remapType(parameter.varargElementType!!),
                             ).also {
                                 it.elements += elements
                             }
@@ -878,45 +881,54 @@ class FunctionInliningLowering(
         private fun remapTypeAndOptionallyErase(type: BirType, erasedParameters: MutableSet<BirTypeParameterSymbol>?): BirType? {
             if (type !is BirSimpleType) return type
 
+            typeRemappingCache[type]?.let {
+                return it
+            }
+
             val classifier = type.classifier
-            val substitutedType = typeArgumentsMap[classifier]
+            if (classifier is BirTypeParameter) {
+                val substitutedType = typeArgumentsMap[classifier]
+                if (substitutedType != null) {
+                    // Erase non-reified type parameter if asked to.
+                    if (erasedParameters != null && !classifier.isReified) {
+                        if (classifier in erasedParameters) {
+                            return null
+                        }
 
-            // Erase non-reified type parameter if asked to.
-            if (erasedParameters != null && substitutedType != null && (classifier as? BirTypeParameterSymbol)?.asElement?.isReified == false) {
-                if (classifier in erasedParameters) {
-                    return null
+                        erasedParameters.add(classifier)
+
+                        // Pick the (necessarily unique) non-interface upper bound if it exists.
+                        val superTypes = classifier.asElement.superTypes
+                        val superClass = superTypes.firstOrNull {
+                            it.classOrNull?.asElement?.kind.let { it != null && it != ClassKind.INTERFACE }
+                        }
+
+                        val upperBound = superClass ?: superTypes.first()
+
+                        // TODO: Think about how to reduce complexity from k^N to N^k
+                        val erasedUpperBound = remapTypeAndOptionallyErase(upperBound, erasedParameters)
+                            ?: error("Cannot erase upperbound ${upperBound.render()}")
+
+                        erasedParameters.remove(classifier)
+
+                        val result = erasedUpperBound.mergeNullability(type)
+                        typeRemappingCache[type] = result
+                        return result
+                    }
+
+                    if (substitutedType is BirSimpleType) {
+                        val result = substitutedType.mergeNullability(type)
+                        typeRemappingCache[type] = result
+                        return result
+                    }
+
+                    return substitutedType
                 }
-
-                erasedParameters.add(classifier)
-
-                // Pick the (necessarily unique) non-interface upper bound if it exists.
-                val superTypes = classifier.asElement.superTypes
-                val superClass = superTypes.firstOrNull {
-                    it.classOrNull?.asElement?.kind.let { it != null && it != ClassKind.INTERFACE }
-                }
-
-                val upperBound = superClass ?: superTypes.first()
-
-                // TODO: Think about how to reduce complexity from k^N to N^k
-                val erasedUpperBound = remapTypeAndOptionallyErase(upperBound, erasedParameters)
-                    ?: error("Cannot erase upperbound ${upperBound.render()}")
-
-                erasedParameters.remove(classifier)
-
-                return erasedUpperBound.mergeNullability(type)
-            }
-
-            if (substitutedType is BirDynamicType) {
-                return substitutedType
-            }
-
-            if (substitutedType is BirSimpleType) {
-                return substitutedType.mergeNullability(type)
             }
 
             val newClassifier = remapSymbol(classifier)
             val newArguments = remapTypeArguments(type.arguments, erasedParameters)
-            return if (newClassifier === classifier && newArguments === type.arguments) {
+            val result = if (newClassifier === classifier && newArguments === type.arguments) {
                 type
             } else BirSimpleTypeImpl(
                 kotlinType = null,
@@ -926,6 +938,9 @@ class FunctionInliningLowering(
                 nullability = SimpleTypeNullability.NOT_SPECIFIED,
                 abbreviation = null,
             )
+
+            typeRemappingCache[type] = result
+            return result
         }
 
         private fun remapTypeArguments(
