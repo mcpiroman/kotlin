@@ -13,10 +13,7 @@ import org.jetbrains.kotlin.backend.common.phaser.toPhaseMap
 import org.jetbrains.kotlin.backend.wasm.WasmBackendContext
 import org.jetbrains.kotlin.backend.wasm.wasmPhases
 import org.jetbrains.kotlin.bir.backend.phases.*
-import org.jetbrains.kotlin.bir.backend.phases.wasm.ExcludeDeclarationsFromCodegen
-import org.jetbrains.kotlin.bir.backend.phases.wasm.JsCodeCallsLowering
-import org.jetbrains.kotlin.bir.backend.phases.wasm.RemoveInlineDeclarationsWithReifiedTypeParametersLowering
-import org.jetbrains.kotlin.bir.backend.phases.wasm.WrapInlineDeclarationsWithReifiedTypeParametersLowering
+import org.jetbrains.kotlin.bir.backend.phases.wasm.*
 import org.jetbrains.kotlin.bir.backend.wasm.WasmBirContext
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
@@ -42,7 +39,7 @@ private val birPhases = listOf(
     ::LocalClassesInInlineFunctionsLowering,
     ::LocalClassesExtractionFromInlineFunctionsLowering,
     ::WrapInlineDeclarationsWithReifiedTypeParametersLowering,
-    //::WasmFunctionInliningLowering,
+    ::WasmFunctionInliningLowering,
     ::RemoveInlineDeclarationsWithReifiedTypeParametersLowering,
     ::TailrecLowering,
 )
@@ -58,7 +55,7 @@ private val correspondingIrPhaseNames = setOf(
     "LocalClassesInInlineFunctionsPhase",
     "localClassesExtractionFromInlineFunctionsPhase",
     "WrapInlineDeclarationsWithReifiedTypeParametersPhase",
-    //"FunctionInliningPhase",
+    "FunctionInliningPhase",
     "RemoveInlineFunctionsWithReifiedTypeParametersLowering",
     "TailrecLowering"
 )
