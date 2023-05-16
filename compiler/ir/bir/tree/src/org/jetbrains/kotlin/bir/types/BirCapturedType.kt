@@ -3,15 +3,11 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.bir.types.impl
+package org.jetbrains.kotlin.bir.types
 
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.symbols.BirClassifierSymbol
-import org.jetbrains.kotlin.bir.types.BirSimpleType
-import org.jetbrains.kotlin.bir.types.BirType
-import org.jetbrains.kotlin.bir.types.BirTypeAbbreviation
-import org.jetbrains.kotlin.bir.types.BirTypeArgument
 import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.model.CaptureStatus
@@ -48,9 +44,7 @@ class BirCapturedType(
         return (captureStatus.hashCode() * 31 + (lowerType?.hashCode() ?: 0)) * 31 + constructor.hashCode()
     }
 
-    class Constructor(val argument: BirTypeArgument, val typeParameter: BirTypeParameter) :
-        CapturedTypeConstructorMarker {
-
+    data class Constructor(val argument: BirTypeArgument, val typeParameter: BirTypeParameter) : CapturedTypeConstructorMarker {
         private var _superTypes: List<BirType> = emptyList()
 
         val superTypes: List<BirType> get() = _superTypes

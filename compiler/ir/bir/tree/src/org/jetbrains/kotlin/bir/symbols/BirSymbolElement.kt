@@ -14,29 +14,6 @@ interface BirSymbolElement : BirLLPossiblyElementSymbol, BirElement {
     override val signature: IdSignature?
         get() = null
 
-    /*@Deprecated("Meaningless for BirPossiblyElementSymbol", level = DeprecationLevel.ERROR)
-    override val isBound: Boolean
-        get() = true
-
-    @Deprecated("Meaningless for BirPossiblyElementSymbol", level = DeprecationLevel.ERROR)
-    override val owner: IrSymbolOwner
-        get() = TODO("Not yet implemented")*/
-
     @ObsoleteDescriptorBasedAPI
     val _descriptor: DeclarationDescriptor?
-
-    /* @ObsoleteDescriptorBasedAPI
-     override val descriptor: DeclarationDescriptor
-         get() = _descriptor!!
-
-     @ObsoleteDescriptorBasedAPI
-     override val hasDescriptor: Boolean
-         get() = _descriptor != null
-
-     override val signature: IdSignature?
-         get() = TODO("Not yet implemented")
-
-     override var privateSignature: IdSignature?
-         get() = TODO("Not yet implemented")
-         set(value) = TODO("Not yet implemented")*/
 }

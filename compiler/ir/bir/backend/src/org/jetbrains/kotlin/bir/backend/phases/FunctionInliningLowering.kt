@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.bir.*
 import org.jetbrains.kotlin.bir.backend.BirBackendContext
 import org.jetbrains.kotlin.bir.backend.BirLoweringPhase
 import org.jetbrains.kotlin.bir.backend.InnerClassesSupport
+import org.jetbrains.kotlin.bir.backend.TemporaryVariablesScope
 import org.jetbrains.kotlin.bir.backend.utils.implicitCastIfNeededTo
 import org.jetbrains.kotlin.bir.backend.utils.int
 import org.jetbrains.kotlin.bir.backend.utils.isPure
@@ -161,7 +162,7 @@ class FunctionInliningLowering(
 
         fun inline() {
             rootElement = callee.body
-            inlineFunction(callSite, callee, inlineFunctionResolver.getFunctionSymbol(callee) as BirFunction, isTopLevel = true) {
+            inlineFunction(callSite, callee, inlineFunctionResolver.getFunctionSymbol(callee) as BirFunction) {
                 callSite.replaceWith(it)
             }
             rootElement = null
@@ -193,7 +194,6 @@ class FunctionInliningLowering(
             callSite: BirFunctionAccessExpression,
             callee: BirFunction,
             originalInlinedElement: BirElement,
-            isTopLevel: Boolean = false,
             replaceWithInlined: (BirReturnableBlock) -> Unit = {},
         ): BirReturnableBlock {
             val (innerInlineBlock, outerInlineBlock) = createInlinedCallStructure(callSite, originalInlinedElement)

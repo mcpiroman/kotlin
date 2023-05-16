@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.bir.types
 
-import org.jetbrains.kotlin.bir.types.impl.BirCapturedType
 import org.jetbrains.kotlin.bir.types.utils.buildTypeProjection
 import org.jetbrains.kotlin.bir.types.utils.toBuilder
 import org.jetbrains.kotlin.ir.types.IdSignatureValues
@@ -13,10 +12,11 @@ import org.jetbrains.kotlin.types.Variance
 
 class BirTypeProjectionImpl internal constructor(
     override val type: BirType,
-    override val variance: Variance
+    override val variance: Variance,
 ) : BirTypeProjection {
     override fun equals(other: Any?): Boolean =
-        other is BirTypeProjectionImpl && type == other.type && variance == other.variance
+        this === other ||
+                (other is BirTypeProjectionImpl && type == other.type && variance == other.variance)
 
     override fun hashCode(): Int =
         type.hashCode() * 31 + variance.hashCode()
@@ -29,6 +29,7 @@ fun makeTypeProjection(type: BirType, variance: Variance): BirTypeProjection =
         type is BirSimpleType -> type.toBuilder().apply { this.variance = variance }.buildTypeProjection()
         type is BirDynamicType -> BirDynamicType(null, type.annotations, variance)
         type is BirErrorType -> BirErrorType(null, type.annotations, variance)
+        type is BirTypeProjection -> BirTypeProjectionImpl(type.type, variance)
         else -> BirTypeProjectionImpl(type, variance)
     }
 

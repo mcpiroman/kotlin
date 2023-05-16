@@ -62,7 +62,7 @@ fun BirElement.traverseStackBased(
 class BirTreeStackBasedTraverseScopeWithData<D>(
     private val block: BirTreeStackBasedTraverseScopeWithData<D>.(node: BirElement, data: D) -> Unit,
 ) : BirTreeTraverseScope() {
-    fun BirElement.apply(data: D) {
+    fun BirElement.walkInto(data: D) {
         block(this@BirTreeStackBasedTraverseScopeWithData, this, data)
     }
 
