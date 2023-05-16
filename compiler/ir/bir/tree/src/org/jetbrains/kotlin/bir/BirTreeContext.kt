@@ -27,7 +27,6 @@ open class GeneralBirTreeContext : BirTreeContext() {
     private var totalElements = 0
     private val elementsByClass = ElementsByClass()
     private var currentElementsOfClassIterator: ElementsOfClassListIterator<*>? = null
-    private var currentElementsOfClassIterationIsOdd = false
     private val elementsAddedDuringCurrentElementsOfClassIteration = ArrayList<BirElementBase>(1024)
 
     private fun checkCacheElementByClass(element: BirElementBase): Boolean {
@@ -107,6 +106,12 @@ open class GeneralBirTreeContext : BirTreeContext() {
             prev.nextElementIsOptimizedFromClassCache = false
         }
 
+        currentElementsOfClassIterator?.listIterator?.let { iterator ->
+            if (iterator.currentSecondary === element) {
+                iterator.currentSecondary = prev
+            }
+        }
+
         // Don't eagerly remove element from class cache as it is too slow.
         //  But, when detaching a bigger subtree, maybe we can not find and remove each element individually
         //  but rather scan the list for removed elements / detached elements.
@@ -150,7 +155,6 @@ open class GeneralBirTreeContext : BirTreeContext() {
         val list = getElementsOfClassList(elementClass)
             ?: error("Class ${elementClass.simpleName} has not been registered")
 
-        currentElementsOfClassIterationIsOdd = !currentElementsOfClassIterationIsOdd
         val iter = ElementsOfClassListIterator<E>(ArrayList(list.leafClasses))
         currentElementsOfClassIterator = iter
         return iter
@@ -221,8 +225,9 @@ open class GeneralBirTreeContext : BirTreeContext() {
         private val concreteClassLists: List<ElementOfClassList>,
     ) : Iterator<E> {
         internal var cancelled = false
-        val listsIterator = concreteClassLists.iterator()
+        private val listsIterator = concreteClassLists.iterator()
         var listIterator: ElementsOfConcreteClassListIterator<BirElementBase>? = null
+            private set
 
         override fun next(): E {
             return listIterator!!.next() as E
@@ -265,7 +270,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
     ) : Iterator<E> {
         internal var mainListIdx = 0
             private set
-        private var nextSecondary: BirElementBase? = null
+        var currentSecondary: BirElementBase? = null
         private var auxElementsToVisit: MutableList<BirElementBase>? = null
             set(value) = TODO("Currently unused")
         private var next: BirElementBase? = null
@@ -288,11 +293,11 @@ open class GeneralBirTreeContext : BirTreeContext() {
         private fun computeNext(): BirElementBase? {
             val array = list.array
             while (true) {
-                var nextSecondary = nextSecondary
+                var nextSecondary = currentSecondary
                 while (nextSecondary != null && nextSecondary.nextElementIsOptimizedFromClassCache) {
                     nextSecondary = nextSecondary.next!!
                     if (nextSecondary.availableInCurrentIteration()) {
-                        this.nextSecondary = nextSecondary
+                        this.currentSecondary = nextSecondary
                         return nextSecondary
                     }
                 }
@@ -318,7 +323,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
 
                 if (element != null) {
                     mainListIdx++
-                    this.nextSecondary = element
+                    this.currentSecondary = element
                     if (element.availableInCurrentIteration()) {
                         return element
                     }

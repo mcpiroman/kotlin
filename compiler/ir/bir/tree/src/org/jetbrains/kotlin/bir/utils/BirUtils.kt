@@ -588,3 +588,7 @@ fun BirMemberAccessExpression<*>.getAllArgumentsWithBir(irFunction: BirFunction)
 }
 
 val BirValueParameter.isVararg get() = this.varargElementType != null
+
+context (BirTreeContext)
+fun BirFunctionAccessExpression.usesDefaultArguments(): Boolean =
+    ((target as BirFunction).valueParameters zip valueArguments).any { (param, arg) -> arg is BirNoExpression && (!param.isVararg || param.defaultValue != null) }

@@ -29,23 +29,23 @@ import org.jetbrains.kotlin.utils.memoryOptimizedMap
 
 @ObsoleteDescriptorBasedAPI
 class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBase() {
-    private val modules by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirModuleFragment, IrModuleFragment>(1) }
-    private val classes by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirClass, IrClass>((expectedTreeSize * 0.004).toInt()) }
-    private val scripts by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirScript, IrScript>() }
-    private val constructors by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirConstructor, IrConstructor>((expectedTreeSize * 0.04).toInt()) }
-    private val enumEntries by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirEnumEntry, IrEnumEntry>() }
-    private val externalPackageFragments by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirExternalPackageFragment, IrExternalPackageFragment>() }
-    private val fields by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirField, IrField>((expectedTreeSize * 0.02).toInt()) }
-    private val files by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirFile, IrFile>() }
-    private val functions by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirSimpleFunction, IrSimpleFunction>((expectedTreeSize * 0.15).toInt()) }
-    private val properties by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirProperty, IrProperty>((expectedTreeSize * 0.07).toInt()) }
-    private val returnableBlocks by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirReturnableBlock, IrReturnableBlock>() }
-    private val typeParameters by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirTypeParameter, IrTypeParameter>((expectedTreeSize * 0.01).toInt()) }
-    private val valueParameters by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirValueParameter, IrValueParameter>((expectedTreeSize * 0.2).toInt()) }
-    private val variables by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirVariable, IrVariable>((expectedTreeSize * 0.02).toInt()) }
-    private val localDelegatedProperties by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirLocalDelegatedProperty, IrLocalDelegatedProperty>() }
-    private val typeAliases by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirTypeAlias, IrTypeAlias>() }
-    private val loops by lazy(LazyThreadSafetyMode.NONE) { createElementMap<BirLoop, IrLoop>() }
+    private val modules = createElementMap<BirModuleFragment, IrModuleFragment>(1)
+    private val classes = createElementMap<BirClass, IrClass>((expectedTreeSize * 0.004).toInt())
+    private val scripts = createElementMap<BirScript, IrScript>()
+    private val constructors = createElementMap<BirConstructor, IrConstructor>((expectedTreeSize * 0.04).toInt())
+    private val enumEntries = createElementMap<BirEnumEntry, IrEnumEntry>()
+    private val externalPackageFragments = createElementMap<BirExternalPackageFragment, IrExternalPackageFragment>()
+    private val fields = createElementMap<BirField, IrField>((expectedTreeSize * 0.02).toInt())
+    private val files = createElementMap<BirFile, IrFile>()
+    private val functions = createElementMap<BirSimpleFunction, IrSimpleFunction>((expectedTreeSize * 0.15).toInt())
+    private val properties = createElementMap<BirProperty, IrProperty>((expectedTreeSize * 0.07).toInt())
+    private val returnableBlocks = createElementMap<BirReturnableBlock, IrReturnableBlock>()
+    private val typeParameters = createElementMap<BirTypeParameter, IrTypeParameter>((expectedTreeSize * 0.01).toInt())
+    private val valueParameters = createElementMap<BirValueParameter, IrValueParameter>((expectedTreeSize * 0.2).toInt())
+    private val variables = createElementMap<BirVariable, IrVariable>((expectedTreeSize * 0.02).toInt())
+    private val localDelegatedProperties = createElementMap<BirLocalDelegatedProperty, IrLocalDelegatedProperty>()
+    private val typeAliases = createElementMap<BirTypeAlias, IrTypeAlias>()
+    private val loops = createElementMap<BirLoop, IrLoop>()
 
     context(BirTreeContext)
     override fun <Bir : BirElement> copyElement(old: IrElement): Bir = when (old) {

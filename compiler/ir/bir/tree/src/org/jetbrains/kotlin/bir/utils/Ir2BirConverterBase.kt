@@ -5,28 +5,23 @@
 
 package org.jetbrains.kotlin.bir.utils
 
-import com.intellij.util.containers.HashSetInterner
 import org.jetbrains.kotlin.bir.*
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirMemberAccessExpression
 import org.jetbrains.kotlin.bir.expressions.impl.BirNoExpressionImpl
-import org.jetbrains.kotlin.bir.symbols.BirIrSymbolWrapper
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
+import org.jetbrains.kotlin.bir.symbols.ExternalBirSymbol
 import org.jetbrains.kotlin.bir.types.*
-import org.jetbrains.kotlin.bir.types.impl.BirCapturedType
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.*
-import org.jetbrains.kotlin.ir.types.impl.IrCapturedType
-import org.jetbrains.kotlin.ir.types.impl.IrDelegatedSimpleType
-import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
-import org.jetbrains.kotlin.ir.types.impl.IrTypeProjectionImpl
+import org.jetbrains.kotlin.ir.types.impl.*
 import java.util.*
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -36,7 +31,7 @@ abstract class Ir2BirConverterBase {
     private val collectedIrElementsWithoutParent = mutableListOf<IrElement>()
     private var isInsideNestedElementCopy = false
 
-    protected fun <Bir : BirElement, Ir : IrElement> createElementMap(expectedMaxSize: Int = 16): MutableMap<Ir, Bir> =
+    protected fun <Bir : BirElement, Ir : IrElement> createElementMap(expectedMaxSize: Int = 8): MutableMap<Ir, Bir> =
         IdentityHashMap<Ir, Bir>(expectedMaxSize)
 
     context(BirTreeContext)
@@ -126,7 +121,26 @@ abstract class Ir2BirConverterBase {
         return if (old.isBound) {
             remapElement(old.owner) as BirS
         } else {
-            BirIrSymbolWrapper(old) as BirS
+            val signature = IrErrorClassImpl.symbol.signature
+            when (IrErrorClassImpl.symbol) {
+                is IrFileSymbol -> ExternalBirSymbol.FileSymbol(signature)
+                is IrExternalPackageFragmentSymbol -> ExternalBirSymbol.ExternalPackageFragmentSymbol(signature)
+                is IrAnonymousInitializerSymbol -> ExternalBirSymbol.AnonymousInitializerSymbol(signature)
+                is IrEnumEntrySymbol -> ExternalBirSymbol.EnumEntrySymbol(signature)
+                is IrFieldSymbol -> ExternalBirSymbol.FieldSymbol(signature)
+                is IrClassSymbol -> ExternalBirSymbol.ClassSymbol(signature)
+                is IrScriptSymbol -> ExternalBirSymbol.ScriptSymbol(signature)
+                is IrTypeParameterSymbol -> ExternalBirSymbol.TypeParameterSymbol(signature)
+                is IrValueParameterSymbol -> ExternalBirSymbol.ValueParameterSymbol(signature)
+                is IrVariableSymbol -> ExternalBirSymbol.VariableSymbol(signature)
+                is IrConstructorSymbol -> ExternalBirSymbol.ConstructorSymbol(signature)
+                is IrSimpleFunctionSymbol -> ExternalBirSymbol.SimpleFunctionSymbol(signature)
+                is IrReturnableBlockSymbol -> ExternalBirSymbol.ReturnableBlockSymbol(signature)
+                is IrPropertySymbol -> ExternalBirSymbol.PropertySymbol(signature)
+                is IrLocalDelegatedPropertySymbol -> ExternalBirSymbol.LocalDelegatedPropertySymbol(signature)
+                is IrTypeAliasSymbol -> ExternalBirSymbol.TypeAliasSymbol(signature)
+                else -> error(IrErrorClassImpl.symbol)
+            } as BirS
         }
     }
 
@@ -195,14 +209,81 @@ abstract class Ir2BirConverterBase {
         else -> TODO(irType.toString())
     }
 
-    private val simpleTypeIntern = HashSetInterner<BirSimpleType>()
-    private val typeAbbreviationIntern = HashSetInterner<BirTypeAbbreviation>()
-    private val dynamicTypeIntern = HashSetInterner<BirDynamicType>()
-    private val capturedTypeIntern = HashSetInterner<BirCapturedType>()
-    private val typeProjectionIntern = HashSetInterner<BirTypeProjection>()
+    private class SimpleTypeCacheKey(val type: IrSimpleType) {
+        override fun equals(other: Any?): Boolean {
+            other as SimpleTypeCacheKey
+            return typesAreEqual(type, other.type)
+        }
+
+        private fun typesAreEqual(a: IrType, b: IrType): Boolean {
+            if (a === b) return true
+            if (a !is IrSimpleType || b !is IrSimpleType) return false
+
+            if (a.nullability != b.nullability) return false
+
+            val classifier = a.classifier
+            val otherClassifier = b.classifier
+            if (classifier.isBound != otherClassifier.isBound) return false
+            if (classifier.isBound) {
+                if (classifier.owner !== otherClassifier.owner) return false
+            } else {
+                if (classifier.signature == null) return false
+                if (classifier.signature == otherClassifier.signature) return false
+            }
+
+            if (a.arguments.size != b.arguments.size) return false
+            if (a.abbreviation !== b.abbreviation) return false
+            if (a.annotations != b.annotations) return false
+            repeat(a.arguments.size) { i ->
+                if (!typeArgumentsAreEqual(a.arguments[i], b.arguments[i])) return false
+            }
+
+            return true
+        }
+
+        private fun typeArgumentsAreEqual(a: IrTypeArgument, b: IrTypeArgument): Boolean = when (a) {
+            is IrStarProjection -> b is IrStarProjection
+            is IrType -> b is IrType && typesAreEqual(a, b)
+            is IrTypeProjection -> b is IrTypeProjection && a.variance == b.variance && typesAreEqual(a.type, b.type)
+            else -> error(a)
+        }
+
+        override fun hashCode(): Int = type.computeHashCode()
+
+        private fun IrType.computeHashCode() = if (this is IrSimpleType)
+            this.computeHashCode()
+        else
+            this.hashCode()
+
+        private fun IrSimpleType.computeHashCode(): Int {
+            var h = if (classifier.isBound) classifier.owner.hashCode()
+            else classifier.signature.hashCode()
+            h = h * 31 + nullability.hashCode()
+            arguments.forEach {
+                h = h * 31 + it.computeHashCode()
+            }
+            h = h * 31 + annotations.size
+            h = h * 31 + if (abbreviation == null) 0 else 1
+            return h
+        }
+
+        private fun IrTypeArgument.computeHashCode(): Int = when (this) {
+            is IrStarProjection -> IrStarProjectionImpl.hashCode()
+            is IrType -> (this as IrType).computeHashCode()
+            is IrTypeProjection -> type.computeHashCode() + variance.hashCode() * 31
+            else -> this.hashCode()
+        }
+    }
+
+    private val simpleTypesCache = hashMapOf<SimpleTypeCacheKey, BirSimpleType>()
 
     context(BirTreeContext)
     private fun remapSimpleType(irType: IrSimpleType): BirSimpleType {
+        val key = SimpleTypeCacheKey(irType)
+        simpleTypesCache[key]?.let {
+            return it
+        }
+
         val birType = BirSimpleTypeImpl(
             irType.kotlinType,
             remapSymbol(irType.classifier),
@@ -213,39 +294,37 @@ abstract class Ir2BirConverterBase {
                 remapTypeAbbreviation(abbreviation)
             },
         )
-        return simpleTypeIntern.intern(birType)
+
+        return simpleTypesCache.putIfAbsent(key, birType) ?: birType
     }
 
     context(BirTreeContext)
     private fun remapTypeAbbreviation(abbreviation: IrTypeAbbreviation): BirTypeAbbreviation {
-        val birType = BirTypeAbbreviation(
+        return BirTypeAbbreviation(
             remapSymbol(abbreviation.typeAlias),
             abbreviation.hasQuestionMark,
             abbreviation.arguments.map { remapTypeArgument(it) },
             abbreviation.annotations.map { remapElement(it) as BirConstructorCall },
         )
-        return typeAbbreviationIntern.intern(birType)
     }
 
     context(BirTreeContext)
     private fun remapCapturedType(irType: IrCapturedType): BirCapturedType {
-        val birType = BirCapturedType(
+        return BirCapturedType(
             irType.captureStatus,
             irType.lowerType?.let { remapType(it) },
             remapTypeArgument(irType.constructor.argument),
             remapElement(irType.constructor.typeParameter) as BirTypeParameter,
         )
-        return capturedTypeIntern.intern(birType)
     }
 
     context(BirTreeContext)
     private fun remapDynamicType(irType: IrDynamicType): BirDynamicType {
-        val birType = BirDynamicType(
+        return BirDynamicType(
             irType.kotlinType,
             irType.annotations.map { remapElement(it) as BirConstructorCall },
             irType.variance,
         )
-        return dynamicTypeIntern.intern(birType)
     }
 
     context(BirTreeContext)
@@ -260,11 +339,8 @@ abstract class Ir2BirConverterBase {
     context(BirTreeContext)
     fun remapTypeArgument(irTypeArgument: IrTypeArgument): BirTypeArgument = when (irTypeArgument) {
         is IrStarProjection -> BirStarProjection
-        is IrTypeProjectionImpl -> {
-            val birType = BirTypeProjectionImpl(remapType(irTypeArgument.type), irTypeArgument.variance)
-            typeProjectionIntern.intern(birType)
-        }
         is IrType -> remapType(irTypeArgument) as BirTypeArgument
+        is IrTypeProjectionImpl -> makeTypeProjection(remapType(irTypeArgument.type), irTypeArgument.variance)
         else -> error(irTypeArgument)
     }
 

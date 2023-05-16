@@ -14,25 +14,6 @@ import org.jetbrains.kotlin.ir.util.IdSignature
 abstract class LateBindBirSymbol<E : BirElement>(
     val irSymbol: IrSymbol
 ) : BirPossiblyElementSymbol<E> {
-    /* @ObsoleteDescriptorBasedAPI
-     final override val descriptor: DeclarationDescriptor
-         get() = error("Not bound")
-
-     @ObsoleteDescriptorBasedAPI
-     final override val hasDescriptor: Boolean
-         get() = error("Not bound")
-
-     final override val isBound: Boolean
-         get() = false
-
-     final override val owner: IrSymbolOwner
-         get() = TODO("IR fragment in BIR context")
-
-     final override var privateSignature: IdSignature?
-         get() = error("Not bound")
-         set(value) = error("Not bound")
- */
-
      final override val signature: IdSignature
          get() = error("Not bound")
 
