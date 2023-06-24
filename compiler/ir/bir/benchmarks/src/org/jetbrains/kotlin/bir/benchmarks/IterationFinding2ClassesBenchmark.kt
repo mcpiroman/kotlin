@@ -11,15 +11,18 @@ import org.jetbrains.kotlin.bir.declarations.BirVariable
 import org.jetbrains.kotlin.bir.expressions.BirFunctionAccessExpression
 import org.jetbrains.kotlin.bir.traversal.*
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
+import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 open class IterationFinding2ClassesBenchmark : BenchmarkOnRealCodeBase(true) {
     @Benchmark
-    fun traverseIr(): Int {
+    fun traverseIrWithVisitor(): Int {
         var i = 0
         var j = 0
         irRoot.acceptVoid(object : IrElementVisitorVoid {
@@ -40,6 +43,23 @@ open class IterationFinding2ClassesBenchmark : BenchmarkOnRealCodeBase(true) {
         return i - j
     }
 
+    @Benchmark
+    fun traverseIrWithTransformer(): Int {
+        var i = 0
+        var j = 0
+        irRoot.transform(object : IrElementTransformerVoid() {
+            override fun visitFunctionAccess(expression: IrFunctionAccessExpression): IrExpression {
+                i++
+                return super.visitFunctionAccess(expression)
+            }
+
+            override fun visitProperty(declaration: IrProperty): IrStatement {
+                j++
+                return super.visitProperty(declaration)
+            }
+        }, null)
+        return i - j
+    }
 
     @Benchmark
     fun traverseBirStackBased(): Int {
