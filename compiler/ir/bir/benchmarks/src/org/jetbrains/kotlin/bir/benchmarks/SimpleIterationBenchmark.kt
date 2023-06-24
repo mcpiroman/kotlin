@@ -9,13 +9,14 @@ import kotlinx.benchmark.Benchmark
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.traversal.*
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 open class SimpleIterationBenchmark : BenchmarkOnRealCodeBase(true) {
     @Benchmark
-    fun traverseIr(): Int {
+    fun traverseIrWithVisitor(): Int {
         var i = 0
         irRoot.acceptVoid(object : IrElementVisitorVoid {
             override fun visitElement(element: IrElement) {
@@ -23,6 +24,18 @@ open class SimpleIterationBenchmark : BenchmarkOnRealCodeBase(true) {
                 element.acceptChildrenVoid(this)
             }
         })
+        return i
+    }
+
+    @Benchmark
+    fun traverseIrWithTransformer(): Int {
+        var i = 0
+        irRoot.transform(object : IrElementTransformerVoid() {
+            override fun visitElement(element: IrElement): IrElement {
+                i++
+                return super.visitElement(element)
+            }
+        }, null)
         return i
     }
 
