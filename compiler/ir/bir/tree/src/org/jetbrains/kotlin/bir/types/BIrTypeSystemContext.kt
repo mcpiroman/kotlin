@@ -20,8 +20,8 @@ import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality
-import org.jetbrains.kotlin.ir.types.IdSignatureValues
-import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
 import org.jetbrains.kotlin.name.Name
@@ -585,6 +585,26 @@ interface BirTypeSystemContext : TypeSystemContext, TypeSystemCommonSuperTypesCo
 
     override fun KotlinTypeMarker.isTypeVariableType(): Boolean {
         return false
+    }
+
+    override fun typeSubstitutorByTypeConstructor(map: Map<TypeConstructorMarker, KotlinTypeMarker>): TypeSubstitutorMarker {
+        val typeParameters = mutableListOf<BirTypeParameterSymbol>()
+        val typeArguments = mutableListOf<BirTypeArgument>()
+        for ((key, value) in map) {
+            typeParameters += key as BirTypeParameterSymbol
+            typeArguments += value as BirTypeArgument
+        }
+        return BirTypeSubstitutor(typeParameters, typeArguments, birBuiltIns)
+    }
+
+    override fun createEmptySubstitutor(): TypeSubstitutorMarker {
+        return BirTypeSubstitutor(emptyList(), emptyList(), birBuiltIns)
+    }
+
+    override fun TypeSubstitutorMarker.safeSubstitute(type: KotlinTypeMarker): KotlinTypeMarker {
+        require(this is AbstractBirTypeSubstitutor)
+        require(type is BirType)
+        return substitute(type)
     }
 }
 

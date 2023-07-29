@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.bir.generator.config.*
 import org.jetbrains.kotlin.bir.generator.elementBaseType
 import org.jetbrains.kotlin.bir.generator.elementList
 import org.jetbrains.kotlin.bir.generator.util.*
+import org.jetbrains.kotlin.utils.addToStdlib.UnsafeCastFunction
 import org.jetbrains.kotlin.utils.addToStdlib.castAll
 import org.jetbrains.kotlin.utils.addToStdlib.partitionIsInstance
 
@@ -81,6 +82,7 @@ fun config2model(config: Config): Model {
     return Model(elements, rootElement)
 }
 
+@OptIn(UnsafeCastFunction::class)
 private fun replaceElementRefs(config: Config, mapping: Map<ElementConfig, Element>): Element {
     val visited = mutableMapOf<TypeRef, TypeRef>()
 

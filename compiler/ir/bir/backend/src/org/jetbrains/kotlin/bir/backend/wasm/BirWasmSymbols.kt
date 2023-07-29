@@ -111,7 +111,7 @@ class BirWasmSymbols(
     val enumEntries = getClass(FqName.fromSegments(listOf("kotlin", "enums", "EnumEntries")))
     val createEnumEntries = findFunctions(enumsInternalPackage.memberScope, Name.identifier("enumEntries"))
         .find { it.valueParameters.firstOrNull()?.type?.isFunctionType == false }
-        .let { symbolTable.referenceSimpleFunction(it!!) }
+        .let { symbolTable.descriptorExtension.referenceSimpleFunction(it!!) }
 
     val enumValueOfIntrinsic = getInternalFunction("enumValueOfIntrinsic")
     val enumValuesIntrinsic = getInternalFunction("enumValuesIntrinsic")
@@ -184,8 +184,8 @@ class BirWasmSymbols(
     val refEq = getInternalFunction("wasm_ref_eq")
     val refIsNull = getInternalFunction("wasm_ref_is_null")
     val externRefIsNull = getInternalFunction("wasm_externref_is_null")
-    val refTest = getInternalFunction("wasm_ref_test_deprecated")
-    val refCastNull = getInternalFunction("wasm_ref_cast_deprecated")
+    val refTest = getInternalFunction("wasm_ref_test")
+    val refCastNull = getInternalFunction("wasm_ref_cast_null")
     val wasmArrayCopy = getInternalFunction("wasm_array_copy")
     val wasmArrayNewData0 = getInternalFunction("array_new_data0")
 
@@ -193,7 +193,7 @@ class BirWasmSymbols(
 
     val rangeCheck = getInternalFunction("rangeCheck")
     val assertFuncs =
-        findFunctions(kotlinTopLevelPackage.memberScope, Name.identifier("assert")).map { symbolTable.referenceSimpleFunction(it) }
+        findFunctions(kotlinTopLevelPackage.memberScope, Name.identifier("assert")).map { symbolTable.descriptorExtension.referenceSimpleFunction(it) }
 
     val boxIntrinsic: BirSimpleFunction = getInternalFunction("boxIntrinsic")
     val unboxIntrinsic: BirSimpleFunction = getInternalFunction("unboxIntrinsic")
@@ -240,7 +240,7 @@ class BirWasmSymbols(
     val kTypeStub = getInternalFunction("kTypeStub")
 
     val arraysCopyInto = findFunctions(collectionsPackage.memberScope, Name.identifier("copyInto"))
-        .map { symbolTable.referenceSimpleFunction(it) }
+        .map { symbolTable.descriptorExtension.referenceSimpleFunction(it) }
 
     /*private val contentToString: List<BirSimpleFunction> =
         findFunctions(collectionsPackage.memberScope, Name.identifier("contentToString"))
@@ -286,8 +286,8 @@ class BirWasmSymbols(
         }
     }*/
 
-    private val wasmDataRefClass = getClass(FqName("kotlin.wasm.internal.reftypes.dataref"))
-    val wasmDataRefType by lazy { with(birTreeContext) { wasmDataRefClass.defaultType } }
+    private val wasmStructRefClass = getClass(FqName("kotlin.wasm.internal.reftypes.structref"))
+    val wasmStructRefType by lazy { wasmStructRefClass.defaultType }
 
     val wasmAnyRefClass = getClass(FqName("kotlin.wasm.internal.reftypes.anyref"))
 
@@ -368,7 +368,7 @@ class BirWasmSymbols(
 
     override val coroutineSuspendedGetter =
         remapSymbolOwner<_, BirSimpleFunction>(
-            symbolTable.referenceSimpleFunction(
+            symbolTable.descriptorExtension.referenceSimpleFunction(
                 coroutineIntrinsicsPackage.memberScope.getContributedVariables(
                     COROUTINE_SUSPENDED_NAME,
                     NoLookupLocation.FROM_BACKEND
@@ -396,7 +396,7 @@ class BirWasmSymbols(
 
     private fun getClass(memberScope: MemberScope, name: Name): BirClass {
         val descriptor = findClass(memberScope, name)
-        val ir = symbolTable.referenceClass(descriptor)
+        val ir = symbolTable.descriptorExtension.referenceClass(descriptor)
         return remapSymbolOwner(ir)
     }
 
@@ -412,7 +412,7 @@ class BirWasmSymbols(
         val descriptor = findFunctions(ownerPackage.memberScope, Name.identifier(name))
         if (descriptor.isEmpty())
             return null
-        val ir = symbolTable.referenceSimpleFunction(descriptor.single())
+        val ir = symbolTable.descriptorExtension.referenceSimpleFunction(descriptor.single())
         return remapSymbolOwner(ir)
     }
 
@@ -423,7 +423,7 @@ class BirWasmSymbols(
 
     private fun getProperty(memberScope: MemberScope, name: Name): BirProperty {
         val descriptor = findProperty(memberScope, name).single()
-        val ir = symbolTable.referenceProperty(descriptor)
+        val ir = symbolTable.descriptorExtension.referenceProperty(descriptor)
         return remapSymbolOwner(ir)
     }
 

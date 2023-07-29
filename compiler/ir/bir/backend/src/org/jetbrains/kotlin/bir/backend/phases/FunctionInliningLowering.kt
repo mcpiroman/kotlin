@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.bir.backend.phases
 
+import org.jetbrains.kotlin.backend.common.ir.isPure
 import org.jetbrains.kotlin.backend.common.lower.inline.INLINED_FUNCTION_ARGUMENTS
 import org.jetbrains.kotlin.backend.common.lower.inline.INLINED_FUNCTION_DEFAULT_ARGUMENTS
 import org.jetbrains.kotlin.backend.common.lower.inline.INLINED_FUNCTION_REFERENCE
@@ -31,9 +32,11 @@ import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
-import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
+import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -87,10 +90,10 @@ class FunctionInliningLowering(
     private val innerClassesSupport: InnerClassesSupport? = null,
     private val insertAdditionalImplicitCasts: Boolean = false,
     private val alwaysCreateTemporaryVariablesForArguments: Boolean = false,
-    private val inlinePureArguments: Boolean = true,
     private val regenerateInlinedAnonymousObjects: Boolean = false,
     private val inlineArgumentsWithTheirOriginalTypeAndOffset: Boolean = false,
     private val allowExternalInlining: Boolean = false,
+    private val useTypeParameterUpperBound: Boolean = false
 ) : BirLoweringPhase() {
     override fun invoke(module: BirModuleFragment) {
         class CallToInline(val callSite: BirFunctionAccessExpression, val callee: BirFunction) {
@@ -509,7 +512,9 @@ class FunctionInliningLowering(
                 // We take type parameter from copied callee and not from original because we need an actual copy. Without this copy,
                 // in case of recursive call, we can get a situation there the same type parameter will be mapped on different type arguments.
                 // (see compiler/testData/codegen/boxInline/complex/use.kt test file)
-                return copy.typeParameters.elementAt(typeClassifier.getIndex()).defaultType.substituteSuperTypes()
+                val newTypeParameter = copy.typeParameters.elementAt(typeClassifier.getIndex()).defaultType.substituteSuperTypes()
+                return if (useTypeParameterUpperBound) typeClassifier.firstRealUpperBound() else newTypeParameter
+                //return copy.typeParameters.elementAt(typeClassifier.getIndex()).defaultType.substituteSuperTypes()
             }
 
             return when (this) {
@@ -519,10 +524,28 @@ class FunctionInliningLowering(
                     ?: copy.extensionReceiverParameter!!.type
                 else -> {
                     check(this in copy.valueParameters)
-                    original.valueParameters.elementAt(this.getIndex()).getTypeIfFromTypeParameter()
+                    original.valueParameters.elementAtOrNull(this.getIndex())?.getTypeIfFromTypeParameter()
                         ?: this.type
                 }
             }
+        }
+
+
+        private fun BirTypeParameter?.firstRealUpperBound(): BirType {
+            val queue = this?.superTypes?.toMutableList() ?: mutableListOf()
+
+            while (queue.isNotEmpty()) {
+                val superType = queue.removeFirst()
+                val superTypeClassifier = superType.classifierOrNull ?: continue
+
+                if (superTypeClassifier is BirTypeParameter) {
+                    queue.addAll(superTypeClassifier.superTypes)
+                } else {
+                    return superType
+                }
+            }
+
+            return birBuiltIns.anyNType
         }
 
         private fun evaluateArguments(reference: BirCallableReference<*>): List<BirVariable> {
@@ -562,8 +585,7 @@ class FunctionInliningLowering(
         }
 
         private fun ParameterToArgument.shouldBeSubstitutedViaTemporaryVariable(): Boolean =
-            !(isImmutableVariableLoad && parameter.getIndex() >= 0) &&
-                    !(argumentExpression.isPure(false) && inlinePureArguments)
+            !(isImmutableVariableLoad && parameter.getIndex() >= 0) && !argumentExpression.isPure(false)
 
         private fun createTemporaryVariable(
             parameter: BirValueParameter,
@@ -573,7 +595,7 @@ class FunctionInliningLowering(
         ): BirVariable {
             return BirVariable.build {
                 name = if (alwaysCreateTemporaryVariablesForArguments) {
-                    parameter.name
+                    Name.identifier(parameter.name.asStringStripSpecialMarkers())
                 } else {
                     Name.identifier(currentScope.inventNameForTemporary(nameHint = callee.name.asStringStripSpecialMarkers()))
                 }
@@ -742,13 +764,17 @@ class FunctionInliningLowering(
             val superTypeArgumentsMap = (originalCall.target.asElement.parentAsClass.typeParameters zip superType.arguments)
                 .associate<_, BirTypeParameterSymbol, BirType> { it.first to it.second.typeOrNull!! }
 
+            require(superType.arguments.isNotEmpty()) { "type should have at least one type argument: ${superType.render()}" }
+            // This expression equals to return type of function reference with substituted type arguments
+            val functionReferenceReturnType = superType.arguments.last().typeOrFail
+
             val immediateCall = when (inlinedFunction) {
                 is BirConstructor -> {
                     val classTypeParametersCount = inlinedFunction.parentAsClass.typeParameters.size
                     BirConstructorCall.build {
                         sourceSpan =
                             if (inlineArgumentsWithTheirOriginalTypeAndOffset) functionReference.sourceSpan else originalCall.sourceSpan
-                        type = remapType(inlinedFunction.returnType)
+                        type = remapType(functionReferenceReturnType)
                         target = inlinedFunction
                         constructorTypeArgumentsCount = classTypeParametersCount
                         origin = INLINED_FUNCTION_REFERENCE
@@ -758,7 +784,7 @@ class FunctionInliningLowering(
                     BirCall.build {
                         sourceSpan =
                             if (inlineArgumentsWithTheirOriginalTypeAndOffset) functionReference.sourceSpan else originalCall.sourceSpan
-                        type = remapType(inlinedFunction.returnType)
+                        type = remapType(functionReferenceReturnType)
                         target = inlinedFunction
                         origin = INLINED_FUNCTION_REFERENCE
                     }

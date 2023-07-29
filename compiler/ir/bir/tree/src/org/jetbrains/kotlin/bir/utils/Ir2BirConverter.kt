@@ -554,7 +554,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             BirExternalPackageFragmentImpl(
                 sourceSpan = SourceSpan(old.startOffset, old.endOffset),
                 _descriptor = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else mapDescriptor { old.packageFragmentDescriptor },
-                fqName = old.fqName,
+                fqName = old.packageFqName,
                 containerSource = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else old.containerSource,
             )
         }) { new ->
@@ -568,7 +568,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         BirFileImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
             _descriptor = mapDescriptor { old.packageFragmentDescriptor },
-            fqName = old.fqName,
+            fqName = old.packageFqName,
             annotations = emptyList(),
             fileEntry = old.fileEntry,
         )

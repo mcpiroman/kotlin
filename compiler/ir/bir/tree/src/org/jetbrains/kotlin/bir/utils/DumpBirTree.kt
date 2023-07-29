@@ -24,62 +24,72 @@ import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.traversal.BirTreeStackBasedTraverseScopeWithData
 import org.jetbrains.kotlin.bir.traversal.traverseStackBased
 import org.jetbrains.kotlin.bir.types.BirType
+import org.jetbrains.kotlin.ir.declarations.IrAnonymousInitializer
+import org.jetbrains.kotlin.ir.declarations.IrDeclaration
+import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.util.DumpIrTreeOptions
 import org.jetbrains.kotlin.ir.util.NaiveSourceBasedFileEntryImpl
+import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.utils.Printer
 
-fun BirElement.dump(normalizeNames: Boolean = false, stableOrder: Boolean = false): String =
-    //try {
-    with(DummyBirTreeContext) {
-        StringBuilder().also { sb ->
-            DumpBirTreeVisitor(sb, normalizeNames, stableOrder).run(this@dump)
-        }.toString()
+fun BirElement.dump(options: DumpIrTreeOptions = DumpIrTreeOptions()): String =
+    try {
+        with(DummyBirTreeContext) {
+            StringBuilder().also { sb ->
+                DumpBirTreeVisitor(sb, options).run(this@dump)
+            }.toString()
+        }
+    } catch (e: Exception) {
+        "(Full dump is not available: ${e.message})\n" + render()
     }
-/*} catch (e: Exception) {
-    "(Full dump is not available: ${e.message})\n" + render()
-}*/
 
 private fun BirFile.shouldSkipDump(): Boolean {
     val entry = fileEntry as? NaiveSourceBasedFileEntryImpl ?: return false
     return entry.lineStartOffsetsAreEmpty
 }
 
+/**
+ * Sorts the declarations in the list using the result of [IrDeclaration.render] as the sorting key.
+ *
+ * The exception is properties with backing fields and [IrAnonymousInitializer]s: their relative order is preserved.
+ */
+context(BirTreeContext)
+internal fun Collection<BirDeclaration>.stableOrdered(): List<BirDeclaration> {
+    val strictOrder = hashMapOf<BirDeclaration, Int>()
+
+    var idx = 0
+
+    forEach {
+        if (it is BirProperty && it.backingField != null && !it.isConst) {
+            strictOrder[it] = idx++
+        }
+        if (it is BirAnonymousInitializer) {
+            strictOrder[it] = idx++
+        }
+    }
+
+    return sortedWith { a, b ->
+        val strictA = strictOrder[a] ?: Int.MAX_VALUE
+        val strictB = strictOrder[b] ?: Int.MAX_VALUE
+
+        if (strictA == strictB) {
+            val rA = a.render()
+            val rB = b.render()
+            rA.compareTo(rB)
+        } else strictA - strictB
+    }
+}
+
 context(BirTreeContext)
 class DumpBirTreeVisitor(
     out: Appendable,
-    normalizeNames: Boolean = false,
-    private val stableOrder: Boolean = false
+    private val options: DumpIrTreeOptions = DumpIrTreeOptions(),
 ) {
     private val printer = Printer(out, "  ")
-    private val elementRenderer = RenderBirElementVisitor(normalizeNames, !stableOrder)
+    private val elementRenderer = RenderBirElementVisitor(options)
     private fun BirType.render() = elementRenderer.renderType(this)
 
-    private fun Collection<BirDeclaration>.ordered(): List<BirDeclaration> {
-        if (!stableOrder) return this.toList()
-
-        val strictOrder = mutableMapOf<BirDeclaration, Int>()
-
-        var idx = 0
-
-        forEach {
-            if (it is BirProperty && it.backingField != null && !it.isConst) {
-                strictOrder[it] = idx++
-            }
-            if (it is BirAnonymousInitializer) {
-                strictOrder[it] = idx++
-            }
-        }
-
-        return sortedWith { a, b ->
-            val strictA = strictOrder[a] ?: Int.MAX_VALUE
-            val strictB = strictOrder[b] ?: Int.MAX_VALUE
-
-            if (strictA == strictB) {
-                val rA = a.render()
-                val rB = b.render()
-                rA.compareTo(rB)
-            } else strictA - strictB
-        }
-    }
+    private fun Collection<BirDeclaration>.ordered(): Collection<BirDeclaration> = if (options.stableOrder) stableOrdered() else this
 
     fun run(root: BirElement) {
         root.traverseStackBased("") { element, data ->
@@ -354,7 +364,7 @@ class DumpBirTreeVisitor(
         if (expression is BirInlinedFunctionBlock) {
             expression.dumpLabeledElementWith(data) {
                 expression.inlinedElement.dumpInternal("inlinedElement")
-                visitElement(expression, data)
+                expression.walkIntoChildren(data)
             }
         } else {
             visitElement(expression, data)

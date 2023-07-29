@@ -40,7 +40,7 @@ private fun <T : Enum<T>> BirType.getPrimitiveOrUnsignedType(
 
     val klass = symbol.owner
     val parent = klass.parent
-    if (parent !is IrPackageFragment || parent.fqName != StandardNames.BUILT_INS_PACKAGE_FQ_NAME) return null
+    if (parent !is IrPackageFragment || parent.packageFqName != StandardNames.BUILT_INS_PACKAGE_FQ_NAME) return null
     return byShortName[klass.name]
 }
 

@@ -184,7 +184,7 @@ private fun dumpBirTree(
 ) {
     val path = irDumpDir.resolve("bir/${phaseName}.bir.txt")
     path.parentFile.mkdirs()
-    path.writeText(birModule.dump(stableOrder = true))
+    path.writeText(birModule.dump(DumpIrTreeOptions(stableOrder = true)))
 }
 
 private fun dumpIrTree(

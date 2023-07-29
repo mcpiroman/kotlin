@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.bir.utils
 
+import com.intellij.openapi.util.Dump
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirTreeContext
@@ -19,66 +20,73 @@ import org.jetbrains.kotlin.bir.types.utils.originalKotlinType
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
+import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
 import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
+import org.jetbrains.kotlin.ir.util.DumpIrTreeOptions
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-fun BirElement.render() = with(DummyBirTreeContext) {
-    RenderBirElementVisitor().render(this@render)
+fun BirElement.render(options: DumpIrTreeOptions = DumpIrTreeOptions()) = with(DummyBirTreeContext) {
+    RenderBirElementVisitor(options).render(this@render)
 }
 
 context(BirTreeContext)
-internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private val verboseErrorTypes: Boolean = true) {
-    private val variableNameData = VariableNameData(normalizeNames)
+internal class RenderBirElementVisitor(private val options: DumpIrTreeOptions = DumpIrTreeOptions()) {
+    private val variableNameData = VariableNameData(options.normalizeNames)
 
-    fun renderType(type: BirType) = type.renderTypeWithRenderer(this@RenderBirElementVisitor, verboseErrorTypes)
+    fun renderType(type: BirType) = type.renderTypeWithRenderer(this@RenderBirElementVisitor, options)
 
     fun renderSymbolReference(symbol: BirSymbol) = symbol.renderReference()
 
     fun renderAsAnnotation(irAnnotation: BirConstructorCall): String =
-        StringBuilder().also { it.renderAsAnnotation(irAnnotation, this, verboseErrorTypes) }.toString()
+        StringBuilder().also { it.renderAsAnnotation(irAnnotation, this, options) }.toString()
 
     private fun BirType.render(): String =
-        this.renderTypeWithRenderer(this@RenderBirElementVisitor, verboseErrorTypes)
+        this.renderTypeWithRenderer(this@RenderBirElementVisitor, options)
 
     private fun BirSymbol.renderReference() =
         if (this is BirElement)
-            BoundSymbolReferenceRenderer(variableNameData, verboseErrorTypes, this)
+            BoundSymbolReferenceRenderer(variableNameData, options, this)
         else
             "UNBOUND ${getCorrespondingIrClassName(javaClass)}"
 
     private fun BoundSymbolReferenceRenderer(
         variableNameData: VariableNameData,
-        verboseErrorTypes: Boolean,
+        options: DumpIrTreeOptions,
         element: BirElement,
     ): String = when (element) {
-        is BirTypeParameter -> renderTypeParameter(element, null, verboseErrorTypes)
-        is BirClass -> renderClassWithRenderer(element, null, verboseErrorTypes)
+        is BirTypeParameter -> renderTypeParameter(element, null, options)
+        is BirClass -> renderClassWithRenderer(element, null, options)
         is BirEnumEntry -> renderEnumEntry(element)
-        is BirField -> renderField(element, null, verboseErrorTypes)
+        is BirField -> renderField(element, null, options)
         is BirVariable -> buildTrimEnd {
             if (element.isVar) append("var ") else append("val ")
 
             append(element.normalizedName(variableNameData))
             append(": ")
-            append(element.type.renderTypeWithRenderer(null, verboseErrorTypes))
+            append(element.type.renderTypeWithRenderer(null, options))
             append(' ')
 
-            append(element.renderVariableFlags())
+            if (options.printFlagsInDeclarationReferences) {
+                append(element.renderVariableFlags())
+            }
 
             renderDeclaredIn(element)
         }
         is BirValueParameter -> buildTrimEnd {
             append(element.name.asString())
             append(": ")
-            append(element.type.renderTypeWithRenderer(null, verboseErrorTypes))
+            append(element.type.renderTypeWithRenderer(null, options))
             append(' ')
 
-            append(element.renderValueParameterFlags())
+            if (options.printFlagsInDeclarationReferences) {
+                append(element.renderValueParameterFlags())
+            }
 
             renderDeclaredIn(element)
         }
@@ -108,23 +116,25 @@ internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private 
                     append("vararg ")
                     append(valueParameter.name.asString())
                     append(": ")
-                    append(varargElementType.renderTypeWithRenderer(null, verboseErrorTypes))
+                    append(varargElementType.renderTypeWithRenderer(null, options))
                 } else {
                     append(valueParameter.name.asString())
                     append(": ")
-                    append(valueParameter.type.renderTypeWithRenderer(null, verboseErrorTypes))
+                    append(valueParameter.type.renderTypeWithRenderer(null, options))
                 }
             }
 
             if (element is BirSimpleFunction) {
                 append(": ")
-                append(element.renderReturnType(null, verboseErrorTypes))
+                append(element.renderReturnType(null, options))
             }
             append(' ')
 
-            when (element) {
-                is BirSimpleFunction -> append(element.renderSimpleFunctionFlags())
-                is BirConstructor -> append(element.renderConstructorFlags())
+            if (options.printFlagsInDeclarationReferences) {
+                when (element) {
+                    is BirSimpleFunction -> append(element.renderSimpleFunctionFlags())
+                    is BirConstructor -> append(element.renderConstructorFlags())
+                }
             }
 
             renderDeclaredIn(element)
@@ -140,20 +150,22 @@ internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private 
             val getter = element.getter
             if (getter != null) {
                 append(": ")
-                append(getter.renderReturnType(null, verboseErrorTypes))
+                append(getter.renderReturnType(null, options))
             } else element.backingField?.type?.let { type ->
                 append(": ")
-                append(type.renderTypeWithRenderer(null, verboseErrorTypes))
+                append(type.renderTypeWithRenderer(null, options))
             }
 
-            append(' ')
-            append(element.renderPropertyFlags())
+            if (options.printFlagsInDeclarationReferences) {
+                append(' ')
+                append(element.renderPropertyFlags())
+            }
         }
         is BirLocalDelegatedProperty -> buildTrimEnd {
             if (element.isVar) append("var ") else append("val ")
             append(element.name.asString())
             append(": ")
-            append(element.type.renderTypeWithRenderer(null, verboseErrorTypes))
+            append(element.type.renderTypeWithRenderer(null, options))
             append(" by (...)")
         }
         else -> buildTrimEnd {
@@ -225,7 +237,7 @@ internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private 
                     "name:$name visibility:$visibility modality:$modality " +
                     renderTypeParameters() + " " +
                     renderValueParameterTypes() + " " +
-                    "returnType:${renderReturnType(this@RenderBirElementVisitor, verboseErrorTypes)} " +
+                    "returnType:${renderReturnType(this@RenderBirElementVisitor, options)} " +
                     renderSimpleFunctionFlags()
         }
         is BirConstructor -> element.runTrimEnd {
@@ -233,7 +245,7 @@ internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private 
                     "visibility:$visibility " +
                     renderTypeParameters() + " " +
                     renderValueParameterTypes() + " " +
-                    "returnType:${renderReturnType(this@RenderBirElementVisitor, verboseErrorTypes)} " +
+                    "returnType:${renderReturnType(this@RenderBirElementVisitor, options)} " +
                     renderConstructorFlags()
         }
         is BirFunction -> element.runTrimEnd {
@@ -244,8 +256,8 @@ internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private 
                     "name:$name visibility:$visibility modality:$modality " +
                     renderPropertyFlags()
         }
-        is BirField -> renderField(element, this, verboseErrorTypes)
-        is BirClass -> renderClassWithRenderer(element, this, verboseErrorTypes)
+        is BirField -> renderField(element, this, options)
+        is BirClass -> renderClassWithRenderer(element, this, options)
         is BirVariable -> element.runTrimEnd {
             "VAR ${renderOriginIfNonTrivial()}name:${normalizedName(variableNameData)} type:${type.render()} ${renderVariableFlags()}"
         }
@@ -262,7 +274,7 @@ internal class RenderBirElementVisitor(normalizeNames: Boolean = false, private 
                         renderValueParameterFlags()
             }
         }
-        is BirTypeParameter -> renderTypeParameter(element, this, verboseErrorTypes)
+        is BirTypeParameter -> renderTypeParameter(element, this, options)
         is BirLocalDelegatedProperty -> element.runTrimEnd {
             "LOCAL_DELEGATED_PROPERTY ${element.renderOriginIfNonTrivial()}" +
                     "name:$name type:${type.render()} flags:${renderLocalDelegatedPropertyFlags()}"
@@ -400,51 +412,64 @@ internal fun DescriptorRenderer.renderDescriptor(descriptor: DeclarationDescript
 internal fun BirDeclaration.renderOriginIfNonTrivial(): String =
     if (origin != IrDeclarationOrigin.DEFINED) "$origin " else ""
 
-internal fun BirClassifierSymbol.renderClassifierFqn(): String =
+internal fun BirClassifierSymbol.renderClassifierFqn(options: DumpIrTreeOptions): String =
     if (this is BirElement)
         when (this) {
-            is BirClass -> this.renderClassFqn()
-            is BirScript -> this.renderScriptFqn()
-            is BirTypeParameter -> this.renderTypeParameterFqn()
-            else -> "`unexpected classifier: ${this.render()}`"
+            is BirClass -> this.renderClassFqn(options)
+            is BirScript -> this.renderScriptFqn(options)
+            is BirTypeParameter -> this.renderTypeParameterFqn(options)
+            else -> "`unexpected classifier: ${this.render(options)}`"
         }
     else
         "<unbound ${getCorrespondingIrClassName(this.javaClass)}>"
 
-internal fun BirTypeAliasSymbol.renderTypeAliasFqn(): String =
+internal fun BirTypeAliasSymbol.renderTypeAliasFqn(options: DumpIrTreeOptions): String =
     if (this is BirDeclaration)
-        StringBuilder().also { renderDeclarationFqn(it) }.toString()
+        StringBuilder().also { renderDeclarationFqn(it, options) }.toString()
     else
         "<unbound $this>"
 
-internal fun BirClass.renderClassFqn(): String =
-    StringBuilder().also { renderDeclarationFqn(it) }.toString()
+internal fun BirClass.renderClassFqn(options: DumpIrTreeOptions): String =
+    StringBuilder().also { renderDeclarationFqn(it, options) }.toString()
 
-internal fun BirScript.renderScriptFqn(): String =
-    StringBuilder().also { renderDeclarationFqn(it) }.toString()
+internal fun BirScript.renderScriptFqn(options: DumpIrTreeOptions): String =
+    StringBuilder().also { renderDeclarationFqn(it, options) }.toString()
 
-internal fun BirTypeParameter.renderTypeParameterFqn(): String =
+internal fun BirTypeParameter.renderTypeParameterFqn(options: DumpIrTreeOptions): String =
     StringBuilder().also { sb ->
         sb.append(name.asString())
         sb.append(" of ")
-        renderDeclarationParentFqn(sb)
+        renderDeclarationParentFqn(sb, options)
     }.toString()
 
-private fun BirDeclaration.renderDeclarationFqn(sb: StringBuilder) {
-    renderDeclarationParentFqn(sb)
-    sb.append('.')
-    if (this is BirDeclarationWithName) {
-        sb.append(name.asString())
-    } else {
+private inline fun StringBuilder.appendDeclarationNameToFqName(
+    declaration: BirDeclaration,
+    options: DumpIrTreeOptions,
+    fallback: () -> Unit,
+) {
+    if (declaration.origin != IrDeclarationOrigin.FILE_CLASS || options.printFacadeClassInFqNames) {
+        append('.')
+        if (declaration is BirDeclarationWithName) {
+            append(declaration.name)
+        } else {
+            fallback()
+        }
+    }
+}
+
+private fun BirDeclaration.renderDeclarationFqn(sb: StringBuilder, options: DumpIrTreeOptions) {
+    renderDeclarationParentFqn(sb, options)
+    sb.appendDeclarationNameToFqName(this, options) {
         sb.append(this)
     }
 }
 
-private fun BirDeclaration.renderDeclarationParentFqn(sb: StringBuilder) {
+
+private fun BirDeclaration.renderDeclarationParentFqn(sb: StringBuilder, options: DumpIrTreeOptions) {
     try {
         val parent = this.findDeclarationParentOldWay()
         if (parent is BirDeclaration) {
-            parent.renderDeclarationFqn(sb)
+            parent.renderDeclarationFqn(sb, options)
         } else if (parent is BirPackageFragment) {
             sb.append(parent.fqName.toString())
         }
@@ -453,8 +478,8 @@ private fun BirDeclaration.renderDeclarationParentFqn(sb: StringBuilder) {
     }
 }
 
-fun BirType.render(): String = with(DummyBirTreeContext) {
-    renderTypeWithRenderer(RenderBirElementVisitor(), true)
+fun BirType.render(options: DumpIrTreeOptions = DumpIrTreeOptions()): String = with(DummyBirTreeContext) {
+    renderTypeWithRenderer(RenderBirElementVisitor(), options)
 }
 
 fun BirSimpleType.render(): String = (this as BirType).render()
@@ -470,7 +495,7 @@ internal inline fun <T, Buffer : Appendable> Buffer.appendIterableWith(
     prefix: String,
     postfix: String,
     separator: String,
-    renderItem: Buffer.(T) -> Unit
+    renderItem: Buffer.(T) -> Unit,
 ) {
     append(prefix)
     var isFirst = true
@@ -590,27 +615,27 @@ private fun BirVariable.normalizedName(data: VariableNameData): String {
     return name.asString()
 }
 
-private fun BirFunction.renderReturnType(renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean): String =
-    safeReturnType?.renderTypeWithRenderer(renderer, verboseErrorTypes) ?: "<Uninitialized>"
+private fun BirFunction.renderReturnType(renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions): String =
+    safeReturnType?.renderTypeWithRenderer(renderer, options) ?: "<Uninitialized>"
 
-private fun BirType.renderTypeWithRenderer(renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean): String =
-    "${renderTypeAnnotations(annotations, renderer, verboseErrorTypes)}${renderTypeInner(renderer, verboseErrorTypes)}"
+private fun BirType.renderTypeWithRenderer(renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions): String =
+    "${renderTypeAnnotations(annotations, renderer, options)}${renderTypeInner(renderer, options)}"
 
-private fun BirType.renderTypeInner(renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean) =
+private fun BirType.renderTypeInner(renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions) =
     when (this) {
         is BirDynamicType -> "dynamic"
 
-        is BirErrorType -> "BirErrorType(${verboseErrorTypes.ifTrue { originalKotlinType }})"
+        is BirErrorType -> "BirErrorType(${options.verboseErrorTypes.ifTrue { originalKotlinType }})"
 
         is BirSimpleType -> buildTrimEnd {
             val isDefinitelyNotNullType =
                 classifier is BirTypeParameterSymbol && nullability == SimpleTypeNullability.DEFINITELY_NOT_NULL
             if (isDefinitelyNotNullType) append("{")
-            append(classifier.renderClassifierFqn())
+            append(classifier.renderClassifierFqn(options))
             if (arguments.isNotEmpty()) {
                 append(
                     arguments.joinToString(prefix = "<", postfix = ">", separator = ", ") {
-                        it.renderTypeArgument(renderer, verboseErrorTypes)
+                        it.renderTypeArgument(renderer, options)
                     }
                 )
             }
@@ -620,22 +645,22 @@ private fun BirType.renderTypeInner(renderer: RenderBirElementVisitor?, verboseE
                 append('?')
             }
             abbreviation?.let {
-                append(it.renderTypeAbbreviation(renderer, verboseErrorTypes))
+                append(it.renderTypeAbbreviation(renderer, options))
             }
         }
 
         else -> "{${getCorrespondingIrClassName(javaClass)} $this}"
     }
 
-private fun BirTypeAbbreviation.renderTypeAbbreviation(renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean): String =
+private fun BirTypeAbbreviation.renderTypeAbbreviation(renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions): String =
     buildString {
         append("{ ")
-        append(renderTypeAnnotations(annotations, renderer, verboseErrorTypes))
-        append(typeAlias.renderTypeAliasFqn())
+        append(renderTypeAnnotations(annotations, renderer, options))
+        append(typeAlias.renderTypeAliasFqn(options))
         if (arguments.isNotEmpty()) {
             append(
                 arguments.joinToString(prefix = "<", postfix = ">", separator = ", ") {
-                    it.renderTypeArgument(renderer, verboseErrorTypes)
+                    it.renderTypeArgument(renderer, options)
                 }
             )
         }
@@ -645,25 +670,25 @@ private fun BirTypeAbbreviation.renderTypeAbbreviation(renderer: RenderBirElemen
         append(" }")
     }
 
-private fun BirTypeArgument.renderTypeArgument(renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean): String =
+private fun BirTypeArgument.renderTypeArgument(renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions): String =
     when (this) {
         is BirStarProjection -> "*"
 
         is BirTypeProjection -> buildTrimEnd {
             append(variance.label)
             if (variance != Variance.INVARIANT) append(' ')
-            append(type.renderTypeWithRenderer(renderer, verboseErrorTypes))
+            append(type.renderTypeWithRenderer(renderer, options))
         }
     }
 
-private fun renderTypeAnnotations(annotations: List<BirConstructorCall>, renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean) =
+private fun renderTypeAnnotations(annotations: List<BirConstructorCall>, renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions) =
     if (annotations.isEmpty())
         ""
     else
         buildString {
             appendIterableWith(annotations, prefix = "", postfix = " ", separator = " ") {
                 append("@[")
-                renderAsAnnotation(it, renderer, verboseErrorTypes)
+                renderAsAnnotation(it, renderer, options)
                 append("]")
             }
         }
@@ -671,14 +696,14 @@ private fun renderTypeAnnotations(annotations: List<BirConstructorCall>, rendere
 private fun StringBuilder.renderAsAnnotation(
     irAnnotation: BirConstructorCall,
     renderer: RenderBirElementVisitor?,
-    verboseErrorTypes: Boolean,
+    options: DumpIrTreeOptions,
 ) {
     val annotationClassName = irAnnotation.target.maybeAsElement?.parentAsClass?.name?.asString() ?: "<unbound>"
     append(annotationClassName)
 
     if (irAnnotation.typeArguments.size != 0) {
         irAnnotation.typeArguments.joinTo(this, ", ", "<", ">") { arg ->
-            arg?.renderTypeWithRenderer(renderer, verboseErrorTypes) ?: "null"
+            arg?.renderTypeWithRenderer(renderer, options) ?: "null"
         }
     }
 
@@ -688,18 +713,18 @@ private fun StringBuilder.renderAsAnnotation(
     appendIterableWith(irAnnotation.valueArguments.withIndex(), separator = ", ", prefix = "(", postfix = ")") { (idx, arg) ->
         append(valueParameterNames[idx])
         append(" = ")
-        renderAsAnnotationArgument(arg, renderer, verboseErrorTypes)
+        renderAsAnnotationArgument(arg, renderer, options)
     }
 }
 
 private fun StringBuilder.renderAsAnnotationArgument(
     irElement: BirElement?,
     renderer: RenderBirElementVisitor?,
-    verboseErrorTypes: Boolean
+    options: DumpIrTreeOptions,
 ) {
     when (irElement) {
         null, is BirNoExpression -> append("<null>")
-        is BirConstructorCall -> renderAsAnnotation(irElement, renderer, verboseErrorTypes)
+        is BirConstructorCall -> renderAsAnnotation(irElement, renderer, options)
         is BirConst<*> -> {
             append('\'')
             append(irElement.value.toString())
@@ -707,7 +732,7 @@ private fun StringBuilder.renderAsAnnotationArgument(
         }
         is BirVararg -> {
             appendIterableWith(irElement.elements, prefix = "[", postfix = "]", separator = ", ") {
-                renderAsAnnotationArgument(it, renderer, verboseErrorTypes)
+                renderAsAnnotationArgument(it, renderer, options)
             }
         }
         else -> if (renderer != null) {
@@ -718,35 +743,35 @@ private fun StringBuilder.renderAsAnnotationArgument(
     }
 }
 
-private fun renderClassWithRenderer(declaration: BirClass, renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean) =
+private fun renderClassWithRenderer(declaration: BirClass, renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions) =
     declaration.runTrimEnd {
         "CLASS ${renderOriginIfNonTrivial()}" +
                 "$kind name:$name modality:$modality visibility:$visibility " +
                 renderClassFlags() +
-                "superTypes:[${superTypes.joinToString(separator = "; ") { it.renderTypeWithRenderer(renderer, verboseErrorTypes) }}]"
+                "superTypes:[${superTypes.joinToString(separator = "; ") { it.renderTypeWithRenderer(renderer, options) }}]"
     }
 
 private fun renderEnumEntry(declaration: BirEnumEntry) = declaration.runTrimEnd {
     "ENUM_ENTRY ${renderOriginIfNonTrivial()}name:$name"
 }
 
-private fun renderField(declaration: BirField, renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean) = declaration.runTrimEnd {
+private fun renderField(declaration: BirField, renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions) = declaration.runTrimEnd {
     "FIELD ${renderOriginIfNonTrivial()}name:$name type:${
         type.renderTypeWithRenderer(
             renderer,
-            verboseErrorTypes
+            options
         )
     } visibility:$visibility ${renderFieldFlags()}"
 }
 
-private fun renderTypeParameter(declaration: BirTypeParameter, renderer: RenderBirElementVisitor?, verboseErrorTypes: Boolean): String =
+private fun renderTypeParameter(declaration: BirTypeParameter, renderer: RenderBirElementVisitor?, options: DumpIrTreeOptions): String =
     declaration.runTrimEnd {
         "TYPE_PARAMETER ${renderOriginIfNonTrivial()}" +
                 "name:$name index:${getIndex()} variance:$variance " +
                 "superTypes:[${
                     superTypes.joinToString(separator = "; ") {
                         it.renderTypeWithRenderer(
-                            renderer, verboseErrorTypes
+                            renderer, options
                         )
                     }
                 }] " +

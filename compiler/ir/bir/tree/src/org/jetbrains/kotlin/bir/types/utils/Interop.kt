@@ -45,6 +45,12 @@ val BirType.classFqName: FqName?
 
 val BirTypeArgument.typeOrNull: BirType? get() = (this as? BirTypeProjection)?.type
 
+val BirTypeArgument.typeOrFail: BirType
+    get() {
+        require(this is BirTypeProjection) { "Type argument should be of type `BirTypeProjection`, but was `${this::class}` instead" }
+        return this.type
+    }
+
 val BirType.originalKotlinType: KotlinType?
     get() = (this as? BirTypeBase)?.kotlinType
 

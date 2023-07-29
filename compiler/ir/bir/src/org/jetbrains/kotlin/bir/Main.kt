@@ -40,25 +40,22 @@ fun main(argv: Array<String>) {
         }.second
         backendContext.setModuleFragment(birModule)
 
+        //checkIterationsMatch(srcModule.allDependencies.first(), birModule)
+
         runBirCompilation(
             backendContext,
             birModule,
             true,
             irDumpDir,
-            //setOf("RemoveInlineDeclarationsWithReifiedTypeParametersLowering", "TailrecLowering")
+            setOf("WasmFunctionInliningLowering")
         )
     }
 
-    repeat(1) { iteration ->
+    repeat(0) { iteration ->
         /*val allDependencies = (srcModule.allDependencies zip deepCopyIr(srcModule.allDependencies)).toMap()
         val newModuleFragment = allDependencies[srcModule.module]!!*/
         prepareCorrespondingIrPhasesCompilation(srcModule.module, srcModule, configuration/*, allDependencies.values.toList()*/)
             .runCorrespondingIrPhases(true, irDumpDir)
         println("Done $iteration iteration")
     }
-
-    /*
-     val irTree = srcModule.module
-     checkIterationsMatch(irTree, birTree)
-     */
 }
