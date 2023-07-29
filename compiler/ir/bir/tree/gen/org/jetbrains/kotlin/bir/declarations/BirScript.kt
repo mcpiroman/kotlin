@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirStatementContainer
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
@@ -31,7 +30,6 @@ abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithN
     @ObsoleteDescriptorBasedAPI
     abstract override val _descriptor: ScriptDescriptor?
 
-    context(BirTreeContext)
     abstract var thisReceiver: BirValueParameter?
 
     abstract var baseClass: BirType?
@@ -46,7 +44,6 @@ abstract class BirScript : BirElementBase(), BirDeclaration, BirDeclarationWithN
 
     abstract var resultProperty: BirPropertySymbol?
 
-    context(BirTreeContext)
     abstract var earlierScriptsParameter: BirValueParameter?
 
     abstract var earlierScripts: List<BirScriptSymbol>?

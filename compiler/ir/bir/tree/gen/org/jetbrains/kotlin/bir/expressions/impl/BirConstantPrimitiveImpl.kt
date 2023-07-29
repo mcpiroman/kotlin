@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirConst
@@ -28,7 +27,6 @@ class BirConstantPrimitiveImpl(
 
     private var _value: BirConst<*> = value
 
-    context(BirTreeContext)
     override var value: BirConst<*>
         get() = _value
         set(value) {
@@ -50,7 +48,6 @@ class BirConstantPrimitiveImpl(
         this._value.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._value === old -> this.value = new as BirConst<*>

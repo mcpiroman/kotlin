@@ -33,7 +33,7 @@ fun main(argv: Array<String>) {
         val converter = Ir2BirConverter(465000)
         val (backendContext, birModule) = measureTimeMillisWithResult {
             val backendContext = createBirBackendContext(srcModule, configuration, converter)
-            val birModule = converter.copyIrTree(backendContext, srcModule.allDependencies).first() as BirModuleFragment
+            val birModule = converter.copyIrTree(srcModule.allDependencies).first() as BirModuleFragment
             backendContext to birModule
         }.also {
             println("create context and ir->bir in: ${it.first}ms")

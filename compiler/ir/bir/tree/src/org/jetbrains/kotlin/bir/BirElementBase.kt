@@ -17,8 +17,12 @@ sealed class BirElementBaseOrList : BirElementOrList {
 
 abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     //var originalIrElement: IrElement? = null
+    internal var ownerTreeContext: BirTreeContext? = null
     final override var parent: BirElementBase? = null
-        internal set
+        internal set(value) {
+            field = value
+            ownerTreeContext = value?.ownerTreeContext
+        }
     final override var next: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
     private var levelAndContainingListId: Short = 0
@@ -49,9 +53,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         else parent?.getChildrenListById(containingListId)
     }
 
-    internal var attachedToTree: Boolean
-        get() = hasFlag(FLAG_ATTACHED_TO_TREE)
-        set(value) = setFlag(FLAG_ATTACHED_TO_TREE, value)
+    internal val attachedToTree: Boolean
+        get() = ownerTreeContext != null
 
     internal var hasChildren: Boolean
         get() = hasFlag(FLAG_HAS_CHILDREN)
@@ -109,7 +112,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     }
 
     override fun acceptChildren(visitor: BirElementVisitor) = Unit
-    context (BirTreeContext)
     internal open fun replaceChildProperty(old: BirElement, new: BirElement?) {
         throwChildForReplacementNotFound(old)
     }
@@ -129,7 +131,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         require(parent == null) { "Cannot attach element $this as a child of $newParent as it is already a child of $parent." }
     }
 
-    context (BirTreeContext)
     internal fun replaceInsideList(
         list: BirChildElementList<BirElement>,
         new: BirElement?,
@@ -181,7 +182,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
     }
 
-    context (BirTreeContext)
     protected fun setChildField(
         old: BirElement?,
         new: BirElement?,
@@ -287,18 +287,12 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         containingListId = 0
     }
 
-    context (BirTreeContext)
     internal fun childAttached(element: BirElementBase, prev: BirElementBase?) {
-        if (attachedToTree) {
-            elementAttached(element, this, prev)
-        }
+        ownerTreeContext?.elementAttached(element, this, prev)
     }
 
-    context (BirTreeContext)
     internal fun childDetached(element: BirElementBase, prev: BirElementBase?) {
-        if (attachedToTree) {
-            elementDetached(element, this, prev)
-        }
+        ownerTreeContext?.elementDetached(element, this, prev)
     }
 
 
@@ -409,7 +403,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
 
     companion object {
-        private const val FLAG_ATTACHED_TO_TREE: Byte = (1 shl 0).toByte()
         private const val FLAG_HAS_CHILDREN: Byte = (1 shl 1).toByte()
         private const val FLAG_IS_IN_CLASS_CACHE: Byte = (1 shl 2).toByte()
         private const val FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE: Byte = (1 shl 3).toByte()
@@ -421,7 +414,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     }
 }
 
-context (BirTreeContext)
 fun BirElement.replaceWith(new: BirElement?, hintPreviousElement: BirElementBase? = null) {
     this as BirElementBase
 
@@ -437,5 +429,4 @@ fun BirElement.replaceWith(new: BirElement?, hintPreviousElement: BirElementBase
     }
 }
 
-context (BirTreeContext)
 fun BirElement.remove(hintPreviousElement: BirElementBase? = null) = replaceWith(null, hintPreviousElement)

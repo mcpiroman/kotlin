@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
@@ -23,7 +22,6 @@ abstract class BirFieldAccessExpression : BirDeclarationReference() {
 
     abstract var superQualifier: BirClassSymbol?
 
-    context(BirTreeContext)
     abstract var receiver: BirExpression?
 
     abstract var origin: IrStatementOrigin?

@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.declarations
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirValueParameterSymbol
@@ -34,7 +33,6 @@ abstract class BirValueParameter : BirValueDeclaration(), BirDeclaration, BirSym
 
     abstract var isHidden: Boolean
 
-    context(BirTreeContext)
     abstract var defaultValue: BirExpressionBody?
 
     companion object

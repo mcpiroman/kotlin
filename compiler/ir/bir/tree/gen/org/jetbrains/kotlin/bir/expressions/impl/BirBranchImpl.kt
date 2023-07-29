@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.expressions.BirBranch
 import org.jetbrains.kotlin.bir.expressions.BirExpression
@@ -24,7 +23,6 @@ class BirBranchImpl(
 ) : BirBranch() {
     private var _condition: BirExpression = condition
 
-    context(BirTreeContext)
     override var condition: BirExpression
         get() = _condition
         set(value) {
@@ -34,7 +32,6 @@ class BirBranchImpl(
 
     private var _result: BirExpression = result
 
-    context(BirTreeContext)
     override var result: BirExpression
         get() = _result
         set(value) {
@@ -59,7 +56,6 @@ class BirBranchImpl(
         this._result.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._condition === old -> this.condition = new as BirExpression

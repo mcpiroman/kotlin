@@ -63,15 +63,12 @@ val BirDeclaration.parentAsClass: BirClass
 fun BirClass.companionObject(): BirClass? =
     this.declarations.singleOrNull { it is BirClass && it.isCompanion } as BirClass?
 
-context (BirTreeContext)
 val BirDeclaration.isGetter
     get() = this is BirSimpleFunction && this == this.correspondingProperty?.maybeAsElement?.getter
 
-context (BirTreeContext)
 val BirDeclaration.isSetter
     get() = this is BirSimpleFunction && this == this.correspondingProperty?.maybeAsElement?.setter
 
-context (BirTreeContext)
 val BirDeclaration.isAccessor
     get() = this.isGetter || this.isSetter
 
@@ -87,7 +84,6 @@ val BirDeclaration.isAnonymousObject get() = this is BirClass && name == Special
 
 val BirDeclaration.isAnonymousFunction get() = this is BirSimpleFunction && name == SpecialNames.NO_NAME_PROVIDED
 
-context (BirTreeContext)
 val BirFunction.isStatic: Boolean
     get() = parent is BirClass && dispatchReceiverParameter == null
 
@@ -95,7 +91,6 @@ val BirFunction.isStatic: Boolean
 val BirClass.constructors: Sequence<BirConstructor>
     get() = declarations.asSequence().filterIsInstance<BirConstructor>()
 
-context (BirTreeContext)
 val BirClass.defaultConstructor: BirConstructor?
     get() = constructors.firstOrNull { ctor -> ctor.valueParameters.all { it.defaultValue != null } }
 
@@ -128,12 +123,10 @@ fun BirClass.getProperty(name: String): BirProperty? {
 fun BirClass.getSimpleFunction(name: String): BirSimpleFunction? =
     findDeclaration<BirSimpleFunction> { it.name.asString() == name }
 
-context(BirTreeContext)
 fun BirClass.getPropertyGetter(name: String): BirSimpleFunction? =
     getProperty(name)?.getter
         ?: getSimpleFunction("<get-$name>").also { assert(it?.maybeAsElement?.correspondingProperty?.maybeAsElement?.name?.asString() == name) }
 
-context(BirTreeContext)
 fun BirClass.getPropertySetter(name: String): BirSimpleFunction? =
     getProperty(name)?.setter
         ?: getSimpleFunction("<set-$name>").also { assert(it?.maybeAsElement?.correspondingProperty?.maybeAsElement?.name?.asString() == name) }
@@ -238,7 +231,6 @@ fun makeTypeParameterSubstitutionMap(
         .zip(transformed.typeParameters.map { it.defaultType })
         .toMap()
 
-context (BirTreeContext)
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 fun BirFunction.copyReceiverParametersFrom(from: BirFunction, substitutionMap: Map<BirTypeParameterSymbol, BirType>) {
     dispatchReceiverParameter = from.dispatchReceiverParameter?.run {
@@ -262,7 +254,6 @@ fun BirFunction.copyReceiverParametersFrom(from: BirFunction, substitutionMap: M
 
 val BirTypeParametersContainer.classIfConstructor get() = if (this is BirConstructor) parentAsClass else this
 
-context (BirTreeContext)
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 fun BirValueParameter.copyTo(
     targetFunction: BirFunction,
@@ -291,17 +282,14 @@ fun BirValueParameter.copyTo(
     )
 }
 
-/*context (BirTreeContext)
-fun BirAnnotationContainer.copyAnnotationsFrom(source: BirAnnotationContainer) {
+/*fun BirAnnotationContainer.copyAnnotationsFrom(source: BirAnnotationContainer) {
     annotations = annotations memoryOptimizedPlus source.copyAnnotations()
 }*/
 
-context (BirTreeContext)
 fun BirAnnotationContainer.copyAnnotations(): List<BirConstructorCall> {
     return annotations.memoryOptimizedMap { it.deepCopy() }
 }
 
-context (BirTreeContext)
 fun BirFunction.copyValueParametersFrom(from: BirFunction, substitutionMap: Map<BirTypeParameterSymbol, BirType>) {
     copyReceiverParametersFrom(from, substitutionMap)
     valueParameters += from.valueParameters.map {
@@ -309,12 +297,10 @@ fun BirFunction.copyValueParametersFrom(from: BirFunction, substitutionMap: Map<
     }
 }
 
-context (BirTreeContext)
 fun BirFunction.copyValueParametersFrom(from: BirFunction) {
     copyValueParametersFrom(from, makeTypeParameterSubstitutionMap(from, this))
 }
 
-context (BirTreeContext)
 fun BirTypeParametersContainer.copyTypeParameters(
     srcTypeParameters: Collection<BirTypeParameter>,
     origin: IrDeclarationOrigin? = null,
@@ -335,7 +321,6 @@ fun BirTypeParametersContainer.copyTypeParameters(
     return newTypeParameters
 }
 
-context (BirTreeContext)
 fun BirTypeParametersContainer.copyTypeParametersFrom(
     source: BirTypeParametersContainer,
     origin: IrDeclarationOrigin? = null,
@@ -520,11 +505,9 @@ val BirFunctionAccessExpression.typeSubstitutionMap: Map<BirTypeParameterSymbol,
 
 private fun Boolean.toInt(): Int = if (this) 1 else 0
 
-context (BirTreeContext)
 val BirFunction.explicitParametersCount: Int
     get() = (dispatchReceiverParameter != null).toInt() + (extensionReceiverParameter != null).toInt() + valueParameters.size
 
-context (BirTreeContext)
 val BirFunction.explicitParameters: List<BirValueParameter>
     get() = buildList(explicitParametersCount) {
         addIfNotNull(dispatchReceiverParameter)
@@ -533,7 +516,6 @@ val BirFunction.explicitParameters: List<BirValueParameter>
         addAll(valueParameters.drop(contextReceiverParametersCount))
     }
 
-context (BirTreeContext)
 val BirFunction.allParameters: List<BirValueParameter>
     get() = if (this is BirConstructor) {
         listOf(this.constructedClass.thisReceiver ?: error(this.render())) + explicitParameters
@@ -589,6 +571,5 @@ fun BirMemberAccessExpression<*>.getAllArgumentsWithBir(irFunction: BirFunction)
 
 val BirValueParameter.isVararg get() = this.varargElementType != null
 
-context (BirTreeContext)
 fun BirFunctionAccessExpression.usesDefaultArguments(): Boolean =
     ((target as BirFunction).valueParameters zip valueArguments).any { (param, arg) -> arg is BirNoExpression && (!param.isVararg || param.defaultValue != null) }

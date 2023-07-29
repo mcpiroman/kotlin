@@ -9,20 +9,16 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 private interface MockBirDeclaration : BirElement {
-    context (BirTreeContext)
     var field1: MockBirValueParameter?
 
     companion object
 }
 
-private abstract class MockBirClass() : BirElementBase(), MockBirDeclaration, BirElementTrackingBackReferences {
-    context (BirTreeContext)
+private abstract class MockBirClass : BirElementBase(), MockBirDeclaration, BirElementTrackingBackReferences {
     abstract override var field1: MockBirValueParameter?
 
-    context (BirTreeContext)
     abstract var field2: MockBirValueParameter
 
-    context (BirTreeContext)
     abstract var field3: MockBirTypeParameter?
 
     abstract val list1: BirChildElementList<MockBirDeclaration>
@@ -37,7 +33,6 @@ private class MockBirClassImpl(
     override var _referencedBy = BirBackReferenceCollectionArrayStyleImpl()
 
     private var _field1: MockBirValueParameter? = null
-    context (BirTreeContext)
     override var field1: MockBirValueParameter?
         get() = _field1
         set(value) {
@@ -46,7 +41,6 @@ private class MockBirClassImpl(
         }
 
     private var _field2: MockBirValueParameter = field2
-    context (BirTreeContext)
     override var field2: MockBirValueParameter
         get() = _field2
         set(value) {
@@ -55,7 +49,6 @@ private class MockBirClassImpl(
         }
 
     private var _field3: MockBirTypeParameter? = null
-    context (BirTreeContext)
     override var field3: MockBirTypeParameter?
         get() = _field3
         set(value) {
@@ -111,7 +104,6 @@ private class MockBirClassImpl(
         (lastChild as BirElementBase).next = list.next
     }*/
 
-    context (BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
             old === _field1 -> field1 = new as MockBirValueParameter?

@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
 import org.jetbrains.kotlin.bir.BirStatement
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirConstructor
 import org.jetbrains.kotlin.bir.declarations.BirScript
@@ -51,7 +50,6 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _thisReceiver: BirValueParameter? = thisReceiver
 
-    context(BirTreeContext)
     override var thisReceiver: BirValueParameter?
         get() = _thisReceiver
         set(value) {
@@ -70,7 +68,6 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _earlierScriptsParameter: BirValueParameter? = earlierScriptsParameter
 
-    context(BirTreeContext)
     override var earlierScriptsParameter: BirValueParameter?
         get() = _earlierScriptsParameter
         set(value) {
@@ -105,7 +102,6 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
         this._earlierScriptsParameter?.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._thisReceiver === old -> this.thisReceiver = new as BirValueParameter

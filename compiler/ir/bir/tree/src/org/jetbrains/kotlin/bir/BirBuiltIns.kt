@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.name.Name
 import java.util.concurrent.ConcurrentHashMap
 
-context(BirTreeContext)
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 class BirBuiltIns(
     private val irBuiltIns: IrBuiltIns,

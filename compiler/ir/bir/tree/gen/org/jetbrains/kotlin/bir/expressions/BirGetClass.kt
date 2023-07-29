@@ -8,15 +8,12 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
-
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.getClass]
  */
 abstract class BirGetClass : BirExpression() {
-    context(BirTreeContext)
     abstract var argument: BirExpression
 
     companion object

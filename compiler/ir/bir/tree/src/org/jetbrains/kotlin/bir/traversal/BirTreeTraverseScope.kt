@@ -7,15 +7,12 @@ package org.jetbrains.kotlin.bir.traversal
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.replaceWith
 
 abstract class BirTreeTraverseScope {
     internal var lastVisited: BirElement? = null
 
-    context (BirTreeContext)
     open fun BirElement.replaceWith(new: BirElement?) = replaceWith(new, lastVisited as BirElementBase?)
 
-    context (BirTreeContext)
     fun BirElement.remove() = replaceWith(null)
 }

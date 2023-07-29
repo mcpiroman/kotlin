@@ -50,7 +50,7 @@ open class CompilationBenchmark {
         fun prepareCompilation(masterData: MasterData) {
             val converter = Ir2BirConverter(400000)
             backendContext = createBirBackendContext(masterData.srcModule, masterData.configuration, converter)
-            birModule = converter.copyIrTree(backendContext, masterData.srcModule.allDependencies).first() as BirModuleFragment
+            birModule = converter.copyIrTree(masterData.srcModule.allDependencies).first() as BirModuleFragment
             backendContext.setModuleFragment(birModule)
         }
     }

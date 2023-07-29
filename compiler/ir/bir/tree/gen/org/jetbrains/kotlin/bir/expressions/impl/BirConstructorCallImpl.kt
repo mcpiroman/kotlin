@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
@@ -47,7 +46,6 @@ class BirConstructorCallImpl(
 
     private var _dispatchReceiver: BirExpression? = dispatchReceiver
 
-    context(BirTreeContext)
     override var dispatchReceiver: BirExpression?
         get() = _dispatchReceiver
         set(value) {
@@ -57,7 +55,6 @@ class BirConstructorCallImpl(
 
     private var _extensionReceiver: BirExpression? = extensionReceiver
 
-    context(BirTreeContext)
     override var extensionReceiver: BirExpression?
         get() = _extensionReceiver
         set(value) {
@@ -88,7 +85,6 @@ class BirConstructorCallImpl(
         this.valueArguments.acceptChildren(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._dispatchReceiver === old -> this.dispatchReceiver = new as BirExpression

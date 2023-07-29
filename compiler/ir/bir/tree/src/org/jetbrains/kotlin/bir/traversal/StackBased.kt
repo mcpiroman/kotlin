@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.bir.traversal
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
 
 class BirTreeStackBasedTraverseScope(
     private val block: BirTreeStackBasedTraverseScope.(node: BirElement) -> Unit,
@@ -31,7 +30,6 @@ class BirTreeStackBasedTraverseScope(
         }
     }
 
-    context(BirTreeContext)
     override fun BirElement.replaceWith(new: BirElement?) {
         if (newRootElement === this) {
             newRootElement = new

@@ -11,7 +11,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirCatch
@@ -31,7 +30,6 @@ class BirTryImpl(
 
     private var _tryResult: BirExpression = tryResult
 
-    context(BirTreeContext)
     override var tryResult: BirExpression
         get() = _tryResult
         set(value) {
@@ -43,7 +41,6 @@ class BirTryImpl(
 
     private var _finallyExpression: BirExpression? = finallyExpression
 
-    context(BirTreeContext)
     override var finallyExpression: BirExpression?
         get() = _finallyExpression
         set(value) {
@@ -70,7 +67,6 @@ class BirTryImpl(
         this._finallyExpression?.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._tryResult === old -> this.tryResult = new as BirExpression

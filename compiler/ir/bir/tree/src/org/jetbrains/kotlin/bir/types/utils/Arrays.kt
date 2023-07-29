@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.bir.types.utils
 
 import org.jetbrains.kotlin.bir.BirBuiltIns
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.types.BirSimpleType
 import org.jetbrains.kotlin.bir.types.BirStarProjection
@@ -35,7 +34,6 @@ fun BirType.getArrayElementType(irBuiltIns: BirBuiltIns): BirType =
             ?: throw AssertionError("Primitive array expected: $classifier")
     }
 
-context(BirTreeContext)
 fun BirType.toArrayOrPrimitiveArrayType(irBuiltIns: BirBuiltIns): BirType =
     if (isPrimitiveType()) {
         irBuiltIns.primitiveArrayForType[this]?.defaultType

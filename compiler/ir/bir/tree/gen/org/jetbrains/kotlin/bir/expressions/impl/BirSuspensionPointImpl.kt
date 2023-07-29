@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.declarations.BirVariable
@@ -31,7 +30,6 @@ class BirSuspensionPointImpl(
 
     private var _suspensionPointIdParameter: BirVariable = suspensionPointIdParameter
 
-    context(BirTreeContext)
     override var suspensionPointIdParameter: BirVariable
         get() = _suspensionPointIdParameter
         set(value) {
@@ -41,7 +39,6 @@ class BirSuspensionPointImpl(
 
     private var _result: BirExpression = result
 
-    context(BirTreeContext)
     override var result: BirExpression
         get() = _result
         set(value) {
@@ -51,7 +48,6 @@ class BirSuspensionPointImpl(
 
     private var _resumeResult: BirExpression = resumeResult
 
-    context(BirTreeContext)
     override var resumeResult: BirExpression
         get() = _resumeResult
         set(value) {
@@ -79,7 +75,6 @@ class BirSuspensionPointImpl(
         this._resumeResult.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._suspensionPointIdParameter === old -> this.suspensionPointIdParameter = new as

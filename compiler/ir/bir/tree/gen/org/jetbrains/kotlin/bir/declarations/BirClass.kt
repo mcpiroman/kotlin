@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirClassSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.types.BirSimpleType
@@ -54,7 +53,6 @@ abstract class BirClass : BirElementBase(), BirDeclaration, BirDeclarationWithVi
 
     abstract var superTypes: List<BirType>
 
-    context(BirTreeContext)
     abstract var thisReceiver: BirValueParameter?
 
     abstract var valueClassRepresentation: ValueClassRepresentation<BirSimpleType>?

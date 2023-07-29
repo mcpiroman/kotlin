@@ -40,12 +40,10 @@ class BirChildElementList<E : BirElement>(
 
     override fun containsAll(elements: Collection<E>) = elements.all { it in this }
 
-    context (BirTreeContext)
     fun add(element: E): Boolean {
         return addInternal(element, tail)
     }
 
-    context (BirTreeContext)
     fun add(index: Int, element: E): Boolean {
         if (index < 0 || index > size)
             throw IndexOutOfBoundsException("index: $index, size: $size")
@@ -67,7 +65,6 @@ class BirChildElementList<E : BirElement>(
         return prev
     }
 
-    context (BirTreeContext)
     private fun addInternal(element: E, prev: BirElementBase?): Boolean {
         element as BirElementBase
         element.checkCanBeAttachedAsChild(parent)
@@ -96,7 +93,6 @@ class BirChildElementList<E : BirElement>(
         return true
     }
 
-    context (BirTreeContext)
     fun addAll(elements: Collection<E>): Boolean {
         elements.forEach {
             add(it)
@@ -104,7 +100,6 @@ class BirChildElementList<E : BirElement>(
         return true
     }
 
-    context (BirTreeContext)
     fun addAll(index: Int, elements: Collection<E>): Boolean {
         var prev = findPrevElementForInsert(index)
         elements.forEach {
@@ -118,10 +113,8 @@ class BirChildElementList<E : BirElement>(
         return parent.setNextAfterNewChildSetSlow(newHead, this)
     }
 
-    context (BirTreeContext)
     fun replace(old: E, new: E): Boolean = replace(old, new, null)
 
-    context (BirTreeContext)
     fun replace(old: E, new: E, hintPreviousElement: BirElementBase?): Boolean {
         if (old !in this) return false
         old as BirElementBase
@@ -157,10 +150,8 @@ class BirChildElementList<E : BirElement>(
     }
 
 
-    context (BirTreeContext)
     fun remove(element: E): Boolean = remove(element, null)
 
-    context (BirTreeContext)
     fun remove(element: E, hintPreviousElement: BirElementBase?): Boolean {
         if (element !in this) return false
         element as BirElementBase
@@ -188,7 +179,6 @@ class BirChildElementList<E : BirElement>(
         return true
     }
 
-    context (BirTreeContext)
     fun clear() {
         val tail = tail
             ?: return
@@ -234,7 +224,7 @@ class BirChildElementList<E : BirElement>(
         return previous
     }
 
-    final override val next: BirElementBase?
+    override val next: BirElementBase?
         get() = tail.let {
             if (it != null) it.next else headOrNext
         }
@@ -294,7 +284,6 @@ class BirChildElementList<E : BirElement>(
         return e as E
     }
 
-    context (BirTreeContext)
     fun setElementAt(index: Int, element: E): E {
         checkIndex(index)
 
@@ -309,7 +298,7 @@ class BirChildElementList<E : BirElement>(
 
         val replaced = replace(old as E, element, last)
         check(replaced)
-        return old as E
+        return old
     }
 
     private fun checkIndex(index: Int) {
@@ -319,32 +308,26 @@ class BirChildElementList<E : BirElement>(
     }
 
 
-    context (BirTreeContext)
     operator fun plusAssign(element: E) {
         add(element)
     }
 
-    context (BirTreeContext)
     operator fun plusAssign(elements: Iterable<E>) {
         for (el in elements) add(el)
     }
 
-    context (BirTreeContext)
     operator fun plusAssign(elements: Sequence<E>) {
         for (el in elements) add(el)
     }
 
-    context (BirTreeContext)
     operator fun minusAssign(element: E) {
         remove(element)
     }
 
-    context (BirTreeContext)
     operator fun minusAssign(elements: Iterable<E>) {
         for (el in elements) remove(el)
     }
 
-    context (BirTreeContext)
     operator fun minusAssign(elements: Sequence<E>) {
         for (el in elements) remove(el)
     }
@@ -352,7 +335,6 @@ class BirChildElementList<E : BirElement>(
 
     override fun iterator(): Iterator<E> = ReadonlyIterator(this)
 
-    context (BirTreeContext)
     fun mutableIterator(): kotlin.collections.MutableIterator<E> = MutableIterator(this)
 
     private class ReadonlyIterator<E : BirElement>(
@@ -370,7 +352,6 @@ class BirChildElementList<E : BirElement>(
         }
     }
 
-    context (BirTreeContext)
     class MutableIterator<E : BirElement>(
         private val list: BirChildElementList<E>,
     ) : kotlin.collections.MutableIterator<E> {

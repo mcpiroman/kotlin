@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -39,13 +38,10 @@ abstract class BirProperty : BirOverridableDeclaration<BirPropertySymbol>(), Bir
 
     abstract override var isFakeOverride: Boolean
 
-    context(BirTreeContext)
     abstract var backingField: BirField?
 
-    context(BirTreeContext)
     abstract var getter: BirSimpleFunction?
 
-    context(BirTreeContext)
     abstract var setter: BirSimpleFunction?
 
     abstract override var overriddenSymbols: List<BirPropertySymbol>

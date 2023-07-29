@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.bir.types.utils
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
@@ -104,7 +103,6 @@ val BirClassifierSymbol.superTypes: List<BirType>
     }
 
 
-context (BirTreeContext)
 val BirClassSymbol.starProjectedType: BirSimpleType
     get() = BirSimpleTypeImpl(
         this,
@@ -113,7 +111,6 @@ val BirClassSymbol.starProjectedType: BirSimpleType
         annotations = emptyList()
     )
 
-context (BirTreeContext)
 val BirClass.typeConstructorParameters: Sequence<BirTypeParameter>
     get() = generateSequence(this as BirTypeParametersContainer) { current ->
         val parent = current.parent as? BirTypeParametersContainer

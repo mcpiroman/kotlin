@@ -22,7 +22,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
             addTypeVariables(element.params.map { it.toPoet() })
 
             if (element.kind == Element.Kind.Interface || element.kind == Element.Kind.SealedInterface) {
-                superclass(org.jetbrains.kotlin.bir.generator.elementBaseType.toPoet())
+                superclass(elementBaseType.toPoet())
                 addSuperinterface(element.toPoetSelfParameterized())
             } else {
                 superclass(element.toPoetSelfParameterized())
@@ -78,7 +78,6 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                                     .addCode("return ${field.backingFieldName}")
                                     .build()
                             )
-                            contextReceivers(treeContext.toPoet())
                         } else {
                             initializer(field.name)
                         }
@@ -128,7 +127,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         .builder("getFirstChild")
                         .addModifiers(KModifier.OVERRIDE)
                         .addCode("return $code")
-                        .returns(org.jetbrains.kotlin.bir.generator.rootElement.copy(nullable = true).toPoet())
+                        .returns(rootElement.copy(nullable = true).toPoet())
                         .build()
                 )
             }
@@ -140,7 +139,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter(
                             "children",
-                            ARRAY.parameterizedBy(org.jetbrains.kotlin.bir.generator.elementOrList.copy(nullable = true).toPoet())
+                            ARRAY.parameterizedBy(elementOrList.copy(nullable = true).toPoet())
                         )
                         .apply {
                             allChildren.forEachIndexed { index, child ->
@@ -156,7 +155,7 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                     FunSpec
                         .builder("acceptChildren")
                         .addModifiers(KModifier.OVERRIDE)
-                        .addParameter("visitor", org.jetbrains.kotlin.bir.generator.elementVisitor.toPoet())
+                        .addParameter("visitor", elementVisitor.toPoet())
                         .apply {
                             allChildren.forEach { child ->
                                 addCode("this.${if (child is SingleField) child.backingFieldName else child.name}")
@@ -180,7 +179,6 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter("old", rootElement.toPoet())
                         .addParameter("new", rootElement.toPoet().copy(nullable = true))
-                        .contextReceivers(treeContext.toPoet())
                         .apply {
                             addCode("when {\n")
                             allChildren.forEach { field ->

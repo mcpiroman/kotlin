@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirVariable
 
 /**
@@ -19,10 +18,8 @@ import org.jetbrains.kotlin.bir.declarations.BirVariable
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.catch]
  */
 abstract class BirCatch : BirElementBase(), BirElement {
-    context(BirTreeContext)
     abstract var catchParameter: BirVariable
 
-    context(BirTreeContext)
     abstract var result: BirExpression
 
     companion object

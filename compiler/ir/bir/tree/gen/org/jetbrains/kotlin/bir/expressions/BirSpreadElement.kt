@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
 
 /**
  * A leafB IR tree element.
@@ -17,7 +16,6 @@ import org.jetbrains.kotlin.bir.BirTreeContext
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.spreadElement]
  */
 abstract class BirSpreadElement : BirElementBase(), BirVarargElement {
-    context(BirTreeContext)
     abstract var expression: BirExpression
 
     companion object

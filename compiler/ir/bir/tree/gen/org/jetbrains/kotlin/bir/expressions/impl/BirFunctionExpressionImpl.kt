@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
@@ -30,7 +29,6 @@ class BirFunctionExpressionImpl(
 
     private var _function: BirSimpleFunction = function
 
-    context(BirTreeContext)
     override var function: BirSimpleFunction
         get() = _function
         set(value) {
@@ -52,7 +50,6 @@ class BirFunctionExpressionImpl(
         this._function.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._function === old -> this.function = new as BirSimpleFunction

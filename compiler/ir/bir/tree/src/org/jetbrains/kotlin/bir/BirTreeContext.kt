@@ -39,7 +39,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
                 || element is BirBody
     }
 
-    override internal fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
+    override fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         attachElement(element, parent, prev)
         element.traverseTreeFast { descendantElement, descendantParent, descendantPrev ->
             attachElement(descendantElement, descendantParent, descendantPrev)
@@ -48,7 +48,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
 
     private fun attachElement(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         assert(prev == null || prev.next === element)
-        element.attachedToTree = true
+        element.ownerTreeContext = this
         element.updateLevel(parent)
 
         if (checkCacheElementByClass(element)) {
@@ -97,7 +97,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
     }
 
     private fun detachElement(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
-        element.attachedToTree = false
+        element.ownerTreeContext = null
         element.updateLevel(parent)
         element.attachedDuringByClassIteration = false
         element.nextElementIsOptimizedFromClassCache = false
@@ -153,7 +153,6 @@ open class GeneralBirTreeContext : BirTreeContext() {
         }
 
         val list = getElementsOfClassList(elementClass)
-            ?: error("Class ${elementClass.simpleName} has not been registered")
 
         val iter = ElementsOfClassListIterator<E>(ArrayList(list.leafClasses))
         currentElementsOfClassIterator = iter
@@ -224,7 +223,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
     private inner class ElementsOfClassListIterator<E : BirElement>(
         private val concreteClassLists: List<ElementOfClassList>,
     ) : Iterator<E> {
-        internal var cancelled = false
+        var cancelled = false
         private val listsIterator = concreteClassLists.iterator()
         var listIterator: ElementsOfConcreteClassListIterator<BirElementBase>? = null
             private set
@@ -268,7 +267,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
     private class ElementsOfConcreteClassListIterator<E : BirElementBase>(
         private val list: ElementOfClassList,
     ) : Iterator<E> {
-        internal var mainListIdx = 0
+        var mainListIdx = 0
             private set
         var currentSecondary: BirElementBase? = null
         private var auxElementsToVisit: MutableList<BirElementBase>? = null
@@ -337,14 +336,14 @@ open class GeneralBirTreeContext : BirTreeContext() {
             return !attachedDuringByClassIteration
         }
 
-        internal fun addAuxElementsToVisit(element: BirElementBase) {
+        fun addAuxElementsToVisit(element: BirElementBase) {
             auxElementsToVisit?.apply { add(element) } ?: run {
                 auxElementsToVisit = mutableListOf(element)
             }
         }
     }
 
-    private inner class ElementsByClass() : ClassValue<ElementOfClassList>() {
+    private inner class ElementsByClass : ClassValue<ElementOfClassList>() {
         override fun computeValue(elementClass: Class<*>): ElementOfClassList {
             val list = ElementOfClassList(elementClass)
 

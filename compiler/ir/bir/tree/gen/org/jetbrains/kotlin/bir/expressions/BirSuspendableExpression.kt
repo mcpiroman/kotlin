@@ -8,18 +8,14 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
-
 /**
  * A leafB IR tree element.
  *
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.suspendableExpression]
  */
 abstract class BirSuspendableExpression : BirExpression() {
-    context(BirTreeContext)
     abstract var suspensionPointId: BirExpression
 
-    context(BirTreeContext)
     abstract var result: BirExpression
 
     companion object

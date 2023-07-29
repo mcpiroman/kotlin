@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.utils
 
 import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.declarations.impl.*
@@ -47,7 +46,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
     private val typeAliases = createElementMap<BirTypeAlias, IrTypeAlias>()
     private val loops = createElementMap<BirLoop, IrLoop>()
 
-    context(BirTreeContext)
     override fun <Bir : BirElement> copyElement(old: IrElement): Bir = when (old) {
         is IrValueParameter -> copyValueParameter(old)
         is IrClass -> copyClass(old)
@@ -120,7 +118,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         else -> error(old)
     } as Bir
 
-    context(BirTreeContext)
     private fun copyValueParameter(old: IrValueParameter): BirValueParameter = copyReferencedElement(old, valueParameters, {
         BirValueParameterImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -144,7 +141,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyClass(old: IrClass): BirClass = copyReferencedElement(old, classes, {
         BirClassImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -178,7 +174,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyAnonymousInitializer(old: IrAnonymousInitializer): BirAnonymousInitializer = copyNotReferencedElement(old) {
         val new = BirAnonymousInitializerImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -192,7 +187,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyTypeParameter(old: IrTypeParameter): BirTypeParameter = copyReferencedElement(old, typeParameters, {
         BirTypeParameterImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -210,7 +204,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyConstructor(old: IrConstructor): BirConstructor = copyReferencedElement(old, constructors, {
         BirConstructorImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -240,7 +233,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyEnumEntry(old: IrEnumEntry): BirEnumEntry = copyReferencedElement(old, enumEntries, {
         BirEnumEntryImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -258,7 +250,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyErrorDeclaration(old: IrErrorDeclaration): BirErrorDeclaration = copyNotReferencedElement(old) {
         val new = BirErrorDeclarationImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -270,7 +261,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyFunctionWithLateBinding(old: IrFunctionWithLateBindingImpl): BirFunctionWithLateBindingImpl =
         copyReferencedElement(old, functions, {
             BirFunctionWithLateBindingImpl(
@@ -312,7 +302,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             new.copyAuxData(old)
         }
 
-    context(BirTreeContext)
     private fun copyPropertyWithLateBinding(old: IrPropertyWithLateBindingImpl): BirPropertyWithLateBindingImpl =
         copyReferencedElement(old, properties, {
             BirPropertyWithLateBindingImpl(
@@ -346,7 +335,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             new.copyAuxData(old)
         }
 
-    context(BirTreeContext)
     private fun copyField(old: IrField): BirField = copyReferencedElement(old, fields, {
         BirFieldImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -370,7 +358,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyLocalDelegatedProperty(old: IrLocalDelegatedProperty): BirLocalDelegatedProperty =
         copyReferencedElement(old, localDelegatedProperties, {
             BirLocalDelegatedPropertyImpl(
@@ -392,7 +379,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             new.copyAuxData(old)
         }
 
-    context(BirTreeContext)
     private fun copyModuleFragment(old: IrModuleFragment): BirModuleFragment = copyReferencedElement(old, modules, {
         BirModuleFragmentImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -400,12 +386,11 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             name = old.name,
         )
     }) { new ->
-        new.attachedToTree = true
+        new.ownerTreeContext = treeContext
         new.files.copyElements(old.files)
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyProperty(old: IrProperty): BirProperty = copyReferencedElement(old, properties, {
         BirPropertyImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -437,7 +422,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyScript(old: IrScript): BirScript = copyReferencedElement(old, scripts, {
         BirScriptImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -467,7 +451,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copySimpleFunction(old: IrSimpleFunction): BirSimpleFunction = copyReferencedElement(old, functions, {
         BirSimpleFunctionImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -507,7 +490,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyTypeAlias(old: IrTypeAlias): BirTypeAlias = copyReferencedElement(old, typeAliases, {
         BirTypeAliasImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -526,7 +508,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyVariable(old: IrVariable): BirVariable = copyReferencedElement(old, variables, {
         BirVariableImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -548,7 +529,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyExternalPackageFragment(old: IrExternalPackageFragment): BirExternalPackageFragment =
         copyReferencedElement(old, externalPackageFragments, {
             BirExternalPackageFragmentImpl(
@@ -558,12 +538,11 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
                 containerSource = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else old.containerSource,
             )
         }) { new ->
-            new.attachedToTree = true
+            new.ownerTreeContext = treeContext
             new.declarations.copyElements(old.declarations)
             new.copyAuxData(old)
         }
 
-    context(BirTreeContext)
     private fun copyFile(old: IrFile): BirFile = copyReferencedElement(old, files, {
         BirFileImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -578,7 +557,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyExpressionBody(old: IrExpressionBody): BirExpressionBody = copyNotReferencedElement(old) {
         val new = BirExpressionBodyImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -588,7 +566,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyBlockBody(old: IrBlockBody): BirBlockBody = copyNotReferencedElement(old) {
         val new = BirBlockBodyImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -598,7 +575,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyConstructorCall(old: IrConstructorCall): BirConstructorCall = copyNotReferencedElement(old) {
         val new = BirConstructorCallImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -618,7 +594,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyGetObjectValue(old: IrGetObjectValue): BirGetObjectValue = copyNotReferencedElement(old) {
         val new = BirGetObjectValueImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -630,7 +605,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyGetEnumValue(old: IrGetEnumValue): BirGetEnumValue = copyNotReferencedElement(old) {
         val new = BirGetEnumValueImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -642,7 +616,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyRawFunctionReference(old: IrRawFunctionReference): BirRawFunctionReference = copyNotReferencedElement(old) {
         val new = BirRawFunctionReferenceImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -654,7 +627,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyBlock(old: IrBlock): BirBlock = copyNotReferencedElement(old) {
         val new = BirBlockImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -667,7 +639,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyComposite(old: IrComposite): BirComposite = copyNotReferencedElement(old) {
         val new = BirCompositeImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -680,7 +651,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyReturnableBlock(old: IrReturnableBlock): BirReturnableBlock = copyReferencedElement(old, returnableBlocks, {
         BirReturnableBlockImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -694,7 +664,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyInlinedFunctionBlock(old: IrInlinedFunctionBlock): BirInlinedFunctionBlock = copyNotReferencedElement(old) {
         val new = BirInlinedFunctionBlockImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -709,7 +678,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copySyntheticBody(old: IrSyntheticBody): BirSyntheticBody = copyNotReferencedElement(old) {
         val new = BirSyntheticBodyImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -719,7 +687,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyBreak(old: IrBreak): BirBreak = copyNotReferencedElement(old) {
         val new = BirBreakImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -732,7 +699,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyContinue(old: IrContinue): BirContinue = copyNotReferencedElement(old) {
         val new = BirContinueImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -745,7 +711,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyCall(old: IrCall): BirCall = copyNotReferencedElement(old) {
         val new = BirCallImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -764,7 +729,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyFunctionReference(old: IrFunctionReference): BirFunctionReference = copyNotReferencedElement(old) {
         val new = BirFunctionReferenceImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -782,7 +746,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyPropertyReference(old: IrPropertyReference): BirPropertyReference = copyNotReferencedElement(old) {
         val new = BirPropertyReferenceImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -802,7 +765,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyLocalDelegatedPropertyReference(old: IrLocalDelegatedPropertyReference): BirLocalDelegatedPropertyReference =
         copyNotReferencedElement(old) {
             val new = BirLocalDelegatedPropertyReferenceImpl(
@@ -823,7 +785,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             new
         }
 
-    context(BirTreeContext)
     private fun copyClassReference(old: IrClassReference): BirClassReference = copyNotReferencedElement(old) {
         val new = BirClassReferenceImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -836,7 +797,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun <T> copyConst(old: IrConst<T>): BirConst<T> = copyNotReferencedElement(old) {
         val new = BirConstImpl<T>(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -849,7 +809,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyConstantPrimitive(old: IrConstantPrimitive): BirConstantPrimitive = copyNotReferencedElement(old) {
         val new = BirConstantPrimitiveImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -861,7 +820,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyConstantObject(old: IrConstantObject): BirConstantObject = copyNotReferencedElement(old) {
         val new = BirConstantObjectImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -875,7 +833,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyConstantArray(old: IrConstantArray): BirConstantArray = copyNotReferencedElement(old) {
         val new = BirConstantArrayImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -887,7 +844,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyDelegatingConstructorCall(old: IrDelegatingConstructorCall): BirDelegatingConstructorCall =
         copyNotReferencedElement(old) {
             val new = BirDelegatingConstructorCallImpl(
@@ -906,7 +862,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             new
         }
 
-    context(BirTreeContext)
     private fun copyDynamicOperatorExpression(old: IrDynamicOperatorExpression): BirDynamicOperatorExpression =
         copyNotReferencedElement(old) {
             val new = BirDynamicOperatorExpressionImpl(
@@ -921,7 +876,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             new
         }
 
-    context(BirTreeContext)
     private fun copyDynamicMemberExpression(old: IrDynamicMemberExpression): BirDynamicMemberExpression = copyNotReferencedElement(old) {
         val new = BirDynamicMemberExpressionImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -934,7 +888,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyEnumConstructorCall(old: IrEnumConstructorCall): BirEnumConstructorCall = copyNotReferencedElement(old) {
         val new = BirEnumConstructorCallImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -952,7 +905,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyErrorCallExpression(old: IrErrorCallExpression): BirErrorCallExpression = copyNotReferencedElement(old) {
         val new = BirErrorCallExpressionImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -966,7 +918,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyGetField(old: IrGetField): BirGetField = copyNotReferencedElement(old) {
         val new = BirGetFieldImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -981,7 +932,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copySetField(old: IrSetField): BirSetField = copyNotReferencedElement(old) {
         val new = BirSetFieldImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -997,7 +947,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyFunctionExpression(old: IrFunctionExpression): BirFunctionExpression = copyNotReferencedElement(old) {
         val new = BirFunctionExpressionImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1010,7 +959,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyGetClass(old: IrGetClass): BirGetClass = copyNotReferencedElement(old) {
         val new = BirGetClassImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1022,7 +970,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyInstanceInitializerCall(old: IrInstanceInitializerCall): BirInstanceInitializerCall = copyNotReferencedElement(old) {
         val new = BirInstanceInitializerCallImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1034,7 +981,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyWhileLoop(old: IrWhileLoop): BirWhileLoop = copyReferencedElement(old, loops, {
         BirWhileLoopImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1052,7 +998,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyDoWhileLoop(old: IrDoWhileLoop): BirDoWhileLoop = copyReferencedElement(old, loops, {
         BirDoWhileLoopImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1068,7 +1013,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new.copyAuxData(old)
     }
 
-    context(BirTreeContext)
     private fun copyReturn(old: IrReturn): BirReturn = copyNotReferencedElement(old) {
         val new = BirReturnImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1081,7 +1025,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyStringConcatenation(old: IrStringConcatenation): BirStringConcatenation = copyNotReferencedElement(old) {
         val new = BirStringConcatenationImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1093,7 +1036,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copySuspensionPoint(old: IrSuspensionPoint): BirSuspensionPoint = copyNotReferencedElement(old) {
         val new = BirSuspensionPointImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1107,7 +1049,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copySuspendableExpression(old: IrSuspendableExpression): BirSuspendableExpression = copyNotReferencedElement(old) {
         val new = BirSuspendableExpressionImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1120,7 +1061,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyThrow(old: IrThrow): BirThrow = copyNotReferencedElement(old) {
         val new = BirThrowImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1132,7 +1072,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyTry(old: IrTry): BirTry = copyNotReferencedElement(old) {
         val new = BirTryImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1146,7 +1085,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyCatch(old: IrCatch): BirCatch = copyNotReferencedElement(old) {
         val new = BirCatchImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1157,7 +1095,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyTypeOperatorCall(old: IrTypeOperatorCall): BirTypeOperatorCall = copyNotReferencedElement(old) {
         val new = BirTypeOperatorCallImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1171,7 +1108,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyGetValue(old: IrGetValue): BirGetValue = copyNotReferencedElement(old) {
         val new = BirGetValueImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1184,7 +1120,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copySetValue(old: IrSetValue): BirSetValue = copyNotReferencedElement(old) {
         val new = BirSetValueImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1198,7 +1133,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyVararg(old: IrVararg): BirVararg = copyNotReferencedElement(old) {
         val new = BirVarargImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1211,7 +1145,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copySpreadElement(old: IrSpreadElement): BirSpreadElement = copyNotReferencedElement(old) {
         val new = BirSpreadElementImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1221,7 +1154,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyWhen(old: IrWhen): BirWhen = copyNotReferencedElement(old) {
         val new = BirWhenImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1234,7 +1166,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyBranch(old: IrBranch): BirBranch = copyNotReferencedElement(old) {
         val new = BirBranchImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),
@@ -1245,7 +1176,6 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
         new
     }
 
-    context(BirTreeContext)
     private fun copyElseBranch(old: IrElseBranch): BirElseBranch = copyNotReferencedElement(old) {
         val new = BirElseBranchImpl(
             sourceSpan = SourceSpan(old.startOffset, old.endOffset),

@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirBlockBody
 import org.jetbrains.kotlin.bir.symbols.BirAnonymousInitializerSymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -28,7 +27,6 @@ abstract class BirAnonymousInitializer : BirElementBase(), BirDeclaration, BirSy
 
     abstract var isStatic: Boolean
 
-    context(BirTreeContext)
     abstract var body: BirBlockBody
 
     companion object

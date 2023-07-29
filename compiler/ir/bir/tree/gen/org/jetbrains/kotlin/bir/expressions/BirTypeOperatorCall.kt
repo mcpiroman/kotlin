@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 
@@ -20,7 +19,6 @@ import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 abstract class BirTypeOperatorCall : BirExpression() {
     abstract var operator: IrTypeOperator
 
-    context(BirTreeContext)
     abstract var argument: BirExpression
 
     abstract var typeOperand: BirType

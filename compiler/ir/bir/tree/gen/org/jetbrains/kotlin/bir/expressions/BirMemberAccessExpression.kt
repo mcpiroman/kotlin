@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirChildElementList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
@@ -20,10 +19,8 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.memberAccessExpression]
  */
 abstract class BirMemberAccessExpression<S : BirSymbol> : BirDeclarationReference() {
-    context(BirTreeContext)
     abstract var dispatchReceiver: BirExpression?
 
-    context(BirTreeContext)
     abstract var extensionReceiver: BirExpression?
 
     abstract override val target: S

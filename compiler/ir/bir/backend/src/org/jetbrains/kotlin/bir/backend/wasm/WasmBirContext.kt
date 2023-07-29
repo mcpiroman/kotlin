@@ -33,6 +33,10 @@ class WasmBirContext(
     override val configuration: CompilerConfiguration,
     converter: Ir2BirConverter
 ) : BirBackendContext() {
+    init {
+        converter.treeContext = this
+    }
+
     override val birBuiltIns: BirBuiltIns = BirBuiltIns(irBuiltIns, converter)
     val wasmSymbols = BirWasmSymbols(birBuiltIns, symbolTable, this, converter, module)
     override val builtInSymbols get() = wasmSymbols

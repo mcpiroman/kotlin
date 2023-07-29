@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirLocalDelegatedPropertySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.types.BirType
@@ -32,13 +31,10 @@ abstract class BirLocalDelegatedProperty : BirElementBase(), BirDeclaration,
 
     abstract var isVar: Boolean
 
-    context(BirTreeContext)
     abstract var delegate: BirVariable
 
-    context(BirTreeContext)
     abstract var getter: BirSimpleFunction
 
-    context(BirTreeContext)
     abstract var setter: BirSimpleFunction?
 
     companion object

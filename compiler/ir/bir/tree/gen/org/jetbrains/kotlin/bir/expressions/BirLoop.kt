@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.expressions
 
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 /**
@@ -20,10 +19,8 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 abstract class BirLoop : BirExpression(), BirElementTrackingBackReferences {
     abstract var origin: IrStatementOrigin?
 
-    context(BirTreeContext)
     abstract var body: BirExpression?
 
-    context(BirTreeContext)
     abstract var condition: BirExpression
 
     abstract var label: String?

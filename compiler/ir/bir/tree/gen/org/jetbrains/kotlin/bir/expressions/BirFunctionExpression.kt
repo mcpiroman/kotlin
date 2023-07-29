@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
@@ -20,7 +19,6 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 abstract class BirFunctionExpression : BirExpression() {
     abstract var origin: IrStatementOrigin
 
-    context(BirTreeContext)
     abstract var function: BirSimpleFunction
 
     companion object

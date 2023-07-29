@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirFieldSymbol
 import org.jetbrains.kotlin.bir.symbols.BirPropertySymbol
@@ -36,7 +35,6 @@ abstract class BirField : BirElementBase(), BirDeclaration, BirDeclarationWithVi
 
     abstract var isStatic: Boolean
 
-    context(BirTreeContext)
     abstract var initializer: BirExpressionBody?
 
     abstract var correspondingProperty: BirPropertySymbol?

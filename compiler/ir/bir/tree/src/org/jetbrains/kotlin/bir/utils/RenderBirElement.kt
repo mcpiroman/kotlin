@@ -5,10 +5,8 @@
 
 package org.jetbrains.kotlin.bir.utils
 
-import com.intellij.openapi.util.Dump
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.DummyBirTreeContext
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.*
@@ -20,9 +18,7 @@ import org.jetbrains.kotlin.bir.types.utils.originalKotlinType
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationWithName
 import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
 import org.jetbrains.kotlin.ir.util.DumpIrTreeOptions
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
@@ -35,7 +31,6 @@ fun BirElement.render(options: DumpIrTreeOptions = DumpIrTreeOptions()) = with(D
     RenderBirElementVisitor(options).render(this@render)
 }
 
-context(BirTreeContext)
 internal class RenderBirElementVisitor(private val options: DumpIrTreeOptions = DumpIrTreeOptions()) {
     private val variableNameData = VariableNameData(options.normalizeNames)
 

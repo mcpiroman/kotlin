@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.bir.traversal.traverseStackBased
 import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.declarations.IrAnonymousInitializer
 import org.jetbrains.kotlin.ir.declarations.IrDeclaration
-import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.util.DumpIrTreeOptions
 import org.jetbrains.kotlin.ir.util.NaiveSourceBasedFileEntryImpl
 import org.jetbrains.kotlin.ir.util.render
@@ -53,7 +52,6 @@ private fun BirFile.shouldSkipDump(): Boolean {
  *
  * The exception is properties with backing fields and [IrAnonymousInitializer]s: their relative order is preserved.
  */
-context(BirTreeContext)
 internal fun Collection<BirDeclaration>.stableOrdered(): List<BirDeclaration> {
     val strictOrder = hashMapOf<BirDeclaration, Int>()
 
@@ -80,7 +78,6 @@ internal fun Collection<BirDeclaration>.stableOrdered(): List<BirDeclaration> {
     }
 }
 
-context(BirTreeContext)
 class DumpBirTreeVisitor(
     out: Appendable,
     private val options: DumpIrTreeOptions = DumpIrTreeOptions(),

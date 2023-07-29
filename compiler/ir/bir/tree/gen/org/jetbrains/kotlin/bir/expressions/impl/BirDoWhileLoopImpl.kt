@@ -11,7 +11,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirDoWhileLoop
@@ -36,7 +35,6 @@ class BirDoWhileLoopImpl(
 
     private var _body: BirExpression? = body
 
-    context(BirTreeContext)
     override var body: BirExpression?
         get() = _body
         set(value) {
@@ -46,7 +44,6 @@ class BirDoWhileLoopImpl(
 
     private var _condition: BirExpression = condition
 
-    context(BirTreeContext)
     override var condition: BirExpression
         get() = _condition
         set(value) {
@@ -71,7 +68,6 @@ class BirDoWhileLoopImpl(
         this._condition.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._body === old -> this.body = new as BirExpression

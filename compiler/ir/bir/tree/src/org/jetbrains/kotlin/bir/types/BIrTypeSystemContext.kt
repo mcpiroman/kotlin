@@ -20,8 +20,8 @@ import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality
-import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
-import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.types.IdSignatureValues
+import org.jetbrains.kotlin.ir.types.SimpleTypeNullability
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
 import org.jetbrains.kotlin.name.Name
@@ -608,7 +608,6 @@ interface BirTypeSystemContext : TypeSystemContext, TypeSystemCommonSuperTypesCo
     }
 }
 
-context(BirTreeContext)
 fun extractTypeParameters(parent: BirElement): List<BirTypeParameter> {
     val result = mutableListOf<BirTypeParameter>()
     var current: BirElement? = parent

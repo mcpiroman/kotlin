@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirChildElementList
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
@@ -66,7 +65,6 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
 
-    context(BirTreeContext)
     override var dispatchReceiverParameter: BirValueParameter?
         get() = _dispatchReceiverParameter
         set(value) {
@@ -76,7 +74,6 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _extensionReceiverParameter: BirValueParameter? = extensionReceiverParameter
 
-    context(BirTreeContext)
     override var extensionReceiverParameter: BirValueParameter?
         get() = _extensionReceiverParameter
         set(value) {
@@ -90,7 +87,6 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _body: BirBody? = body
 
-    context(BirTreeContext)
     override var body: BirBody?
         get() = _body
         set(value) {
@@ -126,7 +122,6 @@ class BirSimpleFunctionImpl @ObsoleteDescriptorBasedAPI constructor(
         this._body?.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._dispatchReceiverParameter === old -> this.dispatchReceiverParameter = new as

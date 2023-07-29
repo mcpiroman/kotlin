@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.bir.builders
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.declarations.BirConstructor
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
@@ -29,7 +28,6 @@ fun BirVariable.setTemporary(nameHint: String? = null) {
     name = Name.identifier(nameHint ?: "tmp")
 }
 
-context(BirTreeContext)
 fun BirWhen.addIfThenElse(`if`: () -> BirBranch, `else`: () -> BirElseBranch) {
     branches.add(`if`())
     branches.add(`else`())

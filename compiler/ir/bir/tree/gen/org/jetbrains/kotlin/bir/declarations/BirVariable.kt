@@ -9,7 +9,6 @@
 package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
 import org.jetbrains.kotlin.bir.symbols.BirVariableSymbol
@@ -32,7 +31,6 @@ abstract class BirVariable : BirValueDeclaration(), BirDeclaration, BirSymbolEle
 
     abstract var isLateinit: Boolean
 
-    context(BirTreeContext)
     abstract var initializer: BirExpression?
 
     companion object

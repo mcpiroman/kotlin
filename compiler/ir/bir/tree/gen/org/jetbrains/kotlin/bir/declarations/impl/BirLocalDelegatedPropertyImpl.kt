@@ -11,7 +11,6 @@ package org.jetbrains.kotlin.bir.declarations.impl
 import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirLocalDelegatedProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
@@ -43,7 +42,6 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _delegate: BirVariable = delegate
 
-    context(BirTreeContext)
     override var delegate: BirVariable
         get() = _delegate
         set(value) {
@@ -53,7 +51,6 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _getter: BirSimpleFunction = getter
 
-    context(BirTreeContext)
     override var getter: BirSimpleFunction
         get() = _getter
         set(value) {
@@ -63,7 +60,6 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _setter: BirSimpleFunction? = setter
 
-    context(BirTreeContext)
     override var setter: BirSimpleFunction?
         get() = _setter
         set(value) {
@@ -91,7 +87,6 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
         this._setter?.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._delegate === old -> this.delegate = new as BirVariable

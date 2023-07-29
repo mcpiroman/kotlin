@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.expressions.BirDynamicMemberExpression
@@ -29,7 +28,6 @@ class BirDynamicMemberExpressionImpl(
 
     private var _receiver: BirExpression = receiver
 
-    context(BirTreeContext)
     override var receiver: BirExpression
         get() = _receiver
         set(value) {
@@ -51,7 +49,6 @@ class BirDynamicMemberExpressionImpl(
         this._receiver.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._receiver === old -> this.receiver = new as BirExpression

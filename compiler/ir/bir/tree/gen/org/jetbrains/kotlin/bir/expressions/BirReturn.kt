@@ -8,7 +8,6 @@
 
 package org.jetbrains.kotlin.bir.expressions
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
 
 /**
@@ -17,7 +16,6 @@ import org.jetbrains.kotlin.bir.symbols.BirReturnTargetSymbol
  * Generated from: [org.jetbrains.kotlin.bir.generator.BirTree.return]
  */
 abstract class BirReturn : BirExpression() {
-    context(BirTreeContext)
     abstract var value: BirExpression
 
     abstract var returnTarget: BirReturnTargetSymbol

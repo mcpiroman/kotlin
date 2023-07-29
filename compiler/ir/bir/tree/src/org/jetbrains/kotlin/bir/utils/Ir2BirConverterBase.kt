@@ -26,6 +26,7 @@ import java.util.*
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 abstract class Ir2BirConverterBase {
+    lateinit var treeContext: BirTreeContext
     var copyDescriptors = false
     private val collectedBirElementsWithoutParent = mutableListOf<BirElement>()
     private val collectedIrElementsWithoutParent = mutableListOf<IrElement>()
@@ -34,29 +35,24 @@ abstract class Ir2BirConverterBase {
     protected fun <Bir : BirElement, Ir : IrElement> createElementMap(expectedMaxSize: Int = 8): MutableMap<Ir, Bir> =
         IdentityHashMap<Ir, Bir>(expectedMaxSize)
 
-    context(BirTreeContext)
     protected abstract fun <Bir : BirElement> copyElement(old: IrElement): Bir
 
-    fun copyIrTree(treeContext: BirTreeContext, irRootElements: List<IrElement>): List<BirElement> {
-        with(treeContext) {
-            return irRootElements.map { copyElement(it) }
-        }
+    fun copyIrTree(irRootElements: List<IrElement>): List<BirElement> {
+        return irRootElements.map { copyElement(it) }
     }
 
-    fun copyIrTree(treeContext: BirTreeContext, irRootElement: IrElement): BirElement =
-        copyIrTree(treeContext, listOf(irRootElement)).single()
+    fun copyIrTree(irRootElement: IrElement): BirElement =
+        copyIrTree(listOf(irRootElement)).single()
 
-    context(BirTreeContext)
     protected fun <Ir : IrElement, Bir : BirElement> copyNotReferencedElement(old: Ir, copy: () -> Bir): Bir {
         return doCopyElement(old, copy)
     }
 
-    context(BirTreeContext)
     protected fun <Ir : IrElement, ME : BirElement, SE : ME> copyReferencedElement(
         old: Ir,
         map: MutableMap<Ir, ME>,
         copy: () -> SE,
-        lateInitialize: (SE) -> Unit
+        lateInitialize: (SE) -> Unit,
     ): SE {
         map[old]?.let {
             return it as SE
@@ -70,7 +66,6 @@ abstract class Ir2BirConverterBase {
         }
     }
 
-    context(BirTreeContext)
     private fun <Ir : IrElement, Bir : BirElement> doCopyElement(old: Ir, copy: () -> Bir): Bir {
         val wasNested = isInsideNestedElementCopy
         isInsideNestedElementCopy = true
@@ -113,10 +108,8 @@ abstract class Ir2BirConverterBase {
         return new
     }
 
-    context(BirTreeContext)
     fun <Bir : BirElement> remapElement(old: IrElement): Bir = copyElement(old)
 
-    context(BirTreeContext)
     fun <IrS : IrSymbol, BirS : BirSymbol> remapSymbol(old: IrS): BirS {
         return if (old.isBound) {
             remapElement(old.owner) as BirS
@@ -144,14 +137,12 @@ abstract class Ir2BirConverterBase {
         }
     }
 
-    context(BirTreeContext)
     protected fun BirAttributeContainer.copyAttributes(old: IrAttributeContainer) {
         val owner = old.attributeOwnerId
         attributeOwnerId = if (owner === old) this
         else remapElement(owner) as BirAttributeContainer
     }
 
-    context(BirTreeContext)
     protected fun BirElement.copyAuxData(from: IrElement) {
         this as BirElementBase
         if (from is IrMetadataSourceOwner) {
@@ -172,7 +163,6 @@ abstract class Ir2BirConverterBase {
         }
     }
 
-    context(BirTreeContext)
     protected fun <Ir : IrElement, Bir : BirElement> BirChildElementList<Bir>.copyElements(from: List<Ir>) {
         for (ir in from) {
             val bir = copyElement<Bir>(ir)
@@ -180,7 +170,6 @@ abstract class Ir2BirConverterBase {
         }
     }
 
-    context(BirTreeContext)
     protected fun BirMemberAccessExpression<*>.copyIrMemberAccessExpressionValueArguments(from: IrMemberAccessExpression<*>) {
         for (i in 0 until from.valueArgumentsCount) {
             val arg = from.getValueArgument(i)
@@ -199,7 +188,6 @@ abstract class Ir2BirConverterBase {
         return if (copyDescriptors) readDescriptor() else null
     }
 
-    context(BirTreeContext)
     fun remapType(irType: IrType): BirType = when (irType) {
         // for IrDelegatedSimpleType, this egaerly initializes a lazy IrAnnotationType
         is IrSimpleTypeImpl, is IrDelegatedSimpleType -> remapSimpleType(irType as IrSimpleType)
@@ -277,7 +265,6 @@ abstract class Ir2BirConverterBase {
 
     private val simpleTypesCache = hashMapOf<SimpleTypeCacheKey, BirSimpleType>()
 
-    context(BirTreeContext)
     private fun remapSimpleType(irType: IrSimpleType): BirSimpleType {
         val key = SimpleTypeCacheKey(irType)
         simpleTypesCache[key]?.let {
@@ -298,7 +285,6 @@ abstract class Ir2BirConverterBase {
         return simpleTypesCache.putIfAbsent(key, birType) ?: birType
     }
 
-    context(BirTreeContext)
     private fun remapTypeAbbreviation(abbreviation: IrTypeAbbreviation): BirTypeAbbreviation {
         return BirTypeAbbreviation(
             remapSymbol(abbreviation.typeAlias),
@@ -308,7 +294,6 @@ abstract class Ir2BirConverterBase {
         )
     }
 
-    context(BirTreeContext)
     private fun remapCapturedType(irType: IrCapturedType): BirCapturedType {
         return BirCapturedType(
             irType.captureStatus,
@@ -318,7 +303,6 @@ abstract class Ir2BirConverterBase {
         )
     }
 
-    context(BirTreeContext)
     private fun remapDynamicType(irType: IrDynamicType): BirDynamicType {
         return BirDynamicType(
             irType.kotlinType,
@@ -327,7 +311,6 @@ abstract class Ir2BirConverterBase {
         )
     }
 
-    context(BirTreeContext)
     private fun Ir2BirConverterBase.remapErrorType(irType: IrErrorType) =
         BirErrorType(
             irType.kotlinType,
@@ -336,7 +319,6 @@ abstract class Ir2BirConverterBase {
             irType.isMarkedNullable,
         )
 
-    context(BirTreeContext)
     fun remapTypeArgument(irTypeArgument: IrTypeArgument): BirTypeArgument = when (irTypeArgument) {
         is IrStarProjection -> BirStarProjection
         is IrType -> remapType(irTypeArgument) as BirTypeArgument
@@ -347,7 +329,7 @@ abstract class Ir2BirConverterBase {
     companion object {
         fun IrElement.convertToBir(treeContext: BirTreeContext): BirElement {
             val converter = Ir2BirConverter()
-            return converter.copyIrTree(treeContext, listOf(this)).single()
+            return converter.copyIrTree(listOf(this)).single()
         }
     }
 }

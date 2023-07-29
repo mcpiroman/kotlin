@@ -18,16 +18,14 @@ import org.jetbrains.kotlin.utils.mapOrTakeThisIfIdentity
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
 import java.util.*
 
-context (BirTreeContext)
 fun <E : BirElement> E.deepCopy(
     copier: BirTreeDeepCopier = BirTreeDeepCopier(),
 ): E {
     return copier.copyTree(this)
 }
 
-context (BirTreeContext)
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-open class BirTreeDeepCopier() {
+open class BirTreeDeepCopier {
     protected var rootElement: BirElementBase? = null
 
     // explicit dispatch receiver to avoid capturing `this` in lambda

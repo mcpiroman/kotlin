@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.expressions.impl
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.expressions.BirExpression
 import org.jetbrains.kotlin.bir.expressions.BirSpreadElement
@@ -23,7 +22,6 @@ class BirSpreadElementImpl(
 ) : BirSpreadElement() {
     private var _expression: BirExpression = expression
 
-    context(BirTreeContext)
     override var expression: BirExpression
         get() = _expression
         set(value) {
@@ -45,7 +43,6 @@ class BirSpreadElementImpl(
         this._expression.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._expression === old -> this.expression = new as BirExpression

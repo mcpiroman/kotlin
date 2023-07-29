@@ -11,7 +11,6 @@ package org.jetbrains.kotlin.bir.declarations.impl
 import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAttributeContainer
 import org.jetbrains.kotlin.bir.declarations.BirField
@@ -58,7 +57,6 @@ class BirPropertyWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _backingField: BirField? = backingField
 
-    context(BirTreeContext)
     override var backingField: BirField?
         get() = _backingField
         set(value) {
@@ -68,7 +66,6 @@ class BirPropertyWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _getter: BirSimpleFunction? = getter
 
-    context(BirTreeContext)
     override var getter: BirSimpleFunction?
         get() = _getter
         set(value) {
@@ -78,7 +75,6 @@ class BirPropertyWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _setter: BirSimpleFunction? = setter
 
-    context(BirTreeContext)
     override var setter: BirSimpleFunction?
         get() = _setter
         set(value) {
@@ -106,7 +102,6 @@ class BirPropertyWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
         this._setter?.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._backingField === old -> this.backingField = new as BirField

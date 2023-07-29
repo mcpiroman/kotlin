@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.declarations.impl
 
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirAnonymousInitializer
 import org.jetbrains.kotlin.bir.expressions.BirBlockBody
@@ -32,7 +31,6 @@ class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
 ) : BirAnonymousInitializer() {
     private var _body: BirBlockBody = body
 
-    context(BirTreeContext)
     override var body: BirBlockBody
         get() = _body
         set(value) {
@@ -54,7 +52,6 @@ class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
         this._body.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._body === old -> this.body = new as BirBlockBody

@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.bir.types.utils
 
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.declarations.BirTypeParameter
 import org.jetbrains.kotlin.bir.symbols.BirTypeParameterSymbol
 import org.jetbrains.kotlin.bir.types.*
@@ -13,11 +12,9 @@ import org.jetbrains.kotlin.bir.utils.deepCopy
 import org.jetbrains.kotlin.utils.memoryOptimizedMap
 
 
-context (BirTreeContext)
 fun BirType.substitute(params: List<BirTypeParameter>, arguments: List<BirType>): BirType =
     substitute((params zip arguments).toMap())
 
-context (BirTreeContext)
 fun BirType.substitute(substitutionMap: Map<BirTypeParameterSymbol, BirType>): BirType {
     if (this !is BirSimpleType || substitutionMap.isEmpty()) return this
 

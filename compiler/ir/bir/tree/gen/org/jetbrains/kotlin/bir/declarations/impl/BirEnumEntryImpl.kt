@@ -11,7 +11,6 @@ package org.jetbrains.kotlin.bir.declarations.impl
 import org.jetbrains.kotlin.bir.BirBackReferenceCollectionArrayStyleImpl
 import org.jetbrains.kotlin.bir.BirElement
 import org.jetbrains.kotlin.bir.BirElementOrList
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.declarations.BirClass
 import org.jetbrains.kotlin.bir.declarations.BirEnumEntry
@@ -39,7 +38,6 @@ class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _initializerExpression: BirExpressionBody? = initializerExpression
 
-    context(BirTreeContext)
     override var initializerExpression: BirExpressionBody?
         get() = _initializerExpression
         set(value) {
@@ -49,7 +47,6 @@ class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
 
     private var _correspondingClass: BirClass? = correspondingClass
 
-    context(BirTreeContext)
     override var correspondingClass: BirClass?
         get() = _correspondingClass
         set(value) {
@@ -74,7 +71,6 @@ class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
         this._correspondingClass?.accept(visitor)
     }
 
-    context(BirTreeContext)
     override fun replaceChildProperty(old: BirElement, new: BirElement?) {
         when {
            this._initializerExpression === old -> this.initializerExpression = new as

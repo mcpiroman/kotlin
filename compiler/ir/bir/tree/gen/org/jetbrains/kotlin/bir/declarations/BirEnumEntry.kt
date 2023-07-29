@@ -10,7 +10,6 @@ package org.jetbrains.kotlin.bir.declarations
 
 import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.BirElementTrackingBackReferences
-import org.jetbrains.kotlin.bir.BirTreeContext
 import org.jetbrains.kotlin.bir.expressions.BirExpressionBody
 import org.jetbrains.kotlin.bir.symbols.BirEnumEntrySymbol
 import org.jetbrains.kotlin.bir.symbols.BirSymbolElement
@@ -27,10 +26,8 @@ abstract class BirEnumEntry : BirElementBase(), BirDeclaration, BirDeclarationWi
     @ObsoleteDescriptorBasedAPI
     abstract override val _descriptor: ClassDescriptor?
 
-    context(BirTreeContext)
     abstract var initializerExpression: BirExpressionBody?
 
-    context(BirTreeContext)
     abstract var correspondingClass: BirClass?
 
     companion object
