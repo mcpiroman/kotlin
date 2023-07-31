@@ -21,12 +21,10 @@ dependencies {
     implementation(intellijCore())
     runtimeOnly(commonDependency("org.jetbrains.intellij.deps", "trove4j"))
     runtimeOnly(commonDependency("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil"))
-    runtimeOnly(project(":kotlin-reflect"))
+    runtimeOnly(commonDependency("org.jetbrains.kotlin:kotlin-reflect")) { isTransitive = false }
 
     // Those are needed by for runs from IJ, dunno why does it not pick them up from gradle
     runtimeOnly(project(":core:builtins"))
-    // IJ still does not pick it up!!
-    runtimeOnly(files("${project.rootProject.rootDir}/libraries/reflect/build/libs/kotlin-reflect-1.9.255-SNAPSHOT.jar"))
 
     // Those might be(come) needed:
     //runtimeOnly(commonDependency("one.util:streamex"))
