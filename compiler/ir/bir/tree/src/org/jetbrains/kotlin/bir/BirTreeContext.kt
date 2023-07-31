@@ -9,9 +9,14 @@ import java.lang.AutoCloseable
 
 open class BirTreeContext {
     private var totalElements = 0
-    private val elementsByClass = ElementsByClass()
-    private var currentElementsOfClassIterator: ElementsOfClassListIterator<*>? = null
-    private val elementsAddedDuringCurrentElementsOfClassIteration = ArrayList<BirElementBase>(1024)
+    private val rootElements = mutableListOf<BirElementBase>()
+    private val elementByFeatureCacheSlots = arrayOfNulls<ElementsWithFeatureCacheSlot>(256)
+    private val elementByFeatureCacheConditions = arrayOfNulls<ElementFeatureCacheCondition>(elementByFeatureCacheSlots.size)
+    private var elementByFeatureCacheSlotCount = 0
+    private var registeredElementByFeatureCacheSlotCount = 0
+    private var currentElementsWithFeatureIterator: ElementsWithFeatureCacheSlotIterator<*>? = null
+    private var currentFeatureCacheSlot = 0
+    private var bufferedElementWithInvalidatedFeature: BirElementBase? = null
 
     internal fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         attachElement(element, parent, prev)
@@ -25,22 +30,9 @@ open class BirTreeContext {
         element.ownerTreeContext = this
         element.updateLevel(parent)
 
-        if (checkCacheElementByClass(element)) {
-            if (!element.isInClassCache) {
-                if (prev != null && prev.javaClass == element.javaClass) {
-                    prev.nextElementIsOptimizedFromClassCache = true
-                } else {
-                    addElementToClassCache(element)
-                }
-            }
-
-            if (currentElementsOfClassIterator != null) {
-                element.attachedDuringByClassIteration = true
-                elementsAddedDuringCurrentElementsOfClassIteration += element
-            }
-        }
-
+        addElementToFeatureCache(element)
         element.registerTrackedBackReferences(null)
+
         totalElements++
     }
 
@@ -49,47 +41,19 @@ open class BirTreeContext {
         element.traverseTreeFast { descendantElement, descendantParent, descendantPrev ->
             detachElement(descendantElement, descendantParent, descendantPrev)
         }
-
-        if (prev != null) {
-            val prevNext = prev.next
-            assert(prevNext !== element) { "prev should have already reassigned next" }
-            if (prevNext != null && prevNextElementIsOptimizedFromClassCache) {
-                assert(!prevNext.isInClassCache)
-                if (prevNext.javaClass == prev.javaClass) {
-                    prev.nextElementIsOptimizedFromClassCache = true
-                } else {
-                    assert(!prev.nextElementIsOptimizedFromClassCache)
-                    if (checkCacheElementByClass(prevNext)) {
-                        addElementToClassCache(prevNext)
-                    }
-                }
-            }
-        }
     }
 
     private fun detachElement(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         element.ownerTreeContext = null
         element.updateLevel(parent)
-        element.attachedDuringByClassIteration = false
-        element.nextElementIsOptimizedFromClassCache = false
-
-        if (prev != null) {
-            prev.nextElementIsOptimizedFromClassCache = false
-        }
-
-        currentElementsOfClassIterator?.listIterator?.let { iterator ->
-            if (iterator.currentSecondary === element) {
-                iterator.currentSecondary = prev
-            }
-        }
-
-        // Don't eagerly remove element from class cache as it is too slow.
-        //  But, when detaching a bigger subtree, maybe we can not find and remove each element individually
-        //  but rather scan the list for removed elements / detached elements.
-        //  Maybe also formalize and leverage the invariant that sub-elements must appear later than their
-        //  ancestor (so start scanning from the index of the root one).
+        removeElementFromFeatureCache(element)
 
         totalElements--
+    }
+
+    internal fun attachElementAsRoot(element: BirElementBase) {
+        elementAttached(element, null, null)
+        rootElements += element
     }
 
     private fun BirElementBase.traverseTreeFast(block: (element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) -> Unit) {
@@ -106,56 +70,133 @@ open class BirTreeContext {
     }
 
 
-    private fun addElementToClassCache(element: BirElementBase) {
-        val list = getElementsOfClassList(element.javaClass)
-        list.add(element)
-        element.isInClassCache = true
-    }
-
-    private fun getElementsOfClassList(elementClass: Class<*>): ElementOfClassList {
-        return elementsByClass.get(elementClass)
-    }
-
-    inline fun <reified E : BirElement> getElementsOfClass(): Iterator<E> = getElementsOfClass(E::class.java)
-
-    fun <E : BirElement> getElementsOfClass(elementClass: Class<E>): Iterator<E> {
-        currentElementsOfClassIterator?.let { iterator ->
-            cancelElementsOfClassIterator(iterator)
+    private fun addElementToFeatureCache(element: BirElementBase) {
+        val elementByFeatureCacheConditions = elementByFeatureCacheConditions
+        var targetSlot: ElementsWithFeatureCacheSlot? = null
+        for (i in currentFeatureCacheSlot + 1..<elementByFeatureCacheSlotCount) {
+            val condition = elementByFeatureCacheConditions[i]!!
+            if (condition.matches(element)) {
+                targetSlot = elementByFeatureCacheSlots[i]!!
+                break
+            }
         }
 
-        val list = getElementsOfClassList(elementClass)
+        if (targetSlot != null) {
+            if (element.featureCacheSlotIndex.toInt() != targetSlot.index) {
+                removeElementFromFeatureCache(element)
+                targetSlot.add(element)
+                element.featureCacheSlotIndex = targetSlot.index.toByte()
+            }
+        } else {
+            removeElementFromFeatureCache(element)
+        }
+    }
 
-        val iter = ElementsOfClassListIterator<E>(ArrayList(list.leafClasses))
-        currentElementsOfClassIterator = iter
+    private fun removeElementFromFeatureCache(element: BirElementBase) {
+        element.featureCacheSlotIndex = 0
+
+        // Don't eagerly remove element from feature cache as it is too slow.
+        //  But, when detaching a bigger subtree, maybe we can not find and remove each element individually
+        //  but rather scan the list for removed elements / detached elements.
+        //  Maybe also formalize and leverage the invariant that sub-elements must appear later than their
+        //  ancestor (so start scanning from the index of the root one).
+
+        /*val slot = elementByFeatureCacheSlots[element.cacheSlotIndex.toInt()]!!
+        slot.remove(element)*/
+    }
+
+    internal fun elementFeatureInvalidated(element: BirElementBase) {
+        if (element !== bufferedElementWithInvalidatedFeature) {
+            flushElementsWithInvalidatedFeatureBuffer()
+            bufferedElementWithInvalidatedFeature = element
+        }
+    }
+
+    private fun flushElementsWithInvalidatedFeatureBuffer() {
+        bufferedElementWithInvalidatedFeature?.let {
+            addElementToFeatureCache(it)
+        }
+    }
+
+    fun registerFeatureCacheSlot(key: ElementsWithFeatureCacheKey<*>) {
+        val i = ++registeredElementByFeatureCacheSlotCount
+        val slot = ElementsWithFeatureCacheSlot(i)
+        elementByFeatureCacheSlots[i] = slot
+        elementByFeatureCacheConditions[i] = key.condition
+        key.index = i
+    }
+
+    fun reindexElementByFeatureCache() {
+        elementByFeatureCacheSlotCount = registeredElementByFeatureCacheSlotCount
+
+        rootElements.retainAll { it.ownerTreeContext == this && it.parent == null }
+        for (root in rootElements) {
+            addElementToFeatureCache(root)
+            root.traverseTreeFast { element, _, _ ->
+                addElementToFeatureCache(element)
+            }
+        }
+    }
+
+    fun <E : BirElement> getElementsWithFeature(key: ElementsWithFeatureCacheKey<E>): Iterator<E> {
+        val cacheSlotIndex = key.index
+        require(cacheSlotIndex == currentFeatureCacheSlot + 1)
+
+        flushElementsWithInvalidatedFeatureBuffer()
+
+        currentElementsWithFeatureIterator?.let { iterator ->
+            cancelElementsWithFeatureIterator(iterator)
+        }
+
+        currentFeatureCacheSlot++
+
+        val slot = elementByFeatureCacheSlots[cacheSlotIndex]!!
+
+        val iter = ElementsWithFeatureCacheSlotIterator<E>(slot)
+        currentElementsWithFeatureIterator = iter
         return iter
     }
 
-    private fun cancelElementsOfClassIterator(iterator: ElementsOfClassListIterator<*>) {
-        iterator.cancelled = true
-        currentElementsOfClassIterator = null
-
-        elementsAddedDuringCurrentElementsOfClassIteration.forEach {
-            it.attachedDuringByClassIteration = false
-        }
-        elementsAddedDuringCurrentElementsOfClassIteration.clear()
+    private fun cancelElementsWithFeatureIterator(iterator: ElementsWithFeatureCacheSlotIterator<*>) {
+        iterator.close()
+        currentElementsWithFeatureIterator = null
     }
 
-    private inner class ElementOfClassList(
-        val elementClass: Class<*>, // todo: doesn't it create a leak wiht ClassValue?
+
+    private inner class ElementsWithFeatureCacheSlot(
+        val index: Int,
     ) {
-        val leafClasses = mutableListOf<ElementOfClassList>()
-        var array = arrayOfNulls<BirElementBase>(0)
+        var array = emptyArray<BirElementBase?>()
             private set
         var size = 0
-        var currentIterator: ElementsOfConcreteClassListIterator<*>? = null
+        var currentIterator: ElementsWithFeatureCacheSlotIterator<*>? = null
 
         fun add(element: BirElementBase) {
             var array = array
             val size = size
-            if (size == array.size) {
-                array = array.copyOf(if (size == 0) 8 else size * 2)
+
+            if (array.isEmpty()) {
+                for (i in 1..<currentFeatureCacheSlot) {
+                    val slot = elementByFeatureCacheSlots[i]!!
+                    if (slot.array.size > size) {
+                        // Steal a nice, preallocated and nulled-out array from some previous slot.
+                        // It won't use it anyway.
+                        array = slot.array
+                        slot.array = emptyArray<BirElementBase?>()
+                        break
+                    }
+                }
+
+                if (array.isEmpty()) {
+                    array = arrayOfNulls(8)
+                }
+
+                this.array = array
+            } else if (size == array.size) {
+                array = array.copyOf(size * 2)
                 this.array = array
             }
+
             array[size] = element
             this.size = size + 1
         }
@@ -180,9 +221,7 @@ open class BirTreeContext {
                     val last = array[lastIdx]!!
                     array[idx] = last
                     currentIterator?.let {
-                        if (it.mainListIdx > idx) {
-                            it.addAuxElementsToVisit(last)
-                        }
+                        TODO()
                     }
                 }
                 array[lastIdx] = null
@@ -191,58 +230,12 @@ open class BirTreeContext {
         }
     }
 
-    private inner class ElementsOfClassListIterator<E : BirElement>(
-        private val concreteClassLists: List<ElementOfClassList>,
-    ) : Iterator<E> {
-        var cancelled = false
-        private val listsIterator = concreteClassLists.iterator()
-        var listIterator: ElementsOfConcreteClassListIterator<BirElementBase>? = null
-            private set
-
-        override fun next(): E {
-            return listIterator!!.next() as E
-        }
-
-        override fun hasNext(): Boolean {
-            checkCancelled()
-            if (listIterator?.hasNext() == true)
-                return true
-
-            listIterator = null
-            while (listIterator == null) {
-                if (listsIterator.hasNext()) {
-                    val list = listsIterator.next()
-                    val nextClassIterator = ElementsOfConcreteClassListIterator<BirElementBase>(list)
-                    if (nextClassIterator.hasNext()) {
-                        listIterator = nextClassIterator
-                        list.currentIterator = nextClassIterator
-                        return true
-                    }
-                } else {
-                    break
-                }
-            }
-
-            if (currentElementsOfClassIterator === this) {
-                cancelElementsOfClassIterator(this)
-            }
-
-            return false
-        }
-
-        private fun checkCancelled() {
-            check(!cancelled) { "Iterator is stale - new iteration over elements of given class has begun" }
-        }
-    }
-
-    private class ElementsOfConcreteClassListIterator<E : BirElementBase>(
-        private val list: ElementOfClassList,
-    ) : Iterator<E> {
+    private inner class ElementsWithFeatureCacheSlotIterator<E : BirElement>(
+        private val slot: ElementsWithFeatureCacheSlot,
+    ) : Iterator<E>, AutoCloseable {
+        private var canceled = false
         var mainListIdx = 0
             private set
-        var currentSecondary: BirElementBase? = null
-        private var auxElementsToVisit: MutableList<BirElementBase>? = null
-            set(value) = TODO("Currently unused")
         private var next: BirElementBase? = null
 
         override fun hasNext(): Boolean {
@@ -261,88 +254,54 @@ open class BirTreeContext {
         }
 
         private fun computeNext(): BirElementBase? {
-            val array = list.array
-            while (true) {
-                var nextSecondary = currentSecondary
-                while (nextSecondary != null && nextSecondary.nextElementIsOptimizedFromClassCache) {
-                    nextSecondary = nextSecondary.next!!
-                    if (nextSecondary.availableInCurrentIteration()) {
-                        this.currentSecondary = nextSecondary
-                        return nextSecondary
-                    }
-                }
+            require(!canceled) { "Iterator was cancelled" }
+            val array = slot.array
 
+            while (true) {
                 val idx = mainListIdx
                 var element: BirElementBase? = null
-                while (idx < list.size) {
+                while (idx < slot.size) {
                     element = array[idx]!!
-                    if (element.attachedToTree) {
+                    if (element.featureCacheSlotIndex.toInt() == slot.index) {
+                        deregisterElement(array, idx)
                         break
                     } else {
-                        val lastIdx = list.size - 1
+                        val lastIdx = slot.size - 1
                         if (idx < lastIdx) {
                             array[idx] = array[lastIdx]
                         }
                         array[lastIdx] = null
 
-                        list.size--
-                        element.isInClassCache = false
+                        slot.size--
                         element = null
                     }
                 }
 
                 if (element != null) {
                     mainListIdx++
-                    this.currentSecondary = element
-                    if (element.availableInCurrentIteration()) {
-                        return element
-                    }
+                    return element
                 } else {
+                    mainListIdx = 0
+                    slot.size = 0
                     return null
                 }
             }
         }
 
-        private fun BirElementBase.availableInCurrentIteration(): Boolean {
-            return !attachedDuringByClassIteration
+        private fun deregisterElement(array: Array<BirElementBase?>, index: Int) {
+            val last = array[index]!!
+            array[index] = null
+            last.featureCacheSlotIndex = 0
+            addElementToFeatureCache(last)
         }
 
-        fun addAuxElementsToVisit(element: BirElementBase) {
-            auxElementsToVisit?.apply { add(element) } ?: run {
-                auxElementsToVisit = mutableListOf(element)
+        override fun close() {
+            for (i in mainListIdx..<slot.size) {
+                deregisterElement(slot.array, i)
             }
-        }
-    }
 
-    private inner class ElementsByClass : ClassValue<ElementOfClassList>() {
-        override fun computeValue(elementClass: Class<*>): ElementOfClassList {
-            val list = ElementOfClassList(elementClass)
-
-            val ancestorElements = mutableSetOf<ElementOfClassList>()
-            fun visitParents(clazz: Class<*>) {
-                if (clazz !== elementClass) {
-                    if (!BirElement::class.java.isAssignableFrom(clazz)) {
-                        return
-                    }
-
-                    val ancestor = get(clazz)
-                    if (ancestorElements.add(ancestor)) {
-                        ancestor.leafClasses += list
-                    } else {
-                        return
-                    }
-                }
-
-                clazz.superclass?.let {
-                    visitParents(it)
-                }
-                clazz.interfaces.forEach {
-                    visitParents(it)
-                }
-            }
-            visitParents(elementClass)
-
-            return list
+            slot.size = 0
+            canceled = true
         }
     }
 }

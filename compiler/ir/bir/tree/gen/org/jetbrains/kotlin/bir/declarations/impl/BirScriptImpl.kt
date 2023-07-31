@@ -31,21 +31,54 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: ScriptDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var name: Name,
+    origin: IrDeclarationOrigin,
+    name: Name,
     thisReceiver: BirValueParameter?,
-    override var baseClass: BirType?,
+    baseClass: BirType?,
     override var providedProperties: List<BirPropertySymbol>,
-    override var resultProperty: BirPropertySymbol?,
+    resultProperty: BirPropertySymbol?,
     earlierScriptsParameter: BirValueParameter?,
     override var earlierScripts: List<BirScriptSymbol>?,
-    override var targetClass: BirClassSymbol?,
-    override var constructor: BirConstructor?,
+    targetClass: BirClassSymbol?,
+    constructor: BirConstructor?,
 ) : BirScript() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
     override val statements: BirChildElementList<BirStatement> = BirChildElementList(this, 1)
 
     private var _thisReceiver: BirValueParameter? = thisReceiver
@@ -53,8 +86,22 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
     override var thisReceiver: BirValueParameter?
         get() = _thisReceiver
         set(value) {
-            setChildField(_thisReceiver, value, this.statements)
-            _thisReceiver = value
+            if(_thisReceiver != value) {
+               setChildField(_thisReceiver, value, this.statements)
+               _thisReceiver = value
+               propertyChanged()
+            }
+        }
+
+    private var _baseClass: BirType? = baseClass
+
+    override var baseClass: BirType?
+        get() = _baseClass
+        set(value) {
+            if(_baseClass != value) {
+               _baseClass = value
+               propertyChanged()
+            }
         }
 
     override var explicitCallParameters: BirChildElementList<BirVariable> =
@@ -66,13 +113,49 @@ class BirScriptImpl @ObsoleteDescriptorBasedAPI constructor(
     override var providedPropertiesParameters: BirChildElementList<BirValueParameter> =
             BirChildElementList(this, 4)
 
+    private var _resultProperty: BirPropertySymbol? = resultProperty
+
+    override var resultProperty: BirPropertySymbol?
+        get() = _resultProperty
+        set(value) {
+            if(_resultProperty != value) {
+               _resultProperty = value
+               propertyChanged()
+            }
+        }
+
     private var _earlierScriptsParameter: BirValueParameter? = earlierScriptsParameter
 
     override var earlierScriptsParameter: BirValueParameter?
         get() = _earlierScriptsParameter
         set(value) {
-            setChildField(_earlierScriptsParameter, value, this.providedPropertiesParameters)
-            _earlierScriptsParameter = value
+            if(_earlierScriptsParameter != value) {
+               setChildField(_earlierScriptsParameter, value, this.providedPropertiesParameters)
+               _earlierScriptsParameter = value
+               propertyChanged()
+            }
+        }
+
+    private var _targetClass: BirClassSymbol? = targetClass
+
+    override var targetClass: BirClassSymbol?
+        get() = _targetClass
+        set(value) {
+            if(_targetClass != value) {
+               _targetClass = value
+               propertyChanged()
+            }
+        }
+
+    private var _constructor: BirConstructor? = constructor
+
+    override var constructor: BirConstructor?
+        get() = _constructor
+        set(value) {
+            if(_constructor != value) {
+               _constructor = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_thisReceiver, statements)

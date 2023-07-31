@@ -19,11 +19,53 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirVarargImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
-    override var varargElementType: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
+    varargElementType: BirType,
 ) : BirVararg() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _varargElementType: BirType = varargElementType
+
+    override var varargElementType: BirType
+        get() = _varargElementType
+        set(value) {
+            if(_varargElementType != value) {
+               _varargElementType = value
+               propertyChanged()
+            }
+        }
 
     override val elements: BirChildElementList<BirVarargElement> = BirChildElementList(this,
             1)

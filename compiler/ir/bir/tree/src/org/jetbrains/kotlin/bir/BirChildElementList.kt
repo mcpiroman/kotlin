@@ -41,7 +41,9 @@ class BirChildElementList<E : BirElement>(
     override fun containsAll(elements: Collection<E>) = elements.all { it in this }
 
     fun add(element: E): Boolean {
-        return addInternal(element, tail)
+        val result = addInternal(element, tail)
+        parent.propertyChanged()
+        return result
     }
 
     fun add(index: Int, element: E): Boolean {
@@ -49,7 +51,9 @@ class BirChildElementList<E : BirElement>(
             throw IndexOutOfBoundsException("index: $index, size: $size")
 
         val prev = findPrevElementForInsert(index)
-        return addInternal(element, prev)
+        val result = addInternal(element, prev)
+        parent.propertyChanged()
+        return result
     }
 
     private fun findPrevElementForInsert(index: Int): BirElementBase? {
@@ -94,17 +98,23 @@ class BirChildElementList<E : BirElement>(
     }
 
     fun addAll(elements: Collection<E>): Boolean {
-        elements.forEach {
-            add(it)
+        if (elements.isNotEmpty()) {
+            elements.forEach {
+                add(it)
+            }
+            parent.propertyChanged()
         }
         return true
     }
 
     fun addAll(index: Int, elements: Collection<E>): Boolean {
-        var prev = findPrevElementForInsert(index)
-        elements.forEach {
-            addInternal(it, prev)
-            prev = it as BirElementBase
+        if (elements.isNotEmpty()) {
+            var prev = findPrevElementForInsert(index)
+            elements.forEach {
+                addInternal(it, prev)
+                prev = it as BirElementBase
+            }
+            parent.propertyChanged()
         }
         return true
     }
@@ -145,6 +155,7 @@ class BirChildElementList<E : BirElement>(
 
         parent.childDetached(old, prev)
         parent.childAttached(new, prev)
+        parent.propertyChanged()
 
         return true
     }
@@ -175,6 +186,7 @@ class BirChildElementList<E : BirElement>(
         sizeAndId--
 
         parent.childDetached(element, prev)
+        parent.propertyChanged()
 
         return true
     }
@@ -196,6 +208,8 @@ class BirChildElementList<E : BirElement>(
             prev = element
             element = next!!
         }
+
+        parent.propertyChanged()
 
         this.tail = null
         size = 0

@@ -26,23 +26,60 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 class BirLocalDelegatedPropertyReferenceImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     target: BirLocalDelegatedProperty,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
-    override var origin: IrStatementOrigin?,
+    origin: IrStatementOrigin?,
     override var typeArguments: List<BirType?>,
     delegate: BirVariable,
-    override var getter: BirSimpleFunctionSymbol,
-    override var setter: BirSimpleFunctionSymbol?,
+    getter: BirSimpleFunctionSymbol,
+    setter: BirSimpleFunctionSymbol?,
 ) : BirLocalDelegatedPropertyReference() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
 
-    override var target: BirLocalDelegatedProperty = target
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
         set(value) {
-            setTrackedElementReference(field, value, 0)
-            field = value
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _target: BirLocalDelegatedProperty = target
+
+    override var target: BirLocalDelegatedProperty
+        get() = _target
+        set(value) {
+            if(_target != value) {
+               setTrackedElementReference(_target, value, 0)
+               _target = value
+               propertyChanged()
+            }
         }
 
     private var _dispatchReceiver: BirExpression? = dispatchReceiver
@@ -50,8 +87,11 @@ class BirLocalDelegatedPropertyReferenceImpl(
     override var dispatchReceiver: BirExpression?
         get() = _dispatchReceiver
         set(value) {
-            setChildField(_dispatchReceiver, value, null)
-            _dispatchReceiver = value
+            if(_dispatchReceiver != value) {
+               setChildField(_dispatchReceiver, value, null)
+               _dispatchReceiver = value
+               propertyChanged()
+            }
         }
 
     private var _extensionReceiver: BirExpression? = extensionReceiver
@@ -59,17 +99,59 @@ class BirLocalDelegatedPropertyReferenceImpl(
     override var extensionReceiver: BirExpression?
         get() = _extensionReceiver
         set(value) {
-            setChildField(_extensionReceiver, value, this._dispatchReceiver)
-            _extensionReceiver = value
+            if(_extensionReceiver != value) {
+               setChildField(_extensionReceiver, value, this._dispatchReceiver)
+               _extensionReceiver = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrStatementOrigin? = origin
+
+    override var origin: IrStatementOrigin?
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
         }
 
     override var valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this, 1)
 
-    override var delegate: BirVariable = delegate
+    private var _delegate: BirVariable = delegate
+
+    override var delegate: BirVariable
+        get() = _delegate
         set(value) {
-            setTrackedElementReference(field, value, 1)
-            field = value
+            if(_delegate != value) {
+               setTrackedElementReference(_delegate, value, 1)
+               _delegate = value
+               propertyChanged()
+            }
+        }
+
+    private var _getter: BirSimpleFunctionSymbol = getter
+
+    override var getter: BirSimpleFunctionSymbol
+        get() = _getter
+        set(value) {
+            if(_getter != value) {
+               _getter = value
+               propertyChanged()
+            }
+        }
+
+    private var _setter: BirSimpleFunctionSymbol? = setter
+
+    override var setter: BirSimpleFunctionSymbol?
+        get() = _setter
+        set(value) {
+            if(_setter != value) {
+               _setter = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_dispatchReceiver, null)

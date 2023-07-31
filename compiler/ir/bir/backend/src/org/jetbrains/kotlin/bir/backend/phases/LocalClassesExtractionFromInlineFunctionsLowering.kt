@@ -15,11 +15,13 @@ import org.jetbrains.kotlin.bir.traversal.traverseStackBased
 
 context (WasmBirContext)
 class LocalClassesExtractionFromInlineFunctionsLowering : BirLoweringPhase() {
+    private val inlineFunctionsKey = registerElementsWithFeatureCacheKey<BirFunction>(false) { it.isInline }
+
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirFunction>().forEach { function ->
-            if (function.isInline
+        getElementsWithFeature(inlineFunctionsKey).forEach { function ->
+            if (
                 // Conservatively assume that functions with reified type parameters must be copied.
-                && function.typeParameters.none { it.isReified }
+                function.typeParameters.none { it.isReified }
             ) {
                 inlineClassesInFunction(function)
             }

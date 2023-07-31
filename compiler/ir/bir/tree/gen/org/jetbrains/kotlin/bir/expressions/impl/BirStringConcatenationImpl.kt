@@ -19,10 +19,41 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirStringConcatenationImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
 ) : BirStringConcatenation() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
 
     override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this, 1)
 

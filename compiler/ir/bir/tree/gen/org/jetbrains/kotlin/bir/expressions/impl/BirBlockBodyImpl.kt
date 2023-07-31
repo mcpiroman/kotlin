@@ -17,8 +17,19 @@ import org.jetbrains.kotlin.bir.expressions.BirBlockBody
 import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 
 class BirBlockBodyImpl(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
 ) : BirBlockBody() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
     override val statements: BirChildElementList<BirStatement> = BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = statements.firstOrNull()

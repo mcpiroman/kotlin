@@ -19,19 +19,53 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirConstantPrimitiveImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     value: BirConst<*>,
 ) : BirConstantPrimitive() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
 
     private var _value: BirConst<*> = value
 
     override var value: BirConst<*>
         get() = _value
         set(value) {
-            setChildField(_value, value, null)
-            _value = value
+            if(_value != value) {
+               setChildField(_value, value, null)
+               _value = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_value, null)

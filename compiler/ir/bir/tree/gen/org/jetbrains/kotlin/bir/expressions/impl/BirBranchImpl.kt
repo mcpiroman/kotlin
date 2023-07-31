@@ -17,17 +17,31 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirBranchImpl(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     condition: BirExpression,
     result: BirExpression,
 ) : BirBranch() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
     private var _condition: BirExpression = condition
 
     override var condition: BirExpression
         get() = _condition
         set(value) {
-            setChildField(_condition, value, null)
-            _condition = value
+            if(_condition != value) {
+               setChildField(_condition, value, null)
+               _condition = value
+               propertyChanged()
+            }
         }
 
     private var _result: BirExpression = result
@@ -35,8 +49,11 @@ class BirBranchImpl(
     override var result: BirExpression
         get() = _result
         set(value) {
-            setChildField(_result, value, this._condition)
-            _result = value
+            if(_result != value) {
+               setChildField(_result, value, this._condition)
+               _result = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_condition, null)

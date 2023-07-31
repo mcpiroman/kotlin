@@ -18,17 +18,31 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirCatchImpl(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     catchParameter: BirVariable,
     result: BirExpression,
 ) : BirCatch() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
     private var _catchParameter: BirVariable = catchParameter
 
     override var catchParameter: BirVariable
         get() = _catchParameter
         set(value) {
-            setChildField(_catchParameter, value, null)
-            _catchParameter = value
+            if(_catchParameter != value) {
+               setChildField(_catchParameter, value, null)
+               _catchParameter = value
+               propertyChanged()
+            }
         }
 
     private var _result: BirExpression = result
@@ -36,8 +50,11 @@ class BirCatchImpl(
     override var result: BirExpression
         get() = _result
         set(value) {
-            setChildField(_result, value, this._catchParameter)
-            _result = value
+            if(_result != value) {
+               setChildField(_result, value, this._catchParameter)
+               _result = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_catchParameter, null)

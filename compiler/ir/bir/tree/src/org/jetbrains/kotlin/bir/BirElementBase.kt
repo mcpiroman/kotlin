@@ -19,15 +19,12 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     //var originalIrElement: IrElement? = null
     internal var ownerTreeContext: BirTreeContext? = null
     final override var parent: BirElementBase? = null
-        internal set(value) {
-            field = value
-            ownerTreeContext = value?.ownerTreeContext
-        }
     final override var next: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
     private var levelAndContainingListId: Short = 0
     private var flags: Byte = 0
     private var registeredBackRefs: Byte = 0
+    internal var featureCacheSlotIndex: Byte = 0
 
     //internal var firstChildPtr: BirElementBase? = null
     internal var firstChildPtr: BirElementBase?
@@ -59,18 +56,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal var hasChildren: Boolean
         get() = hasFlag(FLAG_HAS_CHILDREN)
         set(value) = setFlag(FLAG_HAS_CHILDREN, value)
-
-    internal var isInClassCache: Boolean
-        get() = hasFlag(FLAG_IS_IN_CLASS_CACHE)
-        set(value) = setFlag(FLAG_IS_IN_CLASS_CACHE, value)
-
-    internal var nextElementIsOptimizedFromClassCache: Boolean
-        get() = hasFlag(FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE)
-        set(value) = setFlag(FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE, value)
-
-    internal var attachedDuringByClassIteration: Boolean
-        get() = hasFlag(FLAG_ATTACHED_DURING_BY_CLASS_ITERATION)
-        set(value) = setFlag(FLAG_ATTACHED_DURING_BY_CLASS_ITERATION, value)
 
     private fun hasFlag(flag: Byte): Boolean =
         (flags and flag).toInt() != 0
@@ -187,8 +172,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         new: BirElement?,
         prevChildOrList: BirElementOrList?,
     ) {
-        if (new === old) return
-
         old as BirElementBase?
         new as BirElementBase?
         prevChildOrList as BirElementBaseOrList?
@@ -295,6 +278,9 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         ownerTreeContext?.elementDetached(element, this, prev)
     }
 
+    internal fun propertyChanged() {
+        ownerTreeContext?.elementFeatureInvalidated(this)
+    }
 
     /*@OptIn(InternalBirApi::class)
     protected fun <T : BirElementBase> setTrackedElementReferenceLinkedListStyle(
@@ -331,6 +317,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         }
     }*/
 
+
     protected fun registerTrackedBackReferenceTo(value: Any?, referenceIndex: Int, unregisterFrom: BirElementBase?) {
         if (unregisterFrom == null) {
             if (value is BirElementTrackingBackReferences) {
@@ -351,8 +338,6 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         new: Any?,
         referenceIndex: Int,
     ) {
-        if (old === new) return
-
         if (old is BirElementTrackingBackReferences) {
             val newCollection = old._referencedBy.remove(this)
             require(newCollection != null) { "Element $this was not registered as a back reference on element $old" }
@@ -403,10 +388,7 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
 
 
     companion object {
-        private const val FLAG_HAS_CHILDREN: Byte = (1 shl 1).toByte()
-        private const val FLAG_IS_IN_CLASS_CACHE: Byte = (1 shl 2).toByte()
-        private const val FLAG_NEXT_ELEMENT_IS_OPTIMIZED_FROM_CLASS_CACHE: Byte = (1 shl 3).toByte()
-        private const val FLAG_ATTACHED_DURING_BY_CLASS_ITERATION: Byte = (1 shl 4).toByte()
+        private const val FLAG_HAS_CHILDREN: Byte = (1 shl 0).toByte()
 
         private const val CONTAINING_LIST_ID_BITS = 3
         private const val LEVEL_MASK: Short = (-1 ushr (16 + CONTAINING_LIST_ID_BITS)).toShort()

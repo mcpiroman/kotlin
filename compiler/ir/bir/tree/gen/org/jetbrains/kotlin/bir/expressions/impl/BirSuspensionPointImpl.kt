@@ -20,21 +20,55 @@ import org.jetbrains.kotlin.bir.traversal.accept
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirSuspensionPointImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     suspensionPointIdParameter: BirVariable,
     result: BirExpression,
     resumeResult: BirExpression,
 ) : BirSuspensionPoint() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
 
     private var _suspensionPointIdParameter: BirVariable = suspensionPointIdParameter
 
     override var suspensionPointIdParameter: BirVariable
         get() = _suspensionPointIdParameter
         set(value) {
-            setChildField(_suspensionPointIdParameter, value, null)
-            _suspensionPointIdParameter = value
+            if(_suspensionPointIdParameter != value) {
+               setChildField(_suspensionPointIdParameter, value, null)
+               _suspensionPointIdParameter = value
+               propertyChanged()
+            }
         }
 
     private var _result: BirExpression = result
@@ -42,8 +76,11 @@ class BirSuspensionPointImpl(
     override var result: BirExpression
         get() = _result
         set(value) {
-            setChildField(_result, value, this._suspensionPointIdParameter)
-            _result = value
+            if(_result != value) {
+               setChildField(_result, value, this._suspensionPointIdParameter)
+               _result = value
+               propertyChanged()
+            }
         }
 
     private var _resumeResult: BirExpression = resumeResult
@@ -51,8 +88,11 @@ class BirSuspensionPointImpl(
     override var resumeResult: BirExpression
         get() = _resumeResult
         set(value) {
-            setChildField(_resumeResult, value, this._result)
-            _resumeResult = value
+            if(_resumeResult != value) {
+               setChildField(_resumeResult, value, this._result)
+               _resumeResult = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_suspensionPointIdParameter, null)

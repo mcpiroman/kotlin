@@ -19,8 +19,10 @@ import org.jetbrains.kotlin.ir.declarations.*
 
 context (WasmBirContext)
 class LocalClassPopupLowering : BirLoweringPhase() {
+    private val bodiesKey = registerElementsWithFeatureCacheKey<BirBody>(false)
+
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirBody>().forEach {
+        getElementsWithFeature(bodiesKey).forEach {
             popupLocalClasses(it)
         }
     }
@@ -39,7 +41,7 @@ fun popupLocalClasses(
                 var newContainer: BirDeclarationHost? = null
                 while (parent is BirDeclaration) {
                     if (parent is BirDeclarationHost) {
-                        newContainer = parent as BirDeclarationHost
+                        newContainer = parent
                     }
                     if (parent is BirClass || parent is BirScript) {
                         break

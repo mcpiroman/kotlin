@@ -17,17 +17,65 @@ import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirClassReferenceImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     target: BirClassifierSymbol,
-    override var classType: BirType,
+    classType: BirType,
 ) : BirClassReference() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
 
-    override var target: BirClassifierSymbol = target
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
         set(value) {
-            setTrackedElementReference(field, value, 0)
-            field = value
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _target: BirClassifierSymbol = target
+
+    override var target: BirClassifierSymbol
+        get() = _target
+        set(value) {
+            if(_target != value) {
+               setTrackedElementReference(_target, value, 0)
+               _target = value
+               propertyChanged()
+            }
+        }
+
+    private var _classType: BirType = classType
+
+    override var classType: BirType
+        get() = _classType
+        set(value) {
+            if(_classType != value) {
+               _classType = value
+               propertyChanged()
+            }
         }
 
     override fun replaceSymbolProperty(old: BirSymbol, new: BirSymbol) {

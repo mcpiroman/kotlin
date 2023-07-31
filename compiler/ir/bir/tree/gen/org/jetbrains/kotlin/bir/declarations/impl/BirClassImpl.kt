@@ -34,29 +34,84 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: ClassDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var visibility: DescriptorVisibility,
-    override var name: Name,
-    override var isExternal: Boolean,
-    override var kind: ClassKind,
-    override var modality: Modality,
-    override var isCompanion: Boolean,
-    override var isInner: Boolean,
-    override var isData: Boolean,
-    override var isValue: Boolean,
-    override var isExpect: Boolean,
-    override var isFun: Boolean,
+    origin: IrDeclarationOrigin,
+    visibility: DescriptorVisibility,
+    name: Name,
+    isExternal: Boolean,
+    kind: ClassKind,
+    modality: Modality,
+    isCompanion: Boolean,
+    isInner: Boolean,
+    isData: Boolean,
+    isValue: Boolean,
+    isExpect: Boolean,
+    isFun: Boolean,
     override val source: SourceElement,
     override var superTypes: List<BirType>,
     thisReceiver: BirValueParameter?,
-    override var valueClassRepresentation: ValueClassRepresentation<BirSimpleType>?,
+    valueClassRepresentation: ValueClassRepresentation<BirSimpleType>?,
 ) : BirClass() {
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()
+
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _visibility: DescriptorVisibility = visibility
+
+    override var visibility: DescriptorVisibility
+        get() = _visibility
+        set(value) {
+            if(_visibility != value) {
+               _visibility = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
+    private var _isExternal: Boolean = isExternal
+
+    override var isExternal: Boolean
+        get() = _isExternal
+        set(value) {
+            if(_isExternal != value) {
+               _isExternal = value
+               propertyChanged()
+            }
+        }
 
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this, 1)
@@ -64,15 +119,127 @@ class BirClassImpl @ObsoleteDescriptorBasedAPI constructor(
     override val declarations: BirChildElementList<BirDeclaration> =
             BirChildElementList(this, 2)
 
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _kind: ClassKind = kind
+
+    override var kind: ClassKind
+        get() = _kind
+        set(value) {
+            if(_kind != value) {
+               _kind = value
+               propertyChanged()
+            }
+        }
+
+    private var _modality: Modality = modality
+
+    override var modality: Modality
+        get() = _modality
+        set(value) {
+            if(_modality != value) {
+               _modality = value
+               propertyChanged()
+            }
+        }
+
+    private var _isCompanion: Boolean = isCompanion
+
+    override var isCompanion: Boolean
+        get() = _isCompanion
+        set(value) {
+            if(_isCompanion != value) {
+               _isCompanion = value
+               propertyChanged()
+            }
+        }
+
+    private var _isInner: Boolean = isInner
+
+    override var isInner: Boolean
+        get() = _isInner
+        set(value) {
+            if(_isInner != value) {
+               _isInner = value
+               propertyChanged()
+            }
+        }
+
+    private var _isData: Boolean = isData
+
+    override var isData: Boolean
+        get() = _isData
+        set(value) {
+            if(_isData != value) {
+               _isData = value
+               propertyChanged()
+            }
+        }
+
+    private var _isValue: Boolean = isValue
+
+    override var isValue: Boolean
+        get() = _isValue
+        set(value) {
+            if(_isValue != value) {
+               _isValue = value
+               propertyChanged()
+            }
+        }
+
+    private var _isExpect: Boolean = isExpect
+
+    override var isExpect: Boolean
+        get() = _isExpect
+        set(value) {
+            if(_isExpect != value) {
+               _isExpect = value
+               propertyChanged()
+            }
+        }
+
+    private var _isFun: Boolean = isFun
+
+    override var isFun: Boolean
+        get() = _isFun
+        set(value) {
+            if(_isFun != value) {
+               _isFun = value
+               propertyChanged()
+            }
+        }
 
     private var _thisReceiver: BirValueParameter? = thisReceiver
 
     override var thisReceiver: BirValueParameter?
         get() = _thisReceiver
         set(value) {
-            setChildField(_thisReceiver, value, this.declarations)
-            _thisReceiver = value
+            if(_thisReceiver != value) {
+               setChildField(_thisReceiver, value, this.declarations)
+               _thisReceiver = value
+               propertyChanged()
+            }
+        }
+
+    private var _valueClassRepresentation: ValueClassRepresentation<BirSimpleType>? =
+            valueClassRepresentation
+
+    override var valueClassRepresentation: ValueClassRepresentation<BirSimpleType>?
+        get() = _valueClassRepresentation
+        set(value) {
+            if(_valueClassRepresentation != value) {
+               _valueClassRepresentation = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_thisReceiver, declarations)

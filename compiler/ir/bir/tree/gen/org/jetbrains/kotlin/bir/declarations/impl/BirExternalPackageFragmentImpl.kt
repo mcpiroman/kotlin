@@ -21,14 +21,36 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class BirExternalPackageFragmentImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: PackageFragmentDescriptor?,
-    override var fqName: FqName,
+    fqName: FqName,
     override val containerSource: DeserializedContainerSource?,
 ) : BirExternalPackageFragment() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
     override val declarations: BirChildElementList<BirDeclaration> =
             BirChildElementList(this, 1)
+
+    private var _fqName: FqName = fqName
+
+    override var fqName: FqName
+        get() = _fqName
+        set(value) {
+            if(_fqName != value) {
+               _fqName = value
+               propertyChanged()
+            }
+        }
 
     override fun getFirstChild(): BirElement? = declarations.firstOrNull()
 

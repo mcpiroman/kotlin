@@ -13,9 +13,11 @@ import org.jetbrains.kotlin.bir.remove
 
 context(WasmBirContext)
 class RemoveInlineDeclarationsWithReifiedTypeParametersLowering : BirLoweringPhase() {
+    private val inlineFunctionsKey = registerElementsWithFeatureCacheKey<BirFunction>(false) { it.isInline }
+
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirFunction>().forEach { function ->
-            if (function.isInline && function.typeParameters.any { it.isReified }) {
+        getElementsWithFeature(inlineFunctionsKey).forEach { function ->
+            if (function.typeParameters.any { it.isReified }) {
                 function.remove()
             }
         }

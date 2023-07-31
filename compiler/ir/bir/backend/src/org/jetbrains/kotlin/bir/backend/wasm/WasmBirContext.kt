@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.bir.backend.wasm
 import org.jetbrains.kotlin.bir.BirBuiltIns
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.backend.BirBackendContext
+import org.jetbrains.kotlin.bir.backend.BirLoweringPhase
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 import org.jetbrains.kotlin.bir.declarations.BirPackageFragment
 import org.jetbrains.kotlin.bir.declarations.impl.BirExternalPackageFragmentImpl
@@ -31,11 +32,14 @@ class WasmBirContext(
     symbolTable: SymbolTable,
     module: ModuleDescriptor,
     override val configuration: CompilerConfiguration,
-    converter: Ir2BirConverter
+    converter: Ir2BirConverter,
+    phaseConfig: List<(WasmBirContext) -> BirLoweringPhase>,
 ) : BirBackendContext() {
     init {
         converter.treeContext = this
     }
+
+    val loweringPhases = phaseConfig.map { it(this) }
 
     override val birBuiltIns: BirBuiltIns = BirBuiltIns(irBuiltIns, converter)
     val wasmSymbols = BirWasmSymbols(birBuiltIns, symbolTable, this, converter, module)

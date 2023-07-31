@@ -61,15 +61,17 @@ private val correspondingIrPhaseNames = setOf(
 )
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-fun createBirBackendContext(moduleInfo: IrModuleInfo, configuration: CompilerConfiguration, converter: Ir2BirConverter) =
-    WasmBirContext(
+fun createBirBackendContext(moduleInfo: IrModuleInfo, configuration: CompilerConfiguration, converter: Ir2BirConverter): WasmBirContext {
+    return WasmBirContext(
         (moduleInfo.bultins as IrBuiltInsOverDescriptors).builtIns,
         moduleInfo.bultins,
         moduleInfo.symbolTable,
         moduleInfo.module.descriptor,
         configuration,
         converter,
+        birPhases
     )
+}
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 fun prepareIrForCompilationCommon(moduleInfo: IrModuleInfo) {
@@ -100,15 +102,19 @@ fun runBirCompilation(
     birModule: BirModuleFragment,
     showTime: Boolean,
     irDumpDir: File?,
-    printAfterPhases: Set<String>? = null
+    printAfterPhases: Set<String>? = null,
 ) {
     irDumpDir?.let { dumpBirTree(it, "initial", birModule) }
 
-    for (phase in birPhases) {
-        val phaseObj = phase(backendContext)
-        val phaseName = phaseObj.javaClass.simpleName
+    maybeShowPhaseTime(showTime) {
+        backendContext.reindexElementByFeatureCache()
+        "reindexElementByFeatureCache"
+    }
+
+    for (phase in backendContext.loweringPhases) {
+        val phaseName = phase.javaClass.simpleName
         maybeShowPhaseTime(showTime) {
-            phaseObj(birModule)
+            phase(birModule)
             phaseName
         }
         if (irDumpDir != null && printAfterPhases?.contains(phaseName) != false) {
@@ -180,7 +186,7 @@ private fun maybeShowPhaseTime(showTime: Boolean, block: () -> String) {
 private fun dumpBirTree(
     irDumpDir: File,
     phaseName: String,
-    birModule: BirModuleFragment
+    birModule: BirModuleFragment,
 ) {
     val path = irDumpDir.resolve("bir/${phaseName}.bir.txt")
     path.parentFile.mkdirs()

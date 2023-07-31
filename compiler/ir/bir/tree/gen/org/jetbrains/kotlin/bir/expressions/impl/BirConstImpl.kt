@@ -15,10 +15,63 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
 
 class BirConstImpl<T>(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
-    override var kind: IrConstKind<T>,
-    override var value: T,
+    sourceSpan: SourceSpan,
+    type: BirType,
+    kind: IrConstKind<T>,
+    value: T,
 ) : BirConst<T>() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _kind: IrConstKind<T> = kind
+
+    override var kind: IrConstKind<T>
+        get() = _kind
+        set(value) {
+            if(_kind != value) {
+               _kind = value
+               propertyChanged()
+            }
+        }
+
+    private var _value: T = value
+
+    override var value: T
+        get() = _value
+        set(value) {
+            if(_value != value) {
+               _value = value
+               propertyChanged()
+            }
+        }
 }

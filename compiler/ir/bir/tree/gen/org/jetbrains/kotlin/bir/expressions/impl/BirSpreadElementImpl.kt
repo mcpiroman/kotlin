@@ -17,16 +17,30 @@ import org.jetbrains.kotlin.bir.traversal.BirElementVisitor
 import org.jetbrains.kotlin.bir.traversal.accept
 
 class BirSpreadElementImpl(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     expression: BirExpression,
 ) : BirSpreadElement() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
     private var _expression: BirExpression = expression
 
     override var expression: BirExpression
         get() = _expression
         set(value) {
-            setChildField(_expression, value, null)
-            _expression = value
+            if(_expression != value) {
+               setChildField(_expression, value, null)
+               _expression = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_expression, null)

@@ -25,14 +25,14 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: VariableDescriptorWithAccessors?,
-    override var origin: IrDeclarationOrigin,
-    override var name: Name,
-    override var type: BirType,
-    override var isVar: Boolean,
+    origin: IrDeclarationOrigin,
+    name: Name,
+    type: BirType,
+    isVar: Boolean,
     delegate: BirVariable,
     getter: BirSimpleFunction,
     setter: BirSimpleFunction?,
@@ -40,13 +40,71 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()
 
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _isVar: Boolean = isVar
+
+    override var isVar: Boolean
+        get() = _isVar
+        set(value) {
+            if(_isVar != value) {
+               _isVar = value
+               propertyChanged()
+            }
+        }
+
     private var _delegate: BirVariable = delegate
 
     override var delegate: BirVariable
         get() = _delegate
         set(value) {
-            setChildField(_delegate, value, null)
-            _delegate = value
+            if(_delegate != value) {
+               setChildField(_delegate, value, null)
+               _delegate = value
+               propertyChanged()
+            }
         }
 
     private var _getter: BirSimpleFunction = getter
@@ -54,8 +112,11 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var getter: BirSimpleFunction
         get() = _getter
         set(value) {
-            setChildField(_getter, value, this._delegate)
-            _getter = value
+            if(_getter != value) {
+               setChildField(_getter, value, this._delegate)
+               _getter = value
+               propertyChanged()
+            }
         }
 
     private var _setter: BirSimpleFunction? = setter
@@ -63,8 +124,11 @@ class BirLocalDelegatedPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var setter: BirSimpleFunction?
         get() = _setter
         set(value) {
-            setChildField(_setter, value, this._getter)
-            _setter = value
+            if(_setter != value) {
+               setChildField(_setter, value, this._getter)
+               _setter = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_delegate, null)

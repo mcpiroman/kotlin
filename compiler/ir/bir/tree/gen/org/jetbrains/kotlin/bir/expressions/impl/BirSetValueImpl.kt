@@ -22,18 +22,66 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 class BirSetValueImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     target: BirValueDeclaration,
-    override var origin: IrStatementOrigin?,
+    origin: IrStatementOrigin?,
     value: BirExpression,
 ) : BirSetValue() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
 
-    override var target: BirValueDeclaration = target
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
         set(value) {
-            setTrackedElementReference(field, value, 0)
-            field = value
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _target: BirValueDeclaration = target
+
+    override var target: BirValueDeclaration
+        get() = _target
+        set(value) {
+            if(_target != value) {
+               setTrackedElementReference(_target, value, 0)
+               _target = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrStatementOrigin? = origin
+
+    override var origin: IrStatementOrigin?
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
         }
 
     private var _value: BirExpression = value
@@ -41,8 +89,11 @@ class BirSetValueImpl(
     override var value: BirExpression
         get() = _value
         set(value) {
-            setChildField(_value, value, null)
-            _value = value
+            if(_value != value) {
+               setChildField(_value, value, null)
+               _value = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_value, null)

@@ -29,7 +29,7 @@ fun main(argv: Array<String>) {
     val irDumpDir: File? = args["-dumpDir"]?.let { File(it) }
     prepareIrForCompilationCommon(srcModule)
 
-    repeat(1) {
+    repeat(50) {
         val converter = Ir2BirConverter(465000)
         val (backendContext, birModule) = measureTimeMillisWithResult {
             val backendContext = createBirBackendContext(srcModule, configuration, converter)
@@ -45,9 +45,9 @@ fun main(argv: Array<String>) {
         runBirCompilation(
             backendContext,
             birModule,
-            true,
-            irDumpDir,
-            setOf("WasmFunctionInliningLowering")
+            false,
+            null,
+            //setOf("WasmFunctionInliningLowering")
         )
     }
 

@@ -24,30 +24,121 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirValueParameterImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: ParameterDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var name: Name,
-    override var type: BirType,
+    origin: IrDeclarationOrigin,
+    name: Name,
+    type: BirType,
     override val isAssignable: Boolean,
-    override var varargElementType: BirType?,
-    override var isCrossinline: Boolean,
-    override var isNoinline: Boolean,
-    override var isHidden: Boolean,
+    varargElementType: BirType?,
+    isCrossinline: Boolean,
+    isNoinline: Boolean,
+    isHidden: Boolean,
     defaultValue: BirExpressionBody?,
 ) : BirValueParameter() {
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()
+
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _varargElementType: BirType? = varargElementType
+
+    override var varargElementType: BirType?
+        get() = _varargElementType
+        set(value) {
+            if(_varargElementType != value) {
+               _varargElementType = value
+               propertyChanged()
+            }
+        }
+
+    private var _isCrossinline: Boolean = isCrossinline
+
+    override var isCrossinline: Boolean
+        get() = _isCrossinline
+        set(value) {
+            if(_isCrossinline != value) {
+               _isCrossinline = value
+               propertyChanged()
+            }
+        }
+
+    private var _isNoinline: Boolean = isNoinline
+
+    override var isNoinline: Boolean
+        get() = _isNoinline
+        set(value) {
+            if(_isNoinline != value) {
+               _isNoinline = value
+               propertyChanged()
+            }
+        }
+
+    private var _isHidden: Boolean = isHidden
+
+    override var isHidden: Boolean
+        get() = _isHidden
+        set(value) {
+            if(_isHidden != value) {
+               _isHidden = value
+               propertyChanged()
+            }
+        }
 
     private var _defaultValue: BirExpressionBody? = defaultValue
 
     override var defaultValue: BirExpressionBody?
         get() = _defaultValue
         set(value) {
-            setChildField(_defaultValue, value, null)
-            _defaultValue = value
+            if(_defaultValue != value) {
+               setChildField(_defaultValue, value, null)
+               _defaultValue = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_defaultValue, null)

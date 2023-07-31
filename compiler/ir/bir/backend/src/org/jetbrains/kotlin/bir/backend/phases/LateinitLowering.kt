@@ -34,35 +34,43 @@ class LateinitLowering : BirLoweringPhase() {
         transformIsLateinitInitialized()
     }
 
+    private val lateinitPropertiesKey = registerElementsWithFeatureCacheKey<BirProperty>(false) {
+        it.isLateinit && !it.isFakeOverride
+    }
+
     private fun transformLateinitProperties() {
-        getElementsOfClass<BirProperty>().forEach { property ->
-            if (property.isLateinit && !property.isFakeOverride) {
-                property.backingField!!.let {
-                    it.type = it.type.makeNullable()
-                }
-                transformLateinitPropertyGetter(property.getter!!, property.backingField!!)
+        getElementsWithFeature(lateinitPropertiesKey).forEach { property ->
+            property.backingField!!.let {
+                it.type = it.type.makeNullable()
             }
+            transformLateinitPropertyGetter(property.getter!!, property.backingField!!)
         }
+    }
+
+    private val lateinitVariableKey = registerElementsWithFeatureCacheKey<BirVariable>(false) {
+        it.isLateinit
     }
 
     private fun transformLateinitVariables() {
-        getElementsOfClass<BirVariable>().forEach { variable ->
-            if (variable.isLateinit) {
-                variable.type = variable.type.makeNullable()
-                variable.initializer = BirConst.constNull(variable.sourceSpan, birBuiltIns.nothingNType)
-                variable.referencedBy.forEach {
-                    if (it is BirGetValue && it.target == variable) {
-                        transformGetLateinitVariable(it, variable)
-                    }
+        getElementsWithFeature(lateinitVariableKey).forEach { variable ->
+            variable.type = variable.type.makeNullable()
+            variable.initializer = BirConst.constNull(variable.sourceSpan, birBuiltIns.nothingNType)
+            variable.referencedBy.forEach {
+                if (it is BirGetValue && it.target == variable) {
+                    transformGetLateinitVariable(it, variable)
                 }
-
-                variable.isLateinit = false
             }
+
+            variable.isLateinit = false
         }
     }
 
+    private val lateinitInitializerKey = registerElementsWithFeatureCacheKey<BirCall>(false) {
+        it.target is BirSimpleFunction
+    }
+
     private fun transformIsLateinitInitialized() {
-        getElementsOfClass<BirCall>().forEach { call ->
+        getElementsWithFeature(lateinitInitializerKey).forEach { call ->
             if (isLateinitIsInitializedPropertyGetter(call.target)) {
                 transformCallToLateinitIsInitializedPropertyGetter(call)
             }

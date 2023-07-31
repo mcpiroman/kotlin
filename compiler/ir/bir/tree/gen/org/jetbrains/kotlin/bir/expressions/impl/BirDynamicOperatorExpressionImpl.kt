@@ -21,20 +21,65 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrDynamicOperator
 
 class BirDynamicOperatorExpressionImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
-    override var operator: IrDynamicOperator,
+    sourceSpan: SourceSpan,
+    type: BirType,
+    operator: IrDynamicOperator,
     receiver: BirExpression,
 ) : BirDynamicOperatorExpression() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _operator: IrDynamicOperator = operator
+
+    override var operator: IrDynamicOperator
+        get() = _operator
+        set(value) {
+            if(_operator != value) {
+               _operator = value
+               propertyChanged()
+            }
+        }
 
     private var _receiver: BirExpression = receiver
 
     override var receiver: BirExpression
         get() = _receiver
         set(value) {
-            setChildField(_receiver, value, null)
-            _receiver = value
+            if(_receiver != value) {
+               setChildField(_receiver, value, null)
+               _receiver = value
+               propertyChanged()
+            }
         }
 
     override val arguments: BirChildElementList<BirExpression> = BirChildElementList(this, 1)

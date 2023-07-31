@@ -24,20 +24,68 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 class BirSetFieldImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     target: BirFieldSymbol,
-    override var superQualifier: BirClassSymbol?,
+    superQualifier: BirClassSymbol?,
     receiver: BirExpression?,
-    override var origin: IrStatementOrigin?,
+    origin: IrStatementOrigin?,
     value: BirExpression,
 ) : BirSetField() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
 
-    override var target: BirFieldSymbol = target
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
         set(value) {
-            setTrackedElementReference(field, value, 0)
-            field = value
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _target: BirFieldSymbol = target
+
+    override var target: BirFieldSymbol
+        get() = _target
+        set(value) {
+            if(_target != value) {
+               setTrackedElementReference(_target, value, 0)
+               _target = value
+               propertyChanged()
+            }
+        }
+
+    private var _superQualifier: BirClassSymbol? = superQualifier
+
+    override var superQualifier: BirClassSymbol?
+        get() = _superQualifier
+        set(value) {
+            if(_superQualifier != value) {
+               _superQualifier = value
+               propertyChanged()
+            }
         }
 
     private var _receiver: BirExpression? = receiver
@@ -45,8 +93,22 @@ class BirSetFieldImpl(
     override var receiver: BirExpression?
         get() = _receiver
         set(value) {
-            setChildField(_receiver, value, null)
-            _receiver = value
+            if(_receiver != value) {
+               setChildField(_receiver, value, null)
+               _receiver = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrStatementOrigin? = origin
+
+    override var origin: IrStatementOrigin?
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
         }
 
     private var _value: BirExpression = value
@@ -54,8 +116,11 @@ class BirSetFieldImpl(
     override var value: BirExpression
         get() = _value
         set(value) {
-            setChildField(_value, value, this._receiver)
-            _value = value
+            if(_value != value) {
+               setChildField(_value, value, this._receiver)
+               _value = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_receiver, null)

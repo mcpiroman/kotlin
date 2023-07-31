@@ -19,13 +19,68 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
 class BirTypeParameterImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: TypeParameterDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var name: Name,
-    override var variance: Variance,
-    override var isReified: Boolean,
+    origin: IrDeclarationOrigin,
+    name: Name,
+    variance: Variance,
+    isReified: Boolean,
     override var superTypes: List<BirType>,
-) : BirTypeParameter()
+) : BirTypeParameter() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
+    private var _variance: Variance = variance
+
+    override var variance: Variance
+        get() = _variance
+        set(value) {
+            if(_variance != value) {
+               _variance = value
+               propertyChanged()
+            }
+        }
+
+    private var _isReified: Boolean = isReified
+
+    override var isReified: Boolean
+        get() = _isReified
+        set(value) {
+            if(_isReified != value) {
+               _isReified = value
+               propertyChanged()
+            }
+        }
+}

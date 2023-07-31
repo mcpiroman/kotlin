@@ -19,10 +19,21 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.name.Name
 
 class BirModuleFragmentImpl(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override val _descriptor: ModuleDescriptor?,
     override val name: Name,
 ) : BirModuleFragment() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
     override val files: BirChildElementList<BirFile> = BirChildElementList(this, 1)
 
     override fun getFirstChild(): BirElement? = files.firstOrNull()

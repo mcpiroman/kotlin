@@ -23,5 +23,7 @@ Try to reduce symbol hierarchy - esp. for removed by-private-symbol references
 Add BirElement.insertAfter
 Future:
     By feature element cache
+		- when element satisfies multiple slots, find only the first one and others used on the same phase
+		- when moving to the next phase, check if the elements used in its slots apply to some other slots
     Zig-zag lowering
     Compilation units

@@ -33,44 +33,135 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: FunctionDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var visibility: DescriptorVisibility,
-    override var name: Name,
-    override var isExternal: Boolean,
-    override var isInline: Boolean,
-    override var isExpect: Boolean,
-    override var returnType: BirType,
+    origin: IrDeclarationOrigin,
+    visibility: DescriptorVisibility,
+    name: Name,
+    isExternal: Boolean,
+    isInline: Boolean,
+    isExpect: Boolean,
+    returnType: BirType,
     dispatchReceiverParameter: BirValueParameter?,
     extensionReceiverParameter: BirValueParameter?,
-    override var contextReceiverParametersCount: Int,
+    contextReceiverParametersCount: Int,
     body: BirBody?,
-    override var modality: Modality,
-    override var isFakeOverride: Boolean,
+    modality: Modality,
+    isFakeOverride: Boolean,
     override var overriddenSymbols: List<BirSimpleFunctionSymbol>,
-    override var isTailrec: Boolean,
-    override var isSuspend: Boolean,
-    override var isOperator: Boolean,
-    override var isInfix: Boolean,
-    override var correspondingProperty: BirPropertySymbol?,
+    isTailrec: Boolean,
+    isSuspend: Boolean,
+    isOperator: Boolean,
+    isInfix: Boolean,
+    correspondingProperty: BirPropertySymbol?,
     override val isElementBound: Boolean,
 ) : BirFunctionWithLateBinding() {
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()
 
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _visibility: DescriptorVisibility = visibility
+
+    override var visibility: DescriptorVisibility
+        get() = _visibility
+        set(value) {
+            if(_visibility != value) {
+               _visibility = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
+    private var _isExternal: Boolean = isExternal
+
+    override var isExternal: Boolean
+        get() = _isExternal
+        set(value) {
+            if(_isExternal != value) {
+               _isExternal = value
+               propertyChanged()
+            }
+        }
+
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this, 1)
+
+    private var _isInline: Boolean = isInline
+
+    override var isInline: Boolean
+        get() = _isInline
+        set(value) {
+            if(_isInline != value) {
+               _isInline = value
+               propertyChanged()
+            }
+        }
+
+    private var _isExpect: Boolean = isExpect
+
+    override var isExpect: Boolean
+        get() = _isExpect
+        set(value) {
+            if(_isExpect != value) {
+               _isExpect = value
+               propertyChanged()
+            }
+        }
+
+    private var _returnType: BirType = returnType
+
+    override var returnType: BirType
+        get() = _returnType
+        set(value) {
+            if(_returnType != value) {
+               _returnType = value
+               propertyChanged()
+            }
+        }
 
     private var _dispatchReceiverParameter: BirValueParameter? = dispatchReceiverParameter
 
     override var dispatchReceiverParameter: BirValueParameter?
         get() = _dispatchReceiverParameter
         set(value) {
-            setChildField(_dispatchReceiverParameter, value, this.typeParameters)
-            _dispatchReceiverParameter = value
+            if(_dispatchReceiverParameter != value) {
+               setChildField(_dispatchReceiverParameter, value, this.typeParameters)
+               _dispatchReceiverParameter = value
+               propertyChanged()
+            }
         }
 
     private var _extensionReceiverParameter: BirValueParameter? = extensionReceiverParameter
@@ -78,24 +169,127 @@ class BirFunctionWithLateBindingImpl @ObsoleteDescriptorBasedAPI constructor(
     override var extensionReceiverParameter: BirValueParameter?
         get() = _extensionReceiverParameter
         set(value) {
-            setChildField(_extensionReceiverParameter, value, this._dispatchReceiverParameter ?:
+            if(_extensionReceiverParameter != value) {
+               setChildField(_extensionReceiverParameter, value, this._dispatchReceiverParameter ?:
                     this.typeParameters)
-            _extensionReceiverParameter = value
+               _extensionReceiverParameter = value
+               propertyChanged()
+            }
         }
 
     override var valueParameters: BirChildElementList<BirValueParameter> =
             BirChildElementList(this, 2)
+
+    private var _contextReceiverParametersCount: Int = contextReceiverParametersCount
+
+    override var contextReceiverParametersCount: Int
+        get() = _contextReceiverParametersCount
+        set(value) {
+            if(_contextReceiverParametersCount != value) {
+               _contextReceiverParametersCount = value
+               propertyChanged()
+            }
+        }
 
     private var _body: BirBody? = body
 
     override var body: BirBody?
         get() = _body
         set(value) {
-            setChildField(_body, value, this.valueParameters)
-            _body = value
+            if(_body != value) {
+               setChildField(_body, value, this.valueParameters)
+               _body = value
+               propertyChanged()
+            }
         }
 
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _modality: Modality = modality
+
+    override var modality: Modality
+        get() = _modality
+        set(value) {
+            if(_modality != value) {
+               _modality = value
+               propertyChanged()
+            }
+        }
+
+    private var _isFakeOverride: Boolean = isFakeOverride
+
+    override var isFakeOverride: Boolean
+        get() = _isFakeOverride
+        set(value) {
+            if(_isFakeOverride != value) {
+               _isFakeOverride = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _isTailrec: Boolean = isTailrec
+
+    override var isTailrec: Boolean
+        get() = _isTailrec
+        set(value) {
+            if(_isTailrec != value) {
+               _isTailrec = value
+               propertyChanged()
+            }
+        }
+
+    private var _isSuspend: Boolean = isSuspend
+
+    override var isSuspend: Boolean
+        get() = _isSuspend
+        set(value) {
+            if(_isSuspend != value) {
+               _isSuspend = value
+               propertyChanged()
+            }
+        }
+
+    private var _isOperator: Boolean = isOperator
+
+    override var isOperator: Boolean
+        get() = _isOperator
+        set(value) {
+            if(_isOperator != value) {
+               _isOperator = value
+               propertyChanged()
+            }
+        }
+
+    private var _isInfix: Boolean = isInfix
+
+    override var isInfix: Boolean
+        get() = _isInfix
+        set(value) {
+            if(_isInfix != value) {
+               _isInfix = value
+               propertyChanged()
+            }
+        }
+
+    private var _correspondingProperty: BirPropertySymbol? = correspondingProperty
+
+    override var correspondingProperty: BirPropertySymbol?
+        get() = _correspondingProperty
+        set(value) {
+            if(_correspondingProperty != value) {
+               _correspondingProperty = value
+               propertyChanged()
+            }
+        }
     init {
         initChildField(_dispatchReceiverParameter, typeParameters)
         initChildField(_extensionReceiverParameter, _dispatchReceiverParameter ?: typeParameters)

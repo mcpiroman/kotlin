@@ -16,17 +16,65 @@ import org.jetbrains.kotlin.bir.expressions.BirLoop
 import org.jetbrains.kotlin.bir.types.BirType
 
 class BirContinueImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     loop: BirLoop,
-    override var label: String?,
+    label: String?,
 ) : BirContinue() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
 
-    override var loop: BirLoop = loop
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
         set(value) {
-            setTrackedElementReference(field, value, 0)
-            field = value
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _loop: BirLoop = loop
+
+    override var loop: BirLoop
+        get() = _loop
+        set(value) {
+            if(_loop != value) {
+               setTrackedElementReference(_loop, value, 0)
+               _loop = value
+               propertyChanged()
+            }
+        }
+
+    private var _label: String? = label
+
+    override var label: String?
+        get() = _label
+        set(value) {
+            if(_label != value) {
+               _label = value
+               propertyChanged()
+            }
         }
 
     override fun registerTrackedBackReferences(unregisterFrom: BirElementBase?) {

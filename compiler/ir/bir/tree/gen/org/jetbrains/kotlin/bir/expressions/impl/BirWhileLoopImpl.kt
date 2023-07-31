@@ -21,25 +21,70 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 class BirWhileLoopImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
-    override var origin: IrStatementOrigin?,
+    sourceSpan: SourceSpan,
+    type: BirType,
+    origin: IrStatementOrigin?,
     body: BirExpression?,
     condition: BirExpression,
-    override var label: String?,
+    label: String?,
 ) : BirWhileLoop() {
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()
 
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrStatementOrigin? = origin
+
+    override var origin: IrStatementOrigin?
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
 
     private var _body: BirExpression? = body
 
     override var body: BirExpression?
         get() = _body
         set(value) {
-            setChildField(_body, value, null)
-            _body = value
+            if(_body != value) {
+               setChildField(_body, value, null)
+               _body = value
+               propertyChanged()
+            }
         }
 
     private var _condition: BirExpression = condition
@@ -47,8 +92,22 @@ class BirWhileLoopImpl(
     override var condition: BirExpression
         get() = _condition
         set(value) {
-            setChildField(_condition, value, this._body)
-            _condition = value
+            if(_condition != value) {
+               setChildField(_condition, value, this._body)
+               _condition = value
+               propertyChanged()
+            }
+        }
+
+    private var _label: String? = label
+
+    override var label: String?
+        get() = _label
+        set(value) {
+            if(_label != value) {
+               _label = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_body, null)

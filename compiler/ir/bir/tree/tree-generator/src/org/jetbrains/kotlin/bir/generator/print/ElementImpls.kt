@@ -62,50 +62,51 @@ fun printElementImpls(generationPath: File, model: Model) = sequence {
                         )
                     }
 
-                    if (field.defaultToThis) {
-                        initializer("this")
-                    } else if (field.passViaConstructorParameter) {
-                        if (field is SingleField && field.isChild && field.mutable) {
-                            addProperty(
-                                PropertySpec.builder(field.backingFieldName, poetType)
-                                    .mutable(true)
-                                    .addModifiers(KModifier.PRIVATE)
-                                    .initializer(field.name)
-                                    .build()
-                            )
-                            getter(
-                                FunSpec.getterBuilder()
-                                    .addCode("return ${field.backingFieldName}")
-                                    .build()
-                            )
-                        } else {
-                            initializer(field.name)
-                        }
-                    } else if (field is ListField && field.isChild) {
+                    if (field is ListField && field.isChild) {
                         initializer("BirChildElementList(this, %L)", field.idInElements[element])
-                    }
-
-                    if (field is SingleField && field.isChild && field.mutable) {
-                        val prevChildSelectCode = codeToSelectFirstChild(allFields.subList(0, fieldIndex).asReversed(), false, true)
-                        setter(
-                            FunSpec.setterBuilder()
-                                .addParameter(ParameterSpec("value", poetType))
-                                .addCode("setChildField(${field.backingFieldName}, value, $prevChildSelectCode)\n")
-                                .addCode("${field.backingFieldName} = value")
+                    } else if (field is SingleField && field.mutable) {
+                        addProperty(
+                            PropertySpec.builder(field.backingFieldName, poetType)
+                                .mutable(true)
+                                .addModifiers(KModifier.PRIVATE)
+                                .apply {
+                                    if (field.defaultToThis) initializer("this") else initializer("%N", field.name)
+                                }
                                 .build()
                         )
-                    } else if (field.trackRef) {
+                        getter(
+                            FunSpec.getterBuilder()
+                                .addCode("return ${field.backingFieldName}")
+                                .build()
+                        )
+                    } else {
+                        if (field.defaultToThis) initializer("this") else initializer("%N", field.name)
+                    }
+
+                    if (field is SingleField && field.mutable) {
                         setter(
                             FunSpec.setterBuilder()
                                 .addParameter(ParameterSpec("value", poetType))
-                                .addCode("setTrackedElementReference(field, value, %L)\n", field.trackedRefIndex)
-                                .addCode("field = value")
-                                .build()
+                                .apply {
+                                    addCode("if(${field.backingFieldName} != value) {\n")
+                                    if (field.isChild) {
+                                        val prevChildSelectCode =
+                                            codeToSelectFirstChild(allFields.subList(0, fieldIndex).asReversed(), false, true)
+                                        addCode("   setChildField(${field.backingFieldName}, value, $prevChildSelectCode)\n")
+                                    } else if (field.trackRef) {
+                                        addCode(
+                                            "   setTrackedElementReference(${field.backingFieldName}, value, %L)\n",
+                                            field.trackedRefIndex
+                                        )
+                                    }
+                                    addCode("   ${field.backingFieldName} = value\n")
+                                    addCode("   propertyChanged()\n")
+                                    addCode("}\n")
+                                }.build()
                         )
                     }
                 }.build())
             }
-
 
             if (allFields.any { it.needsDescriptorApiAnnotation }) {
                 ctor.addAnnotation(descriptorApiAnnotation)

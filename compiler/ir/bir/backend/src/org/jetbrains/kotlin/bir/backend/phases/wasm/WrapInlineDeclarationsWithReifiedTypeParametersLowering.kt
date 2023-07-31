@@ -31,11 +31,16 @@ import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
 context(WasmBirContext)
 class WrapInlineDeclarationsWithReifiedTypeParametersLowering : BirLoweringPhase() {
+    private val inlineFunctionsKey = registerElementsWithFeatureCacheKey<BirSimpleFunction>(true) { it.isInline }
+
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirFunctionReference>().forEach { funRef ->
-            val function = funRef.target as? BirSimpleFunction
-            if (function != null && function.isInline && function.typeParameters.any { it.isReified }) {
-                wrapFunctionReference(funRef, function)
+        getElementsWithFeature(inlineFunctionsKey).forEach { function ->
+            if (function.typeParameters.any { it.isReified }) {
+                function.referencedBy.forEach {
+                    if (it is BirFunctionReference && it.target == function) {
+                        wrapFunctionReference(it, function)
+                    }
+                }
             }
         }
     }

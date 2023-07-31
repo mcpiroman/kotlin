@@ -23,62 +23,65 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 context (WasmBirContext)
 class LocalClassesInInlineLambdasLowering : BirLoweringPhase() {
-    override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirCall>().forEach { call ->
-            val rootCallee = call.target.asElement
-            if (rootCallee.isInline) {
-                val inlineLambdas = mutableListOf<BirFunction>()
-                for ((arg, param) in call.valueArguments zip rootCallee.valueParameters) {
-                    if (arg is BirFunctionExpression && param.isInlineParameter()) {
-                        inlineLambdas += arg.function
-                    }
-                }
+    private val inlineFunctionsKey = registerElementsWithFeatureCacheKey<BirSimpleFunction>(true) { it.isInline }
 
-                val localClasses = mutableSetOf<BirClass>()
-                var hasLocalAnyLocalFunction = false
-                val adaptedFunctions = mutableSetOf<BirSimpleFunction>()
-                for (lambda in inlineLambdas) {
-                    lambda.traverseStackBased(false) { element ->
-                        when (element) {
-                            is BirClass -> {
-                                localClasses += element
-                                element.replaceWith(BirCompositeImpl(element.sourceSpan, birBuiltIns.unitType, null))
-                            }
-                            is BirFunctionExpression -> element.function.walkIntoChildren()
-                            is BirFunction -> {
-                                hasLocalAnyLocalFunction = true
-                                element.walkIntoChildren()
-                            }
-                            is BirCall -> {
-                                val callee = element.target.asElement
-                                if (callee.isInline) {
-                                    for ((arg, param) in element.valueArguments zip callee.valueParameters) {
-                                        if (arg.isAdaptedFunctionReference() && param.isInlineParameter()) {
-                                            adaptedFunctions += (arg as BirBlock).statements.first() as BirSimpleFunction
+    override fun invoke(module: BirModuleFragment) {
+        getElementsWithFeature(inlineFunctionsKey).forEach { rootCallee ->
+            rootCallee.referencedBy.forEach { call ->
+                if (call is BirCall && call.target == rootCallee) {
+                    val inlineLambdas = mutableListOf<BirFunction>()
+                    for ((arg, param) in call.valueArguments zip rootCallee.valueParameters) {
+                        if (arg is BirFunctionExpression && param.isInlineParameter()) {
+                            inlineLambdas += arg.function
+                        }
+                    }
+
+                    val localClasses = mutableSetOf<BirClass>()
+                    var hasLocalAnyLocalFunction = false
+                    val adaptedFunctions = mutableSetOf<BirSimpleFunction>()
+                    for (lambda in inlineLambdas) {
+                        lambda.traverseStackBased(false) { element ->
+                            when (element) {
+                                is BirClass -> {
+                                    localClasses += element
+                                    element.replaceWith(BirCompositeImpl(element.sourceSpan, birBuiltIns.unitType, null))
+                                }
+                                is BirFunctionExpression -> element.function.walkIntoChildren()
+                                is BirFunction -> {
+                                    hasLocalAnyLocalFunction = true
+                                    element.walkIntoChildren()
+                                }
+                                is BirCall -> {
+                                    val callee = element.target.asElement
+                                    if (callee.isInline) {
+                                        for ((arg, param) in element.valueArguments zip callee.valueParameters) {
+                                            if (arg.isAdaptedFunctionReference() && param.isInlineParameter()) {
+                                                adaptedFunctions += (arg as BirBlock).statements.first() as BirSimpleFunction
+                                            }
                                         }
                                     }
                                 }
+                                else -> element.walkIntoChildren()
                             }
-                            else -> element.walkIntoChildren()
                         }
                     }
-                }
 
-                if (localClasses.isNotEmpty() || hasLocalAnyLocalFunction) {
-                    val block = BirBlockImpl(call.sourceSpan, call.type, null)
-                    call.replaceWith(block)
-                    block.statements += call
+                    if (localClasses.isNotEmpty() || hasLocalAnyLocalFunction) {
+                        val block = BirBlockImpl(call.sourceSpan, call.type, null)
+                        call.replaceWith(block)
+                        block.statements += call
 
-                    val container = block.ancestors().firstIsInstance<BirDeclaration>()
-                    LocalDeclarationsLowering().lower(
-                        block,
-                        container,
-                        container.ancestors(true).firstIsInstance<BirDeclarationHost>(),
-                        localClasses,
-                        adaptedFunctions
-                    )
+                        val container = block.ancestors().firstIsInstance<BirDeclaration>()
+                        LocalDeclarationsLowering().lower(
+                            block,
+                            container,
+                            container.ancestors(true).firstIsInstance<BirDeclarationHost>(),
+                            localClasses,
+                            adaptedFunctions
+                        )
 
-                    block.statements.addAll(0, localClasses)
+                        block.statements.addAll(0, localClasses)
+                    }
                 }
             }
         }

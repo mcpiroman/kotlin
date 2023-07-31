@@ -29,22 +29,22 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: PropertyDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var name: Name,
-    override var isExternal: Boolean,
-    override var visibility: DescriptorVisibility,
-    override var modality: Modality,
-    override var isFakeOverride: Boolean,
+    origin: IrDeclarationOrigin,
+    name: Name,
+    isExternal: Boolean,
+    visibility: DescriptorVisibility,
+    modality: Modality,
+    isFakeOverride: Boolean,
     override var overriddenSymbols: List<BirPropertySymbol>,
-    override var isVar: Boolean,
-    override var isConst: Boolean,
-    override var isLateinit: Boolean,
-    override var isDelegated: Boolean,
-    override var isExpect: Boolean,
+    isVar: Boolean,
+    isConst: Boolean,
+    isLateinit: Boolean,
+    isDelegated: Boolean,
+    isExpect: Boolean,
     backingField: BirField?,
     getter: BirSimpleFunction?,
     setter: BirSimpleFunction?,
@@ -52,15 +52,159 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()
 
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
+    private var _isExternal: Boolean = isExternal
+
+    override var isExternal: Boolean
+        get() = _isExternal
+        set(value) {
+            if(_isExternal != value) {
+               _isExternal = value
+               propertyChanged()
+            }
+        }
+
+    private var _visibility: DescriptorVisibility = visibility
+
+    override var visibility: DescriptorVisibility
+        get() = _visibility
+        set(value) {
+            if(_visibility != value) {
+               _visibility = value
+               propertyChanged()
+            }
+        }
+
+    private var _modality: Modality = modality
+
+    override var modality: Modality
+        get() = _modality
+        set(value) {
+            if(_modality != value) {
+               _modality = value
+               propertyChanged()
+            }
+        }
+
+    private var _isFakeOverride: Boolean = isFakeOverride
+
+    override var isFakeOverride: Boolean
+        get() = _isFakeOverride
+        set(value) {
+            if(_isFakeOverride != value) {
+               _isFakeOverride = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _isVar: Boolean = isVar
+
+    override var isVar: Boolean
+        get() = _isVar
+        set(value) {
+            if(_isVar != value) {
+               _isVar = value
+               propertyChanged()
+            }
+        }
+
+    private var _isConst: Boolean = isConst
+
+    override var isConst: Boolean
+        get() = _isConst
+        set(value) {
+            if(_isConst != value) {
+               _isConst = value
+               propertyChanged()
+            }
+        }
+
+    private var _isLateinit: Boolean = isLateinit
+
+    override var isLateinit: Boolean
+        get() = _isLateinit
+        set(value) {
+            if(_isLateinit != value) {
+               _isLateinit = value
+               propertyChanged()
+            }
+        }
+
+    private var _isDelegated: Boolean = isDelegated
+
+    override var isDelegated: Boolean
+        get() = _isDelegated
+        set(value) {
+            if(_isDelegated != value) {
+               _isDelegated = value
+               propertyChanged()
+            }
+        }
+
+    private var _isExpect: Boolean = isExpect
+
+    override var isExpect: Boolean
+        get() = _isExpect
+        set(value) {
+            if(_isExpect != value) {
+               _isExpect = value
+               propertyChanged()
+            }
+        }
 
     private var _backingField: BirField? = backingField
 
     override var backingField: BirField?
         get() = _backingField
         set(value) {
-            setChildField(_backingField, value, null)
-            _backingField = value
+            if(_backingField != value) {
+               setChildField(_backingField, value, null)
+               _backingField = value
+               propertyChanged()
+            }
         }
 
     private var _getter: BirSimpleFunction? = getter
@@ -68,8 +212,11 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var getter: BirSimpleFunction?
         get() = _getter
         set(value) {
-            setChildField(_getter, value, this._backingField)
-            _getter = value
+            if(_getter != value) {
+               setChildField(_getter, value, this._backingField)
+               _getter = value
+               propertyChanged()
+            }
         }
 
     private var _setter: BirSimpleFunction? = setter
@@ -77,8 +224,11 @@ class BirPropertyImpl @ObsoleteDescriptorBasedAPI constructor(
     override var setter: BirSimpleFunction?
         get() = _setter
         set(value) {
-            setChildField(_setter, value, this._getter ?: this._backingField)
-            _setter = value
+            if(_setter != value) {
+               setChildField(_setter, value, this._getter ?: this._backingField)
+               _setter = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_backingField, null)

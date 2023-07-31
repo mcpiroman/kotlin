@@ -21,21 +21,57 @@ import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 
 class BirAnonymousInitializerImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: ClassDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var isStatic: Boolean,
+    origin: IrDeclarationOrigin,
+    isStatic: Boolean,
     body: BirBlockBody,
 ) : BirAnonymousInitializer() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _isStatic: Boolean = isStatic
+
+    override var isStatic: Boolean
+        get() = _isStatic
+        set(value) {
+            if(_isStatic != value) {
+               _isStatic = value
+               propertyChanged()
+            }
+        }
+
     private var _body: BirBlockBody = body
 
     override var body: BirBlockBody
         get() = _body
         set(value) {
-            setChildField(_body, value, null)
-            _body = value
+            if(_body != value) {
+               setChildField(_body, value, null)
+               _body = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_body, null)

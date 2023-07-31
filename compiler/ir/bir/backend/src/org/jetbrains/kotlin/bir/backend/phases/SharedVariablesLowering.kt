@@ -21,24 +21,25 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 context (WasmBirContext)
 class SharedVariablesLowering : BirLoweringPhase() {
-    override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirVariable>().forEach { variable ->
-            if (variable.isVar
+    private val sharedVariablesKey = registerElementsWithFeatureCacheKey<BirVariable>(false) {
+        it.isVar
                 // A val-variable can be initialized from another container (and thus can require shared variable transformation)
                 // in case that container is a lambda with a corresponding contract, e.g. with invocation kind EXACTLY_ONCE.
-                || variable.initializer == null
-            ) {
-                val variableHost = variable.findRealHost()
+                || it.initializer == null
+    }
 
-                if (
-                    variable.referencedBy.any {
-                        variableHost != it.findRealHost()
-                                && if (!variable.isVar) it is BirSetValue && it.target == variable
-                        else it is BirValueAccessExpression && it.target == variable
-                    }
-                ) {
-                    rewriteSharedVariable(variable)
+    override fun invoke(module: BirModuleFragment) {
+        getElementsWithFeature(sharedVariablesKey).forEach { variable ->
+            val variableHost by lazy { variable.findRealHost() }
+
+            if (
+                variable.referencedBy.any {
+                    (if (!variable.isVar) it is BirSetValue && it.target == variable
+                    else it is BirValueAccessExpression && it.target == variable)
+                            && variableHost != it.findRealHost()
                 }
+            ) {
+                rewriteSharedVariable(variable)
             }
         }
     }

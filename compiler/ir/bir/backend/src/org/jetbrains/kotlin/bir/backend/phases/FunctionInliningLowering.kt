@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.bir.backend.phases
 
-import org.jetbrains.kotlin.backend.common.ir.isPure
 import org.jetbrains.kotlin.backend.common.lower.inline.INLINED_FUNCTION_ARGUMENTS
 import org.jetbrains.kotlin.backend.common.lower.inline.INLINED_FUNCTION_DEFAULT_ARGUMENTS
 import org.jetbrains.kotlin.backend.common.lower.inline.INLINED_FUNCTION_REFERENCE
@@ -32,11 +31,9 @@ import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.types.*
-import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
@@ -50,7 +47,7 @@ interface InlineFunctionResolver {
 }
 
 context(BirBackendContext)
-open class DefaultInlineFunctionResolver() : InlineFunctionResolver {
+open class DefaultInlineFunctionResolver : InlineFunctionResolver {
     override fun getFunctionDeclaration(symbol: BirFunctionSymbol): BirFunction {
         val function = symbol as BirFunction
         // TODO: Remove these hacks when coroutine intrinsics are fixed.
@@ -93,27 +90,32 @@ class FunctionInliningLowering(
     private val regenerateInlinedAnonymousObjects: Boolean = false,
     private val inlineArgumentsWithTheirOriginalTypeAndOffset: Boolean = false,
     private val allowExternalInlining: Boolean = false,
-    private val useTypeParameterUpperBound: Boolean = false
+    private val useTypeParameterUpperBound: Boolean = false,
 ) : BirLoweringPhase() {
+    private val functionsNeedingInlining = registerElementsWithFeatureCacheKey<BirFunction>(true) {
+        it.needsInlining
+    }
+
     override fun invoke(module: BirModuleFragment) {
         class CallToInline(val callSite: BirFunctionAccessExpression, val callee: BirFunction) {
             var alreadyInlined = false
         }
 
         val functionsWithCallsToInline = mutableMapOf<BirFunction?, MutableList<CallToInline>>()
-
-        fun visitFunctionCall(call: BirFunctionAccessExpression) {
-            val callee = call.target as BirFunction
-            if (callee.needsInlining && !isTypeOfIntrinsic(callee)) {
+        getElementsWithFeature(functionsNeedingInlining).forEach { callee ->
+            if (!isTypeOfIntrinsic(callee)) {
                 val actualCallee = inlineFunctionResolver.getFunctionDeclaration(callee)
-                val callToInline = CallToInline(call, actualCallee)
+                callee.referencedBy
+                    .filterIsInstance<BirFunctionAccessExpression>()
+                    .filter { (it is BirCall || it is BirConstructorCall) && it.target == callee }
+                    .forEach { call ->
+                        val callToInline = CallToInline(call, actualCallee)
 
-                val parentFunction = call.ancestors().firstIsInstanceOrNull<BirFunction>()
-                functionsWithCallsToInline.computeIfAbsent(parentFunction) { ArrayList(1) }.add(callToInline)
+                        val parentFunction = call.ancestors().firstIsInstanceOrNull<BirFunction>()
+                        functionsWithCallsToInline.computeIfAbsent(parentFunction) { ArrayList(1) }.add(callToInline)
+                    }
             }
         }
-        getElementsOfClass<BirCall>().forEach(::visitFunctionCall)
-        getElementsOfClass<BirConstructorCall>().forEach(::visitFunctionCall)
 
         fun tryToInline(call: CallToInline) {
             // First inline everything inside the function we try to inline

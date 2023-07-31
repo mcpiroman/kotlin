@@ -24,18 +24,84 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirTypeAliasImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: TypeAliasDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var name: Name,
-    override var visibility: DescriptorVisibility,
-    override var isActual: Boolean,
-    override var expandedType: BirType,
+    origin: IrDeclarationOrigin,
+    name: Name,
+    visibility: DescriptorVisibility,
+    isActual: Boolean,
+    expandedType: BirType,
 ) : BirTypeAlias() {
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
+    private var _visibility: DescriptorVisibility = visibility
+
+    override var visibility: DescriptorVisibility
+        get() = _visibility
+        set(value) {
+            if(_visibility != value) {
+               _visibility = value
+               propertyChanged()
+            }
+        }
+
     override var typeParameters: BirChildElementList<BirTypeParameter> =
             BirChildElementList(this, 1)
+
+    private var _isActual: Boolean = isActual
+
+    override var isActual: Boolean
+        get() = _isActual
+        set(value) {
+            if(_isActual != value) {
+               _isActual = value
+               propertyChanged()
+            }
+        }
+
+    private var _expandedType: BirType = expandedType
+
+    override var expandedType: BirType
+        get() = _expandedType
+        set(value) {
+            if(_expandedType != value) {
+               _expandedType = value
+               propertyChanged()
+            }
+        }
 
     override fun getFirstChild(): BirElement? = typeParameters.firstOrNull()
 

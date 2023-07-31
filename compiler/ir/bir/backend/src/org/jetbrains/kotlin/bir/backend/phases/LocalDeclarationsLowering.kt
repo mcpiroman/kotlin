@@ -63,8 +63,10 @@ class LocalDeclarationsLowering(
     val forceFieldsForInlineCaptures: Boolean = false, // See `LocalClassContext`
     private val postLocalDeclarationLoweringCallback: ((IntermediateDatastructures) -> Unit)? = null
 ) : BirLoweringPhase() {
+    private val bodiesKey = registerElementsWithFeatureCacheKey<BirBody>(false)
+
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirBody>().forEach {
+        getElementsWithFeature(bodiesKey).forEach {
             lower(it, it.ancestors().firstIsInstance<BirDeclaration>())
         }
     }

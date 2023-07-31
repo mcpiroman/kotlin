@@ -24,21 +24,58 @@ import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 
 class BirFunctionReferenceImpl(
-    override var sourceSpan: SourceSpan,
-    override var type: BirType,
+    sourceSpan: SourceSpan,
+    type: BirType,
     target: BirFunctionSymbol,
     dispatchReceiver: BirExpression?,
     extensionReceiver: BirExpression?,
-    override var origin: IrStatementOrigin?,
+    origin: IrStatementOrigin?,
     override var typeArguments: List<BirType?>,
-    override var reflectionTarget: BirFunctionSymbol?,
+    reflectionTarget: BirFunctionSymbol?,
 ) : BirFunctionReference() {
-    override var attributeOwnerId: BirAttributeContainer = this
+    private var _sourceSpan: SourceSpan = sourceSpan
 
-    override var target: BirFunctionSymbol = target
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
         set(value) {
-            setTrackedElementReference(field, value, 0)
-            field = value
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _attributeOwnerId: BirAttributeContainer = this
+
+    override var attributeOwnerId: BirAttributeContainer
+        get() = _attributeOwnerId
+        set(value) {
+            if(_attributeOwnerId != value) {
+               _attributeOwnerId = value
+               propertyChanged()
+            }
+        }
+
+    private var _type: BirType = type
+
+    override var type: BirType
+        get() = _type
+        set(value) {
+            if(_type != value) {
+               _type = value
+               propertyChanged()
+            }
+        }
+
+    private var _target: BirFunctionSymbol = target
+
+    override var target: BirFunctionSymbol
+        get() = _target
+        set(value) {
+            if(_target != value) {
+               setTrackedElementReference(_target, value, 0)
+               _target = value
+               propertyChanged()
+            }
         }
 
     private var _dispatchReceiver: BirExpression? = dispatchReceiver
@@ -46,8 +83,11 @@ class BirFunctionReferenceImpl(
     override var dispatchReceiver: BirExpression?
         get() = _dispatchReceiver
         set(value) {
-            setChildField(_dispatchReceiver, value, null)
-            _dispatchReceiver = value
+            if(_dispatchReceiver != value) {
+               setChildField(_dispatchReceiver, value, null)
+               _dispatchReceiver = value
+               propertyChanged()
+            }
         }
 
     private var _extensionReceiver: BirExpression? = extensionReceiver
@@ -55,12 +95,37 @@ class BirFunctionReferenceImpl(
     override var extensionReceiver: BirExpression?
         get() = _extensionReceiver
         set(value) {
-            setChildField(_extensionReceiver, value, this._dispatchReceiver)
-            _extensionReceiver = value
+            if(_extensionReceiver != value) {
+               setChildField(_extensionReceiver, value, this._dispatchReceiver)
+               _extensionReceiver = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrStatementOrigin? = origin
+
+    override var origin: IrStatementOrigin?
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
         }
 
     override var valueArguments: BirChildElementList<BirExpression> =
             BirChildElementList(this, 1)
+
+    private var _reflectionTarget: BirFunctionSymbol? = reflectionTarget
+
+    override var reflectionTarget: BirFunctionSymbol?
+        get() = _reflectionTarget
+        set(value) {
+            if(_reflectionTarget != value) {
+               _reflectionTarget = value
+               propertyChanged()
+            }
+        }
     init {
         initChildField(_dispatchReceiver, null)
         initChildField(_extensionReceiver, _dispatchReceiver)

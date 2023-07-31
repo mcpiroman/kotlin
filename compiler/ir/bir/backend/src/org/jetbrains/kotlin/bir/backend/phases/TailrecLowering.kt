@@ -31,11 +31,13 @@ import org.jetbrains.kotlin.builtins.StandardNames
 
 context (WasmBirContext)
 open class TailrecLowering : BirLoweringPhase() {
+    private val tailrecFunctionsKey = registerElementsWithFeatureCacheKey<BirSimpleFunction>(false) {
+        it.isTailrec
+    }
+
     override fun invoke(module: BirModuleFragment) {
-        getElementsOfClass<BirSimpleFunction>().forEach { function ->
-            if (function.isTailrec) {
-                lowerTailRecursionCalls(function)
-            }
+        getElementsWithFeature(tailrecFunctionsKey).forEach { function ->
+            lowerTailRecursionCalls(function)
         }
     }
 

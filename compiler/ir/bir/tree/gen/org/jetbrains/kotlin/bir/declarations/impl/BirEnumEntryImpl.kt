@@ -24,25 +24,61 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.name.Name
 
 class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
-    override var sourceSpan: SourceSpan,
+    sourceSpan: SourceSpan,
     override var annotations: List<BirConstructorCall>,
     @property:ObsoleteDescriptorBasedAPI
     override val _descriptor: ClassDescriptor?,
-    override var origin: IrDeclarationOrigin,
-    override var name: Name,
+    origin: IrDeclarationOrigin,
+    name: Name,
     initializerExpression: BirExpressionBody?,
     correspondingClass: BirClass?,
 ) : BirEnumEntry() {
     override var _referencedBy: BirBackReferenceCollectionArrayStyleImpl =
             BirBackReferenceCollectionArrayStyleImpl()
 
+    private var _sourceSpan: SourceSpan = sourceSpan
+
+    override var sourceSpan: SourceSpan
+        get() = _sourceSpan
+        set(value) {
+            if(_sourceSpan != value) {
+               _sourceSpan = value
+               propertyChanged()
+            }
+        }
+
+    private var _origin: IrDeclarationOrigin = origin
+
+    override var origin: IrDeclarationOrigin
+        get() = _origin
+        set(value) {
+            if(_origin != value) {
+               _origin = value
+               propertyChanged()
+            }
+        }
+
+    private var _name: Name = name
+
+    override var name: Name
+        get() = _name
+        set(value) {
+            if(_name != value) {
+               _name = value
+               propertyChanged()
+            }
+        }
+
     private var _initializerExpression: BirExpressionBody? = initializerExpression
 
     override var initializerExpression: BirExpressionBody?
         get() = _initializerExpression
         set(value) {
-            setChildField(_initializerExpression, value, null)
-            _initializerExpression = value
+            if(_initializerExpression != value) {
+               setChildField(_initializerExpression, value, null)
+               _initializerExpression = value
+               propertyChanged()
+            }
         }
 
     private var _correspondingClass: BirClass? = correspondingClass
@@ -50,8 +86,11 @@ class BirEnumEntryImpl @ObsoleteDescriptorBasedAPI constructor(
     override var correspondingClass: BirClass?
         get() = _correspondingClass
         set(value) {
-            setChildField(_correspondingClass, value, this._initializerExpression)
-            _correspondingClass = value
+            if(_correspondingClass != value) {
+               setChildField(_correspondingClass, value, this._initializerExpression)
+               _correspondingClass = value
+               propertyChanged()
+            }
         }
     init {
         initChildField(_initializerExpression, null)
