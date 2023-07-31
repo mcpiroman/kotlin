@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.bir.utils
 
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.DummyBirTreeContext
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.symbols.*
@@ -27,9 +26,8 @@ import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-fun BirElement.render(options: DumpIrTreeOptions = DumpIrTreeOptions()) = with(DummyBirTreeContext) {
+fun BirElement.render(options: DumpIrTreeOptions = DumpIrTreeOptions()) =
     RenderBirElementVisitor(options).render(this@render)
-}
 
 internal class RenderBirElementVisitor(private val options: DumpIrTreeOptions = DumpIrTreeOptions()) {
     private val variableNameData = VariableNameData(options.normalizeNames)
@@ -473,9 +471,8 @@ private fun BirDeclaration.renderDeclarationParentFqn(sb: StringBuilder, options
     }
 }
 
-fun BirType.render(options: DumpIrTreeOptions = DumpIrTreeOptions()): String = with(DummyBirTreeContext) {
+fun BirType.render(options: DumpIrTreeOptions = DumpIrTreeOptions()): String =
     renderTypeWithRenderer(RenderBirElementVisitor(), options)
-}
 
 fun BirSimpleType.render(): String = (this as BirType).render()
 

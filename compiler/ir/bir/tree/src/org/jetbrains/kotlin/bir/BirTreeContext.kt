@@ -5,41 +5,15 @@
 
 package org.jetbrains.kotlin.bir
 
-import org.jetbrains.kotlin.bir.declarations.BirFunction
-import org.jetbrains.kotlin.bir.declarations.BirProperty
-import org.jetbrains.kotlin.bir.declarations.BirVariable
-import org.jetbrains.kotlin.bir.expressions.BirBody
-import org.jetbrains.kotlin.bir.expressions.BirCall
-import org.jetbrains.kotlin.bir.expressions.BirConstructorCall
-import org.jetbrains.kotlin.bir.expressions.BirFunctionReference
+import java.lang.AutoCloseable
 
-abstract class BirTreeContext {
-    internal abstract fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?)
-    internal abstract fun elementDetached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?)
-}
-
-object DummyBirTreeContext : BirTreeContext() {
-    override fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {}
-    override fun elementDetached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {}
-}
-
-open class GeneralBirTreeContext : BirTreeContext() {
+open class BirTreeContext {
     private var totalElements = 0
     private val elementsByClass = ElementsByClass()
     private var currentElementsOfClassIterator: ElementsOfClassListIterator<*>? = null
     private val elementsAddedDuringCurrentElementsOfClassIteration = ArrayList<BirElementBase>(1024)
 
-    private fun checkCacheElementByClass(element: BirElementBase): Boolean {
-        return element is BirFunction
-                || element is BirProperty
-                || element is BirVariable
-                || element is BirCall
-                || element is BirConstructorCall
-                || element is BirFunctionReference
-                || element is BirBody
-    }
-
-    override fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
+    internal fun elementAttached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         attachElement(element, parent, prev)
         element.traverseTreeFast { descendantElement, descendantParent, descendantPrev ->
             attachElement(descendantElement, descendantParent, descendantPrev)
@@ -70,10 +44,7 @@ open class GeneralBirTreeContext : BirTreeContext() {
         totalElements++
     }
 
-    override fun elementDetached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
-        assert(!(prev != null && prev.nextElementIsOptimizedFromClassCache))
-        val prevNextElementIsOptimizedFromClassCache = prev?.nextElementIsOptimizedFromClassCache == true
-
+    internal fun elementDetached(element: BirElementBase, parent: BirElementBase?, prev: BirElementBase?) {
         detachElement(element, parent, prev)
         element.traverseTreeFast { descendantElement, descendantParent, descendantPrev ->
             detachElement(descendantElement, descendantParent, descendantPrev)

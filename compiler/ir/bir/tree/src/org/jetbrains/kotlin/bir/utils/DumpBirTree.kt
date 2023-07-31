@@ -16,9 +16,12 @@
 
 package org.jetbrains.kotlin.bir.utils
 
-import org.jetbrains.kotlin.bir.*
+import org.jetbrains.kotlin.bir.BirAnnotationContainer
+import org.jetbrains.kotlin.bir.BirElement
+import org.jetbrains.kotlin.bir.GlobalBirElementAuxStorageTokens
 import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.*
+import org.jetbrains.kotlin.bir.get
 import org.jetbrains.kotlin.bir.symbols.BirSymbol
 import org.jetbrains.kotlin.bir.symbols.asElement
 import org.jetbrains.kotlin.bir.traversal.BirTreeStackBasedTraverseScopeWithData
@@ -30,14 +33,26 @@ import org.jetbrains.kotlin.ir.util.DumpIrTreeOptions
 import org.jetbrains.kotlin.ir.util.NaiveSourceBasedFileEntryImpl
 import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.utils.Printer
+import kotlin.collections.Collection
+import kotlin.collections.List
+import kotlin.collections.elementAt
+import kotlin.collections.forEach
+import kotlin.collections.forEachIndexed
+import kotlin.collections.hashMapOf
+import kotlin.collections.map
+import kotlin.collections.orEmpty
+import kotlin.collections.plus
+import kotlin.collections.set
+import kotlin.collections.sortedWith
+import kotlin.collections.toList
+import kotlin.collections.withIndex
+import kotlin.collections.zip
 
 fun BirElement.dump(options: DumpIrTreeOptions = DumpIrTreeOptions()): String =
     try {
-        with(DummyBirTreeContext) {
-            StringBuilder().also { sb ->
-                DumpBirTreeVisitor(sb, options).run(this@dump)
-            }.toString()
-        }
+        StringBuilder().also { sb ->
+            DumpBirTreeVisitor(sb, options).run(this@dump)
+        }.toString()
     } catch (e: Exception) {
         "(Full dump is not available: ${e.message})\n" + render()
     }
