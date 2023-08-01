@@ -69,7 +69,7 @@ fun createBirBackendContext(moduleInfo: IrModuleInfo, configuration: CompilerCon
         moduleInfo.module.descriptor,
         configuration,
         converter,
-        birPhases
+        birPhases,
     )
 }
 

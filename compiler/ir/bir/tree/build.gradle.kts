@@ -11,6 +11,7 @@ dependencies {
     api(project(":compiler:ir.tree"))
     api(project(":compiler:util"))
     compileOnly(intellijCore())
+    implementation(commonDependency("org.jetbrains.intellij.deps:asm-all"))
 
     if (kotlinBuildProperties.isInIdeaSync) {
         compileOnly(project(":compiler:bir:tree:tree-generator")) // Provided, so that IDEA can recognize references to this module in KDoc.

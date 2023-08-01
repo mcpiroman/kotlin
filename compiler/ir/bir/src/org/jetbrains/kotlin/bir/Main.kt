@@ -17,9 +17,9 @@ import kotlin.time.ExperimentalTime
 @OptIn(ObsoleteDescriptorBasedAPI::class, ExperimentalTime::class)
 fun main(argv: Array<String>) {
     val args = argv.toList().chunked(2) { it[0] to it[1] }.toMap()
-    println("Loading...")
 
     val mainModulePath = "../../../libraries/stdlib/wasm/build/libs/kotlin-stdlib-wasm-wasm-1.9.255-SNAPSHOT.klib"
+    println("Loading...")
     val (srcModule, configuration) = measureTimeMillisWithResult {
         prepareIr(mainModulePath)
     }.also {

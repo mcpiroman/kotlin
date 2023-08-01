@@ -11,9 +11,10 @@ open class BirTreeContext {
     private var totalElements = 0
     private val rootElements = mutableListOf<BirElementBase>()
     private val elementByFeatureCacheSlots = arrayOfNulls<ElementsWithFeatureCacheSlot>(256)
-    private val elementByFeatureCacheConditions = arrayOfNulls<ElementFeatureCacheCondition>(elementByFeatureCacheSlots.size)
+    private val elementByFeatureCacheConditions = arrayOfNulls<BirElementFeatureCacheCondition>(elementByFeatureCacheSlots.size)
     private var elementByFeatureCacheSlotCount = 0
     private var registeredElementByFeatureCacheSlotCount = 0
+    private var elementByFeatureCacheSelector: BirElementFeatureSlotSelectionFunction? = null
     private var currentElementsWithFeatureIterator: ElementsWithFeatureCacheSlotIterator<*>? = null
     private var currentFeatureCacheSlot = 0
     private var bufferedElementWithInvalidatedFeature: BirElementBase? = null
@@ -71,21 +72,24 @@ open class BirTreeContext {
 
 
     private fun addElementToFeatureCache(element: BirElementBase) {
+        /*var targetSlot: ElementsWithFeatureCacheSlot? = null
         val elementByFeatureCacheConditions = elementByFeatureCacheConditions
-        var targetSlot: ElementsWithFeatureCacheSlot? = null
         for (i in currentFeatureCacheSlot + 1..<elementByFeatureCacheSlotCount) {
             val condition = elementByFeatureCacheConditions[i]!!
             if (condition.matches(element)) {
                 targetSlot = elementByFeatureCacheSlots[i]!!
                 break
             }
-        }
+        }*/
 
-        if (targetSlot != null) {
-            if (element.featureCacheSlotIndex.toInt() != targetSlot.index) {
+        val selector = elementByFeatureCacheSelector ?: return
+        val i = selector.select(element, currentFeatureCacheSlot + 1)
+        if (i != 0) {
+            if (element.featureCacheSlotIndex.toInt() != i) {
                 removeElementFromFeatureCache(element)
+                val targetSlot = elementByFeatureCacheSlots[i]!!
                 targetSlot.add(element)
-                element.featureCacheSlotIndex = targetSlot.index.toByte()
+                element.featureCacheSlotIndex = i.toByte()
             }
         } else {
             removeElementFromFeatureCache(element)
@@ -118,7 +122,7 @@ open class BirTreeContext {
         }
     }
 
-    fun registerFeatureCacheSlot(key: ElementsWithFeatureCacheKey<*>) {
+    fun registerFeatureCacheSlot(key: BirElementsWithFeatureCacheKey<*>) {
         val i = ++registeredElementByFeatureCacheSlotCount
         val slot = ElementsWithFeatureCacheSlot(i)
         elementByFeatureCacheSlots[i] = slot
@@ -129,6 +133,9 @@ open class BirTreeContext {
     fun reindexElementByFeatureCache() {
         elementByFeatureCacheSlotCount = registeredElementByFeatureCacheSlotCount
 
+        val conditions = List(elementByFeatureCacheSlotCount) { elementByFeatureCacheConditions[it + 1]!! }
+        elementByFeatureCacheSelector = BirElementFeatureSlotSelectionFunctionManager.createSelectingFunction(conditions)
+
         rootElements.retainAll { it.ownerTreeContext == this && it.parent == null }
         for (root in rootElements) {
             addElementToFeatureCache(root)
@@ -138,7 +145,7 @@ open class BirTreeContext {
         }
     }
 
-    fun <E : BirElement> getElementsWithFeature(key: ElementsWithFeatureCacheKey<E>): Iterator<E> {
+    fun <E : BirElement> getElementsWithFeature(key: BirElementsWithFeatureCacheKey<E>): Iterator<E> {
         val cacheSlotIndex = key.index
         require(cacheSlotIndex == currentFeatureCacheSlot + 1)
 

@@ -9,8 +9,8 @@ package org.jetbrains.kotlin.bir.backend/*
  */
 
 import org.jetbrains.kotlin.bir.BirElement
-import org.jetbrains.kotlin.bir.ElementFeatureCacheCondition
-import org.jetbrains.kotlin.bir.ElementsWithFeatureCacheKey
+import org.jetbrains.kotlin.bir.BirElementFeatureCacheCondition
+import org.jetbrains.kotlin.bir.BirElementsWithFeatureCacheKey
 import org.jetbrains.kotlin.bir.declarations.BirModuleFragment
 
 /*
@@ -24,9 +24,9 @@ abstract class BirLoweringPhase {
 
     protected fun registerElementsWithFeatureCacheKey(
         includeOtherModules: Boolean,
-        condition: ElementFeatureCacheCondition,
-    ): ElementsWithFeatureCacheKey<BirElement> {
-        val key = ElementsWithFeatureCacheKey<BirElement>(includeOtherModules, condition)
+        condition: BirElementFeatureCacheCondition,
+    ): BirElementsWithFeatureCacheKey<BirElement> {
+        val key = BirElementsWithFeatureCacheKey<BirElement>(includeOtherModules, condition)
         registerFeatureCacheSlot(key)
         return key
     }
@@ -34,14 +34,14 @@ abstract class BirLoweringPhase {
     protected inline fun <reified E : BirElement> registerElementsWithFeatureCacheKey(
         includeOtherModules: Boolean,
         crossinline condition: (E) -> Boolean,
-    ): ElementsWithFeatureCacheKey<E> {
-        val key = ElementsWithFeatureCacheKey<E>(includeOtherModules) {
+    ): BirElementsWithFeatureCacheKey<E> {
+        val key = BirElementsWithFeatureCacheKey<E>(includeOtherModules) {
             it is E && condition(it)
         }
         registerFeatureCacheSlot(key)
         return key
     }
 
-    protected inline fun <reified E : BirElement> registerElementsWithFeatureCacheKey(includeOtherModules: Boolean): ElementsWithFeatureCacheKey<E> =
+    protected inline fun <reified E : BirElement> registerElementsWithFeatureCacheKey(includeOtherModules: Boolean): BirElementsWithFeatureCacheKey<E> =
         registerElementsWithFeatureCacheKey<E>(includeOtherModules) { true }
 }
