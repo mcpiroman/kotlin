@@ -52,6 +52,8 @@ open class CompilationBenchmark {
             backendContext = createBirBackendContext(masterData.srcModule, masterData.configuration, converter)
             birModule = converter.copyIrTree(masterData.srcModule.allDependencies).first() as BirModuleFragment
             backendContext.setModuleFragment(birModule)
+
+            initiallyIndexBirTreeBeforeCompilation(backendContext, false)
         }
     }
 

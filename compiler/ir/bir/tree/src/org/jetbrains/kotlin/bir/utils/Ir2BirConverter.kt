@@ -386,7 +386,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
             name = old.name,
         )
     }) { new ->
-        treeContext.attachElementAsRoot(new)
+        treeContext?.attachElementAsRoot(new)
         new.files.copyElements(old.files)
         new.copyAuxData(old)
     }
@@ -538,7 +538,7 @@ class Ir2BirConverter(private val expectedTreeSize: Int = 0) : Ir2BirConverterBa
                 containerSource = if (old.symbol is DescriptorlessExternalPackageFragmentSymbol) null else old.containerSource,
             )
         }) { new ->
-            treeContext.attachElementAsRoot(new)
+            treeContext?.attachElementAsRoot(new)
             new.declarations.copyElements(old.declarations)
             new.copyAuxData(old)
         }

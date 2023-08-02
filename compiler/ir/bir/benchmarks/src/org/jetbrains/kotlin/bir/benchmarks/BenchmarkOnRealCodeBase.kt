@@ -24,7 +24,7 @@ abstract class BenchmarkOnRealCodeBase(
     protected lateinit var birRoot: BirElement
 
     @Setup
-    fun setup(params: BenchmarkParams) {
+    open fun setup(params: BenchmarkParams) {
         val srcIr =
             prepareIr("../../../../libraries/stdlib/wasm/build/libs/kotlin-stdlib-wasm-wasm-1.9.255-SNAPSHOT.klib").moduleInfo.module
         irRoot = if (cloneIr) srcIr.deepCopyWithSymbols() else srcIr

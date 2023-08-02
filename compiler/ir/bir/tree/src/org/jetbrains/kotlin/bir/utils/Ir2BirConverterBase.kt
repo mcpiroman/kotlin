@@ -26,7 +26,7 @@ import java.util.*
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 abstract class Ir2BirConverterBase {
-    lateinit var treeContext: BirTreeContext
+    var treeContext: BirTreeContext? = null
     var copyDescriptors = false
     private val collectedBirElementsWithoutParent = mutableListOf<BirElement>()
     private val collectedIrElementsWithoutParent = mutableListOf<IrElement>()

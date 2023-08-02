@@ -51,5 +51,18 @@ benchmark {
             include("SimpleIterationBenchmark")
             include("IterationFinding2ClassesBenchmark")
         }
+
+        register("featureSlotSelection") {
+            mode = "AverageTime"
+            outputTimeUnit = "ms"
+            iterationTime = 1
+
+            warmups = 3
+            iterations = 8
+
+            include("ElementCacheSlotSelectionBenchmark")
+
+            param("findFromMinimalIndex", 0, 11)
+        }
     }
 }

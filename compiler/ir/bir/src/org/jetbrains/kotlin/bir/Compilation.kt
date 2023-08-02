@@ -97,6 +97,16 @@ fun prepareIrForCompilationCommon(moduleInfo: IrModuleInfo) {
             markExportedDeclarations(context, file, exportedDeclarations)*/
 }
 
+fun initiallyIndexBirTreeBeforeCompilation(
+    backendContext: WasmBirContext,
+    showTime: Boolean,
+) {
+    maybeShowPhaseTime(showTime) {
+        backendContext.reindexElementByFeatureCache()
+        "reindexElementByFeatureCache"
+    }
+}
+
 fun runBirCompilation(
     backendContext: WasmBirContext,
     birModule: BirModuleFragment,
@@ -105,11 +115,6 @@ fun runBirCompilation(
     printAfterPhases: Set<String>? = null,
 ) {
     irDumpDir?.let { dumpBirTree(it, "initial", birModule) }
-
-    maybeShowPhaseTime(showTime) {
-        backendContext.reindexElementByFeatureCache()
-        "reindexElementByFeatureCache"
-    }
 
     for (phase in backendContext.loweringPhases) {
         val phaseName = phase.javaClass.simpleName
