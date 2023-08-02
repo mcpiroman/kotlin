@@ -20,7 +20,7 @@ class BirElementsWithFeatureCacheKey<E : BirElement>(
 }
 
 fun interface BirElementFeatureCacheCondition {
-    fun matches(element: BirElementBase): Boolean
+    fun matches(element: BirElementBase, dummy: UInt): Boolean
 }
 
 internal fun interface BirElementFeatureSlotSelectionFunction {
@@ -30,6 +30,11 @@ internal fun interface BirElementFeatureSlotSelectionFunction {
 internal object BirElementFeatureSlotSelectionFunctionManager {
     private val nextSelectingFunctionClassIdx = AtomicInteger(0)
     private val selectingFunctionClassCache = ConcurrentHashMap<List<Class<BirElementFeatureCacheCondition>>, Class<*>>()
+    private var staticConditionLambdasInitializationBuffer: Array<BirElementFeatureCacheCondition>? = null
+
+    private val BirElementFeatureCacheConditionMatchFunctionName by lazy {
+        BirElementFeatureCacheCondition::class.java.declaredMethods.single { it.name.startsWith("matches") }.name
+    }
 
     fun createSelectingFunction(matchers: List<BirElementFeatureCacheCondition>): BirElementFeatureSlotSelectionFunction {
         val clazz = getOrCreateSelectingFunctionClass(matchers)
@@ -46,7 +51,13 @@ internal object BirElementFeatureSlotSelectionFunctionManager {
             clazzNode.accept(cw)
             val binary = cw.toByteArray()
             val binaryName = clazzNode.name.replace('/', '.')
-            ByteArrayFunctionClassLoader.defineClass(binaryName, binary)
+
+            synchronized(this) {
+                staticConditionLambdasInitializationBuffer = conditions.toTypedArray()
+                val clazz = ByteArrayFunctionClassLoader.defineClass(binaryName, binary)
+                staticConditionLambdasInitializationBuffer = null
+                return@computeIfAbsent clazz
+            }
         }
     }
 
@@ -62,6 +73,7 @@ internal object BirElementFeatureSlotSelectionFunctionManager {
 
         val capturedMatcherInstancesCache = generateSelectMethod(clazz, conditions)
         generateConstructor(clazz, capturedMatcherInstancesCache)
+        generateStaticConstructor(clazz, capturedMatcherInstancesCache)
 
         return clazz
     }
@@ -81,50 +93,44 @@ internal object BirElementFeatureSlotSelectionFunctionManager {
         conditions.forEachIndexed { conditionIndex, conditionFunction ->
             val i = conditionIndex + 1
 
+            val label = LabelNode()
+            il.add(IntInsnNode(Opcodes.SIPUSH, i))
+            il.add(VarInsnNode(Opcodes.ILOAD, 2))
+            il.add(JumpInsnNode(Opcodes.IF_ICMPLT, label))
+
             val conditionFunctionClass = conditionFunction.javaClass
-            /*if (conditionFunctionClass.declaredFields.isEmpty()) {
-                il.add(
-                    FieldInsnNode(
-                        Opcodes.GETSTATIC,
-                        Type.getInternalName(conditionFunctionClass),
-                        "INSTANCE",
-                        Type.getDescriptor(conditionFunctionClass)
-                    )
-                )
-            } else*/
-            run {
-                val fieldIdx = capturedMatcherInstances.size
-                val field = FieldNode(
-                    Opcodes.ACC_PRIVATE + Opcodes.ACC_FINAL,
-                    "matcher$fieldIdx",
-                    Type.getDescriptor(BirElementFeatureCacheCondition::class.java), //Type.getDescriptor(conditionFunctionClass),
-                    null,
-                    null,
-                )
 
-                clazz.fields.add(field)
-                capturedMatcherInstances += field to conditionIndex
+            val cacheInstanceInStaticField = conditionFunctionClass.declaredFields.isEmpty()
+            val fieldIdx = capturedMatcherInstances.size
+            val field = FieldNode(
+                Opcodes.ACC_PRIVATE + Opcodes.ACC_FINAL + if (cacheInstanceInStaticField) Opcodes.ACC_STATIC else 0,
+                "matcher$fieldIdx",
+                Type.getDescriptor(BirElementFeatureCacheCondition::class.java), //Type.getDescriptor(conditionFunctionClass)
+                null,
+                null,
+            )
+            clazz.fields.add(field)
 
+            capturedMatcherInstances += field to conditionIndex
+
+            if (cacheInstanceInStaticField) {
+                il.add(FieldInsnNode(Opcodes.GETSTATIC, clazz.name, field.name, field.desc))
+            } else {
                 il.add(VarInsnNode(Opcodes.ALOAD, 0))
                 il.add(FieldInsnNode(Opcodes.GETFIELD, clazz.name, field.name, field.desc))
             }
 
             il.add(VarInsnNode(Opcodes.ALOAD, 1))
+            il.add(VarInsnNode(Opcodes.BIPUSH, 0))
             il.add(
                 MethodInsnNode(
                     Opcodes.INVOKEINTERFACE,
                     Type.getInternalName(BirElementFeatureCacheCondition::class.java), //Type.getInternalName(conditionFunctionClass),
-                    "matches",
-                    Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(BirElementBase::class.java))
+                    BirElementFeatureCacheConditionMatchFunctionName,
+                    Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType(BirElementBase::class.java), Type.INT_TYPE)
                 )
             )
-
-            val label = LabelNode()
             il.add(JumpInsnNode(Opcodes.IFEQ, label))
-
-            il.add(IntInsnNode(Opcodes.SIPUSH, i))
-            il.add(VarInsnNode(Opcodes.ILOAD, 2))
-            il.add(JumpInsnNode(Opcodes.IF_ICMPLT, label))
 
             il.add(IntInsnNode(Opcodes.SIPUSH, i))
             il.add(InsnNode(Opcodes.IRETURN))
@@ -153,11 +159,48 @@ internal object BirElementFeatureSlotSelectionFunctionManager {
         il.add(VarInsnNode(Opcodes.ALOAD, 0))
         il.add(MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false))
         capturedMatcherInstances.forEach { (field, index) ->
-            il.add(VarInsnNode(Opcodes.ALOAD, 0))
-            il.add(VarInsnNode(Opcodes.ALOAD, 1))
-            il.add(IntInsnNode(Opcodes.SIPUSH, index))
-            il.add(InsnNode(Opcodes.AALOAD))
-            il.add(FieldInsnNode(Opcodes.PUTFIELD, clazz.name, field.name, field.desc))
+            val isStatic = (field.access and Opcodes.ACC_STATIC) != 0
+            if (!isStatic) {
+                il.add(VarInsnNode(Opcodes.ALOAD, 0))
+                il.add(VarInsnNode(Opcodes.ALOAD, 1))
+                il.add(IntInsnNode(Opcodes.SIPUSH, index))
+                il.add(InsnNode(Opcodes.AALOAD))
+                il.add(TypeInsnNode(Opcodes.CHECKCAST, Type.getType(field.desc).internalName))
+                il.add(FieldInsnNode(Opcodes.PUTFIELD, clazz.name, field.name, field.desc))
+            }
+        }
+        il.add(InsnNode(Opcodes.RETURN))
+
+        clazz.methods.add(ctor)
+    }
+
+    private fun generateStaticConstructor(
+        clazz: ClassNode,
+        capturedMatcherInstances: List<Pair<FieldNode, Int>>,
+    ) {
+        val ctor = MethodNode().apply {
+            access = Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC
+            name = "<clinit>"
+            desc = "()V"
+        }
+
+        val il = ctor.instructions
+        capturedMatcherInstances.forEach { (field, index) ->
+            val isStatic = (field.access and Opcodes.ACC_STATIC) != 0
+            if (isStatic) {
+                il.add(
+                    FieldInsnNode(
+                        Opcodes.GETSTATIC,
+                        Type.getInternalName(BirElementFeatureSlotSelectionFunctionManager::class.java),
+                        "staticConditionLambdasInitializationBuffer",
+                        Type.getDescriptor(Array<BirElementFeatureCacheCondition>::class.java)
+                    )
+                )
+                il.add(IntInsnNode(Opcodes.SIPUSH, index))
+                il.add(InsnNode(Opcodes.AALOAD))
+                il.add(TypeInsnNode(Opcodes.CHECKCAST, Type.getType(field.desc).internalName))
+                il.add(FieldInsnNode(Opcodes.PUTSTATIC, clazz.name, field.name, field.desc))
+            }
         }
         il.add(InsnNode(Opcodes.RETURN))
 
