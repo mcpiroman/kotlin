@@ -70,7 +70,7 @@ open class BirTreeContext {
     }
 
 
-    private fun addElementToFeatureCache(element: BirElementBase) {
+    fun addElementToFeatureCache(element: BirElementBase) {
         val selector = elementByFeatureCacheSelector ?: return
         val i = selector.select(element, currentFeatureCacheSlot + 1)
         if (i != 0) {
@@ -118,15 +118,19 @@ open class BirTreeContext {
         key.index = i
     }
 
-    fun reindexElementByFeatureCache() {
-        elementByFeatureCacheSlotCount = registeredElementByFeatureCacheSlotCount
+    fun applyNewRegisteredFeatureCacheMatchers() {
+        if (registeredElementByFeatureCacheSlotCount != elementByFeatureCacheSlotCount) {
+            elementByFeatureCacheSlotCount = registeredElementByFeatureCacheSlotCount
 
-        val matchers = List(elementByFeatureCacheSlotCount) {
-            val slot = elementByFeatureCacheSlots[it + 1]!!
-            BirElementFeatureSlotSelectionFunctionManager.Matcher(slot.condition, slot.elementClass, it + 1)
+            val matchers = List(elementByFeatureCacheSlotCount) {
+                val slot = elementByFeatureCacheSlots[it + 1]!!
+                BirElementFeatureSlotSelectionFunctionManager.Matcher(slot.condition, slot.elementClass, it + 1)
+            }
+            elementByFeatureCacheSelector = BirElementFeatureSlotSelectionFunctionManager.createSelectingFunction(matchers)
         }
-        elementByFeatureCacheSelector = BirElementFeatureSlotSelectionFunctionManager.createSelectingFunction(matchers)
+    }
 
+    fun addAllKnownElementsToByFeatureCache() {
         rootElements.retainAll { it.ownerTreeContext == this && it.parent == null }
         for (root in rootElements) {
             addElementToFeatureCache(root)

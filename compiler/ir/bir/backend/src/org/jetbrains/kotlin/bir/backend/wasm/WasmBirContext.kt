@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.bir.backend.wasm
 
 import org.jetbrains.kotlin.bir.BirBuiltIns
+import org.jetbrains.kotlin.bir.BirElementBase
 import org.jetbrains.kotlin.bir.SourceSpan
 import org.jetbrains.kotlin.bir.backend.BirBackendContext
 import org.jetbrains.kotlin.bir.backend.BirLoweringPhase
@@ -39,15 +40,26 @@ class WasmBirContext(
         converter.treeContext = this
     }
 
-    val loweringPhases = phaseConfig.map { it(this) }
-
     override val birBuiltIns: BirBuiltIns = BirBuiltIns(irBuiltIns, converter)
     val wasmSymbols = BirWasmSymbols(birBuiltIns, symbolTable, this, converter, module)
     override val builtInSymbols get() = wasmSymbols
     override val typeSystem: BirTypeSystemContext = BirTypeSystemContextImpl(birBuiltIns, this)
     val inlineClassSupport = JsInnerClassesSupport()
+
+    val loweringPhases = phaseConfig.map { it(this) }
+
     lateinit var birModuleFragment: BirModuleFragment
         private set
+
+    init {
+        applyNewRegisteredFeatureCacheMatchers()
+
+        addAllKnownElementsToByFeatureCache()
+        // some so-far converted elements may not have parent and so be not accessible from root(s)
+        converter.currentColBirElementsWithoutParent.forEach {
+            addElementToFeatureCache(it as BirElementBase)
+        }
+    }
 
     // Place to store declarations excluded from code generation
     private val excludedDeclarations = mutableMapOf<FqName, BirPackageFragment>()

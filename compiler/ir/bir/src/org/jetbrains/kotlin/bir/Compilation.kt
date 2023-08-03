@@ -97,16 +97,6 @@ fun prepareIrForCompilationCommon(moduleInfo: IrModuleInfo) {
             markExportedDeclarations(context, file, exportedDeclarations)*/
 }
 
-fun initiallyIndexBirTreeBeforeCompilation(
-    backendContext: WasmBirContext,
-    showTime: Boolean,
-) {
-    maybeShowPhaseTime(showTime) {
-        backendContext.reindexElementByFeatureCache()
-        "reindexElementByFeatureCache"
-    }
-}
-
 fun runBirCompilation(
     backendContext: WasmBirContext,
     birModule: BirModuleFragment,

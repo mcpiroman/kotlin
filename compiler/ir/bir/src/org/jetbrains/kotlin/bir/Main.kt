@@ -33,6 +33,7 @@ fun main(argv: Array<String>) {
         val converter = Ir2BirConverter(465000)
         val (backendContext, birModule) = measureTimeMillisWithResult {
             val backendContext = createBirBackendContext(srcModule, configuration, converter)
+            converter.copyAncestorsForCollectedOrphanedElements()
             val birModule = converter.copyIrTree(srcModule.allDependencies).first() as BirModuleFragment
             backendContext to birModule
         }.also {
@@ -42,10 +43,11 @@ fun main(argv: Array<String>) {
 
         //checkIterationsMatch(srcModule.allDependencies.first(), birModule)
 
+        val showTime = true
         runBirCompilation(
             backendContext,
             birModule,
-            false,
+            showTime,
             null,
             //setOf("WasmFunctionInliningLowering")
         )

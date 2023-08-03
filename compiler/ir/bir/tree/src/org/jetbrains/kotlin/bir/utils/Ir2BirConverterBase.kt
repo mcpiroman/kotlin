@@ -28,9 +28,15 @@ import java.util.*
 abstract class Ir2BirConverterBase {
     var treeContext: BirTreeContext? = null
     var copyDescriptors = false
+    var copyAncestorsForOrphanedElements = false
+
     private val collectedBirElementsWithoutParent = mutableListOf<BirElement>()
     private val collectedIrElementsWithoutParent = mutableListOf<IrElement>()
     private var isInsideNestedElementCopy = false
+    private var isInsideCopyAncestorsForOrphanedElements = false
+
+    val currentColBirElementsWithoutParent: List<BirElement>
+        get() = collectedBirElementsWithoutParent
 
     protected fun <Bir : BirElement, Ir : IrElement> createElementMap(expectedMaxSize: Int = 8): MutableMap<Ir, Bir> =
         IdentityHashMap<Ir, Bir>(expectedMaxSize)
@@ -67,12 +73,12 @@ abstract class Ir2BirConverterBase {
     }
 
     private fun <Ir : IrElement, Bir : BirElement> doCopyElement(old: Ir, copy: () -> Bir): Bir {
-        val wasNested = isInsideNestedElementCopy
+        val isNested = isInsideNestedElementCopy
         isInsideNestedElementCopy = true
         val lastCollectedElementsWithoutParent = collectedBirElementsWithoutParent.size
         val new = copy()
 
-        if (wasNested) {
+        if (isNested) {
             for (i in collectedBirElementsWithoutParent.lastIndex downTo lastCollectedElementsWithoutParent) {
                 val bir = collectedBirElementsWithoutParent[i]
                 if (bir.parent != null) {
@@ -89,23 +95,34 @@ abstract class Ir2BirConverterBase {
             }
         }
 
-        if (!wasNested) {
-            while (true) {
-                val bir = collectedBirElementsWithoutParent.removeLastOrNull() ?: break
-                val ir = collectedIrElementsWithoutParent.removeLast()
-                if (bir.parent == null) {
-                    if (ir is IrDeclaration) {
-                        remapElement<BirElement>(ir.parent)
-                    } else if (ir is IrFile) {
-                        remapElement<BirModuleFragment>(ir.module)
-                    }
-                }
+        if (!isNested) {
+            if (copyAncestorsForOrphanedElements || isInsideCopyAncestorsForOrphanedElements) {
+                doCopyAncestorsForCollectedOrphanedElements()
             }
         }
 
-        isInsideNestedElementCopy = wasNested
-
+        isInsideNestedElementCopy = isNested
         return new
+    }
+
+    private fun doCopyAncestorsForCollectedOrphanedElements() {
+        while (true) {
+            val bir = collectedBirElementsWithoutParent.removeLastOrNull() ?: break
+            val ir = collectedIrElementsWithoutParent.removeLast()
+            if (bir.parent == null) {
+                if (ir is IrDeclaration) {
+                    remapElement<BirElement>(ir.parent)
+                } else if (ir is IrFile) {
+                    remapElement<BirModuleFragment>(ir.module)
+                }
+            }
+        }
+    }
+
+    fun copyAncestorsForCollectedOrphanedElements() {
+        isInsideCopyAncestorsForOrphanedElements = true
+        doCopyAncestorsForCollectedOrphanedElements()
+        isInsideCopyAncestorsForOrphanedElements = false
     }
 
     fun <Bir : BirElement> remapElement(old: IrElement): Bir = copyElement(old)
