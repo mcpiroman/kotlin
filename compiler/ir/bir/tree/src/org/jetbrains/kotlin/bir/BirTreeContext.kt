@@ -11,7 +11,6 @@ open class BirTreeContext {
     private var totalElements = 0
     private val rootElements = mutableListOf<BirElementBase>()
     private val elementByFeatureCacheSlots = arrayOfNulls<ElementsWithFeatureCacheSlot>(256)
-    private val elementByFeatureCacheConditions = arrayOfNulls<BirElementFeatureCacheCondition>(elementByFeatureCacheSlots.size)
     private var elementByFeatureCacheSlotCount = 0
     private var registeredElementByFeatureCacheSlotCount = 0
     private var elementByFeatureCacheSelector: BirElementFeatureSlotSelectionFunction? = null
@@ -72,16 +71,6 @@ open class BirTreeContext {
 
 
     private fun addElementToFeatureCache(element: BirElementBase) {
-        /*var targetSlot: ElementsWithFeatureCacheSlot? = null
-        val elementByFeatureCacheConditions = elementByFeatureCacheConditions
-        for (i in currentFeatureCacheSlot + 1..<elementByFeatureCacheSlotCount) {
-            val condition = elementByFeatureCacheConditions[i]!!
-            if (condition.matches(element)) {
-                targetSlot = elementByFeatureCacheSlots[i]!!
-                break
-            }
-        }*/
-
         val selector = elementByFeatureCacheSelector ?: return
         val i = selector.select(element, currentFeatureCacheSlot + 1)
         if (i != 0) {
@@ -124,17 +113,19 @@ open class BirTreeContext {
 
     fun registerFeatureCacheSlot(key: BirElementsWithFeatureCacheKey<*>) {
         val i = ++registeredElementByFeatureCacheSlotCount
-        val slot = ElementsWithFeatureCacheSlot(i)
+        val slot = ElementsWithFeatureCacheSlot(i, key.condition, key.elementClass)
         elementByFeatureCacheSlots[i] = slot
-        elementByFeatureCacheConditions[i] = key.condition
         key.index = i
     }
 
     fun reindexElementByFeatureCache() {
         elementByFeatureCacheSlotCount = registeredElementByFeatureCacheSlotCount
 
-        val conditions = List(elementByFeatureCacheSlotCount) { elementByFeatureCacheConditions[it + 1]!! }
-        elementByFeatureCacheSelector = BirElementFeatureSlotSelectionFunctionManager.createSelectingFunction(conditions)
+        val matchers = List(elementByFeatureCacheSlotCount) {
+            val slot = elementByFeatureCacheSlots[it + 1]!!
+            BirElementFeatureSlotSelectionFunctionManager.Matcher(slot.condition, slot.elementClass, it + 1)
+        }
+        elementByFeatureCacheSelector = BirElementFeatureSlotSelectionFunctionManager.createSelectingFunction(matchers)
 
         rootElements.retainAll { it.ownerTreeContext == this && it.parent == null }
         for (root in rootElements) {
@@ -172,6 +163,8 @@ open class BirTreeContext {
 
     private inner class ElementsWithFeatureCacheSlot(
         val index: Int,
+        val condition: BirElementFeatureCacheCondition,
+        val elementClass: Class<*>,
     ) {
         var array = emptyArray<BirElementBase?>()
             private set

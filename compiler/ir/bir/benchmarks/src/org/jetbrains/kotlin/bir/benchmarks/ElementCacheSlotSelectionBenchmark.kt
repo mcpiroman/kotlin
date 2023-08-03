@@ -76,7 +76,7 @@ open class ElementCacheSlotSelectionBenchmark : BenchmarkOnRealCodeBase(false) {
         val conditions = conditions
         for (i in minimalIndex + 1..conditions.lastIndex) {
             val condition = conditions[i]!!
-            if (condition.matches(it, 0)) {
+            if (condition.matches(it)) {
                 return@classifyAll i
             }
         }
@@ -98,49 +98,49 @@ open class ElementCacheSlotSelectionBenchmark : BenchmarkOnRealCodeBase(false) {
         private val condition12 = conditions[12]!!
 
         fun select_flat(it: BirElementBase, minimumIndex: Int): Int {
-            if (condition1.matches(it, 0) && 1 >= minimumIndex) return 1
-            if (condition2.matches(it, 0) && 2 >= minimumIndex) return 2
-            if (condition3.matches(it, 0) && 3 >= minimumIndex) return 3
-            if (condition4.matches(it, 0) && 4 >= minimumIndex) return 4
-            if (condition5.matches(it, 0) && 5 >= minimumIndex) return 5
-            if (condition6.matches(it, 0) && 6 >= minimumIndex) return 6
-            if (condition7.matches(it, 0) && 7 >= minimumIndex) return 7
-            if (condition8.matches(it, 0) && 8 >= minimumIndex) return 8
-            if (condition9.matches(it, 0) && 9 >= minimumIndex) return 9
-            if (condition10.matches(it, 0) && 10 >= minimumIndex) return 10
-            if (condition11.matches(it, 0) && 11 >= minimumIndex) return 11
-            if (condition12.matches(it, 0) && 12 >= minimumIndex) return 12
+            if (condition1.matches(it) && 1 >= minimumIndex) return 1
+            if (condition2.matches(it) && 2 >= minimumIndex) return 2
+            if (condition3.matches(it) && 3 >= minimumIndex) return 3
+            if (condition4.matches(it) && 4 >= minimumIndex) return 4
+            if (condition5.matches(it) && 5 >= minimumIndex) return 5
+            if (condition6.matches(it) && 6 >= minimumIndex) return 6
+            if (condition7.matches(it) && 7 >= minimumIndex) return 7
+            if (condition8.matches(it) && 8 >= minimumIndex) return 8
+            if (condition9.matches(it) && 9 >= minimumIndex) return 9
+            if (condition10.matches(it) && 10 >= minimumIndex) return 10
+            if (condition11.matches(it) && 11 >= minimumIndex) return 11
+            if (condition12.matches(it) && 12 >= minimumIndex) return 12
             return 0
         }
 
         fun select_dispatchOnType_repeatOnSubtype(it: BirElementBase, minimumIndex: Int): Int {
             when (it) {
                 is BirCall -> when {
-                    condition1.matches(it, 0) && 1 >= minimumIndex -> return 1
-                    condition4.matches(it, 0) && 4 >= minimumIndex -> return 4
+                    condition1.matches(it) && 1 >= minimumIndex -> return 1
+                    condition4.matches(it) && 4 >= minimumIndex -> return 4
                 }
                 is BirProperty -> when {
-                    condition2.matches(it, 0) && 2 >= minimumIndex -> return 2
+                    condition2.matches(it) && 2 >= minimumIndex -> return 2
                 }
                 is BirVariable -> when {
-                    condition3.matches(it, 0) && 3 >= minimumIndex -> return 3
-                    condition5.matches(it, 0) && 5 >= minimumIndex -> return 5
+                    condition3.matches(it) && 3 >= minimumIndex -> return 3
+                    condition5.matches(it) && 5 >= minimumIndex -> return 5
                 }
                 is BirFunction -> when (it) {
                     is BirSimpleFunction -> when {
-                        condition6.matches(it, 0) && 6 >= minimumIndex -> return 6
-                        condition7.matches(it, 0) && 7 >= minimumIndex -> return 7
-                        condition8.matches(it, 0) && 8 >= minimumIndex -> return 8
-                        condition9.matches(it, 0) && 9 >= minimumIndex -> return 9
-                        condition10.matches(it, 0) && 10 >= minimumIndex -> return 10
-                        condition11.matches(it, 0) && 11 >= minimumIndex -> return 11
-                        condition12.matches(it, 0) && 12 >= minimumIndex -> return 12
+                        condition6.matches(it) && 6 >= minimumIndex -> return 6
+                        condition7.matches(it) && 7 >= minimumIndex -> return 7
+                        condition8.matches(it) && 8 >= minimumIndex -> return 8
+                        condition9.matches(it) && 9 >= minimumIndex -> return 9
+                        condition10.matches(it) && 10 >= minimumIndex -> return 10
+                        condition11.matches(it) && 11 >= minimumIndex -> return 11
+                        condition12.matches(it) && 12 >= minimumIndex -> return 12
                     }
                     else -> when {
-                        condition7.matches(it, 0) && 7 >= minimumIndex -> return 7
-                        condition8.matches(it, 0) && 8 >= minimumIndex -> return 8
-                        condition10.matches(it, 0) && 10 >= minimumIndex -> return 10
-                        condition11.matches(it, 0) && 11 >= minimumIndex -> return 11
+                        condition7.matches(it) && 7 >= minimumIndex -> return 7
+                        condition8.matches(it) && 8 >= minimumIndex -> return 8
+                        condition10.matches(it) && 10 >= minimumIndex -> return 10
+                        condition11.matches(it) && 11 >= minimumIndex -> return 11
                     }
                 }
             }

@@ -22,26 +22,22 @@ context(BirBackendContext)
 abstract class BirLoweringPhase {
     abstract operator fun invoke(module: BirModuleFragment)
 
-    protected fun registerElementsWithFeatureCacheKey(
-        includeOtherModules: Boolean,
-        condition: BirElementFeatureCacheCondition,
-    ): BirElementsWithFeatureCacheKey<BirElement> {
-        val key = BirElementsWithFeatureCacheKey<BirElement>(includeOtherModules, condition)
-        registerFeatureCacheSlot(key)
-        return key
-    }
-
     protected inline fun <reified E : BirElement> registerElementsWithFeatureCacheKey(
         includeOtherModules: Boolean,
         crossinline condition: (E) -> Boolean,
-    ): BirElementsWithFeatureCacheKey<E> {
-        val key = BirElementsWithFeatureCacheKey<E>(includeOtherModules) {
-            it is E && condition(it)
-        }
-        registerFeatureCacheSlot(key)
-        return key
-    }
+    ): BirElementsWithFeatureCacheKey<E> =
+        registerElementsWithFeatureCacheKey<E>(includeOtherModules, { element -> condition(element as E) }, E::class.java)
 
     protected inline fun <reified E : BirElement> registerElementsWithFeatureCacheKey(includeOtherModules: Boolean): BirElementsWithFeatureCacheKey<E> =
         registerElementsWithFeatureCacheKey<E>(includeOtherModules) { true }
+
+    protected fun <E : BirElement> registerElementsWithFeatureCacheKey(
+        includeOtherModules: Boolean,
+        condition: BirElementFeatureCacheCondition,
+        elementClass: Class<*>,
+    ): BirElementsWithFeatureCacheKey<E> {
+        val key = BirElementsWithFeatureCacheKey<E>(condition, elementClass, includeOtherModules)
+        registerFeatureCacheSlot(key)
+        return key
+    }
 }
