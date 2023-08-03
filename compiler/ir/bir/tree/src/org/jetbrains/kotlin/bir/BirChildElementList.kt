@@ -346,6 +346,15 @@ class BirChildElementList<E : BirElement>(
         for (el in elements) remove(el)
     }
 
+    infix fun moveAllFrom(other: BirChildElementList<E>) {
+        val iter = other.mutableIterator()
+        while (iter.hasNext()) {
+            val child = iter.next()
+            iter.remove()
+            this += child
+        }
+    }
+
 
     override fun iterator(): Iterator<E> = ReadonlyIterator(this)
 

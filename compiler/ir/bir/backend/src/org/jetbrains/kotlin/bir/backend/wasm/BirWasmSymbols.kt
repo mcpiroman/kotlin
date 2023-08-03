@@ -189,6 +189,18 @@ class BirWasmSymbols(
     val wasmArrayCopy = getInternalFunction("wasm_array_copy")
     val wasmArrayNewData0 = getInternalFunction("array_new_data0")
 
+    val primitiveTypeToCreateTypedArray = mapOf(
+        birBuiltIns.arrayClass to getFunction(kotlinTopLevelPackage, "createAnyArray"),
+        birBuiltIns.booleanArray to getFunction(kotlinTopLevelPackage, "createBooleanArray"),
+        birBuiltIns.byteArray to getFunction(kotlinTopLevelPackage, "createByteArray"),
+        birBuiltIns.shortArray to getFunction(kotlinTopLevelPackage, "createShortArray"),
+        birBuiltIns.charArray to getFunction(kotlinTopLevelPackage, "createCharArray"),
+        birBuiltIns.intArray to getFunction(kotlinTopLevelPackage, "createIntArray"),
+        birBuiltIns.longArray to getFunction(kotlinTopLevelPackage, "createLongArray"),
+        birBuiltIns.floatArray to getFunction(kotlinTopLevelPackage, "createFloatArray"),
+        birBuiltIns.doubleArray to getFunction(kotlinTopLevelPackage, "createDoubleArray"),
+    )
+
     val intToLong = getInternalFunction("wasm_i64_extend_i32_s")
 
     val rangeCheck = getInternalFunction("rangeCheck")
