@@ -21,8 +21,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     final override var parent: BirElementBase? = null
     final override var next: BirElementBase? = null
     private var auxStorage: Array<Any?>? = null
-    private var levelAndContainingListId: Short = 0
-    private var flags: Byte = 0
+    private var level: UByte = 0u
+    private var flagsAndContainingListId: Byte = 0
     private var registeredBackRefs: Byte = 0
     internal var featureCacheSlotIndex: Byte = 0
 
@@ -32,16 +32,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         get() = getFirstChild() as BirElementBase?
 
 
-    private var level: Short
-        get() = levelAndContainingListId and LEVEL_MASK
-        set(value) {
-            levelAndContainingListId = value or (levelAndContainingListId and CONTAINING_LIST_ID_MASK)
-        }
-
     internal var containingListId: Int
-        get() = levelAndContainingListId.toInt() shr (16 - CONTAINING_LIST_ID_BITS)
+        get() = flagsAndContainingListId.toInt() shr (8 - CONTAINING_LIST_ID_BITS)
         set(value) {
-            levelAndContainingListId = (levelAndContainingListId and LEVEL_MASK) or (value shl (16 - CONTAINING_LIST_ID_BITS)).toShort()
+            flagsAndContainingListId = (flagsAndContainingListId and FLAGS_MASK) or (value shl (8 - CONTAINING_LIST_ID_BITS)).toByte()
         }
 
     internal fun getContainingList(): BirChildElementList<*>? {
@@ -58,10 +52,10 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         set(value) = setFlag(FLAG_HAS_CHILDREN, value)
 
     private fun hasFlag(flag: Byte): Boolean =
-        (flags and flag).toInt() != 0
+        (flagsAndContainingListId and flag).toInt() != 0
 
     private fun setFlag(flag: Byte, value: Boolean) {
-        flags = if (value) flags or flag else flags and flag.inv()
+        flagsAndContainingListId = if (value) flagsAndContainingListId or flag else flagsAndContainingListId and flag.inv()
     }
 
     fun isAncestorOf(other: BirElementBase): Boolean {
@@ -69,8 +63,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             return false
         }
 
-        val distance = other.level - level
-        if (distance < 0 || (distance == 0 && level != Short.MAX_VALUE)) {
+        val distance = other.level.toInt() - level.toInt()
+        if (distance < 0 || (distance == 0 && level != UByte.MAX_VALUE)) {
             return false
         }
 
@@ -86,8 +80,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
     internal fun updateLevel(parent: BirElementBase?) {
         level = if (parent != null) {
             val parentLevel = parent.level
-            if (parentLevel == Short.MAX_VALUE) Short.MAX_VALUE else (parentLevel + 1).toShort()
-        } else 0
+            if (parentLevel == UByte.MAX_VALUE) UByte.MAX_VALUE else (parentLevel + 1u).toUByte()
+        } else 0u
     }
 
     internal open fun getFirstChild(): BirElement? = null
@@ -391,8 +385,8 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
         private const val FLAG_HAS_CHILDREN: Byte = (1 shl 0).toByte()
 
         private const val CONTAINING_LIST_ID_BITS = 3
-        private const val LEVEL_MASK: Short = (-1 ushr (16 + CONTAINING_LIST_ID_BITS)).toShort()
-        private const val CONTAINING_LIST_ID_MASK: Short = (-1 shl (16 - CONTAINING_LIST_ID_BITS)).toShort()
+        private const val FLAGS_MASK: Byte = (-1 ushr (8 - CONTAINING_LIST_ID_BITS)).toByte()
+        private const val CONTAINING_LIST_ID_MASK: Byte = (-1 shl (8 - CONTAINING_LIST_ID_BITS)).toByte()
     }
 }
 
