@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.bir
 
 import org.jetbrains.kotlin.bir.declarations.BirClass
+import org.jetbrains.kotlin.bir.declarations.BirProperty
 import org.jetbrains.kotlin.bir.declarations.BirSimpleFunction
 import org.jetbrains.kotlin.bir.types.BirType
 import org.jetbrains.kotlin.bir.utils.Ir2BirConverter
@@ -17,6 +18,7 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import java.util.concurrent.ConcurrentHashMap
 
@@ -156,6 +158,10 @@ class BirBuiltIns(
 
     val arrayOf: BirSimpleFunction = remapSymbolOwner(irBuiltIns.arrayOf)
     val arrayOfNulls: BirSimpleFunction = remapSymbolOwner(irBuiltIns.arrayOfNulls)
+
+    val lateinitIsInitialized: BirSimpleFunction = remapSymbolOwner<_, BirProperty>(
+        irBuiltIns.findProperties(Name.identifier("isInitialized"), FqName("kotlin")).single()
+    ).getter as BirSimpleFunction
 
     val linkageErrorSymbol: BirSimpleFunction = remapSymbolOwner(irBuiltIns.linkageErrorSymbol)
 

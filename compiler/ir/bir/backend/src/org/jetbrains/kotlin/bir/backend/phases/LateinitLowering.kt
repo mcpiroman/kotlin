@@ -16,15 +16,12 @@ import org.jetbrains.kotlin.bir.declarations.*
 import org.jetbrains.kotlin.bir.expressions.*
 import org.jetbrains.kotlin.bir.expressions.impl.*
 import org.jetbrains.kotlin.bir.replaceWith
-import org.jetbrains.kotlin.bir.symbols.BirFunctionSymbol
 import org.jetbrains.kotlin.bir.symbols.asElement
-import org.jetbrains.kotlin.bir.types.utils.classOrNull
 import org.jetbrains.kotlin.bir.types.utils.isPrimitiveType
 import org.jetbrains.kotlin.bir.types.utils.makeNullable
-import org.jetbrains.kotlin.bir.utils.*
-import org.jetbrains.kotlin.builtins.StandardNames
+import org.jetbrains.kotlin.bir.utils.render
+import org.jetbrains.kotlin.bir.utils.resolveFakeOverride
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 context(WasmBirContext)
 class LateinitLowering : BirLoweringPhase() {
@@ -66,14 +63,12 @@ class LateinitLowering : BirLoweringPhase() {
     }
 
     private val lateinitInitializerKey = registerElementsWithFeatureCacheKey<BirCall>(false) {
-        it.target is BirSimpleFunction
+        it.target == birBuiltIns.lateinitIsInitialized
     }
 
     private fun transformIsLateinitInitialized() {
         getElementsWithFeature(lateinitInitializerKey).forEach { call ->
-            if (isLateinitIsInitializedPropertyGetter(call.target)) {
-                transformCallToLateinitIsInitializedPropertyGetter(call)
-            }
+            transformCallToLateinitIsInitializedPropertyGetter(call)
         }
     }
 
@@ -165,17 +160,6 @@ class LateinitLowering : BirLoweringPhase() {
             valueArguments += BirConst.string(name)
         }
     }
-
-    private fun isLateinitIsInitializedPropertyGetter(symbol: BirFunctionSymbol): Boolean =
-        symbol is BirSimpleFunction && symbol.let { function ->
-            function.name.asString() == "<get-isInitialized>" &&
-                    function.isTopLevel &&
-                    function.ancestors().firstIsInstance<BirPackageFragment>().fqName.asString() == "kotlin" &&
-                    function.valueParameters.isEmpty() &&
-                    symbol.extensionReceiverParameter?.type?.classOrNull?.asElement.let { receiverClass ->
-                        receiverClass?.fqNameWhenAvailable?.toUnsafe() == StandardNames.FqNames.kProperty0
-                    }
-        }
 
     private fun transformCallToLateinitIsInitializedPropertyGetter(call: BirCall) {
         val new = call.extensionReceiver!!.replaceTailExpression {
