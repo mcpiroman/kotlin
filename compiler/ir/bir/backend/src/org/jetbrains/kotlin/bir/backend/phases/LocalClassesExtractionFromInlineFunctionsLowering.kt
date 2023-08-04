@@ -48,8 +48,7 @@ class LocalClassesExtractionFromInlineFunctionsLowering : BirLoweringPhase() {
         }
 
         if (classesToExtract.isNotEmpty()) {
-            // fixme: this is almost certainly wrong - it should only popup those in classesToExtract
-            popupLocalClasses(function)
+            popupLocalClasses(function) { it in classesToExtract }
         }
     }
 }

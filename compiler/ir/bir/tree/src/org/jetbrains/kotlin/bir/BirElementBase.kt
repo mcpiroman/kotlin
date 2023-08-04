@@ -368,11 +368,12 @@ abstract class BirElementBase : BirElement, BirElementBaseOrList() {
             }
 
             val size = token.manager.getInitialAuxStorageArraySize(javaClass)
-            auxStorage = if (size == 0) null else arrayOfNulls(size)
+            require(size != 0) { "This element is not supposed to store any aux data" }
+            auxStorage = arrayOfNulls(size)
             this.auxStorage = auxStorage
         }
 
-        auxStorage!![token.key.index] = value
+        auxStorage[token.key.index] = value
     }
 
     // to be replaced by fine-grained control of which data to copy

@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
 import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.impl.*
+import org.jetbrains.kotlin.utils.memoryOptimizedMap
 import java.util.*
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -131,8 +132,8 @@ abstract class Ir2BirConverterBase {
         return if (old.isBound) {
             remapElement(old.owner) as BirS
         } else {
-            val signature = IrErrorClassImpl.symbol.signature
-            when (IrErrorClassImpl.symbol) {
+            val signature = old.signature
+            when (old) {
                 is IrFileSymbol -> ExternalBirSymbol.FileSymbol(signature)
                 is IrExternalPackageFragmentSymbol -> ExternalBirSymbol.ExternalPackageFragmentSymbol(signature)
                 is IrAnonymousInitializerSymbol -> ExternalBirSymbol.AnonymousInitializerSymbol(signature)
@@ -149,7 +150,7 @@ abstract class Ir2BirConverterBase {
                 is IrPropertySymbol -> ExternalBirSymbol.PropertySymbol(signature)
                 is IrLocalDelegatedPropertySymbol -> ExternalBirSymbol.LocalDelegatedPropertySymbol(signature)
                 is IrTypeAliasSymbol -> ExternalBirSymbol.TypeAliasSymbol(signature)
-                else -> error(IrErrorClassImpl.symbol)
+                else -> error(old)
             } as BirS
         }
     }
@@ -176,7 +177,8 @@ abstract class Ir2BirConverterBase {
         }
 
         if (from is IrClass) {
-            (this as BirClass)[GlobalBirElementAuxStorageTokens.SealedSubclasses] = from.sealedSubclasses.map { remapSymbol(it) }
+            (this as BirClass)[GlobalBirElementAuxStorageTokens.SealedSubclasses] =
+                from.sealedSubclasses.memoryOptimizedMap { remapSymbol(it) }
         }
     }
 
@@ -261,7 +263,21 @@ abstract class Ir2BirConverterBase {
             this.hashCode()
 
         private fun IrSimpleType.computeHashCode(): Int {
-            var h = if (classifier.isBound) classifier.owner.hashCode()
+            var mainHash = if (classifier.isBound) classifier.owner.hashCode()
+            else classifier.signature.hashCode()
+
+            var secondaryHash = nullability.hashCode()
+            secondaryHash = secondaryHash * 31 + annotations.size
+            secondaryHash = secondaryHash * 31 + if (abbreviation == null) 0 else 1
+            arguments.forEach {
+                secondaryHash = secondaryHash * 31 + it.computeHashCode()
+            }
+
+            mainHash = if (mainHash == 0) secondaryHash
+            else secondaryHash * 31 + mainHash
+            return mainHash
+
+            /*var h = if (classifier.isBound) classifier.owner.hashCode()
             else classifier.signature.hashCode()
             h = h * 31 + nullability.hashCode()
             arguments.forEach {
@@ -269,7 +285,7 @@ abstract class Ir2BirConverterBase {
             }
             h = h * 31 + annotations.size
             h = h * 31 + if (abbreviation == null) 0 else 1
-            return h
+            return h*/
         }
 
         private fun IrTypeArgument.computeHashCode(): Int = when (this) {

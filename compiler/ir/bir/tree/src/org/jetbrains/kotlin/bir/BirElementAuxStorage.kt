@@ -6,7 +6,7 @@
 package org.jetbrains.kotlin.bir
 
 class BirElementAuxStorageManager {
-    private val elementClasses = hashMapOf<Class<*>, ElementClassData>()
+    private val elementClasses = ElementClassDataMap()
     private var totalTokenRegistrations = 0
 
     fun <E : BirElement, T> registerToken(key: BirElementAuxStorageKey<E, T>): BirElementAuxStorageToken<E, T> {
@@ -14,8 +14,9 @@ class BirElementAuxStorageManager {
 
         refreshKeysFromAncestors(classData)
         classData.keys += key
+        classData.keyCount++
         if (key.index == -1) {
-            key.index = classData.keys.size - 1
+            key.index = classData.keyCount - 1
         }
         totalTokenRegistrations++
 
@@ -23,8 +24,9 @@ class BirElementAuxStorageManager {
     }
 
     private fun getElementClassData(elementClass: Class<*>): ElementClassData {
-        elementClasses[elementClass]?.let {
-            return it
+        val data = elementClasses[elementClass]
+        if (data.ancestorElements != null) {
+            return data
         }
 
         val ancestorElements = mutableSetOf<ElementClassData>()
@@ -48,15 +50,15 @@ class BirElementAuxStorageManager {
         }
         visitParents(elementClass)
 
-        val data = ElementClassData(elementClass, ancestorElements.toList())
-        elementClasses[elementClass] = data
+        data.ancestorElements = ancestorElements.toList()
         return data
     }
 
     private fun refreshKeysFromAncestors(element: ElementClassData) {
         if (element.lastSeenTotalTokenRegistrations < totalTokenRegistrations) {
-            for (ancestor in element.ancestorElements) {
+            for (ancestor in element.ancestorElements!!) {
                 element.keys += ancestor.keys
+                element.keyCount += ancestor.keyCount
             }
             element.lastSeenTotalTokenRegistrations = totalTokenRegistrations
         }
@@ -65,17 +67,24 @@ class BirElementAuxStorageManager {
     internal fun getInitialAuxStorageArraySize(elementClass: Class<*>): Int {
         val data = getElementClassData(elementClass)
         refreshKeysFromAncestors(data)
-        return data.keys.size
+        return data.keyCount
     }
 
     private class ElementClassData(
         val elementClass: Class<*>,
-        val ancestorElements: List<ElementClassData>
     ) {
+        var ancestorElements: List<ElementClassData>? = null
         val keys = mutableSetOf<BirElementAuxStorageKey<*, *>>()
+        var keyCount = 0
         var lastSeenTotalTokenRegistrations = 0
 
         override fun toString() = elementClass.simpleName
+    }
+
+    private class ElementClassDataMap : ClassValue<ElementClassData>() {
+        override fun computeValue(type: Class<*>): ElementClassData {
+            return ElementClassData(type)
+        }
     }
 }
 
